@@ -1,0 +1,57 @@
+/* modern-normalize リセットCSS */
+@import 'modern-normalize/modern-normalize.css';
+
+/* CSS変数定義 */
+:root {
+  /* メインカラー */
+  --color-primary: #f97316; /* メインカラー：オレンジ（メニュー枠・フォーカス用） */
+  --color-blue: #3b82f6; /* 補助色：青系 */
+
+  /* 性別色分け */
+  --color-male: #56b4f5; /* 男性：青系 */
+  --color-female: #f1878c; /* 女性：ピンク系 */
+  --color-unknown: #9ca3af; /* 性別不明：グレー */
+
+  /* 家系図ノードサイズ（ドキュメント仕様準拠） */
+  --node-width: 120px;
+  --node-height: 80px;
+  --node-gap-horizontal: 160px;
+  --node-gap-vertical: 120px;
+
+  /* レスポンシブブレイクポイント */
+  --breakpoint-desktop: 768px;
+
+  /* 基本カラー */
+  --color-background: #ffffff;
+  --color-surface: #f9fafb;
+  --color-border: #e5e7eb;
+  --color-text: #1f2937;
+  --color-text-secondary: #6b7280;
+}
+
+/* 基本スタイル */
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  color: var(--color-text);
+  background-color: var(--color-background);
+}
+
+/* レスポンシブユーティリティクラス */
+.mobile-only {
+  display: block;
+}
+
+.desktop-up {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none;
+  }
+
+  .desktop-up {
+    display: block;
+  }
+}

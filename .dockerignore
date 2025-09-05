@@ -1,0 +1,24 @@
+# 依存関係
+**/node_modules
+
+# フレームワーク固有のビルドファイル
+**/.nuxt
+**/dist
+**/build
+**/.output
+
+# 開発・テスト関連
+**/coverage
+
+# Git関連
+.git
+.gitignore
+
+# ドキュメント
+README.md
+docs/
+
+# IDEとエディタ
+.vscode/
+.claude/
+CLAUDE.md
