@@ -14,9 +14,5 @@
       "@/*": ["./*"]
     }
   },
-  "include": [
-    "./**/*.ts",
-    "./**/*.vue",
-    ".nuxt/types/**/*.d.ts"
-  ]
+  "include": ["./**/*.ts", "./**/*.vue", ".nuxt/types/**/*.d.ts"]
 }

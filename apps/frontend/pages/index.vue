@@ -11,12 +11,6 @@
     <main class="family-tree-area">
       <div class="tree-container">
         <!-- Phase 1-A: SVG家系図プロトタイプ -->
-        <FamilyTreeCanvas
-          :people="sampleData.people"
-          :relationships="sampleData.relationships"
-          @person-click="onPersonClick"
-          @canvas-click="onCanvasClick"
-        />
       </div>
     </main>
   </div>
@@ -25,23 +19,7 @@
   <button class="floating-add-btn" title="人物を追加">+</button>
 </template>
 
-<script setup lang="ts">
-import type { Person } from '@/types/components'
-
-// Phase 1-A: SVG家系図プロトタイプ表示
-const { fullSample: sampleData } = useSampleData()
-
-// イベントハンドラー
-const onPersonClick = (person: Person) => {
-  console.log('Person clicked:', person)
-  // Phase 1-B でモーダル表示予定
-}
-
-const onCanvasClick = (event: MouseEvent) => {
-  console.log('Canvas clicked:', event)
-  // Phase 1-B で選択解除処理予定
-}
-</script>
+<script setup lang="ts"></script>
 
 <style scoped>
 /* ヘッダー */
@@ -63,17 +41,18 @@ const onCanvasClick = (event: MouseEvent) => {
 }
 
 .settings-btn {
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 1rem;
   background-color: var(--color-background);
-  color: white;
+  color: var(--color-primary);
   border: 1px solid var(--color-primary);
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.9rem;
 }
 
 .settings-btn:hover {
-  opacity: 0.9;
+  background-color: var(--color-primary);
+  color: var(--color-background);
 }
 
 /* メインコンテンツエリア */
@@ -86,7 +65,7 @@ const onCanvasClick = (event: MouseEvent) => {
 /* 家系図表示エリア */
 .family-tree-area {
   flex: 1;
-  background-color: var(--color-background);
+  background-color: #f1f5f9;
   padding: 1rem;
   overflow: auto;
 }
