@@ -43,4 +43,4 @@ main() {
   tail -f /dev/null
 }
 
-main "$@"
+main
