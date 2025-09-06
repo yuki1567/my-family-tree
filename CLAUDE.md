@@ -64,6 +64,7 @@ All implementation work must follow these procedures:
 **When modifying any code, documentation update is MANDATORY and SIMULTANEOUS**:
 
 1. **TodoWrite Tool Usage**: Always create todo items as a SET:
+
    ```
    - Implement [technical change]
    - Update related documentation
@@ -73,10 +74,10 @@ All implementation work must follow these procedures:
 
 3. **Document Update Targets**:
    - Technical specifications changed → Update relevant technical design documents
-   - Implementation decisions made → Record reasoning in design documents  
+   - Implementation decisions made → Record reasoning in design documents
    - Progress achieved → Update development phase section in `02_requirements.md`
 
-4. **Process Flow**: 
+4. **Process Flow**:
    ```
    Code Change → Identify Related Docs → Update Docs → Mark as Complete
    ```
@@ -140,41 +141,15 @@ This translation step is crucial for accurate project execution since you think 
 15. **[Monitoring & Log Management](./docs/04_infrastructure/03_monitoring.md)** - Performance monitoring, alert settings
 16. **[Security Measures](./docs/04_infrastructure/04_security.md)** - Security requirements, implementation guidelines
 
-## Development Priorities
-
-### Phase 1: MVP (Highest Priority)
-
-1. **Environment Setup**: Reference [Docker Environment Setup](./docs/04_infrastructure/01_docker_setup.md)
-2. **Data Model**: Reference [Database Design](./docs/02_technical/02_database_design.md)
-3. **Basic CRUD**: Reference [API Design Document](./docs/02_technical/03_api_design.md)
-4. **LocalStorage**: Data persistence
-5. **SVG Family Tree**: Reference [Frontend Design](./docs/02_technical/04_frontend_design.md)
-6. **Responsive UI**: Modal-based screen design
-
-### Phase 2: Feature Extension
-
-1. **Search Function**: Basic & detailed search
-2. **Relationship Management**: Parent-child relationship setting UI
-3. **AWS S3 Integration**: Image upload
-4. **JWT Authentication**: User management
-5. **Data Export**: JSON format
-
-### Phase 3: Optimization
-
-1. **Performance**: SVG rendering optimization
-2. **UX Improvements**: Animation & operability enhancement
-3. **Security**: Security strengthening
-
 ## 🔧 Development Start Procedures
 
 ### 1. Environment Setup
 
 See [Docker Environment Setup](./docs/04_infrastructure/01_docker_setup.md) for details
 
-### 2. Prototype Development
-
 # important-instruction-reminders
+
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
-NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.

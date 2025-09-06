@@ -4,18 +4,14 @@ export default defineNuxtConfig({
   // 開発設定
   devtools: { enabled: true },
 
-  // SPAモード（Phase 1では認証なし）
+  // SPAモード
   ssr: false,
 
   // CSS設定（素のCSS使用、フレームワーク禁止）
-  css: [
-    '~/assets/css/main.css'
-  ],
+  css: ['~/assets/css/main.css'],
 
-  // Pinia状態管理（Phase 1-B準備）
-  modules: [
-    '@pinia/nuxt'
-  ],
+  // Pinia状態管理
+  modules: ['@pinia/nuxt'],
 
-  compatibilityDate: '2025-08-15'
+  compatibilityDate: '2025-08-15',
 })

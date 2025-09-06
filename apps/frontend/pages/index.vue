@@ -9,9 +9,7 @@
   <div class="content-area">
     <!-- 家系図表示エリア -->
     <main class="family-tree-area">
-      <div class="tree-container">
-        <!-- Phase 1-A: SVG家系図プロトタイプ -->
-      </div>
+      <div class="tree-container"></div>
     </main>
   </div>
 
