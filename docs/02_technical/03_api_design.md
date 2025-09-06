@@ -107,10 +107,65 @@ Production: https://your-domain.com/api
 
 ## API設計
 
-**ヘッダー**
+### 人物管理API
 
+#### POST /api/people - 人物追加
+
+**概要**: 新しい人物情報を登録する
+
+**リクエスト**
+
+```json
+{
+  "name": "田中太郎",
+  "gender": 1,
+  "birthDate": "1990-05-15",
+  "deathDate": null,
+  "birthPlace": "東京都"
+}
 ```
-Authorization: <current-token>
+
+**フィールド詳細**
+| フィールド | 型 | 必須 | 説明 | バリデーション |
+|-----------|----|----|------|---------------|
+| name | string | ❌ | 氏名 | 100文字以内 |
+| gender | number | ❌ | 性別 | 0:不明, 1:男性, 2:女性 |
+| birthDate | string | ❌ | 生年月日 | YYYY-MM-DD形式 |
+| deathDate | string | ❌ | 没年月日 | YYYY-MM-DD形式 |
+| birthPlace | string | ❌ | 出生地 | 200文字以内 |
+
+**成功レスポンス (201)**
+
+```json
+{
+  "isSuccess": true,
+  "data": {
+    "id": "uuid-string",
+    "name": "田中太郎",
+    "gender": 1,
+    "birthDate": "1990-05-15",
+    "deathDate": null,
+    "birthPlace": "東京都"
+  }
+}
+```
+
+**エラーレスポンス例**
+
+```json
+{
+  "isSuccess": false,
+  "error": {
+    "statusCode": 400,
+    "errorCode": "VALIDATION_ERROR",
+    "details": [
+      {
+        "field": "birthDate",
+        "message": "生年月日はYYYY-MM-DD形式で入力してください。"
+      }
+    ]
+  }
+}
 ```
 
 ## 8. エラーハンドリング

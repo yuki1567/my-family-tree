@@ -407,8 +407,6 @@ npx prisma migrate dev --name Add_NicknameToUsers
 | birth_date | DATE | YES | NULL | 生年月日 | 不明日付の許容 |
 | death_date | DATE | YES | NULL | 没年月日 | 生存者への配慮 |
 | birth_place | VARCHAR(200) | YES | NULL | 出生地 | 地名変更への対応 |
-| photo | VARCHAR(500) | YES | NULL | 写真 URL | 外部ストレージ対応 |
-| memo | TEXT | YES | NULL | メモ | 自由形式データ格納 |
 | created_at | DATETIME(3) | NO | NOW() | 作成日時 | 監査ログ |
 | updated_at | DATETIME(3) | NO | NOW() | 更新日時 | 変更追跡 |
 
