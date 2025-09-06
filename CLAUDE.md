@@ -101,10 +101,12 @@ This translation step is crucial for accurate project execution since you think 
 **Documentation update rules during implementation**:
 
 1. **Technical configuration details**: Record in relevant technology design documents
-   - Frontend settings → `04_frontend_design.md`
-   - Backend settings → `03_api_design.md`
-   - Database settings → `02_database_design.md`
-   - Infrastructure settings → `01_docker_setup.md`
+   - Frontend technical implementation → `04_frontend_design.md`
+   - Backend API specifications → `03_api_design.md`
+   - Database schema and structure → `02_database_design.md`
+   - Infrastructure and Docker setup → `04_infrastructure/01_docker_setup.md`
+   - Visual design specifications → `05_design_system.md`
+   - TypeScript configuration → `06_typescript_config.md`
 
 2. **Implementation progress**: Record in development phase section of `02_requirements.md`
 
@@ -117,31 +119,26 @@ This translation step is crucial for accurate project execution since you think 
 
 ### Technical Design (02_technical/)
 
-4. **[System Architecture](./docs/02_technical/01_architecture.md)** - Technology stack, overall design
-5. **[Database Design](./docs/02_technical/02_database_design.md)** - Prisma schema, ER diagram, data structure
-6. **[API Design Document](./docs/02_technical/03_api_design.md)** - RESTful API specifications, endpoint definitions
-7. **[Frontend Design](./docs/02_technical/04_frontend_design.md)** - Component design, SVG rendering specifications
-8. **[Design System](./docs/02_technical/05_design_system.md)** - Color palette, typography, component specifications
+3. **[System Architecture](./docs/02_technical/01_architecture.md)** - Layered architecture, overall system design
+4. **[Database Design](./docs/02_technical/02_database_design.md)** - Schema structure, data model, migration strategy
+5. **[API Design Document](./docs/02_technical/03_api_design.md)** - RESTful API specifications, endpoint definitions
+6. **[Frontend Design](./docs/02_technical/04_frontend_design.md)** - Component architecture, technical implementation
+7. **[Design System](./docs/02_technical/05_design_system.md)** - Visual specifications, color palette, layout rules
+8. **[TypeScript Configuration](./docs/02_technical/06_typescript_config.md)** - TypeScript setup, monorepo configuration
 
 ### 👥 Development Guide (03_development/)
 
-8. **[Development Environment Setup](./docs/03_development/01_getting_started.md)** - Environment setup, initial configuration
-9. **[Coding Standards](./docs/03_development/02_coding_standards.md)** - TypeScript, Vue.js, CSS conventions
-10. **[Testing Guide](./docs/03_development/03_testing_guide.md)** - Test strategy, implementation methods
-11. **[Git Workflow Rules](./docs/03_development/04_git_workflow.md)** - Branch strategy, commit conventions
+9. **[Development Environment Setup](./docs/03_development/01_getting_started.md)** - Environment setup, initial configuration
+10. **[Coding Standards](./docs/03_development/02_coding_standards.md)** - TypeScript, Vue.js, CSS conventions, performance optimization
+11. **[Testing Guide](./docs/03_development/03_testing_guide.md)** - Test strategy, implementation methods
+12. **[Git Workflow Rules](./docs/03_development/04_git_workflow.md)** - Branch strategy, commit conventions
 
 ### Infrastructure & Operations (04_infrastructure/)
 
-12. **[Docker Environment Setup](./docs/04_infrastructure/01_docker_setup.md)** - Docker configuration, setup procedures
-13. **[Deployment Guide](./docs/04_infrastructure/02_deployment_guide.md)** - Production environment setup, CI/CD
-14. **[Monitoring & Log Management](./docs/04_infrastructure/03_monitoring.md)** - Performance monitoring, alert settings
-15. **[Security Measures](./docs/04_infrastructure/04_security.md)** - Security requirements, implementation guidelines
-16. **Environment Setup**: Reference [Docker Environment Setup](./docs/04_infrastructure/01_docker-setup.md)
-17. **Data Model**: Reference [Database Design](./docs/02_technical/02_database-design.md)
-18. **Basic CRUD**: Reference [API Design Document](./docs/02_technical/03_api-design.md)
-19. **LocalStorage**: Data persistence
-20. **SVG Family Tree**: Reference [Frontend Design](./docs/02_technical/04_frontend-design.md)
-21. **Responsive UI**: Modal-based screen design
+13. **[Docker Environment Setup](./docs/04_infrastructure/01_docker_setup.md)** - Docker configuration, setup procedures
+14. **[Deployment Guide](./docs/04_infrastructure/02_deployment_guide.md)** - Production environment setup, CI/CD
+15. **[Monitoring & Log Management](./docs/04_infrastructure/03_monitoring.md)** - Performance monitoring, alert settings
+16. **[Security Measures](./docs/04_infrastructure/04_security.md)** - Security requirements, implementation guidelines
 
 ## Development Priorities
 

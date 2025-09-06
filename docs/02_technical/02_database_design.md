@@ -9,7 +9,7 @@
 - **照合順序**: utf8mb4_unicode_ci
 - **タイムゾーン**: Asia/Tokyo（JST）
 - **ORM**: Prisma
-- **配置場所**: `apps/backend/src/prisma/`
+- **配置場所**: `apps/backend/database/`
 
 ### 1.2 設計原則
 
@@ -27,7 +27,7 @@
 #### Prisma スキーマとの関係
 
 ```typescript
-// apps/backend/src/prisma/schema.prisma
+// apps/backend/database/schema.prisma
 // このデータベース設計書を基に作成されるPrismaスキーマ
 model Person {
   id        String   @id @default(uuid())
@@ -35,8 +35,9 @@ model Person {
   // ...その他フィールド
 }
 
-// Prismaから自動生成される型定義が共有される
-// shared/types/ ではなく、Prisma生成型をそのまま使用
+// データベース型から共有型への変換
+// Prisma生成型 → shared/types/ での型定義活用
+// Repository層で型変換を実施し、上位層では共有型を使用
 ```
 
 #### 保守性の担保
@@ -232,7 +233,7 @@ modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 is_active TINYINT(1) DEFAULT 1  -- 0:無効, 1:有効
 
 -- ステータスの場合（複数状態）
-status TINYINT DEFAULT 0
+status TINYINT
 -- 0:下書き, 1:公開, 2:削除済み, 3:非公開
 ```
 
@@ -269,7 +270,7 @@ CREATE TABLE new_table (
   id VARCHAR(36) PRIMARY KEY COMMENT 'ID（UUID）',
   -- ビジネスカラム
   name VARCHAR(100) NOT NULL COMMENT '名前',
-  status TINYINT DEFAULT 1 COMMENT 'ステータス（0:無効, 1:有効）',
+  status TINYINT COMMENT 'ステータス（0:無効, 1:有効）',
   -- 必須の管理カラム
   created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '作成日時',
   updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新日時'
@@ -300,181 +301,24 @@ CREATE INDEX idx_people_status_birth_date ON people(status, birth_date);
 CREATE INDEX idx_relationships_parent_type ON relationships(parent_id, type);
 ```
 
-## 3. テーブル設計
+## 3. データマイグレーション戦略
 
-### 3.1 people（人物）テーブル
-
-#### 設計方針
-
-- **全フィールド任意**: 無名人物・情報不足への対応
-- **柔軟なデータ格納**: 段階的な情報蓄積を想定
-
-```sql
-CREATE TABLE people (
-  id VARCHAR(36) PRIMARY KEY COMMENT '人物ID（UUID）',
-  name VARCHAR(100) NULL COMMENT '氏名（任意）',
-  gender TINYINT NULL COMMENT '性別（0:不明, 1:男性, 2:女性）',
-  birth_date DATE NULL COMMENT '生年月日',
-  death_date DATE NULL COMMENT '没年月日',
-  birth_place VARCHAR(200) NULL COMMENT '出生地',
-  photo VARCHAR(500) NULL COMMENT '写真URL',
-  memo TEXT NULL COMMENT 'メモ・エピソード',
-  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '作成日時',
-  updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新日時',
-
-  -- インデックス（検索性能向上）
-  INDEX idx_people_name (name),
-  INDEX idx_people_birth_date (birth_date),
-  INDEX idx_people_birth_place (birth_place),
-  INDEX idx_people_gender (gender),
-  INDEX idx_people_created_at (created_at),
-
-  -- 制約
-  CONSTRAINT chk_people_death_after_birth
-    CHECK (death_date IS NULL OR birth_date IS NULL OR death_date >= birth_date),
-  CONSTRAINT chk_people_gender
-    CHECK (gender IS NULL OR gender IN (0, 1, 2))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='人物情報';
-```
-
-**フィールド詳細**
-| フィールド | 型 | NULL | デフォルト | 説明 | 保守性への配慮 |
-|-----------|----|----|----------|------|---------------|
-| id | VARCHAR(36) | NO | UUID | 主キー | グローバル一意性 |
-| name | VARCHAR(100) | YES | NULL | 氏名 | 無名人物対応 |
-| gender | TINYINT | YES | NULL | 性別（0:不明, 1:男性, 2:女性） | 将来的な拡張可能性 |
-| birth_date | DATE | YES | NULL | 生年月日 | 不明日付の許容 |
-| death_date | DATE | YES | NULL | 没年月日 | 生存者への配慮 |
-| birth_place | VARCHAR(200) | YES | NULL | 出生地 | 地名変更への対応 |
-| photo | VARCHAR(500) | YES | NULL | 写真 URL | 外部ストレージ対応 |
-| memo | TEXT | YES | NULL | メモ | 自由形式データ格納 |
-| created_at | DATETIME(3) | NO | NOW() | 作成日時 | 監査ログ |
-| updated_at | DATETIME(3) | NO | NOW() | 更新日時 | 変更追跡 |
-
-### 3.2 relationships（関係）テーブル
-
-#### 設計方針
-
-- **親子関係の明確化**: 一方向の関係性定義
-- **関係タイプの拡張性**: 生物学的・法的関係の区別
-
-```sql
-CREATE TABLE relationships (
-  id VARCHAR(36) PRIMARY KEY COMMENT '関係ID（UUID）',
-  parent_id VARCHAR(36) NOT NULL COMMENT '親のID',
-  child_id VARCHAR(36) NOT NULL COMMENT '子のID',
-  type TINYINT NOT NULL DEFAULT 1 COMMENT '関係タイプ（1:生物学的, 2:養子縁組）',
-  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '作成日時',
-  updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新日時',
-
-  -- 外部キー制約（カスケード削除）
-  CONSTRAINT fk_relationships_people_parent
-    FOREIGN KEY (parent_id) REFERENCES people(id) ON DELETE CASCADE,
-  CONSTRAINT fk_relationships_people_child
-    FOREIGN KEY (child_id) REFERENCES people(id) ON DELETE CASCADE,
-
-  -- インデックス
-  INDEX idx_relationships_parent_id (parent_id),
-  INDEX idx_relationships_child_id (child_id),
-  INDEX idx_relationships_type (type),
-  INDEX idx_relationships_parent_child (parent_id, child_id),
-
-  -- 制約
-  CONSTRAINT uk_relationships_parent_child UNIQUE (parent_id, child_id),
-  CONSTRAINT chk_relationships_no_self_reference CHECK (parent_id != child_id),
-  CONSTRAINT chk_relationships_type CHECK (type IN (1, 2))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='親子関係';
-```
-
-**フィールド詳細**
-| フィールド | 型 | NULL | デフォルト | 説明 | 保守性への配慮 |
-|-----------|----|----|----------|------|---------------|
-| id | VARCHAR(36) | NO | UUID | 主キー | グローバル一意性 |
-| parent_id | VARCHAR(36) | NO | - | 親の ID | 外部キー制約 |
-| child_id | VARCHAR(36) | NO | - | 子の ID | 外部キー制約 |
-| type | TINYINT | NO | 1 | 関係タイプ（1:生物学的, 2:養子縁組） | 将来的な種別追加 |
-| created_at | DATETIME(3) | NO | NOW() | 作成日時 | 監査ログ |
-| updated_at | DATETIME(3) | NO | NOW() | 更新日時 | 変更追跡 |
-
-### 3.3 users（ユーザー）テーブル（Phase 2）
-
-#### 設計方針
-
-- **認証情報の分離**: 人物データとの疎結合
-- **拡張性**: 将来的な認証方式変更への対応
-
-```sql
-CREATE TABLE users (
-  id VARCHAR(36) PRIMARY KEY COMMENT 'ユーザーID（UUID）',
-  email VARCHAR(255) NOT NULL COMMENT 'メールアドレス',
-  password_hash VARCHAR(255) NOT NULL COMMENT 'パスワードハッシュ',
-  name VARCHAR(100) NOT NULL COMMENT 'ユーザー名',
-  email_verified TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'メール認証状態（0:未認証, 1:認証済み）',
-  is_active TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'アクティブ状態（0:無効, 1:有効）',
-  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '作成日時',
-  updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新日時',
-  last_logged_in_at DATETIME(3) NULL COMMENT '最終ログイン日時',
-
-  -- インデックス
-  INDEX idx_users_email (email),
-  INDEX idx_users_created_at (created_at),
-  INDEX idx_users_is_active (is_active),
-
-  -- 制約
-  CONSTRAINT uk_users_email UNIQUE (email),
-  CONSTRAINT chk_users_email_verified CHECK (email_verified IN (0, 1)),
-  CONSTRAINT chk_users_is_active CHECK (is_active IN (0, 1))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='ユーザー認証情報';
-```
-
-## 4. 関係性設計
-
-### 4.1 テーブル間関係
-
-#### people ↔ relationships
-
-- **1 対多関係**: 1 人の人物は複数の親子関係を持つ
-- **自己参照**: 同一テーブル内での関係性表現
-- **カスケード削除**: 人物削除時の関連関係自動削除
-
-#### users ↔ people（Phase 2）
-
-- **1 対多関係**: 1 ユーザーが複数の人物データを管理
-- **任意関係**: 人物データのユーザー紐付けは任意
-
-### 4.2 参照整合性
-
-#### 制約レベル
-
-- **DB 制約**: 基本的な整合性（外部キー、一意制約）
-- **アプリ制約**: 複雑なビジネスルール（循環参照チェック）
-
-#### 保守性の考慮
-
-```typescript
-// 循環参照チェックはアプリケーション層で実装
-// apps/backend/src/services/relationshipService.ts
-export async function validateRelationship(
-  parentId: string,
-  childId: string,
-): Promise<void> {
-  // 複雑なビジネスロジックの実装
-}
-```
-
-## 5. データマイグレーション戦略
-
-### 5.1 Prisma マイグレーション管理
+### 3.1 Prisma マイグレーション管理
 
 #### ファイル配置
 
 ```
-apps/backend/src/prisma/
+apps/backend/database/
 ├── schema.prisma              # スキーマ定義
 ├── migrations/                # マイグレーション履歴
 │   ├── 20240101000000_init/   # 初期作成
 │   └── migration.sql
-└── seed.ts                    # 初期データ投入
+├── seeds/                     # 初期データ投入
+│   ├── development.ts         # 開発環境用データ
+│   └── production.ts          # 本番環境用データ
+└── config/                    # DB接続設定
+    ├── database.ts            # 接続設定
+    └── constants.ts           # DB定数
 ```
 
 #### マイグレーション命名規則
@@ -550,75 +394,22 @@ npx prisma migrate dev --name Add_NicknameToUsers
 # 自動適用ではなく、手動での段階的な変更を推奨
 ```
 
-### 5.2 データ整合性の担保
+## 4. テーブル設計
 
-#### 制約の段階的追加
+### people（人物）テーブル
 
-1. **Phase 1**: 基本制約（NOT NULL、UNIQUE）
-2. **Phase 2**: 外部キー制約
-3. **Phase 3**: 複雑なチェック制約
-
-#### バックワード互換性
-
-- 既存データへの影響を最小限に抑制
-- 段階的な制約追加による安全な移行
-
-## 6. 型定義との連携
-
-### 6.1 Prisma から生成される型定義
-
-#### 自動生成される型
-
-```typescript
-// Prismaクライアントから自動生成される型定義
-import { Person, Relationship, User } from '@prisma/client'
-
-// アプリケーションで使用する型
-export type PersonWithRelations = Person & {
-  parentRelationships: (Relationship & { parent: Person })[]
-  childRelationships: (Relationship & { child: Person })[]
-}
-```
-
-### 6.2 型安全性の確保
-
-#### Prisma → TypeScript 型生成
-
-```typescript
-// Prismaクライアントから自動生成される型
-import { Person, Relationship } from '@prisma/client'
-
-// 型の一元管理により保守性確保
-type CreatePersonInput = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>
-type UpdatePersonInput = Partial<CreatePersonInput>
-```
-
-## 7. 保守性の担保
-
-### 7.1 設計レビューポイント
-
-#### スキーマ変更時のチェック項目
-
-- [ ] 既存データへの影響評価
-- [ ] インデックス戦略の見直し
-- [ ] 型定義との同期確認
-- [ ] マイグレーション手順の検証
-
-#### 継続的な品質確保
-
-- **自動テスト**: スキーマ変更のリグレッションテスト
-- **型チェック**: Prisma 生成型と共有型の整合性検証
-- **パフォーマンステスト**: 大量データでの動作確認
-
-### 7.2 ドキュメントの更新
-
-#### 変更管理プロセス
-
-1. **設計書更新**: このドキュメントの先行更新
-2. **スキーマ実装**: Prisma スキーマの変更
-3. **型定義同期**: 共有型定義の更新
-4. **レビュー**: 関係者による変更内容確認
-
----
+**フィールド詳細**
+| フィールド | 型 | NULL | デフォルト | 説明 | 保守性への配慮 |
+|-----------|----|----|----------|------|---------------|
+| id | VARCHAR(36) | NO | UUID | 主キー | グローバル一意性 |
+| name | VARCHAR(100) | YES | NULL | 氏名 | 無名人物対応 |
+| gender | TINYINT | YES | NULL | 性別（0:不明, 1:男性, 2:女性） | 将来的な拡張可能性 |
+| birth_date | DATE | YES | NULL | 生年月日 | 不明日付の許容 |
+| death_date | DATE | YES | NULL | 没年月日 | 生存者への配慮 |
+| birth_place | VARCHAR(200) | YES | NULL | 出生地 | 地名変更への対応 |
+| photo | VARCHAR(500) | YES | NULL | 写真 URL | 外部ストレージ対応 |
+| memo | TEXT | YES | NULL | メモ | 自由形式データ格納 |
+| created_at | DATETIME(3) | NO | NOW() | 作成日時 | 監査ログ |
+| updated_at | DATETIME(3) | NO | NOW() | 更新日時 | 変更追跡 |
 
 **重要**: このデータベース設計は**保守性**を最優先に設計されています。スキーマ変更時は必ず既存データへの影響を評価し、段階的な移行戦略を策定してください。

@@ -11,6 +11,7 @@
 ### 1.2 開発フェーズ
 
 #### Phase 0: 環境構築（Infrastructure Setup）
+
 - Docker環境の整備
 - ワークスペース設定（package.json群）
 - TypeScript設定（tsconfig.json群）
@@ -18,18 +19,21 @@
 - PM2統合設定
 
 #### Phase 1: MVP（最小機能・ローカル版）
+
 - 基本CRUD機能の実装
 - LocalStorageでのデータ永続化
 - SVG家系図の基本表示
 - レスポンシブUI（モーダルベース）
 
 #### Phase 2: 機能拡張・クラウド連携
+
 - AWS S3との同期機能
 - 検索機能（基本・詳細検索）
 - JWT認証・ユーザー管理
 - データエクスポート機能
 
 #### Phase 3: 最適化・改善
+
 - パフォーマンス最適化
 - UX改善（アニメーション・操作性）
 - セキュリティ強化
@@ -275,6 +279,7 @@ ls -la ecosystem.config.*
 ```
 
 **修正例**:
+
 - `ecosystem.config.js` → `ecosystem.config.cjs`
 - `export default` → `module.exports`
 - Dockerfileでのファイルコピーパス更新
