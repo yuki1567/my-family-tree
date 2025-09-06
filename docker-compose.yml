@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   apps:
@@ -7,13 +7,10 @@ services:
       dockerfile: docker/apps/Dockerfile
     working_dir: /usr/src
     ports:
-      - "3000:3000"
-      - "4000:4000"
+      - '3000:3000'
+      - '4000:4000'
     volumes:
       - ./apps:/usr/src/apps
-    environment:
-      - NODE_ENV=${NODE_ENV}
-      - DATABASE_URL=${DATABASE_URL}
     env_file:
       - .env
     depends_on:
@@ -31,4 +28,4 @@ services:
     env_file:
       - .env
     ports:
-      - "${MYSQL_PORT}:3306"
+      - '${MYSQL_PORT}:3306'
