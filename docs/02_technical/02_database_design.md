@@ -403,7 +403,7 @@ npx prisma migrate dev --name Add_NicknameToUsers
 |-----------|----|----|----------|------|---------------|
 | id | VARCHAR(36) | NO | UUID | 主キー | グローバル一意性 |
 | name | VARCHAR(100) | YES | NULL | 氏名 | 無名人物対応 |
-| gender | TINYINT | YES | NULL | 性別（0:不明, 1:男性, 2:女性） | 将来的な拡張可能性 |
+| gender | TINYINT | NO | 0 | 性別（0:不明, 1:男性, 2:女性） | 将来的な拡張可能性 |
 | birth_date | DATE | YES | NULL | 生年月日 | 不明日付の許容 |
 | death_date | DATE | YES | NULL | 没年月日 | 生存者への配慮 |
 | birth_place | VARCHAR(200) | YES | NULL | 出生地 | 地名変更への対応 |

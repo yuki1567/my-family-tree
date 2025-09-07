@@ -16,12 +16,13 @@
 #### 実装場所
 
 ```
-apps/backend/src/
+apps/backend/
 ├── controllers/     # HTTPレイヤー（薄い層）
 ├── services/        # ビジネスロジック層
 ├── repositories/    # データアクセス層（抽象化）
 ├── routes/          # ルーティング定義
-├── middlewares/     # 横断的関心事
+├── middlewares/     # 横断的関心事（実行処理）
+├── validations/     # 入力ルール定義
 └── database/        # データベース関連（ORM非依存）
     ├── schema.prisma
     ├── migrations/
@@ -98,12 +99,24 @@ Production: https://your-domain.com/api
     "details": [
       {
         "field": "name",
-        "message": "Name must be a string"
+        "code": "NAME_TOO_LONG"
       }
     ]
   }
 }
 ```
+
+### 2.4 エラーコード一覧
+
+| エラーコード     | HTTP | 説明                   | 発生例                         |
+| ---------------- | ---- | ---------------------- | ------------------------------ |
+| VALIDATION_ERROR | 400  | 入力データ検証エラー   | 必須フィールド未入力           |
+| UNAUTHORIZED     | 401  | 認証が必要             | トークン未提供                 |
+| FORBIDDEN        | 403  | アクセス権限なし       | 他ユーザーのデータへのアクセス |
+| NOT_FOUND        | 404  | リソースが見つからない | 存在しない人物IDの指定         |
+| INTERNAL_ERROR   | 500  | サーバー内部エラー     | 予期しないサーバーエラー       |
+| DATABASE_ERROR   | 500  | データベースエラー     | DB接続エラー                   |
+| UNEXPECTED_ERROR | 500  | 予期しないエラー       | システム内部の原因不明エラー   |
 
 ## API設計
 
@@ -129,7 +142,7 @@ Production: https://your-domain.com/api
 | フィールド | 型 | 必須 | 説明 | バリデーション |
 |-----------|----|----|------|---------------|
 | name | string | ❌ | 氏名 | 100文字以内 |
-| gender | number | ❌ | 性別 | 0:不明, 1:男性, 2:女性 |
+| gender | number | ❌ | 性別（デフォルト:0） | 0:不明, 1:男性, 2:女性 |
 | birthDate | string | ❌ | 生年月日 | YYYY-MM-DD形式 |
 | deathDate | string | ❌ | 没年月日 | YYYY-MM-DD形式 |
 | birthPlace | string | ❌ | 出生地 | 200文字以内 |
@@ -160,49 +173,27 @@ Production: https://your-domain.com/api
     "errorCode": "VALIDATION_ERROR",
     "details": [
       {
-        "field": "birthDate",
-        "message": "生年月日はYYYY-MM-DD形式で入力してください。"
-      }
-    ]
-  }
-}
-```
-
-## 8. エラーハンドリング
-
-### 8.1 エラーコード一覧
-
-| エラーコード      | HTTP | 説明                   | 発生例                         |
-| ----------------- | ---- | ---------------------- | ------------------------------ |
-| VALIDATION_ERROR  | 400  | 入力データ検証エラー   | 必須フィールド未入力           |
-| UNAUTHORIZED      | 401  | 認証が必要             | トークン未提供                 |
-| FORBIDDEN         | 403  | アクセス権限なし       | 他ユーザーのデータへのアクセス |
-| NOT_FOUND         | 404  | リソースが見つからない | 存在しない人物IDの指定         |
-| CONFLICT          | 409  | データ競合             | 重複関係の作成                 |
-| VALIDATION_FAILED | 422  | データ整合性エラー     | 循環参照の作成                 |
-| INTERNAL_ERROR    | 500  | サーバー内部エラー     | 予期しないサーバーエラー       |
-| DATABASE_ERROR    | 500  | データベースエラー     | DB接続エラー                   |
-
-### 8.2 詳細エラーレスポンス例
-
-```json
-{
-  "isSuccess": false,
-  "error": {
-    "statusCode": 400,
-    "errorCode": "VALIDATION_ERROR",
-    "details": [
-      {
         "field": "gender",
-        "message": "性別を選択してください。"
+        "code": "INVALID_GENDER"
       },
       {
         "field": "birthDate",
-        "message": "生年月日はYYYY-MM-DD形式で入力してください。"
+        "code": "INVALID_DATE_FORMAT"
       }
     ]
   }
 }
 ```
+
+**固有エラーコード**
+
+| フィールド | エラーコード         | 発生条件                     |
+| ---------- | -------------------- | ---------------------------- |
+| name       | NAME_TOO_LONG        | 氏名が100文字を超過          |
+| gender     | INVALID_GENDER       | 性別が0、1、2以外            |
+| birthDate  | INVALID_DATE_FORMAT  | 生年月日がYYYY-MM-DD形式でない |
+| deathDate  | INVALID_DATE_FORMAT  | 没年月日がYYYY-MM-DD形式でない |
+| deathDate  | DEATH_BEFORE_BIRTH   | 没年月日が生年月日より前     |
+| birthPlace | BIRTH_PLACE_TOO_LONG | 出生地が200文字を超過        |
 
 **重要**: このAPI設計は**保守性**を最優先に設計されています。新機能追加やデータ構造変更時は、既存APIの互換性を維持することを最重要視してください。

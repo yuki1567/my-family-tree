@@ -87,6 +87,7 @@ backend/
 ├── repositories/              # データアクセス層（抽象化）
 ├── routes/                    # ルーティング定義
 ├── middlewares/               # 横断的関心事
+├── validations/               # バリデーションスキーマ
 └── database/                  # データベース関連（ORM非依存）
     ├── schema.prisma         # スキーマ定義
     ├── migrations/           # マイグレーションファイル

@@ -118,11 +118,21 @@ family-tree-app/
 
 #### **パス解決設定**
 
-**"baseUrl": "." / "paths": { "@shared/_": ["./apps/shared/_"] }**
+**"baseUrl": "." / "paths"設定**
 
-- **理由**: モノレポ内の共有ライブラリアクセス統一
-- **効果**: `import { Type } from "@shared/types"`の型解決
-- **保守性**: 相対パス地獄の回避
+```json
+{
+  "paths": {
+    "@shared/*": ["./apps/shared/*"],
+    "@/*": ["./apps/backend/*"]  // バックエンド専用
+  }
+}
+```
+
+- **@shared/***: モノレポ内の共有ライブラリアクセス統一
+- **@/***: バックエンド内での相対パス回避（apps/backend/tsconfig.json で設定）
+- **効果**: `import { Type } from "@shared/types"`, `import { service } from "@/services/person"`
+- **保守性**: 深い相対パス（`../../../`）の回避
 
 ### 2.3 除外した設定と理由
 

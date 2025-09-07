@@ -70,17 +70,47 @@ enum Gender {
 
 ### 2.3 関数定義
 
+#### フロントエンド（アロー関数推奨）
+コンポーネント内の状態やユーティリティ関数を中心に構成され、再利用性が重要なためボトムアップ型のアロー関数を採用
+
 ```typescript
-// ✅ 良い例
+// ✅ 良い例（フロントエンド）
+const formatDate = (date: Date | string): string => {
+  const d = new Date(date)
+  return d.getFullYear().toString()
+}
+
+const calculateAge = (birthDate: Date): number => {
+  const today = new Date()
+  return today.getFullYear() - birthDate.getFullYear()
+}
+
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
+}
+```
+
+#### バックエンド（関数宣言推奨）
+明確なフローがあり、処理の流れや可読性を重視するためにトップダウン型の関数宣言を使用
+
+```typescript
+// ✅ 良い例（バックエンド）
 function calculateAge(birthDate: Date): number {
   const today = new Date()
   const age = today.getFullYear() - birthDate.getFullYear()
   return age
 }
 
-const formatDate = (date: Date | string): string => {
-  const d = new Date(date)
-  return d.getFullYear().toString()
+function validatePersonData(data: unknown): CreatePersonRequest {
+  return createPersonSchema.parse(data)
+}
+
+export function createPersonController(req: Request, res: Response): void {
+  // 処理の流れが明確
+  const validatedData = validatePersonData(req.body)
+  const result = personService.create(validatedData)
+  res.json(result)
 }
 
 // ❌ 悪い例

@@ -59,6 +59,19 @@ All implementation work must follow these procedures:
 - If problems occur, go back to previous steps for review
 - Use TodoWrite tool to manage progress
 
+### **CRITICAL: Code Implementation Explanation (Mandatory)**
+
+**Before implementing ANY code, you MUST explain**:
+
+- **What specific code you are about to write** (show the actual code structure/logic)
+- **Why you chose this specific implementation approach** (technical reasoning for each decision)
+- **What problems this implementation solves and potential issues**
+
+**Requirements**:
+- Show concrete code examples of what you plan to implement
+- Explain the reasoning behind each technical choice
+- Focus on implementation decisions, not general project concepts
+
 ### **CRITICAL: Code Modification = Documentation Update (Mandatory)**
 
 **When modifying any code, documentation update is MANDATORY and SIMULTANEOUS**:
