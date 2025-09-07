@@ -12,10 +12,14 @@
     "lint:fix": "eslint . --fix",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "db:migrate": "prisma migrate dev",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio",
-    "db:reset": "prisma migrate reset"
+    "db:generate": "prisma generate --schema=./database/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema=./database/schema.prisma",
+    "db:seed": "tsx ./database/seeds/development.ts",
+    "db:studio": "prisma studio --schema=./database/schema.prisma",
+    "db:reset": "prisma migrate reset --schema=./database/schema.prisma"
+  },
+  "prisma": {
+    "schema": "./database/schema.prisma"
   },
   "dependencies": {
     "express": "4.21.1",

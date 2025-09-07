@@ -1,0 +1,25 @@
+// Prisma Schema File
+// This file defines the database schema based on the database design document
+// Note: Database URL is configured programmatically via envConfig
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model People {
+  id         String   @id @default(uuid())
+  name       String?  @db.VarChar(100)
+  gender     Int      @default(0) @db.TinyInt
+  birthDate  DateTime? @map("birth_date") @db.Date
+  deathDate  DateTime? @map("death_date") @db.Date
+  birthPlace String?  @map("birth_place") @db.VarChar(200)
+  createdAt  DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.DateTime(3)
+
+  @@map("people")
+}
