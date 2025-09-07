@@ -91,26 +91,63 @@ const isValidEmail = (email: string): boolean => {
 }
 ```
 
-#### バックエンド（関数宣言推奨）
-明確なフローがあり、処理の流れや可読性を重視するためにトップダウン型の関数宣言を使用
+#### バックエンド設計の使い分け
+
+**クラスベース設計**：「状態管理」「ビジネスロジック」を表現する層
+- **対象層**: `controllers/`, `services/`, `repositories/`
+- **理由**: 依存性注入、状態管理、継承を活用したオブジェクト指向設計を採用
+
+**アロー関数**：「純粋関数」「小さい再利用関数」が多い層
+- **対象層**: `middlewares/`, `validations/`, `utils/`, `config/`
+- **理由**: 純粋関数や小さな再利用可能な関数を中心に構成され、関数型プログラミングのスタイルを採用
 
 ```typescript
-// ✅ 良い例（バックエンド）
-function calculateAge(birthDate: Date): number {
-  const today = new Date()
-  const age = today.getFullYear() - birthDate.getFullYear()
-  return age
+// ✅ 良い例（クラスベース設計：controllers/, services/, repositories/）
+export class PersonController {
+  constructor(private personService: PersonService) {}
+
+  async create(req: Request, res: Response): Promise<void> {
+    const validatedData = req.body as CreatePersonRequest
+    const result = await this.personService.create(validatedData)
+    
+    res.status(201).json({
+      isSuccess: true,
+      data: result,
+    })
+  }
 }
 
-function validatePersonData(data: unknown): CreatePersonRequest {
-  return createPersonSchema.parse(data)
+export class PersonService {
+  constructor(private personRepository: PersonRepository) {}
+
+  async create(data: CreatePersonRequest) {
+    return await this.personRepository.create(data)
+  }
 }
 
-export function createPersonController(req: Request, res: Response): void {
-  // 処理の流れが明確
-  const validatedData = validatePersonData(req.body)
-  const result = personService.create(validatedData)
-  res.json(result)
+export class PersonRepository {
+  async create(data: CreatePersonRequest) {
+    // データベース操作
+    return result
+  }
+}
+
+// ✅ 良い例（アロー関数：middlewares/, validations/, utils/, config/）
+const validateBody = (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
+  try {
+    req.body = schema.parse(req.body)
+    next()
+  } catch (error) {
+    next(error)
+  }
+}
+
+const formatErrorMessage = (error: ZodError): string => {
+  return error.errors.map(e => e.message).join(', ')
+}
+
+const isValidId = (id: string): boolean => {
+  return /^[0-9a-fA-F-]{36}$/.test(id)
 }
 
 // ❌ 悪い例

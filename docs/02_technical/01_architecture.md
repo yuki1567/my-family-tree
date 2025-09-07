@@ -82,12 +82,14 @@ frontend/
 
 ```typescript
 backend/
+├── config/                    # 環境設定・アプリケーション設定
 ├── controllers/               # HTTPレイヤー（薄い層）
 ├── services/                  # ビジネスロジック層
 ├── repositories/              # データアクセス層（抽象化）
 ├── routes/                    # ルーティング定義
 ├── middlewares/               # 横断的関心事
 ├── validations/               # バリデーションスキーマ
+├── utils/                     # 共通ユーティリティ関数
 └── database/                  # データベース関連（ORM非依存）
     ├── schema.prisma         # スキーマ定義
     ├── migrations/           # マイグレーションファイル
