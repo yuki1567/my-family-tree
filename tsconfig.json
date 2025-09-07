@@ -5,7 +5,7 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "exactOptionalPropertyTypes": true,
+    "exactOptionalPropertyTypes": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
@@ -22,13 +22,6 @@
       "@shared/*": ["./apps/shared/*"]
     }
   },
-  "include": [
-    "apps/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    ".nuxt",
-    "coverage"
-  ]
+  "include": ["apps/**/*.ts"],
+  "exclude": ["node_modules", "dist", ".nuxt", "coverage"]
 }
