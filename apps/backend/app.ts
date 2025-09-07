@@ -1,28 +1,32 @@
 import express from 'express'
 import dotenv from 'dotenv'
+dotenv.config()
 import { envConfig } from '@/config/env'
-import { globalErrorHandler, notFoundHandler } from '@/middlewares/errorHandler'
+import { globalErrorHandler } from '@/middlewares/errorHandler'
 import { personRoutes } from '@/routes/personRoutes'
 
-// 環境変数を読み込み
-dotenv.config()
+export function createApp(): express.Express {
+  const app = express()
 
-const app = express()
-const port = envConfig.API_PORT
+  // ミドルウェア設定
+  app.use(express.json())
 
-// ミドルウェア設定
-app.use(express.json())
+  // ルーティング
+  app.use('/api', personRoutes)
 
-// ルーティング
-app.use('/api', personRoutes)
+  // エラーハンドリング
+  app.use(globalErrorHandler)
 
-// エラーハンドリング（順序重要）
-app.use(notFoundHandler)
-app.use(globalErrorHandler)
+  return app
+}
 
-// サーバー起動
-app.listen(port, () => {
-  console.log(`Backend server is running on port ${port}`)
-})
+function startServer(): void {
+  const app = createApp()
+  const port = envConfig.API_PORT
 
-export default app
+  app.listen(port, () => {
+    console.log(`Backend server is running on port ${port}`)
+  })
+}
+
+startServer()
