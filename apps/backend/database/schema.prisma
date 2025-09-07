@@ -11,14 +11,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// 人物情報テーブル
 model People {
+  /// 主キー（UUID）
   id         String   @id @default(uuid())
+  /// 氏名
   name       String?  @db.VarChar(100)
+  /// 性別（0:不明, 1:男性, 2:女性）
   gender     Int      @default(0) @db.TinyInt
+  /// 生年月日
   birthDate  DateTime? @map("birth_date") @db.Date
+  /// 没年月日
   deathDate  DateTime? @map("death_date") @db.Date
+  /// 出生地
   birthPlace String?  @map("birth_place") @db.VarChar(200)
+  /// 作成日時
   createdAt  DateTime @default(now()) @map("created_at") @db.DateTime(3)
+  /// 更新日時
   updatedAt  DateTime @updatedAt @map("updated_at") @db.DateTime(3)
 
   @@map("people")
