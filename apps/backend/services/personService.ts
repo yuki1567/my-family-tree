@@ -1,8 +1,10 @@
 import { CreatePersonRequest } from '@/validations/personValidation'
-import { personRepository } from '@/repositories/personRepository'
+import { PersonRepository } from '@/repositories/personRepository'
 
-export const personService = {
+export class PersonService {
+  constructor(private personRepository: PersonRepository) {}
+
   async create(data: CreatePersonRequest) {
-    return await personRepository.create(data)
+    return await this.personRepository.create(data)
   }
 }

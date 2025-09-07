@@ -1,10 +1,17 @@
 import { Router } from 'express'
 import { validateBody } from '@/middlewares/validate'
 import { createPersonSchema } from '@/validations/personValidation'
-import { createPerson } from '@/controllers/personController'
+import { PersonController } from '@/controllers/personController'
+import { PersonService } from '@/services/personService'
+import { PersonRepository } from '@/repositories/personRepository'
 
-const router = Router()
+// 依存性注入でインスタンス作成
+const personRepository = new PersonRepository()
+const personService = new PersonService(personRepository)
+const personController = new PersonController(personService)
 
-router.post('/people', validateBody(createPersonSchema), createPerson)
+export const personRoutes = Router()
 
-export { router as personRoutes }
+personRoutes.post('/people', validateBody(createPersonSchema), (req, res) => 
+  personController.create(req, res)
+)

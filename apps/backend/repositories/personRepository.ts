@@ -1,27 +1,14 @@
 import { prisma } from '@/database/config/database'
 import { CreatePersonRequest } from '@/validations/personValidation'
+import { formatDateToYYYYMMDD, convertStringToDate } from '@/utils/dateUtils'
 
-const formatDate = (date: Date | null): string | null => {
-  if (!date) return null
-  const isoString = date.toISOString()
-  const datePart = isoString.substring(0, 10)
-  return datePart.replace(/-/g, '')
-}
-
-export function convertDateStringToDate(
-  dateStr: string | undefined,
-): Date | null {
-  if (!dateStr) return null
-  return new Date(dateStr)
-}
-
-export const personRepository = {
+export class PersonRepository {
   async create(data: CreatePersonRequest) {
     const personData = {
       name: data.name ?? null,
       gender: data.gender,
-      birthDate: convertDateStringToDate(data.birthDate),
-      deathDate: convertDateStringToDate(data.deathDate),
+      birthDate: convertStringToDate(data.birthDate),
+      deathDate: convertStringToDate(data.deathDate),
       birthPlace: data.birthPlace ?? null,
     }
 
@@ -33,11 +20,11 @@ export const personRepository = {
       id: person.id,
       name: person.name,
       gender: person.gender,
-      birthDate: formatDate(person.birthDate),
-      deathDate: formatDate(person.deathDate),
+      birthDate: formatDateToYYYYMMDD(person.birthDate),
+      deathDate: formatDateToYYYYMMDD(person.deathDate),
       birthPlace: person.birthPlace,
       createdAt: person.createdAt,
       updatedAt: person.updatedAt,
     }
-  },
+  }
 }
