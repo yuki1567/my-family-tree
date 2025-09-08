@@ -1,6 +1,4 @@
-import type { Config } from 'jest'
-
-const config: Config = {
+const config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   moduleNameMapping: {
@@ -19,17 +17,26 @@ const config: Config = {
   coverageReporters: ['text', 'lcov', 'html'],
   projects: [
     {
+      preset: 'ts-jest',
+      testEnvironment: 'node',
       displayName: 'unit',
       testMatch: ['**/__tests__/unit/**/*.test.ts'],
-      testTimeout: 5000,        // 単体テスト：短め
-      maxWorkers: '50%',        // 単体テスト：並列実行
-      // データベース関連設定なし
+      testTimeout: 5000,
+      maxWorkers: '50%',
+      moduleNameMapping: {
+        '^@/(.*)$': '<rootDir>/$1'
+      }
     },
     {
+      preset: 'ts-jest',
+      testEnvironment: 'node',
       displayName: 'integration',
       testMatch: ['**/__tests__/integration/**/*.test.ts'],
-      testTimeout: 30000,       // 統合テスト：長め
-      maxWorkers: 1,            // 統合テスト：直列実行
+      testTimeout: 30000,
+      maxWorkers: 1,
+      moduleNameMapping: {
+        '^@/(.*)$': '<rootDir>/$1'
+      },
       setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
       globalSetup: '<rootDir>/jest.global-setup.ts',
       globalTeardown: '<rootDir>/jest.global-teardown.ts',
