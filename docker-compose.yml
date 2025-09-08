@@ -34,3 +34,20 @@ services:
       - '${MYSQL_PORT}:3306'
     volumes:
       - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # テスト用データベース（profilesで制御）
+  test-db:
+    build:
+      context: .
+      dockerfile: docker/db/Dockerfile
+    environment:
+      - MYSQL_ROOT_PASSWORD=testpass
+      - MYSQL_DATABASE=family_tree_test
+      - MYSQL_USER=testuser
+      - MYSQL_PASSWORD=testpass
+      - TZ=Asia/Tokyo
+    ports:
+      - '3307:3306'
+    tmpfs:
+      - /var/lib/mysql  # メモリ上での高速実行
+    profiles: ["test"]  # テストプロファイル指定

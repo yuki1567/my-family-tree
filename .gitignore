@@ -7,3 +7,4 @@ build/
 
 # Environment files
 .env
+.env.test
