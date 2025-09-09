@@ -5,7 +5,17 @@
       "Write(docs/**)",
       "Bash(npm install:*)",
       "Bash(ls:*)",
-      "Bash(cat **)"
+      "Bash(cat **)",
+      "Bash(git add:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(docker-compose ps)",
+      "Bash(docker-compose exec apps npm run test:unit)",
+      "Bash(docker-compose exec apps npm run test:integration)",
+      "Bash(docker-compose exec apps npm test)"
     ],
     "deny": [
       "Bash(sudo:*)",
@@ -14,9 +24,6 @@
       "Bash(rmdir:*)",
       "Bash(chmod:*)",
       "Bash(chown:*)",
-      "Bash(git add:*)",
-      "Bash(git push:*)",
-      "Bash(git commit:*)",
       "Bash(git merge:*)",
       "Bash(git reset:*)",
       "Bash(git rebase:*)",
