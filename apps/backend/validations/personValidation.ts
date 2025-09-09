@@ -21,8 +21,8 @@ export const createPersonSchema = z
     gender: z
       .number()
       .int()
-      .min(0)
-      .max(2)
+      .min(0, { message: 'INVALID_GENDER' })
+      .max(2, { message: 'INVALID_GENDER' })
       .default(0),
     
     birthDate: z

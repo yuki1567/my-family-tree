@@ -24,19 +24,11 @@ export default async function globalSetup() {
 
 async function ensurePrismaClient(): Promise<void> {
   try {
-    // Prismaクライアントの存在確認
-    const { access } = await import('fs/promises')
-    try {
-      await access('../../node_modules/.prisma/client')
-      console.log('✅ Prismaクライアントは既に存在します')
-      return
-    } catch {
-      console.log('🔧 Prismaクライアントが見つからないため生成中...')
-      await execAsync('npx prisma generate --schema=./database/schema.prisma')
-      console.log('✅ Prismaクライアントの生成が完了しました')
-    }
+    console.log('🔧 Prismaクライアントを生成中...')
+    await execAsync('npx prisma generate --schema=./database/schema.prisma')
+    console.log('✅ Prismaクライアントの生成が完了しました')
   } catch (error) {
-    console.error('❌ Prismaクライアント確認・生成に失敗:', error)
+    console.error('❌ Prismaクライアント生成に失敗:', error)
     throw error
   }
 }
