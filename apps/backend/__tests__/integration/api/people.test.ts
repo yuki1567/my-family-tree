@@ -1,4 +1,11 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals'
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+} from '@jest/globals'
 import request from 'supertest'
 import { createApp } from '@/app'
 import { prisma } from '@/database/config/database'
@@ -37,11 +44,7 @@ describe('POST /api/people - 人物追加API', () => {
         isSuccess: true,
         data: {
           id: expect.any(String),
-          name: '田中花子',
-          gender: 2,
-          birthDate: '1985-05-15',
-          deathDate: '2020-12-31',
-          birthPlace: '大阪府',
+          ...requestData,
         },
       })
 
@@ -50,14 +53,15 @@ describe('POST /api/people - 人物追加API', () => {
         where: { id: createdId },
       })
 
-      expect(dbRecord).toBeDefined()
-      expect(dbRecord).toMatchObject({
-        name: '田中花子',
-        gender: 2,
-        birthDate: new Date('1985-05-15'),
-        deathDate: new Date('2020-12-31'),
-        birthPlace: '大阪府',
-      })
+      expect(dbRecord).toBeTruthy()
+      expect(dbRecord!.id).toBe(createdId)
+      expect(dbRecord!.name).toBe(requestData.name)
+      expect(dbRecord!.gender).toBe(requestData.gender)
+      expect(dbRecord!.birthDate).toEqual(new Date(requestData.birthDate))
+      expect(dbRecord!.deathDate).toEqual(new Date(requestData.deathDate))
+      expect(dbRecord!.birthPlace).toBe(requestData.birthPlace)
+      expect(dbRecord!.createdAt).toBeInstanceOf(Date)
+      expect(dbRecord!.updatedAt).toBeInstanceOf(Date)
     })
 
     it('最小限のデータの場合、201ステータスでレスポンスを返すか', async () => {
@@ -85,14 +89,15 @@ describe('POST /api/people - 人物追加API', () => {
         where: { id: createdId },
       })
 
-      expect(dbRecord).toBeDefined()
-      expect(dbRecord).toMatchObject({
-        name: null,
-        gender: 0,
-        birthDate: null,
-        deathDate: null,
-        birthPlace: null,
-      })
+      expect(dbRecord).toBeTruthy()
+      expect(dbRecord!.id).toBe(createdId)
+      expect(dbRecord!.name).toBeNull()
+      expect(dbRecord!.gender).toBe(0)
+      expect(dbRecord!.birthDate).toBeNull()
+      expect(dbRecord!.deathDate).toBeNull()
+      expect(dbRecord!.birthPlace).toBeNull()
+      expect(dbRecord!.createdAt).toBeInstanceOf(Date)
+      expect(dbRecord!.updatedAt).toBeInstanceOf(Date)
     })
   })
 
@@ -109,7 +114,7 @@ describe('POST /api/people - 人物追加API', () => {
         .send(requestData)
         .expect(400)
 
-      expect(response.body).toMatchObject({
+      expect(response.body).toEqual({
         isSuccess: false,
         error: {
           statusCode: 400,
