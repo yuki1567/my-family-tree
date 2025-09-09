@@ -1,6 +1,4 @@
 import express from 'express'
-import dotenv from 'dotenv'
-dotenv.config()
 import { envConfig } from '@/config/env'
 import { globalErrorHandler } from '@/middlewares/errorHandler'
 import { personRoutes } from '@/routes/personRoutes'
@@ -29,4 +27,7 @@ function startServer(): void {
   })
 }
 
-startServer()
+// テスト環境以外でサーバーを起動
+if (envConfig.NODE_ENV !== 'test') {
+  startServer()
+}
