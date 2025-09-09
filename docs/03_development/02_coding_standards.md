@@ -435,33 +435,84 @@ import { validatePerson } from '../utils/validation'
 
 ## 6. コメント・ドキュメント
 
-### 6.1 TSDoc コメント
+### 6.1 基本原則
+
+**「コードを読めばわかる内容はコメントしない」**
+
+- コメントはコードでは表現できない「なぜ」「背景」「意図」を説明する
+- 「何を」「どのように」はコードそのもので表現する
+- 不要なコメントはコードの可読性を損なう
+
+### 6.2 TSDoc コメント
 
 ```typescript
-// ✅ 良い例
+// ✅ 良い例 - 公開API、複雑なロジックの背景
 /**
  * 人物の年齢を計算する
  * @param birthDate 生年月日
  * @returns 年齢（歳）
  */
-function calculateAge(birthDate: Date): number {
+export function calculateAge(birthDate: Date): number {
   const today = new Date()
   return today.getFullYear() - birthDate.getFullYear()
 }
 
-// 複雑なロジックの説明
+// ビジネスルールの背景説明
 const layoutedPeople = computed(() => {
-  // 世代別に人物を分類してから座標計算を行う
+  // 世代別分類が必要な理由：座標計算アルゴリズムの前提条件
   const generations = classifyByGeneration(people.value, relationships.value)
   return calculatePositions(generations)
 })
+```
 
-// ❌ 悪い例
-// 年齢計算
+### 6.3 避けるべきコメント
+
+```typescript
+// ❌ 悪い例 - コードから明らかな内容
 function calculateAge(birthDate: Date): number {
-  // 明らかな内容
-  return new Date().getFullYear() - birthDate.getFullYear()
+  // 今日の日付を取得
+  const today = new Date()
+  // 年齢を計算
+  return today.getFullYear() - birthDate.getFullYear()
 }
 
-// TODO: 後で修正  // 曖昧なTODO
+// ❌ 悪い例 - 曖昧で行動を起こせない
+// TODO: 後で修正
+// FIXME: バグあり
+
+// ❌ 悪い例 - テストのArrange/Act/Assert
+it('有効なデータの場合、人物を作成できるか', async () => {
+  // Arrange
+  const mockRepository = createMockRepository()
+  // Act  
+  const result = await service.create(data)
+  // Assert
+  expect(result).toBeDefined()
+})
+```
+
+### 6.4 推奨するコメント
+
+```typescript
+// ✅ 良い例 - ビジネスルールの説明
+const isValidDateRange = (birth: string, death?: string) => {
+  // ビジネスルール：死亡日は誕生日以降でなければならない
+  if (death && birth > death) {
+    throw new Error('DEATH_BEFORE_BIRTH')
+  }
+}
+
+// ✅ 良い例 - 技術的制約の説明
+const optimizedQuery = useMemo(() => {
+  // パフォーマンス要件：1000件以上の場合は仮想化が必要
+  return people.length > 1000 ? virtualizedQuery : standardQuery
+}, [people.length])
+
+// ✅ 良い例 - 外部要因の説明
+const handleApiError = (error: ApiError) => {
+  // 外部APIの仕様：429エラー時は指数バックオフで再試行
+  if (error.status === 429) {
+    return retryWithBackoff(error.retryAfter)
+  }
+}
 ```

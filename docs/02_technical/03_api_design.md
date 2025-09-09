@@ -108,15 +108,15 @@ Production: https://your-domain.com/api
 
 ### 2.4 エラーコード一覧
 
-| エラーコード     | HTTP | 説明                   | 発生例                         |
-| ---------------- | ---- | ---------------------- | ------------------------------ |
-| VALIDATION_ERROR | 400  | 入力データ検証エラー   | 必須フィールド未入力           |
-| UNAUTHORIZED     | 401  | 認証が必要             | トークン未提供                 |
-| FORBIDDEN        | 403  | アクセス権限なし       | 他ユーザーのデータへのアクセス |
-| NOT_FOUND        | 404  | リソースが見つからない | 存在しない人物IDの指定         |
-| INTERNAL_ERROR   | 500  | サーバー内部エラー     | 予期しないサーバーエラー       |
-| DATABASE_ERROR   | 500  | データベースエラー     | DB接続エラー                   |
-| UNEXPECTED_ERROR | 500  | 予期しないエラー       | システム内部の原因不明エラー   |
+| HTTPステータスコード | エラーコード     | 説明                   | 発生例                         |
+| -------------------- | ---------------- | ---------------------- | ------------------------------ |
+| 400                  | VALIDATION_ERROR | 入力データ検証エラー   | 必須フィールド未入力           |
+| 401                  | UNAUTHORIZED     | 認証が必要             | トークン未提供                 |
+| 403                  | FORBIDDEN        | アクセス権限なし       | 他ユーザーのデータへのアクセス |
+| 404                  | NOT_FOUND        | リソースが見つからない | 存在しない人物IDの指定         |
+| 500                  | INTERNAL_ERROR   | サーバー内部エラー     | 予期しないサーバーエラー       |
+| 500                  | DATABASE_ERROR   | データベースエラー     | DB接続エラー                   |
+| 500                  | UNEXPECTED_ERROR | 予期しないエラー       | システム内部の原因不明エラー   |
 
 ## API設計
 
@@ -187,13 +187,13 @@ Production: https://your-domain.com/api
 
 **固有エラーコード**
 
-| フィールド | エラーコード         | 発生条件                     |
-| ---------- | -------------------- | ---------------------------- |
-| name       | NAME_TOO_LONG        | 氏名が100文字を超過          |
-| gender     | INVALID_GENDER       | 性別が0、1、2以外            |
-| birthDate  | INVALID_DATE_FORMAT  | 生年月日がYYYY-MM-DD形式でない |
-| deathDate  | INVALID_DATE_FORMAT  | 没年月日がYYYY-MM-DD形式でない |
-| deathDate  | DEATH_BEFORE_BIRTH   | 没年月日が生年月日より前     |
-| birthPlace | BIRTH_PLACE_TOO_LONG | 出生地が200文字を超過        |
+| HTTPステータスコード | メインエラーコード | フィールド | 詳細エラーコード | 発生条件                     |
+| -------------------- | ------------------ | ---------- | ---------------- | ---------------------------- |
+| 400                  | VALIDATION_ERROR   | name       | NAME_TOO_LONG    | 氏名が100文字を超過          |
+| 400                  | VALIDATION_ERROR   | gender     | INVALID_GENDER   | 性別が0、1、2以外            |
+| 400                  | VALIDATION_ERROR   | birthDate  | INVALID_DATE_FORMAT | 生年月日がYYYY-MM-DD形式でない |
+| 400                  | VALIDATION_ERROR   | deathDate  | INVALID_DATE_FORMAT | 没年月日がYYYY-MM-DD形式でない |
+| 400                  | VALIDATION_ERROR   | deathDate  | DEATH_BEFORE_BIRTH | 没年月日が生年月日より前     |
+| 400                  | VALIDATION_ERROR   | birthPlace | BIRTH_PLACE_TOO_LONG | 出生地が200文字を超過        |
 
 **重要**: このAPI設計は**保守性**を最優先に設計されています。新機能追加やデータ構造変更時は、既存APIの互換性を維持することを最重要視してください。

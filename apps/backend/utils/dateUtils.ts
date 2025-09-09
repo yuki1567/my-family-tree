@@ -1,13 +1,12 @@
 /**
- * Date型をYYYYMMDD形式の文字列に変換する
+ * Date型をYYYY-MM-DD形式の文字列に変換する
  * @param date 変換対象のDate型またはnull
- * @returns YYYYMMDD形式の文字列またはnull
+ * @returns YYYY-MM-DD形式の文字列またはnull
  */
 export const formatDateToYYYYMMDD = (date: Date | null): string | null => {
   if (!date) return null
   const isoString = date.toISOString()
-  const datePart = isoString.substring(0, 10)
-  return datePart.replace(/-/g, '')
+  return isoString.substring(0, 10)
 }
 
 /**

@@ -23,8 +23,6 @@ export class PersonRepository {
       birthDate: formatDateToYYYYMMDD(person.birthDate),
       deathDate: formatDateToYYYYMMDD(person.deathDate),
       birthPlace: person.birthPlace,
-      createdAt: person.createdAt,
-      updatedAt: person.updatedAt,
     }
   }
 }

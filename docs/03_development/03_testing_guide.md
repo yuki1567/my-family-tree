@@ -21,17 +21,20 @@
 ### テスト対象
 
 #### ✅ テストする対象
+
 - **Service層**: ビジネスロジック（Repository をモック化）
 - **Validation**: `validations/` フォルダ内のZodスキーマ
 - **Utility Functions**: `utils/` フォルダ内のヘルパー関数
 
 #### ❌ テストしない対象
+
 - **Config**: 環境変数の読み込みのみでビジネスロジックがない
 - **Routes**: HTTPレイヤーのため統合テストで検証
 - **Controller**: Request/Responseに依存するため統合テストで検証
 - **Repository**: PrismaClientのモック化は実際のDB操作を検証できないため
 
 ### 使用ツール
+
 - **Jest** + **ts-jest**: テストフレームワーク
 - **モック**: Repository層の外部依存をモック
 
@@ -40,26 +43,122 @@
 ```typescript
 // __tests__/unit/services/personService.test.ts
 describe('PersonService', () => {
-  const mockRepository = {
-    create: jest.fn(),
-    findById: jest.fn()
-  } as jest.Mocked<PersonRepository>
-  
-  const service = new PersonService(mockRepository)
-  
-  it('should create person with valid data', async () => {
-    // Repository をモックして Service のロジックのみテスト
-    mockRepository.create.mockResolvedValue(mockPersonData)
-    
-    const result = await service.create(validPersonData)
-    
-    expect(result).toEqual(mockPersonData)
-    expect(mockRepository.create).toHaveBeenCalledWith(validPersonData)
+  const createMockRepository = () =>
+    ({
+      create: jest.fn(),
+      findById: jest.fn(),
+    }) as jest.Mocked<PersonRepository>
+
+  describe('create', () => {
+    it('有効なデータの場合、人物を作成できるか', async () => {
+      const mockRepository = createMockRepository()
+      const service = new PersonService(mockRepository)
+
+      mockRepository.create.mockResolvedValue(mockPersonData)
+
+      const result = await service.create(validPersonData)
+
+      expect(result).toEqual(mockPersonData)
+      expect(mockRepository.create).toHaveBeenCalledWith(validPersonData)
+    })
   })
 })
 ```
 
 ## 統合テスト (Integration Tests)
+
+### 統合テストの設計原則
+
+統合テストは**API全体の疎通確認**が目的です。詳細なバリデーションテストは単体テストに任せ、統合テストでは以下に集中します：
+
+#### ✅ 統合テストで検証すべき内容
+
+- **API疎通**: HTTPリクエスト/レスポンスの正常動作
+- **レイヤー間連携**: Controller → Service → Repository → DB の全体フロー
+- **代表的なエラーハンドリング**: 主要なエラーパターンの動作確認
+
+#### ❌ 統合テストで詳細テストすべきでない内容
+
+- **バリデーション詳細**: 全パターンのバリデーションエラー
+- **エッジケース**: 境界値や特殊ケースの細かい検証
+- **未使用フィールド**: APIレスポンスに含まれないフィールドのテスト
+
+### 統合テスト設計のベストプラクティス
+
+#### APIレスポンステストの注意点
+
+```typescript
+// ❌ 悪い例：APIレスポンスに含まれないフィールドをテスト
+it('人物作成時、タイムスタンプが設定されないことを確認', async () => {
+  const response = await request(app).post('/api/people').send(data)
+
+  expect(response.body.data.createdAt).toBeUndefined() // 不要
+  expect(response.body.data.updatedAt).toBeUndefined() // 不要
+})
+
+// ✅ 良い例：APIレスポンス仕様に基づくテスト
+it('有効なデータの場合、201ステータスでレスポンスを返すか', async () => {
+  const response = await request(app).post('/api/people').send(data)
+
+  expect(response.status).toBe(201)
+  expect(response.body).toEqual({
+    isSuccess: true,
+    data: {
+      id: expect.any(String),
+      name: '田中花子',
+      gender: 2,
+      birthDate: '1985-05-15',
+      deathDate: '2020-12-31',
+      birthPlace: '大阪府',
+    },
+  })
+})
+```
+
+#### バリデーションデフォルト値のテスト
+
+```typescript
+// ✅ 良い例：バリデーション層のデフォルト値を活用
+it('最小限のデータの場合、201ステータスでレスポンスを返すか', async () => {
+  const requestData = {} // フィールドを省略してデフォルト値をテスト
+
+  const response = await request(app).post('/api/people').send(requestData)
+
+  expect(response.body.data.gender).toBe(0) // デフォルト値の確認
+})
+
+// ❌ 悪い例：不要な明示的値設定
+it('最小限のデータの場合...', async () => {
+  const requestData = { gender: 0 } // デフォルト値なので不要
+})
+```
+
+#### エラーテストの適切な粒度
+
+```typescript
+// ✅ 良い例：代表的なバリデーションエラー1つで十分
+describe('異常系', () => {
+  it('バリデーションエラーの場合、400エラーを返すか', async () => {
+    const requestData = {
+      name: 'テスト',
+      gender: 3, // 無効な性別（代表例）
+    }
+
+    const response = await request(app).post('/api/people').send(requestData)
+
+    expect(response.status).toBe(400)
+    expect(response.body.error.errorCode).toBe('VALIDATION_ERROR')
+  })
+})
+
+// ❌ 悪い例：統合テストでの詳細バリデーションテスト
+describe('異常系', () => {
+  it('性別が無効な値の場合...', () => {}) // 単体テストでカバー
+  it('日付形式が無効な場合...', () => {}) // 単体テストでカバー
+  it('名前が101文字の場合...', () => {}) // 単体テストでカバー
+  it('没年月日が生年月日より前の場合...', () => {}) // 単体テストでカバー
+})
+```
 
 ### 重要：並列実行とデータ競合の問題
 
@@ -165,7 +264,6 @@ describe('POST /api/people', () => {
 
   beforeAll(async () => {
     app = createApp()
-    // DB接続確認のみ（マイグレーションは実行済み前提）
     await prisma.$connect()
   })
 
@@ -174,23 +272,20 @@ describe('POST /api/people', () => {
   })
 
   beforeEach(async () => {
-    // データクリーンアップのみ
     await prisma.people.deleteMany()
   })
 
-  it('should create person successfully', async () => {
+  it('有効なデータの場合、人物を正常に作成できるか', async () => {
     const response = await request(app).post('/api/people').send({
       name: 'テスト太郎',
       gender: 1,
       birthDate: '1990-01-01',
     })
 
-    // APIレスポンス検証
     expect(response.status).toBe(201)
     expect(response.body.isSuccess).toBe(true)
     expect(response.body.data).toHaveProperty('id')
 
-    // DB検証：作成されたIDで効率的にデータ確認
     const createdId = response.body.data.id
     const dbRecord = await prisma.people.findUnique({
       where: { id: createdId },
@@ -222,7 +317,6 @@ describe('POST /api/people', () => {
 #### ✅ 推奨：作成IDを使った検証
 
 ```typescript
-// APIレスポンスから作成されたIDを取得してDB検証
 const createdId = response.body.data.id
 const dbRecord = await prisma.people.findUnique({
   where: { id: createdId },
@@ -347,17 +441,42 @@ docker-compose --profile test up test-db -d
 
 ### テスト実行の流れ
 
+**半自動化されたテスト実行**
+
+テスト実行前にテスト用DBの起動確認が必要です：
+
 ```bash
-# 1. テスト用DB起動（起動していなかったら）
+# 1. テスト用DB起動確認・起動
+docker-compose ps test-db
 docker-compose --profile test up test-db -d
 
-# 2. マイグレーション実行（初回のみ）
-TEST_DATABASE_URL="mysql://testuser:testpass@localhost:3307/family_tree_test" \
-docker-compose exec apps npm run db:migrate
+# 2. テスト実行（モノレポ構造）
+docker-compose exec apps bash -c "cd apps/backend && TEST_DATABASE_URL='mysql://testuser:testpass@localhost:3307/family_tree_test' npm run test:integration"
+```
 
-# 3. テスト実行
-TEST_DATABASE_URL="mysql://testuser:testpass@localhost:3307/family_tree_test" \
+**重要**: 
+- このプロジェクトはモノレポ構造のため、backendワークスペース内で実行する必要があります
+- テスト用DBコンテナの起動は手動で行います（Dockerコンテナ内からのdocker-compose実行制約のため）
+
+Jest GlobalSetupで以下が自動実行されます：
+1. DB接続確認（リトライ機能付き）
+2. マイグレーション実行
+
+**手動でのテスト環境管理**
+
+必要に応じて手動でも操作可能です：
+
+```bash
+# テスト用DB起動（開発セッション中は起動したまま）
+docker-compose --profile test up test-db -d
+
+# テスト実行（backendワークスペース内で）
+docker-compose exec apps bash
+cd apps/backend
 npm run test:integration
+
+# 開発セッション終了時のみ停止
+docker-compose stop test-db
 ```
 
 ## テスト実行スクリプト
@@ -420,3 +539,54 @@ npm run test:watch
 - **リスクベース**: 障害時の影響が大きい部分を重点的にテスト
 - **実用的な判断**: 100%カバレッジよりも意味のあるテストを優先
 - **継続的改善**: プロジェクトの成熟に応じてテスト戦略を調整
+
+## テスト責任範囲の明確化
+
+### 単体テスト vs 統合テストの責任分担
+
+適切なテスト設計のために、各テストレベルの責任範囲を明確に定義します：
+
+#### 単体テスト（Unit Tests）の責任範囲
+
+**✅ 単体テストで詳細にテストする**
+
+- **バリデーション詳細**: 全てのバリデーションルールとエラーメッセージ
+- **ビジネスロジック**: Service層の条件分岐、計算処理
+- **境界値テスト**: 文字数制限、数値範囲、日付妥当性の境界値
+- **エッジケース**: null/undefined処理、特殊文字処理
+
+```typescript
+// 例：バリデーション単体テスト
+describe('createPersonSchema', () => {
+  it('名前が100文字の場合、バリデーションが通るか', () => {})
+  it('名前が101文字の場合、NAME_TOO_LONGエラーが返されるか', () => {})
+  it('性別が0,1,2の場合、バリデーションが通るか', () => {})
+  it('性別が3の場合、INVALID_GENDERエラーが返されるか', () => {})
+  it('没年月日が生年月日より前の場合、DEATH_BEFORE_BIRTHエラーが返されるか', () => {})
+})
+```
+
+#### 統合テスト（Integration Tests）の責任範囲
+
+**✅ 統合テストで検証する**
+
+- **API疎通**: HTTPリクエスト/レスポンスの基本動作
+- **全レイヤー連携**: Controller → Service → Repository → DB のフロー
+- **代表的なエラー**: 主要なエラーパターン1つずつ
+- **データ永続化**: DBへの正常な保存・取得
+
+```typescript
+// 例：統合テスト
+describe('POST /api/people', () => {
+  describe('正常系', () => {
+    it('有効なデータの場合、201ステータスでレスポンスを返すか', () => {})
+    it('最小限のデータの場合、201ステータスでレスポンスを返すか', () => {})
+  })
+
+  describe('異常系', () => {
+    it('バリデーションエラーの場合、400エラーを返すか', () => {}) // 代表例1つ
+  })
+})
+```
+
+**重要**: テスト数よりも**品質**を重視し、意味のあるテストケースを選択してください。

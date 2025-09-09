@@ -22,11 +22,64 @@
 
 ## Critical Constraints & Instructions for Development
 
+### **CRITICAL: Coding Standards Priority**
+
+**For all implementations, strictly follow this priority order**:
+1. **Coding Standards** (highest priority)
+2. Implementation examples from test guide and other documents
+3. Reference document imitation
+
+**When referencing implementation examples, always check coding standards first, and prioritize coding standards when conflicts arise.**
+
 ### Required Development Environment
 
 - **Docker mandatory**: All development work must be executed within Docker containers
 - **TypeScript strict mode**: strict mode required
 - **Responsive support**: Mobile-first approach
+
+## 🚨 Command Execution Enforcement Rules (Critical)
+
+### Mandatory Docker Container Execution for ALL Commands
+
+**IMPORTANT**: This project requires ALL commands to be executed within Docker containers.
+
+#### Execution Decision Logic
+1. **Check**: Project root contains `docker-compose.yml` → **MUST use Docker container execution**
+2. **Format**: Use `docker-compose exec apps [command]`
+3. **FORBIDDEN**: Direct local execution (`npm run`, `yarn`, `node`, etc.)
+
+#### Required Execution Format
+```bash
+# ✅ Correct execution method
+docker-compose exec apps npm run test:unit
+docker-compose exec apps npm run test:integration  
+docker-compose exec apps npm install
+docker-compose exec apps npm run build
+docker-compose exec apps npm run dev
+
+# ❌ NEVER execute these methods
+npm run test:unit        # <- Will 100% fail
+npm run test:integration # <- Will 100% fail  
+npm install              # <- Will 100% fail
+```
+
+**Follow this instruction without exception. Local execution will always fail and waste time.**
+
+### Test Execution Protocol
+
+**MANDATORY: Before executing any tests, always check and ensure test-db container is running first**
+
+```bash
+# 1. Check test-db status
+docker-compose ps test-db
+
+# 2. Start if needed
+docker-compose --profile test up test-db -d
+
+# 3. Then execute tests
+```
+
+**For detailed procedures, refer to [Testing Guide](./docs/03_development/03_testing_guide.md)**
 
 ### Prohibited Items (Strict Violation)
 
@@ -88,7 +141,6 @@ All implementation work must follow these procedures:
 3. **Document Update Targets**:
    - Technical specifications changed → Update relevant technical design documents
    - Implementation decisions made → Record reasoning in design documents
-   - Progress achieved → Update development phase section in `02_requirements.md`
 
 4. **Process Flow**:
    ```
