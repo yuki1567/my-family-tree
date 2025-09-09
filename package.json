@@ -30,7 +30,9 @@
     "db:migrate": "npm run db:migrate --workspace=apps/backend",
     "db:seed": "npm run db:seed --workspace=apps/backend",
     "db:studio": "npm run db:studio --workspace=apps/backend",
-    "db:reset": "npm run db:reset --workspace=apps/backend"
+    "db:reset": "npm run db:reset --workspace=apps/backend",
+    "quality:frontend": "npm run test --workspace=apps/frontend && npm run type-check --workspace=apps/frontend && npm run lint --workspace=apps/frontend",
+    "quality:backend": "npm run test:unit --workspace=apps/backend && npm run type-check --workspace=apps/backend && npm run lint --workspace=apps/backend"
   },
   "devDependencies": {
     "@types/node": "24.2.1",
