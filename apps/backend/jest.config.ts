@@ -1,7 +1,7 @@
 const config = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1'
   },
   collectCoverageFrom: [
@@ -21,9 +21,8 @@ const config = {
       testEnvironment: 'node',
       displayName: 'unit',
       testMatch: ['**/__tests__/unit/**/*.test.ts'],
-      testTimeout: 5000,
       maxWorkers: '50%',
-      moduleNameMapping: {
+      moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/$1'
       }
     },
@@ -32,14 +31,14 @@ const config = {
       testEnvironment: 'node',
       displayName: 'integration',
       testMatch: ['**/__tests__/integration/**/*.test.ts'],
-      testTimeout: 30000,
       maxWorkers: 1,
-      moduleNameMapping: {
+      moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/$1'
       },
+      setupFiles: ['<rootDir>/jest.env.ts'],
       setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
       globalSetup: '<rootDir>/jest.global-setup.ts',
-      globalTeardown: '<rootDir>/jest.global-teardown.ts',
+      globalTeardown: '<rootDir>/jest.global-teardown.ts'
     }
   ]
 }
