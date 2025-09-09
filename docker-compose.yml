@@ -49,5 +49,5 @@ services:
     ports:
       - '3307:3306'
     tmpfs:
-      - /var/lib/mysql  # メモリ上での高速実行
-    profiles: ["test"]  # テストプロファイル指定
+      - /var/lib/mysql # メモリ上での高速実行
+    profiles: ['test'] # テストプロファイル指定
