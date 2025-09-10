@@ -52,7 +52,29 @@ process-issue 123
 
 4. **Git準備作業**
    - リモートから最新の変更を pull
-   - issue番号 + タイトルから適切なGitHub worktreeを作成し、VS Codeの新規タブでそのworktreeを開く
+   - issue番号とタイトルから適切なブランチ名を生成
+   - mainブランチを基に新しいブランチを作成
+   - 新しいブランチ用の別ディレクトリ（worktree）を作成
+   - VS Codeの新規タブでそのworktreeディレクトリを開く
+
+   **詳細手順**:
+
+   ```bash
+   # 1. 最新の変更を取得
+   git fetch origin && git pull origin main
+
+   # 2. ブランチ名を生成
+   BRANCH_NAME="[Labels]/[issue番号]-[タイトルスラッグ]"
+
+   # 3. mainブランチから新しいブランチを作成
+   git branch "$BRANCH_NAME" main
+
+   # 4. 新しいブランチ用のworktreeを作成
+   git worktree add "../$BRANCH_NAME" "$BRANCH_NAME"
+
+   # 5. VS Codeで新しいworktreeを開く
+   code "../$BRANCH_NAME"
+   ```
 
 5. **Issue実装**
    - issue の内容を分析
