@@ -6,7 +6,9 @@
       "Bash(git fetch:*)",
       "Bash(git pull:*)",
       "Bash(git worktree:*)",
-      "Bash(code:*)"
+      "Bash(code:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
