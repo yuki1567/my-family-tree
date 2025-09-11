@@ -61,41 +61,14 @@ process-issue 123
 
    ```bash
    # 1. 最新の変更を取得
-   git fetch origin && git pull origin main
+   git fetch origin
+   git pull origin main
 
-   # 2. ブランチ名を生成
-   BRANCH_NAME="[Labels]/[issue番号]-[タイトルスラッグ]"
+   # 2. ブランチ名生成とworktree作成
+   git worktree add "../[Labels]/[issue番号]-[タイトルスラッグ]" -b "[Labels]/[issue番号]-[タイトルスラッグ]" main
 
-   # 3. mainブランチから新しいブランチを作成
-   git branch "$BRANCH_NAME" main
+   # 3. VS Codeでworktreeを開き、Claude Code起動の準備
 
-   # 4. 新しいブランチ用のworktreeを作成
-   git worktree add "../$BRANCH_NAME" "$BRANCH_NAME"
-
-   # 5. VS Codeで新しいworktreeを開く
-   code "../$BRANCH_NAME"
+   # VS Codeで新しいworktreeを開く
+   code "../[Labels]/[issue番号]-[タイトルスラッグ]"
    ```
-
-5. **Issue実装**
-   - issue の内容を分析
-   - 必要なタスクを TodoWrite で管理
-   - コーディング標準に従って実装
-
-6. **品質チェック**（修正対象に応じて選択実行）
-   - **フロントエンド修正の場合**: `docker-compose exec apps npm run quality:frontend`
-   - **バックエンド修正の場合**: `docker-compose exec apps npm run quality:backend`
-   - **両方修正の場合**: 両方のコマンドを実行
-   - すべて通るまで修正
-
-7. **コミット作成**
-   - 適切な粒度でコミットを作成
-   - コミットメッセージに issue番号 を含める
-
-8. **PR作成**
-   - ブランチをリモートにプッシュ
-   - GitHub CLI で PR を作成
-   - issue とのリンクを設定
-
-## エラー処理
-
-各段階でエラーが発生した場合、処理を停止し、具体的なエラー内容を表示します。
