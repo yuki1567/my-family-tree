@@ -39,6 +39,14 @@
 
 ## 🚨 Command Execution Enforcement Rules (Critical)
 
+### Command-Specific Execution Rules
+
+#### /process-issue Command Execution Rules
+- **MUST** read `.claude/commands/process-issue.md` first before any execution
+- **MUST** transfer all documented steps to TodoWrite completely and accurately
+- **FORBIDDEN** to skip, modify, or make independent judgments on documented steps
+- **MUST** execute each step in the exact order specified in the documentation
+
 ### Mandatory Docker Container Execution for ALL Commands
 
 **IMPORTANT**: This project requires ALL commands to be executed within Docker containers.
