@@ -6,7 +6,21 @@ dist/
 build/
 .nuxt/
 .output/
+*.map
 
 # Environment files
 .env
 .env.test
+.env.example
+
+# Serena MCP files
+.serena/
+
+# Test coverage
+coverage/
+
+# IDE settings
+.vscode/
+
+# Package manager lock files
+package-lock.json

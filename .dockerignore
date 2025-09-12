@@ -6,6 +6,7 @@
 **/dist
 **/build
 **/.output
+*.map
 
 # 開発・テスト関連
 **/coverage
@@ -22,3 +23,15 @@ docs/
 .vscode/
 .claude/
 CLAUDE.md
+
+# Serena MCP files
+.serena/
+
+# Package manager lock files
+**/package-lock.json
+
+# Source maps
+*.map
+
+# Test artifacts
+coverage/
