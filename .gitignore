@@ -1,26 +1,40 @@
-# Node modules
+# ==============================================
+# Dependencies
+# ==============================================
 node_modules/
 
-# Build output
+# ==============================================
+# Build Output & Generated Files
+# ==============================================
 dist/
 build/
 .nuxt/
 .output/
 *.map
 
-# Environment files
+# ==============================================
+# Test Coverage
+# ==============================================
+coverage/
+
+# ==============================================
+# Environment Files
+# ==============================================
 .env
 .env.test
 .env.example
 
-# Serena MCP files
-.serena/
+# ==============================================
+# Package Manager
+# ==============================================
+package-lock.json
 
-# Test coverage
-coverage/
-
-# IDE settings
+# ==============================================
+# IDE & Editor Files
+# ==============================================
 .vscode/
 
-# Package manager lock files
-package-lock.json
+# ==============================================
+# Development Tools
+# ==============================================
+.serena/
