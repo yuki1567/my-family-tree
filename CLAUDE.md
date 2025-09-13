@@ -34,6 +34,18 @@
 
 **Response to violations**: Immediately correct to Japanese and re-execute
 
+### **EXCEPTION: CLAUDE.md File Editing Language**
+
+**When editing CLAUDE.md file specifically**:
+- **File Content**: MUST remain in English (this is an English instruction document)
+- **Explanation to User**: Provide in Japanese as usual
+- **Reasoning**: CLAUDE.md is a configuration file that should maintain English consistency
+
+**Process**:
+1. Edit CLAUDE.md content in English
+2. Explain the changes to user in Japanese
+3. Maintain clear separation between file content and user communication
+
 # Family Tree App Development Project
 
 ## Critical Constraints & Instructions for Development
