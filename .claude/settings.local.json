@@ -11,8 +11,7 @@
       "Bash(git commit:*)",
       "Bash(sort:*)",
       "Bash(gh issue edit:*)",
-      "Read(//Users/yuki/MyProjects/feature/51-nuxticon-setup/**)",
-      "Bash(/Users/yuki/.nvm/versions/node/v20.12.1/bin/claude)"
+      "Bash(docker-compose exec:*)"
     ],
     "deny": [],
     "ask": []

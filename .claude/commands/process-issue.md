@@ -102,7 +102,7 @@ process-issue 123
    echo "========================================================================================"
    echo ""
    echo "📁 Worktree Path: $WORKTREE_PATH"
-   echo "🌿 Branch: $BRANCH_NAME"  
+   echo "🌿 Branch: $BRANCH_NAME"
    echo "🔢 Issue: #$ISSUE_NUMBER"
    echo "🌐 Frontend: http://localhost:$APP_PORT"
    echo "⚡ API: http://localhost:$API_PORT"
@@ -112,27 +112,33 @@ process-issue 123
    echo "========================================================================================"
    echo ""
    cat << 'TEMPLATE'
-このworktreeでissue #${ISSUE_NUMBER}の開発を開始します。
+   このworktreeでissue #${ISSUE_NUMBER}の開発を開始します。
+   ```
 
 【Issue情報】
+
 - タイトル: ${ISSUE_TITLE}
 - ブランチ: ${BRANCH_NAME}
 - 環境: 独立したDocker環境（ポート競合なし）
 
 【自動セットアップを実行してください】
+
 1. Docker環境の起動とセットアップ：
+
    ```bash
    docker-compose --profile development up -d
    docker-compose exec apps npm install
    ```
 
 2. データベースの初期化：
+
    ```bash
    docker-compose exec apps npx prisma db push
    docker-compose exec apps npx prisma generate
    ```
 
 3. 開発サーバーの起動：
+
    ```bash
    docker-compose exec apps npm run dev
    ```
@@ -142,6 +148,7 @@ process-issue 123
    - API: http://localhost:${API_PORT}
 
 【次に実行してください】
+
 - issueの要件を分析し、実装計画をTodoWriteで作成
 - 技術仕様はdocs/内のドキュメントに従って実装
 - テスト駆動開発で品質を確保
@@ -149,14 +156,16 @@ process-issue 123
 このworktreeは完全に独立した環境なので、メインブランチや他のissueに影響しません。
 TEMPLATE
 
-   # 実際の値でプレースホルダーを置換して出力
-   sed "s/\${ISSUE_NUMBER}/$ISSUE_NUMBER/g; s/\${ISSUE_TITLE}/$(echo "$ISSUE_TITLE" | sed 's/[[\]*^$()+{}|\\]/\\&/g')/g; s/\${BRANCH_NAME}/$BRANCH_NAME/g; s/\${APP_PORT}/$APP_PORT/g; s/\${API_PORT}/$API_PORT/g" << 'TEMPLATE'
+# 実際の値でプレースホルダーを置換して出力
+
+sed "s/\${ISSUE_NUMBER}/$ISSUE_NUMBER/g; s/\${ISSUE_TITLE}/$(echo "$ISSUE_TITLE" | sed 's/[[\]*^$()+{}|\\]/\\&/g')/g; s/\${BRANCH_NAME}/$BRANCH_NAME/g; s/\${APP_PORT}/$APP_PORT/g; s/\${API_PORT}/$API_PORT/g" << 'TEMPLATE'
 このworktreeでissue #${ISSUE_NUMBER}の開発を開始します。
 
 **IMPORTANT**: Think in English, but always respond in Japanese.
 **CRITICAL**: このプロジェクトは monorepo + Docker 環境です。CLAUDE.md の厳格なルールに従ってください。
 
 【Issue情報】
+
 - タイトル: ${ISSUE_TITLE}
 - ブランチ: ${BRANCH_NAME}
 - 環境: Monorepo(frontend/backend/shared) + 独立Docker環境（ポート競合なし）
@@ -165,22 +174,24 @@ TEMPLATE
 以下を**必ず順番通り**に実行してください。ローカル実行は絶対禁止です。
 
 1. **Docker環境とテストDB起動確認**:
+
    ```bash
    # Docker環境起動
    docker-compose --profile development up -d
-   
+
    # テストDBも起動（テスト実行に必要）
    docker-compose --profile test up test-db -d
-   
+
    # 起動状況確認
    docker-compose ps
    ```
 
 2. **Monorepo依存関係インストール（Docker内実行必須）**:
+
    ```bash
    # ルートレベル
    docker-compose exec apps npm install
-   
+
    # 各ワークスペース
    docker-compose exec apps npm install --workspace=apps/frontend
    docker-compose exec apps npm install --workspace=apps/backend
@@ -188,18 +199,20 @@ TEMPLATE
    ```
 
 3. **Prismaデータベース設定（正しい順序で実行）**:
+
    ```bash
    # Prismaクライアント生成
    docker-compose exec apps npm run db:generate --workspace=apps/backend
-   
+
    # マイグレーション実行（db:pushではなくmigrate使用）
    docker-compose exec apps npm run db:migrate --workspace=apps/backend
-   
+
    # 開発用データのシード
    docker-compose exec apps npm run db:seed --workspace=apps/backend
    ```
 
 4. **開発サーバー起動**:
+
    ```bash
    # Frontend + Backend 同時起動
    docker-compose exec apps npm run dev
@@ -210,6 +223,7 @@ TEMPLATE
    - API: http://localhost:${API_PORT}
 
 【品質チェック（実装前後で必須実行）】
+
 ```bash
 # 型チェック
 docker-compose exec apps npm run type-check
@@ -217,7 +231,7 @@ docker-compose exec apps npm run type-check
 # リンター
 docker-compose exec apps npm run lint
 
-# フォーマットチェック  
+# フォーマットチェック
 docker-compose exec apps npm run format:check
 
 # テスト実行
@@ -226,6 +240,7 @@ docker-compose exec apps npm run test:integration --workspace=apps/backend
 ```
 
 【CRITICAL: 実装ワークフロー（必須）】
+
 1. **要件分析**: issueの内容を分析し、TodoWriteで実装計画を作成
 2. **ドキュメント参照**: docs/ 内の技術仕様に厳密に従う
 3. **テスト駆動開発**: テストファーストで品質確保
@@ -233,14 +248,16 @@ docker-compose exec apps npm run test:integration --workspace=apps/backend
 5. **品質チェック**: 全品質チェックコマンドが成功することを確認
 
 【プロジェクト固有の制約事項】
+
 - ❌ Tailwind CSS, UI framework 使用禁止
-- ❌ enum 使用禁止  
+- ❌ enum 使用禁止
 - ❌ 直接のMySQL操作禁止（Prisma必須）
 - ✅ Nuxt.js v3 + TypeScript + vanilla CSS
 - ✅ Express.js + Prisma + MySQL
 - ✅ レスポンシブ対応（モバイルファースト）
 
 【ファイル構造】
+
 ```
 apps/
 ├── frontend/     # Nuxt.js v3 + TypeScript
@@ -252,8 +269,11 @@ apps/
 上記の手順を厳密に守って開発を進めてください。
 TEMPLATE
 
-   echo ""
-   echo "========================================================================================"
-   echo "✅ 上記のプロンプトをコピーして、新しいVSCodeのClaude Codeに貼り付けてください"
-   echo "========================================================================================"
-   ```
+echo ""
+echo "========================================================================================"
+echo "✅ 上記のプロンプトをコピーして、新しいVSCodeのClaude Codeに貼り付けてください"
+echo "========================================================================================"
+
+```
+
+```

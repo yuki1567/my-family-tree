@@ -93,6 +93,7 @@ family-tree-app/
 ## API エンドポイント
 
 ### 人物管理
+
 - `GET /api/people` - 全人物取得
 - `GET /api/people/:id` - 特定人物取得
 - `POST /api/people` - 人物作成
@@ -101,6 +102,7 @@ family-tree-app/
 - `GET /api/people/search` - 人物検索
 
 ### 関係性管理
+
 - `GET /api/relationships` - 全関係性取得
 - `POST /api/relationships` - 関係性作成
 - `DELETE /api/relationships/:id` - 関係性削除
@@ -115,6 +117,7 @@ family-tree-app/
 ## トラブルシューティング
 
 ### ポート競合の場合
+
 ```bash
 # ポート使用状況確認
 lsof -i :3000
@@ -127,6 +130,7 @@ docker-compose up -d
 ```
 
 ### データベースリセット
+
 ```bash
 # データベースボリュームを削除して再作成
 docker-compose down -v

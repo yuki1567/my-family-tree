@@ -255,9 +255,9 @@ npm run test:integration
 
 ```typescript
 // __tests__/integration/personApi.test.ts
-import request from 'supertest'
 import { createApp } from '@/app'
 import { prisma } from '@/config/database'
+import request from 'supertest'
 
 describe('POST /api/people', () => {
   let app: Express
@@ -454,11 +454,13 @@ docker-compose --profile test up test-db -d
 docker-compose exec apps bash -c "cd apps/backend && TEST_DATABASE_URL='mysql://testuser:testpass@localhost:3307/family_tree_test' npm run test:integration"
 ```
 
-**重要**: 
+**重要**:
+
 - このプロジェクトはモノレポ構造のため、backendワークスペース内で実行する必要があります
 - テスト用DBコンテナの起動は手動で行います（Dockerコンテナ内からのdocker-compose実行制約のため）
 
 Jest GlobalSetupで以下が自動実行されます：
+
 1. DB接続確認（リトライ機能付き）
 2. マイグレーション実行
 

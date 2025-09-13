@@ -124,13 +124,13 @@ family-tree-app/
 {
   "paths": {
     "@shared/*": ["./apps/shared/*"],
-    "@/*": ["./apps/backend/*"]  // バックエンド専用
+    "@/*": ["./apps/backend/*"] // バックエンド専用
   }
 }
 ```
 
-- **@shared/***: モノレポ内の共有ライブラリアクセス統一
-- **@/***: バックエンド内での相対パス回避（apps/backend/tsconfig.json で設定）
+- **@shared/\***: モノレポ内の共有ライブラリアクセス統一
+- **@/\***: バックエンド内での相対パス回避（apps/backend/tsconfig.json で設定）
 - **効果**: `import { Type } from "@shared/types"`, `import { service } from "@/services/person"`
 - **保守性**: 深い相対パス（`../../../`）の回避
 

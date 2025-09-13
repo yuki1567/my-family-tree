@@ -71,6 +71,7 @@ enum Gender {
 ### 2.3 関数定義
 
 #### フロントエンド（アロー関数推奨）
+
 コンポーネント内の状態やユーティリティ関数を中心に構成され、再利用性が重要なためボトムアップ型のアロー関数を採用
 
 ```typescript
@@ -94,10 +95,12 @@ const isValidEmail = (email: string): boolean => {
 #### バックエンド設計の使い分け
 
 **クラスベース設計**：「状態管理」「ビジネスロジック」を表現する層
+
 - **対象層**: `controllers/`, `services/`, `repositories/`
 - **理由**: 依存性注入、状態管理、継承を活用したオブジェクト指向設計を採用
 
 **アロー関数**：「純粋関数」「小さい再利用関数」が多い層
+
 - **対象層**: `middlewares/`, `validations/`, `utils/`, `config/`
 - **理由**: 純粋関数や小さな再利用可能な関数を中心に構成され、関数型プログラミングのスタイルを採用
 
@@ -109,7 +112,7 @@ export class PersonController {
   async create(req: Request, res: Response): Promise<void> {
     const validatedData = req.body as CreatePersonRequest
     const result = await this.personService.create(validatedData)
-    
+
     res.status(201).json({
       isSuccess: true,
       data: result,
@@ -133,17 +136,18 @@ export class PersonRepository {
 }
 
 // ✅ 良い例（アロー関数：middlewares/, validations/, utils/, config/）
-const validateBody = (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
-  try {
-    req.body = schema.parse(req.body)
-    next()
-  } catch (error) {
-    next(error)
+const validateBody =
+  (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
+    try {
+      req.body = schema.parse(req.body)
+      next()
+    } catch (error) {
+      next(error)
+    }
   }
-}
 
 const formatErrorMessage = (error: ZodError): string => {
-  return error.errors.map(e => e.message).join(', ')
+  return error.errors.map((e) => e.message).join(', ')
 }
 
 const isValidId = (id: string): boolean => {
@@ -192,7 +196,7 @@ async function fetchPerson(id) {
 
 <script setup lang="ts">
 // 1. インポート
-import { ref, computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { Person } from '~/types/person'
 
 // 2. Props・Emits定義
@@ -229,7 +233,7 @@ watch(
       formData.value = { ...newPerson }
     }
   },
-  { immediate: true },
+  { immediate: true }
 )
 
 // 6. メソッド
@@ -415,23 +419,32 @@ enum Gender {
 
 ### 5.1 インポート順序
 
+**Prettier自動並び替え設定済み**: インポート文は`npm run format`で自動整列
+
 ```typescript
-// ✅ 良い例
-// 1. Node.js標準ライブラリ
+// ✅ 良い例（Prettierが自動整形）
+// 1. 外部ライブラリ（Node.js標準含む）
+// 3. エイリアスパス（@/）
+import { validatePerson } from '@/utils/validation'
+import { API_ROUTES } from '@shared/constants/api-routes'
+// 2. 共有モジュール（@shared）
+import type { Person } from '@shared/types/person'
 import { readFile } from 'fs/promises'
-
-// 2. 外部ライブラリ
-import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 
-// 3. 内部モジュール（shared）
-import type { Person } from '~/shared/types/person'
-import { API_ROUTES } from '~/shared/constants/api-routes'
+// 4. 親ディレクトリ（../）
+import { PersonService } from '../services/PersonService'
 
-// 4. 相対インポート
+// 5. 同階層ファイル（./）
 import PersonCard from './PersonCard.vue'
-import { validatePerson } from '../utils/validation'
 ```
+
+**設定詳細**:
+
+- **プラグイン**: `@trivago/prettier-plugin-sort-imports`
+- **自動実行**: ファイル保存時またはフォーマットコマンド実行時
+- **グループ分け**: 各グループ間に自動で空行挿入
 
 ## 6. コメント・ドキュメント
 
@@ -484,7 +497,7 @@ function calculateAge(birthDate: Date): number {
 it('有効なデータの場合、人物を作成できるか', async () => {
   // Arrange
   const mockRepository = createMockRepository()
-  // Act  
+  // Act
   const result = await service.create(data)
   // Assert
   expect(result).toBeDefined()

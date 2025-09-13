@@ -187,13 +187,13 @@ Production: https://your-domain.com/api
 
 **固有エラーコード**
 
-| HTTPステータスコード | メインエラーコード | フィールド | 詳細エラーコード | 発生条件                     |
-| -------------------- | ------------------ | ---------- | ---------------- | ---------------------------- |
-| 400                  | VALIDATION_ERROR   | name       | NAME_TOO_LONG    | 氏名が100文字を超過          |
-| 400                  | VALIDATION_ERROR   | gender     | INVALID_GENDER   | 性別が0、1、2以外            |
-| 400                  | VALIDATION_ERROR   | birthDate  | INVALID_DATE_FORMAT | 生年月日がYYYY-MM-DD形式でない |
-| 400                  | VALIDATION_ERROR   | deathDate  | INVALID_DATE_FORMAT | 没年月日がYYYY-MM-DD形式でない |
-| 400                  | VALIDATION_ERROR   | deathDate  | DEATH_BEFORE_BIRTH | 没年月日が生年月日より前     |
-| 400                  | VALIDATION_ERROR   | birthPlace | BIRTH_PLACE_TOO_LONG | 出生地が200文字を超過        |
+| HTTPステータスコード | メインエラーコード | フィールド | 詳細エラーコード     | 発生条件                       |
+| -------------------- | ------------------ | ---------- | -------------------- | ------------------------------ |
+| 400                  | VALIDATION_ERROR   | name       | NAME_TOO_LONG        | 氏名が100文字を超過            |
+| 400                  | VALIDATION_ERROR   | gender     | INVALID_GENDER       | 性別が0、1、2以外              |
+| 400                  | VALIDATION_ERROR   | birthDate  | INVALID_DATE_FORMAT  | 生年月日がYYYY-MM-DD形式でない |
+| 400                  | VALIDATION_ERROR   | deathDate  | INVALID_DATE_FORMAT  | 没年月日がYYYY-MM-DD形式でない |
+| 400                  | VALIDATION_ERROR   | deathDate  | DEATH_BEFORE_BIRTH   | 没年月日が生年月日より前       |
+| 400                  | VALIDATION_ERROR   | birthPlace | BIRTH_PLACE_TOO_LONG | 出生地が200文字を超過          |
 
 **重要**: このAPI設計は**保守性**を最優先に設計されています。新機能追加やデータ構造変更時は、既存APIの互換性を維持することを最重要視してください。

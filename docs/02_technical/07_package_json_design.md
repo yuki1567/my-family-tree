@@ -466,8 +466,8 @@ family-tree-app/
 
 ```typescript
 // フロントエンド・バックエンドから共通でアクセス
-import { PersonType } from '@shared/types/person'
 import { API_ROUTES } from '@shared/constants/api-routes'
+import { PersonType } from '@shared/types/person'
 import { formatDate } from '@shared/utils/date'
 ```
 

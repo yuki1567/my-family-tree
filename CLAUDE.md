@@ -25,6 +25,7 @@
 ### **CRITICAL: Coding Standards Priority**
 
 **For all implementations, strictly follow this priority order**:
+
 1. **Coding Standards** (highest priority)
 2. Implementation examples from test guide and other documents
 3. Reference document imitation
@@ -42,6 +43,7 @@
 ### Command-Specific Execution Rules
 
 #### /process-issue Command Execution Rules
+
 - **MUST** read `.claude/commands/process-issue.md` first before any execution
 - **MUST** transfer all documented steps to TodoWrite completely and accurately
 - **FORBIDDEN** to skip, modify, or make independent judgments on documented steps
@@ -52,22 +54,24 @@
 **IMPORTANT**: This project requires ALL commands to be executed within Docker containers.
 
 #### Execution Decision Logic
+
 1. **Check**: Project root contains `docker-compose.yml` → **MUST use Docker container execution**
 2. **Format**: Use `docker-compose exec apps [command]`
 3. **FORBIDDEN**: Direct local execution (`npm run`, `yarn`, `node`, etc.)
 
 #### Required Execution Format
+
 ```bash
 # ✅ Correct execution method
 docker-compose exec apps npm run test:unit
-docker-compose exec apps npm run test:integration  
+docker-compose exec apps npm run test:integration
 docker-compose exec apps npm install
 docker-compose exec apps npm run build
 docker-compose exec apps npm run dev
 
 # ❌ NEVER execute these methods
 npm run test:unit        # <- Will 100% fail
-npm run test:integration # <- Will 100% fail  
+npm run test:integration # <- Will 100% fail
 npm install              # <- Will 100% fail
 ```
 
@@ -129,6 +133,7 @@ All implementation work must follow these procedures:
 - **What problems this implementation solves and potential issues**
 
 **Requirements**:
+
 - Show concrete code examples of what you plan to implement
 - Explain the reasoning behind each technical choice
 - Focus on implementation decisions, not general project concepts
