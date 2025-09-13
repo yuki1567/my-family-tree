@@ -23,8 +23,3 @@ coverage/
 .env
 .env.test
 .env.example
-
-# ==============================================
-# Package Manager
-# ==============================================
-package-lock.json
