@@ -21,6 +21,10 @@ COPY tsconfig*.json ./
 COPY apps/frontend/tsconfig*.json ./apps/frontend/
 COPY apps/backend/tsconfig*.json ./apps/backend/
 
+# ESLintとPrettier設定ファイルのコピー
+COPY eslint.config.js ./
+COPY .prettierrc ./
+
 # ログディレクトリ作成
 RUN mkdir -p /apps/logs
 
