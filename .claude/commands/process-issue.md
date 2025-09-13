@@ -160,9 +160,6 @@ sed "s/\${ISSUE_NUMBER}/$ISSUE_NUMBER/g; s/\${ISSUE_TITLE}/$(echo "$ISSUE_TITLE"
    # Docker環境起動
    docker-compose --profile development up -d
 
-   # テストDBも起動（テスト実行に必要）
-   docker-compose --profile test up test-db -d
-
    # 起動状況確認
    docker-compose ps
    ```
