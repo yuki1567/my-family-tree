@@ -100,6 +100,10 @@ process-issue 123
    sed -i "s|{{APP_NAME}}|$APP_NAME|g" "$WORKTREE_PATH/.env"
    sed -i "s|{{JWT_SECRET}}|$JWT_SECRET|g" "$WORKTREE_PATH/.env"
 
+   # .env.testファイルもworktreeにコピー
+   cp .env.test "$WORKTREE_PATH/.env.test"
+   echo "✅ .env.testファイルをworktreeにコピーしました"
+
    # worktree用データベーススキーマを作成
    echo "📊 worktree用データベーススキーマを作成中..."
    docker-compose exec db mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;" 2>/dev/null || echo "⚠️  DB作成をスキップ（DBコンテナが停止中の可能性）"
