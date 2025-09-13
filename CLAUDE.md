@@ -40,6 +40,7 @@
 - **ALL commands** must use: `docker-compose exec apps [command]`
 - **Tests**: Ensure test-db container is running first
 - **process-issue command**: Follow `.claude/commands/process-issue.md` exactly
+- **Error Resolution**: Follow 3-stage analysis protocol - See `docs/03_development/05_error_resolution.md`
 
 *Detailed execution procedures: [Docker Setup](./docs/04_infrastructure/01_docker_setup.md) | [Testing Guide](./docs/03_development/03_testing_guide.md)*
 
