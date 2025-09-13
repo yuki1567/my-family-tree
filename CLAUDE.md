@@ -18,6 +18,22 @@
 - Ensure users understand "why" in your responses
 - When using technical terms, add supplementary explanations as needed
 
+### **CRITICAL: Language Consistency During Technical Operations (Enforced)**
+
+**Mandatory verification before ALL tool executions and commits**:
+
+1. **Commit Messages**: MUST be written in Japanese (English prohibited)
+2. **Before Bash Tool Execution**: Re-confirm "output in Japanese"
+3. **During Technical Work**: Continue Japanese responses even in programming contexts
+4. **No Exceptions**: "Think in English, but always respond in Japanese" is absolute
+
+**Mandatory self-check before commit execution**:
+- ✅ Does message contain Japanese characters (hiragana/katakana/kanji)?
+- ✅ Are technical details also described in Japanese?
+- ✅ Does this follow CLAUDE.md instructions?
+
+**Response to violations**: Immediately correct to Japanese and re-execute
+
 # Family Tree App Development Project
 
 ## Critical Constraints & Instructions for Development
