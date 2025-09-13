@@ -1,22 +1,21 @@
 {
   "permissions": {
     "allow": [
+      "Bash(code:*)",
+      "Bash(docker-compose exec:*)",
+      "Bash(echo:*)",
+      "Bash(gh issue edit:*)",
       "Bash(gh issue list:*)",
       "Bash(gh issue view:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
       "Bash(git fetch:*)",
       "Bash(git pull:*)",
       "Bash(git worktree:*)",
-      "Bash(code:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(sort:*)",
-      "Bash(gh issue edit:*)",
-      "Bash(docker-compose exec:*)",
-      "Bash(echo:*)",
-      "Bash(ISSUE_NUMBER=34)",
+      "Bash(ISSUE_NUMBER=*)",
       "Bash(ISSUE_TITLE=*)",
       "Bash(LABELS=*)",
-      "Bash(gh issue view:*)"
+      "Bash(sort:*)"
     ],
     "deny": [],
     "ask": []
