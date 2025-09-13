@@ -14,7 +14,7 @@ COPY apps/frontend/package*.json ./apps/frontend/
 COPY apps/backend/package*.json ./apps/backend/
 
 # ワークスペース全体の依存関係を一括インストール
-RUN npm install --frozen-lockfile
+RUN npm ci --frozen-lockfile
 
 # TypeScript設定ファイルのコピー
 COPY tsconfig*.json ./
