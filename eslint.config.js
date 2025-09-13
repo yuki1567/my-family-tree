@@ -38,9 +38,12 @@ export const baseConfig = [
         setTimeout: 'readonly',
       },
     },
+    env: {
+      node: true,
+    },
     plugins: {
       '@typescript-eslint': typescript,
-      prettier: prettier,
+      prettier,
     },
     rules: {
       'no-console': 'warn',

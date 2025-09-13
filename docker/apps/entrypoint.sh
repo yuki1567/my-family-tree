@@ -22,19 +22,19 @@ wait_for_db() {
   log "Database ready"
 }
 
-# Prisma設定（開発環境用）- 一旦コメントアウト
-# setup_prisma() {
-#   log "Setting up Prisma..."
-#   npx prisma generate
-#   npx prisma migrate dev --name init
-#   log "Prisma setup completed"
-# }
+# Prisma設定（開発環境用）
+setup_prisma() {
+  log "Setting up Prisma..."
+  npm run db:generate
+  npm run db:migrate
+  log "Prisma setup completed"
+}
 
 # メイン実行
 main() {
   log "Starting application..."
   wait_for_db
-  # setup_prisma  # 一旦コメントアウト
+  setup_prisma
   
   # PM2でアプリケーション起動
   pm2 start ecosystem.config.cjs

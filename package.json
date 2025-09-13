@@ -33,6 +33,7 @@
     "test:coverage:backend": "npm run test:coverage --workspace=apps/backend",
     "clean": "rm -rf node_modules apps/*/node_modules apps/*/dist apps/*/.nuxt",
     "clean:install": "npm run clean && npm install",
+    "db:generate": "npm run db:generate --workspace=apps/backend",
     "db:migrate": "npm run db:migrate --workspace=apps/backend",
     "db:seed": "npm run db:seed --workspace=apps/backend",
     "db:studio": "npm run db:studio --workspace=apps/backend",
