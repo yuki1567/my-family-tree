@@ -106,7 +106,7 @@ process-issue 123
    # 4. VS Codeで新しいworktreeを開く
    code "$WORKTREE_PATH"
 
-   # 5. Claude Code用プロンプトテンプレートを出力
+   # 5. Claude Code用プロンプトテンプレートを準備
    echo "========================================================================================"
    echo "🚀 新しいworktreeが作成されました！"
    echo "========================================================================================"
@@ -117,87 +117,21 @@ process-issue 123
    echo "🌐 Frontend: http://localhost:$APP_PORT"
    echo "⚡ API: http://localhost:$API_PORT"
    echo ""
+
+   # 6. プロンプトテンプレートを処理して直接表示
    echo "========================================================================================"
-   echo "📋 Claude Code用プロンプト（コピー&ペーストしてください）"
+   echo "📋 Claude Code用プロンプト（以下をコピー&ペーストしてください）"
    echo "========================================================================================"
    echo ""
-   cat << 'TEMPLATE'
-   このworktreeでissue #${ISSUE_NUMBER}の開発を開始します。
-   ```
 
-【Issue情報】
+   # テンプレートファイルから読み込み、変数を置換して直接出力
+   # 区切り文字を|に変更してハイフンを含むブランチ名に対応
+   sed "s|{{ISSUE_NUMBER}}|$ISSUE_NUMBER|g; s|{{ISSUE_TITLE}}|$ISSUE_TITLE|g; s|{{BRANCH_NAME}}|$BRANCH_NAME|g; s|{{APP_PORT}}|$APP_PORT|g; s|{{API_PORT}}|$API_PORT|g" .claude/templates/worktree-prompt.md
 
-- タイトル: ${ISSUE_TITLE}
-- ブランチ: ${BRANCH_NAME}
-- 環境: 独立したDocker環境
-
-【次に実行してください】
-
-- issueの要件を分析し、実装計画をTodoWriteで作成
-- 技術仕様はdocs/内のドキュメントに従って実装
-- テスト駆動開発で品質を確保
-
-このworktreeは完全に独立した環境なので、メインブランチや他のissueに影響しません。
-TEMPLATE
-
-# 実際の値でプレースホルダーを置換して出力
-
-sed "s/\${ISSUE_NUMBER}/$ISSUE_NUMBER/g; s/\${ISSUE_TITLE}/$(echo "$ISSUE_TITLE" | sed 's/[[\]*^$()+{}|\\]/\\&/g')/g; s/\${BRANCH_NAME}/$BRANCH_NAME/g; s/\${APP_PORT}/$APP_PORT/g; s/\${API_PORT}/$API_PORT/g" << 'TEMPLATE'
-このworktreeでissue #${ISSUE_NUMBER}の開発を開始します。
-
-【Issue情報】
-
-- タイトル: ${ISSUE_TITLE}
-- ブランチ: ${BRANCH_NAME}
-- 環境: Monorepo(frontend/backend/shared) + 独立Docker環境（ポート競合なし）
-
-【CRITICAL: 必須セットアップ手順（Docker強制実行）】
-以下を**必ず順番通り**に実行してください。ローカル実行は絶対禁止です。
-
-1. **Docker環境とテストDB起動確認**:
-
-   ```bash
-   # Docker環境起動
-   docker-compose --profile development up -d
-
-   # 起動状況確認
-   docker-compose ps
-   ```
-
-2. **アクセス確認**:
-   - Frontend: http://localhost:${APP_PORT}
-   - API: http://localhost:${API_PORT}
-
-【品質チェック（実装前後で必須実行）】
-
-```bash
-# backendチェック
-npm run docker:quality:backend
-
-# frontendチェック
-npm run docker:quality:frontend
-
-# テスト実行
-npm run docker:test:unit
-npm run docker:test:integration
-```
-
-【CRITICAL: 実装ワークフロー（必須）】
-
-1. **要件分析**: issueの内容を分析し、TodoWriteで実装計画を作成
-2. **ドキュメント参照**: docs/ 内の技術仕様に厳密に従う
-3. **テスト駆動開発**: テストファーストで品質確保
-4. **段階的実装**: 小さく実装→テスト→コミットのサイクル
-5. **品質チェック**: 全品質チェックコマンドが成功することを確認
-
-このworktreeは完全に独立した環境です。メインブランチや他のissueに影響しません。
-上記の手順を厳密に守って開発を進めてください。
-TEMPLATE
-
-echo ""
-echo "========================================================================================"
-echo "✅ 上記のプロンプトをコピーして、新しいVSCodeのClaude Codeに貼り付けてください"
-echo "========================================================================================"
+   echo ""
+   echo "========================================================================================"
+   echo "✅ 上記のプロンプトをコピーして、新しいVS CodeのClaude Codeに貼り付けてください"
+   echo "========================================================================================"
 
 ```
 
