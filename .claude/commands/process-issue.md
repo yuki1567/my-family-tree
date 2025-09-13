@@ -39,11 +39,21 @@ process-issue 123
 
 1. **最優先Issue の自動選択**（引数なしの場合）
    - 未アサインのOpen issueを一覧取得
+
+   ```bash
+   gh issue list --state open --assignee "" --json number,title,labels --limit 100
+   ```
+
    - タイトルの `[数字]` による優先度ソート
    - 最優先issueを自動選択
 
 2. **Issue情報の取得と確認**
    - 選択または指定されたissue番号の詳細を GitHub CLI で取得
+
+   ```bash
+   gh issue view [issue番号]
+   ```
+
    - issue の タイトル、本文、ラベル を表示して確認
 
 3. **Issueアサイン**
@@ -119,33 +129,7 @@ process-issue 123
 
 - タイトル: ${ISSUE_TITLE}
 - ブランチ: ${BRANCH_NAME}
-- 環境: 独立したDocker環境（ポート競合なし）
-
-【自動セットアップを実行してください】
-
-1. Docker環境の起動とセットアップ：
-
-   ```bash
-   docker-compose --profile development up -d
-   docker-compose exec apps npm install
-   ```
-
-2. データベースの初期化：
-
-   ```bash
-   docker-compose exec apps npx prisma db push
-   docker-compose exec apps npx prisma generate
-   ```
-
-3. 開発サーバーの起動：
-
-   ```bash
-   docker-compose exec apps npm run dev
-   ```
-
-4. アクセス確認：
-   - Frontend: http://localhost:${APP_PORT}
-   - API: http://localhost:${API_PORT}
+- 環境: 独立したDocker環境
 
 【次に実行してください】
 
@@ -160,9 +144,6 @@ TEMPLATE
 
 sed "s/\${ISSUE_NUMBER}/$ISSUE_NUMBER/g; s/\${ISSUE_TITLE}/$(echo "$ISSUE_TITLE" | sed 's/[[\]*^$()+{}|\\]/\\&/g')/g; s/\${BRANCH_NAME}/$BRANCH_NAME/g; s/\${APP_PORT}/$APP_PORT/g; s/\${API_PORT}/$API_PORT/g" << 'TEMPLATE'
 このworktreeでissue #${ISSUE_NUMBER}の開発を開始します。
-
-**IMPORTANT**: Think in English, but always respond in Japanese.
-**CRITICAL**: このプロジェクトは monorepo + Docker 環境です。CLAUDE.md の厳格なルールに従ってください。
 
 【Issue情報】
 
@@ -186,57 +167,22 @@ sed "s/\${ISSUE_NUMBER}/$ISSUE_NUMBER/g; s/\${ISSUE_TITLE}/$(echo "$ISSUE_TITLE"
    docker-compose ps
    ```
 
-2. **Monorepo依存関係インストール（Docker内実行必須）**:
-
-   ```bash
-   # ルートレベル
-   docker-compose exec apps npm install
-
-   # 各ワークスペース
-   docker-compose exec apps npm install --workspace=apps/frontend
-   docker-compose exec apps npm install --workspace=apps/backend
-   docker-compose exec apps npm install --workspace=apps/shared
-   ```
-
-3. **Prismaデータベース設定（正しい順序で実行）**:
-
-   ```bash
-   # Prismaクライアント生成
-   docker-compose exec apps npm run db:generate --workspace=apps/backend
-
-   # マイグレーション実行（db:pushではなくmigrate使用）
-   docker-compose exec apps npm run db:migrate --workspace=apps/backend
-
-   # 開発用データのシード
-   docker-compose exec apps npm run db:seed --workspace=apps/backend
-   ```
-
-4. **開発サーバー起動**:
-
-   ```bash
-   # Frontend + Backend 同時起動
-   docker-compose exec apps npm run dev
-   ```
-
-5. **アクセス確認**:
+2. **アクセス確認**:
    - Frontend: http://localhost:${APP_PORT}
    - API: http://localhost:${API_PORT}
 
 【品質チェック（実装前後で必須実行）】
 
 ```bash
-# 型チェック
-docker-compose exec apps npm run type-check
+# backendチェック
+npm run docker:quality:backend
 
-# リンター
-docker-compose exec apps npm run lint
-
-# フォーマットチェック
-docker-compose exec apps npm run format:check
+# frontendチェック
+npm run docker:quality:frontend
 
 # テスト実行
-docker-compose exec apps npm run test:unit --workspace=apps/backend
-docker-compose exec apps npm run test:integration --workspace=apps/backend
+npm run docker:test:unit
+npm run docker:test:integration
 ```
 
 【CRITICAL: 実装ワークフロー（必須）】
@@ -246,24 +192,6 @@ docker-compose exec apps npm run test:integration --workspace=apps/backend
 3. **テスト駆動開発**: テストファーストで品質確保
 4. **段階的実装**: 小さく実装→テスト→コミットのサイクル
 5. **品質チェック**: 全品質チェックコマンドが成功することを確認
-
-【プロジェクト固有の制約事項】
-
-- ❌ Tailwind CSS, UI framework 使用禁止
-- ❌ enum 使用禁止
-- ❌ 直接のMySQL操作禁止（Prisma必須）
-- ✅ Nuxt.js v3 + TypeScript + vanilla CSS
-- ✅ Express.js + Prisma + MySQL
-- ✅ レスポンシブ対応（モバイルファースト）
-
-【ファイル構造】
-
-```
-apps/
-├── frontend/     # Nuxt.js v3 + TypeScript
-├── backend/      # Express.js + Prisma
-└── shared/       # 共通型定義・ユーティリティ
-```
 
 このworktreeは完全に独立した環境です。メインブランチや他のissueに影響しません。
 上記の手順を厳密に守って開発を進めてください。
