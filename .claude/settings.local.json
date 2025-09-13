@@ -12,7 +12,10 @@
       "Bash(sort:*)",
       "Bash(gh issue edit:*)",
       "Bash(docker-compose exec:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(ISSUE_NUMBER=34)",
+      "Bash(ISSUE_TITLE=*)",
+      "Bash(LABELS=*)"
     ],
     "deny": [],
     "ask": []
