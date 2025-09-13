@@ -89,7 +89,6 @@ process-issue 123
    DB_NAME="family_tree_${BRANCH_TYPE}_${ISSUE_NUMBER}"
    APP_NAME="app-${BRANCH_TYPE}-${ISSUE_NUMBER}"
    JWT_SECRET="worktree_jwt_${ISSUE_NUMBER}_$(date +%s)"
-   COMPOSE_PROJECT_NAME="family-tree-${BRANCH_TYPE}-${ISSUE_NUMBER}"
 
    # .env.exampleから.envを作成し、プレースホルダーを置換
    cp .env.example "$WORKTREE_PATH/.env"
@@ -101,7 +100,6 @@ process-issue 123
    sed -i "s|{{DB_NAME}}|$DB_NAME|g" "$WORKTREE_PATH/.env"
    sed -i "s|{{APP_NAME}}|$APP_NAME|g" "$WORKTREE_PATH/.env"
    sed -i "s|{{JWT_SECRET}}|$JWT_SECRET|g" "$WORKTREE_PATH/.env"
-   sed -i "s|{{COMPOSE_PROJECT_NAME}}|$COMPOSE_PROJECT_NAME|g" "$WORKTREE_PATH/.env"
 
    # 4. VS Codeで新しいworktreeを開く
    code "$WORKTREE_PATH"
@@ -123,15 +121,18 @@ process-issue 123
    echo "📋 Claude Code用プロンプト（以下をコピー&ペーストしてください）"
    echo "========================================================================================"
    echo ""
+   echo "\`\`\`"
 
    # テンプレートファイルから読み込み、変数を置換して直接出力
    # 区切り文字を|に変更してハイフンを含むブランチ名に対応
    sed "s|{{ISSUE_NUMBER}}|$ISSUE_NUMBER|g; s|{{ISSUE_TITLE}}|$ISSUE_TITLE|g; s|{{BRANCH_NAME}}|$BRANCH_NAME|g; s|{{APP_PORT}}|$APP_PORT|g; s|{{API_PORT}}|$API_PORT|g" .claude/templates/worktree-prompt.md
 
+   echo "\`\`\`"
    echo ""
    echo "========================================================================================"
    echo "✅ 上記のプロンプトをコピーして、新しいVS CodeのClaude Codeに貼り付けてください"
    echo "========================================================================================"
+   ```
 
 ```
 
@@ -158,3 +159,4 @@ process-issue 123
 2. 新しい環境で実装作業を開始
 
 **process-issueコマンドは環境準備のみが責任範囲です。**
+```
