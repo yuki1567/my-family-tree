@@ -84,7 +84,7 @@ process-issue 123
    # 3. worktree用.env設定の自動生成
    ISSUE_NUMBER=[issue番号]
    BRANCH_TYPE=[Labels]
-   APP_PORT=$((3000 + ($ISSUE_NUMBER % 100)))
+   WEB_PORT=$((3000 + ($ISSUE_NUMBER % 100)))
    API_PORT=$((4000 + ($ISSUE_NUMBER % 100)))
    DB_NAME="family_tree_${BRANCH_TYPE}_${ISSUE_NUMBER}"
    APP_NAME="app-${BRANCH_TYPE}-${ISSUE_NUMBER}"
@@ -94,7 +94,7 @@ process-issue 123
    cp .env.example "$WORKTREE_PATH/.env"
    sed -i "s|{{BRANCH_NAME}}|$BRANCH_NAME|g" "$WORKTREE_PATH/.env"
    sed -i "s|{{ISSUE_NUMBER}}|$ISSUE_NUMBER|g" "$WORKTREE_PATH/.env"
-   sed -i "s|{{APP_PORT}}|$APP_PORT|g" "$WORKTREE_PATH/.env"
+   sed -i "s|{{WEB_PORT}}|$WEB_PORT|g" "$WORKTREE_PATH/.env"
    sed -i "s|{{API_PORT}}|$API_PORT|g" "$WORKTREE_PATH/.env"
    sed -i "s|{{DB_NAME}}|$DB_NAME|g" "$WORKTREE_PATH/.env"
    sed -i "s|{{APP_NAME}}|$APP_NAME|g" "$WORKTREE_PATH/.env"

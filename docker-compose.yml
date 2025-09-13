@@ -9,7 +9,7 @@ services:
     container_name: ${APP_NAME:-apps}
     working_dir: /usr/src
     ports:
-      - '${APP_PORT:-3000}:3000'
+      - '${WEB_PORT:-3000}:3000'
       - '${API_PORT:-4000}:4000'
     volumes:
       - ./apps:/usr/src/apps
