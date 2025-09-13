@@ -92,7 +92,6 @@ process-issue 123
 
    # .env.exampleから.envを作成し、プレースホルダーを置換
    cp .env.example "$WORKTREE_PATH/.env"
-   sed -i "s|{{WORKTREE_PATH}}|$WORKTREE_PATH|g" "$WORKTREE_PATH/.env"
    sed -i "s|{{BRANCH_NAME}}|$BRANCH_NAME|g" "$WORKTREE_PATH/.env"
    sed -i "s|{{ISSUE_NUMBER}}|$ISSUE_NUMBER|g" "$WORKTREE_PATH/.env"
    sed -i "s|{{APP_PORT}}|$APP_PORT|g" "$WORKTREE_PATH/.env"

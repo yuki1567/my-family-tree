@@ -12,7 +12,7 @@ services:
       - '${APP_PORT:-3000}:3000'
       - '${API_PORT:-4000}:4000'
     volumes:
-      - ${WORKTREE_PATH:-./apps}:/usr/src/apps
+      - ./apps:/usr/src/apps
     environment:
       - TZ=Asia/Tokyo
     env_file:
