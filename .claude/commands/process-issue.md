@@ -101,6 +101,13 @@ process-issue 123
    sed -i "s|{{APP_NAME}}|$APP_NAME|g" "$WORKTREE_PATH/.env"
    sed -i "s|{{JWT_SECRET}}|$JWT_SECRET|g" "$WORKTREE_PATH/.env"
 
+   # worktree用データベーススキーマを作成
+   echo "📊 worktree用データベーススキーマを作成中..."
+   docker-compose exec db mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;" 2>/dev/null || echo "⚠️  DB作成をスキップ（DBコンテナが停止中の可能性）"
+
+   # 必要最小限の権限のみ付与
+   docker-compose exec db mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON \`${DB_NAME}\`.* TO 'family_tree_user'@'%';" 2>/dev/null || echo "⚠️  権限付与をスキップ（DBコンテナが停止中の可能性）"
+
    # 4. VS Codeで新しいworktreeを開く
    code "$WORKTREE_PATH"
 
