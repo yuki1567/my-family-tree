@@ -15,7 +15,8 @@
       "Bash(echo:*)",
       "Bash(ISSUE_NUMBER=34)",
       "Bash(ISSUE_TITLE=*)",
-      "Bash(LABELS=*)"
+      "Bash(LABELS=*)",
+      "Bash(gh issue view:*)"
     ],
     "deny": [],
     "ask": []
