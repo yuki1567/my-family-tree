@@ -7,11 +7,20 @@ export default defineNuxtConfig({
   // SPAモード
   ssr: false,
 
-  // CSS設定（素のCSS使用、フレームワーク禁止）
+  // CSS設定
   css: ['~/assets/css/main.css'],
 
-  // Pinia状態管理
-  modules: ['@pinia/nuxt'],
+  modules: [
+    '@pinia/nuxt',
+    [
+      '@nuxt/eslint',
+      {
+        config: {
+          stylistic: true,
+        },
+      },
+    ],
+  ],
 
   compatibilityDate: '2025-08-15',
 })
