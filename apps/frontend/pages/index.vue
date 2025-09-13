@@ -1,23 +1,33 @@
 <template>
   <!-- ヘッダー -->
   <header class="app-header">
-    <h1 class="app-title">Family Tree App</h1>
-    <button class="settings-btn">設定</button>
+    <h1 class="app-title">
+      Family Tree App
+    </h1>
+    <button class="settings-btn">
+      設定
+    </button>
   </header>
 
   <!-- メインコンテンツエリア -->
   <div class="content-area">
     <!-- 家系図表示エリア -->
     <main class="family-tree-area">
-      <div class="tree-container"></div>
+      <div class="tree-container" />
     </main>
   </div>
 
   <!-- フローティング追加ボタン -->
-  <button class="floating-add-btn" title="人物を追加">+</button>
+  <button
+    class="floating-add-btn"
+    title="人物を追加"
+  >
+    +
+  </button>
 </template>
 
 <script setup lang="ts"></script>
+
 <style scoped>
 /* ヘッダー */
 .app-header {
