@@ -9,7 +9,14 @@
 【CRITICAL: 必須セットアップ手順（Docker強制実行）】
 以下を**必ず順番通り**に実行してください。ローカル実行は絶対禁止です。
 
-1. **Docker環境とテストDB起動確認**:
+1. **依存関係のインストール**:
+
+   ```bash
+   # ローカル開発ツールのためのnpm install（Docker環境構築前に必要）
+   npm install
+   ```
+
+2. **Docker環境とテストDB起動確認**:
 
    ```bash
    # 既存コンテナの状況確認
@@ -30,7 +37,7 @@
    docker-compose ps
    ```
 
-2. **アクセス確認**:
+3. **アクセス確認**:
    - Frontend: http://localhost:{{APP_PORT}}
    - API: http://localhost:{{API_PORT}}
 

@@ -17,8 +17,8 @@ services:
       - TZ=Asia/Tokyo
     env_file:
       - .env
-    depends_on:
-      - db
+    networks:
+      - my-family-tree_default
 
   db:
     build:
@@ -55,3 +55,7 @@ services:
     tmpfs:
       - /var/lib/mysql # メモリ上での高速実行
     profiles: ['test'] # テストプロファイル指定
+
+networks:
+  my-family-tree_default:
+    external: true
