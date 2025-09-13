@@ -1,14 +1,14 @@
-import {
-  describe,
-  it,
-  expect,
-  beforeAll,
-  afterAll,
-  beforeEach,
-} from '@jest/globals'
-import request from 'supertest'
 import { createApp } from '@/app'
 import { prisma } from '@/database/config/database'
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from '@jest/globals'
+import request from 'supertest'
 
 describe('POST /api/people - 人物追加API', () => {
   const app = createApp()

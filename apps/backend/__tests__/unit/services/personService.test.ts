@@ -1,7 +1,7 @@
-import { describe, it, expect, jest } from '@jest/globals'
-import { PersonService } from '@/services/personService'
 import { PersonRepository } from '@/repositories/personRepository'
+import { PersonService } from '@/services/personService'
 import { CreatePersonRequest } from '@/validations/personValidation'
+import { describe, expect, it, jest } from '@jest/globals'
 
 jest.mock('@/repositories/personRepository')
 
@@ -80,7 +80,7 @@ describe('PersonService', () => {
       mockRepository.create.mockRejectedValue(repositoryError)
 
       await expect(personService.create(createPersonData)).rejects.toThrow(
-        'Database connection failed',
+        'Database connection failed'
       )
       expect(mockRepository.create).toHaveBeenCalledWith(createPersonData)
     })

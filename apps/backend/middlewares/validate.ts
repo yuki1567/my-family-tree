@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { ZodSchema } from 'zod'
 
 export function validateBody(
-  schema: ZodSchema,
+  schema: ZodSchema
 ): (req: Request, res: Response, next: NextFunction) => void {
   return function (req: Request, _res: Response, next: NextFunction): void {
     try {

@@ -1,5 +1,5 @@
-import { CreatePersonRequest } from '@/validations/personValidation'
 import { PersonRepository } from '@/repositories/personRepository'
+import { CreatePersonRequest } from '@/validations/personValidation'
 
 export class PersonService {
   constructor(private personRepository: PersonRepository) {}

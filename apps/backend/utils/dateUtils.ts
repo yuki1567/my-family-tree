@@ -15,7 +15,7 @@ export const formatDateToYYYYMMDD = (date: Date | null): string | null => {
  * @returns Date型またはnull
  */
 export const convertStringToDate = (
-  dateStr: string | undefined,
+  dateStr: string | undefined
 ): Date | null => {
   if (!dateStr) return null
   return new Date(dateStr)

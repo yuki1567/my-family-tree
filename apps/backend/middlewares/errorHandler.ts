@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { ZodError } from 'zod'
 
 export function globalErrorHandler(
   error: Error,
   _req: Request,
   res: Response,
-  _next: NextFunction,
+  _next: NextFunction
 ): void {
   if (res.headersSent) return
 

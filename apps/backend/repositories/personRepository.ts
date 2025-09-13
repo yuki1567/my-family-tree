@@ -1,6 +1,6 @@
 import { prisma } from '@/database/config/database'
+import { convertStringToDate, formatDateToYYYYMMDD } from '@/utils/dateUtils'
 import { CreatePersonRequest } from '@/validations/personValidation'
-import { formatDateToYYYYMMDD, convertStringToDate } from '@/utils/dateUtils'
 
 export class PersonRepository {
   async create(data: CreatePersonRequest) {

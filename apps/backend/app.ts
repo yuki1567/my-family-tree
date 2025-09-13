@@ -1,7 +1,7 @@
-import express from 'express'
 import { envConfig } from '@/config/env'
 import { globalErrorHandler } from '@/middlewares/errorHandler'
 import { personRoutes } from '@/routes/personRoutes'
+import express from 'express'
 
 export function createApp(): express.Express {
   const app = express()

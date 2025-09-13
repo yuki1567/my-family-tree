@@ -1,6 +1,6 @@
-import { Request, Response } from 'express'
-import { CreatePersonRequest } from '@/validations/personValidation'
 import { PersonService } from '@/services/personService'
+import { CreatePersonRequest } from '@/validations/personValidation'
+import { Request, Response } from 'express'
 
 export class PersonController {
   constructor(private personService: PersonService) {}

@@ -18,7 +18,6 @@
 </template>
 
 <script setup lang="ts"></script>
-
 <style scoped>
 /* ヘッダー */
 .app-header {
