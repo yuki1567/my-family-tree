@@ -48,14 +48,15 @@ async function ensureMigrations(): Promise<void> {
     }
 
     console.log('✅ マイグレーション状態を確認完了')
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const execError = error as { code?: number; stdout?: string }
     // exit code 1は未適用マイグレーションがある場合の正常な応答
-    if (error.code === 1 && error.stdout) {
+    if (execError.code === 1 && execError.stdout) {
       if (
-        error.stdout.includes(
+        execError.stdout.includes(
           'Following migration have not yet been applied:'
         ) ||
-        error.stdout.includes('The database schema is not in sync')
+        execError.stdout.includes('The database schema is not in sync')
       ) {
         console.log('🔧 未適用のマイグレーションを実行中...')
         await execAsync(
@@ -87,7 +88,7 @@ async function waitForDatabaseConnection(
       await prisma.$connect()
       await prisma.$disconnect()
       return
-    } catch (error) {
+    } catch {
       if (i === maxRetries - 1) {
         throw new Error(
           `DB接続失敗: ${maxRetries}回リトライしましたが接続できませんでした`
