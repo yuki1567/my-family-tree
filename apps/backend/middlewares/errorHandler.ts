@@ -28,7 +28,7 @@ export function globalErrorHandler(
       error: {
         statusCode: 400,
         errorCode: 'VALIDATION_ERROR',
-        details: details,
+        details,
       },
     })
     return
