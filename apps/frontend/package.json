@@ -12,9 +12,12 @@
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test": "vitest run",
+    "test:unit": "vitest run __tests__/unit",
+    "test:integration": "vitest run __tests__/integration",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest __tests__/unit",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@nuxt/eslint": "0.5.7",
