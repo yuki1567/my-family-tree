@@ -1,36 +1,17 @@
+import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import { defineConfig } from 'vitest/config'
-import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   plugins: [vue()],
   test: {
     environment: 'happy-dom',
     globals: true,
-    setupFiles: ['./__tests__/setup/setup.ts'],
-    include: ['__tests__/**/*.{test,spec}.{js,ts,vue}'],
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/.{idea,git,cache,output,temp}/**',
-      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
-    ],
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      exclude: [
-        'coverage/**',
-        'dist/**',
-        '**/node_modules/**',
-        '**/__tests__/**',
-        '**/*.config.*',
-        '**/*.d.ts',
-      ],
-    },
+    setupFiles: ['./tests/setup/test-setup.ts'],
+    include: ['tests/**/*.{test,spec}.{js,ts,vue}'],
   },
   resolve: {
     alias: {
-      '~': resolve(__dirname, '.'),
       '@': resolve(__dirname, '.'),
     },
   },
