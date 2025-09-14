@@ -7,8 +7,8 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     globals: true,
-    setupFiles: ['./test/setup.ts'],
-    include: ['**/*.{test,spec}.{js,ts,vue}'],
+    setupFiles: ['./__tests__/setup/setup.ts'],
+    include: ['__tests__/**/*.{test,spec}.{js,ts,vue}'],
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
@@ -22,7 +22,7 @@ export default defineConfig({
         'coverage/**',
         'dist/**',
         '**/node_modules/**',
-        '**/test/**',
+        '**/__tests__/**',
         '**/*.config.*',
         '**/*.d.ts',
       ],
