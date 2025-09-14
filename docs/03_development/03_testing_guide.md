@@ -2,9 +2,21 @@
 
 ## テスト戦略概要
 
-本プロジェクトでは、レイヤードアーキテクチャ（Controller/Service/Repository）に基づいた効率的なテスト戦略を採用しています。
+本プロジェクトでは、フルスタック構成（フロントエンド + バックエンド）に適した包括的なテスト戦略を採用しています。
+
+### アプリケーション構成別テスト戦略
+
+#### バックエンド（Express.js + Prisma）
+
+レイヤードアーキテクチャ（Controller/Service/Repository）に基づいたテスト戦略を採用。
+
+#### フロントエンド（Nuxt3 + Vue3）
+
+コンポーネント指向アーキテクチャに基づいたテスト戦略を採用。
 
 ### テスト分類と構成比率
+
+#### バックエンドテスト構成比率
 
 ```
 統合テスト (Integration) - 60%
@@ -16,9 +28,21 @@
 └── Utility Functions
 ```
 
+#### フロントエンドテスト構成比率
+
+```
+単体テスト (Unit) - 70%
+├── コンポーネントテスト（Props、イベント、算出プロパティ、メソッド）
+├── Composables（Vue3の状態管理ロジック）
+└── Utility Functions
+
+結合テスト (Integration) - 30%
+└── 機能レベルテスト（複数コンポーネント + 状態管理の連携）
+```
+
 ## 単体テスト (Unit Tests)
 
-### テスト対象
+### バックエンド単体テスト
 
 #### ✅ テストする対象
 
@@ -33,12 +57,75 @@
 - **Controller**: Request/Responseに依存するため統合テストで検証
 - **Repository**: PrismaClientのモック化は実際のDB操作を検証できないため
 
+### フロントエンド単体テスト
+
+#### ✅ テストする対象
+
+- **Vueコンポーネント**: Props、イベント、算出プロパティ、メソッド
+- **Composables**: `composables/` フォルダ内のVue3コンポーザブル
+- **Utility Functions**: `utils/` フォルダ内のヘルパー関数
+- **Store（Pinia）**: 状態管理ロジック（アクション、ゲッター）
+
+#### ❌ テストしない対象
+
+- **Pages**: レイアウトやルーティングが複雑なため統合テストで検証
+- **Layouts**: 複数コンポーネントの組み合わせのため統合テストで検証
+- **Plugins**: Nuxt3の初期化処理のため統合テストで検証
+- **Middleware**: ルーティング制御のため統合テストで検証
+
 ### 使用ツール
 
-- **Jest** + **ts-jest**: テストフレームワーク
-- **モック**: Repository層の外部依存をモック
+#### バックエンド
+
+**Jest** + **ts-jest**
+
+- **選定理由**: Node.jsエコシステムで最も成熟したテストフレームワーク
+- **利点**: 豊富なアサーション、強力なモック機能、スナップショットテスト対応
+- **用途**: 単体テスト・統合テスト両方で使用
+
+**モック戦略**
+
+- **選定理由**: Repository層の実際のDB操作はテスト環境の複雑化を避けるため
+- **実装**: `jest.fn()`を使用したService層テストでのRepository層モック化
+
+#### フロントエンド
+
+**Vitest**
+
+- **選定理由**: Vue3・Nuxt3エコシステムに最適化された次世代テストフレームワーク
+- **利点**:
+  - Viteベースで高速実行（HMR対応）
+  - Vue SFC（Single File Component）のネイティブサポート
+  - ESM（ES Modules）完全サポート
+  - Jestとの互換APIで学習コストが低い
+- **Jest比較**: フロントエンドモダン環境における実行速度と開発体験が大幅改善
+
+**Vue Test Utils**
+
+- **選定理由**: Vue.js公式のコンポーネントテストライブラリ
+- **利点**:
+  - Vueコンポーネントのレンダリング・Props・イベント検証機能
+  - Vue3 Composition API完全対応
+  - 公式サポートで安定性と将来性を確保
+
+**Happy DOM**
+
+- **選定理由**: 軽量高速なDOM環境でテスト実行速度を最適化
+- **利点**:
+  - jsdomより高速（メモリ使用量も削減）
+  - Web標準API の十分なサポート
+  - Vitestとの組み合わせで最適なパフォーマンス
+- **jsdom比較**: 同等の機能でより高速な実行が可能
+
+**モック戦略**
+
+- **対象**: APIクライアント（Composables内のAPI呼び出し）
+- **実装**: `vi.mock()`を使用したAPIレスポンスのモック化
+- **理由**: 外部API依存を排除し、コンポーネントロジックに集中したテスト
 
 ### 実装例
+
+#### バックエンド単体テスト例
 
 ```typescript
 // __tests__/unit/services/personService.test.ts
@@ -65,9 +152,81 @@ describe('PersonService', () => {
 })
 ```
 
+#### フロントエンド単体テスト例
+
+```typescript
+// __tests__/unit/components/PersonCard.test.ts
+import PersonCard from '@/components/PersonCard.vue'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
+
+describe('PersonCard.vue', () => {
+  const mockPerson = {
+    id: '1',
+    name: '田中太郎',
+    gender: 1,
+    birthDate: '1990-01-01',
+  }
+
+  it('人物情報が正常に表示されるか', () => {
+    const wrapper = mount(PersonCard, {
+      props: { person: mockPerson },
+    })
+
+    expect(wrapper.text()).toContain('田中太郎')
+    expect(wrapper.text()).toContain('1990-01-01')
+  })
+
+  it('クリック時にイベントが発火されるか', async () => {
+    const wrapper = mount(PersonCard, {
+      props: { person: mockPerson },
+    })
+
+    await wrapper.find('[data-testid="person-card"]').trigger('click')
+
+    expect(wrapper.emitted('person-selected')).toBeTruthy()
+    expect(wrapper.emitted('person-selected')?.[0]).toEqual([mockPerson])
+  })
+})
+```
+
+```typescript
+// __tests__/unit/composables/usePerson.test.ts
+import { usePerson } from '@/composables/usePerson'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+describe('usePerson', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('人物データを正常に取得できるか', async () => {
+    const mockApiResponse = {
+      id: '1',
+      name: '田中太郎',
+      gender: 1,
+    }
+
+    // API モック
+    vi.mock('@/api/person', () => ({
+      fetchPerson: vi.fn().mockResolvedValue(mockApiResponse),
+    }))
+
+    const { person, loading, fetchPerson } = usePerson()
+
+    await fetchPerson('1')
+
+    expect(loading.value).toBe(false)
+    expect(person.value).toEqual(mockApiResponse)
+  })
+})
+```
+
 ## 統合テスト (Integration Tests)
 
-### 統合テストの設計原則
+### バックエンド統合テスト
+
+#### 統合テストの設計原則
 
 統合テストは**API全体の疎通確認**が目的です。詳細なバリデーションテストは単体テストに任せ、統合テストでは以下に集中します：
 
@@ -481,6 +640,144 @@ npm run test:integration
 docker-compose stop test-db
 ```
 
+### フロントエンド統合テスト
+
+#### 統合テストの設計原則
+
+フロントエンド統合テストは**ページレベルの動作確認**が目的です。単一コンポーネントの詳細は単体テストに任せ、統合テストでは以下に集中します：
+
+#### ✅ フロントエンド統合テストで検証すべき内容
+
+- **ページレンダリング**: レイアウト + コンポーネントの正常な表示
+- **ルーティング**: ページ遷移とパラメータ受け渡し
+- **API連携**: データ取得・更新の全体フロー確認
+- **ユーザーインタラクション**: 主要な操作フローの動作確認
+
+#### ❌ フロントエンド統合テストで詳細テストすべきでない内容
+
+- **コンポーネント詳細**: Props、イベントの細かい検証
+- **バリデーション詳細**: フォーム項目の全パターン検証
+- **エラーハンドリング詳細**: 全エラーケースの個別検証
+
+#### フロントエンド統合テスト実装例
+
+```typescript
+// __tests__/integration/pages/people.test.ts
+import PeoplePage from '@/pages/people.vue'
+import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+describe('People Page Integration', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('人物一覧ページが正常に表示されるか', async () => {
+    const mockPersons = [
+      { id: '1', name: '田中太郎', birthDate: '1990-01-01' },
+      { id: '2', name: '佐藤花子', birthDate: '1985-05-15' },
+    ]
+
+    // API モック
+    vi.mock('@/composables/usePerson', () => ({
+      usePerson: () => ({
+        persons: ref(mockPersons),
+        loading: ref(false),
+        fetchPersons: vi.fn().mockResolvedValue(mockPersons),
+      }),
+    }))
+
+    const wrapper = mount(PeoplePage, {
+      global: {
+        stubs: {
+          NuxtPage: true,
+          PersonCard: true,
+        },
+      },
+    })
+
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('田中太郎')
+    expect(wrapper.text()).toContain('佐藤花子')
+    expect(wrapper.findAll('[data-testid="person-card"]')).toHaveLength(2)
+  })
+
+  it('人物作成フローが正常に動作するか', async () => {
+    const mockCreatePerson = vi.fn().mockResolvedValue({
+      id: '3',
+      name: '新規太郎',
+      birthDate: '2000-01-01',
+    })
+
+    vi.mock('@/composables/usePerson', () => ({
+      usePerson: () => ({
+        createPerson: mockCreatePerson,
+        loading: ref(false),
+      }),
+    }))
+
+    const wrapper = mount(PeoplePage)
+
+    // 新規作成フォーム表示
+    await wrapper.find('[data-testid="add-person-btn"]').trigger('click')
+    expect(wrapper.find('[data-testid="person-form"]').exists()).toBe(true)
+
+    // フォーム入力
+    await wrapper.find('[data-testid="name-input"]').setValue('新規太郎')
+    await wrapper
+      .find('[data-testid="birth-date-input"]')
+      .setValue('2000-01-01')
+
+    // 保存実行
+    await wrapper.find('[data-testid="save-btn"]').trigger('click')
+
+    expect(mockCreatePerson).toHaveBeenCalledWith({
+      name: '新規太郎',
+      birthDate: '2000-01-01',
+    })
+  })
+})
+```
+
+#### フロントエンド統合テスト設計のベストプラクティス
+
+**✅ 推奨パターン:**
+
+```typescript
+// ページ全体の動作確認に集中
+it('人物詳細ページが正常に表示されるか', async () => {
+  const mockPerson = { id: '1', name: '田中太郎' }
+
+  // 必要最小限のモック
+  vi.mock('@/composables/usePerson', () => ({
+    usePerson: () => ({
+      person: ref(mockPerson),
+      loading: ref(false),
+    }),
+  }))
+
+  const wrapper = mount(PersonDetailPage, {
+    global: {
+      mocks: { $route: { params: { id: '1' } } },
+    },
+  })
+
+  // ページレベルの表示確認
+  expect(wrapper.text()).toContain('田中太郎')
+  expect(wrapper.find('[data-testid="person-detail"]').exists()).toBe(true)
+})
+```
+
+**❌ 避けるべきパターン:**
+
+```typescript
+// コンポーネントの詳細実装に依存しすぎ
+it('すべての入力フィールドのバリデーションテスト', () => {
+  // これは単体テストで行うべき内容
+})
+```
+
 ## テスト実行スクリプト
 
 ### package.json スクリプト設定
@@ -592,3 +889,50 @@ describe('POST /api/people', () => {
 ```
 
 **重要**: テスト数よりも**品質**を重視し、意味のあるテストケースを選択してください。
+
+## プロジェクト全体での統一的テストフォルダ構成
+
+### 統一フォルダ構造
+
+プロジェクト全体でテストフォルダ構造を統一し、バックエンド・フロントエンドで一貫性を持たせます：
+
+```
+apps/
+├── backend/
+│   └── tests/
+│       ├── unit/
+│       │   ├── services/
+│       │   ├── validations/
+│       │   └── utils/
+│       ├── integration/
+│       │   └── api/
+│       └── setup/
+│           └── globalSetup.ts
+└── frontend/
+    └── tests/
+        ├── unit/
+        │   ├── components/
+        │   ├── composables/
+        │   ├── stores/
+        │   └── utils/
+        ├── integration/
+        │   └── features/
+        └── setup/
+            └── setup.ts
+```
+
+### ファイル命名規則の統一
+
+**共通命名規則:**
+
+- テストファイル: `*.test.ts` 形式で統一
+- モックファイル: `*.mock.ts` 形式（必要な場合）
+
+### 統一化のメリット
+
+1. **学習コストの削減**: 開発者がプロジェクト間を移動しやすい
+2. **保守性の向上**: 一貫した構造で理解・メンテナンスが容易
+3. **ツール設定の統一**: テスト実行スクリプトやCI/CDの設定が類似
+4. **ベストプラクティスの共有**: テスト戦略が統一されて品質向上
+
+この統一により、バックエンドとフロントエンドで同一の思想に基づいたテスト戦略を実現できます。
