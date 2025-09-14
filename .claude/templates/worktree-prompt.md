@@ -14,9 +14,9 @@
 - [Git Workflow](docs/03_development/04_git_workflow.md)
 - [Issue管理](docs/03_development/06_issue_management.md)
 
-## 必須セットアップ手順
+## 【CRITICAL: 必須セットアップ手順（Docker強制実行）】
 
-詳細は [Docker Setup](docs/04_infrastructure/01_docker_setup.md) を参照
+- 以下を**必ず順番通り**に実行してください。ローカル実行は絶対禁止です。
 
 ### 1. 依存関係インストール
 
@@ -27,8 +27,17 @@ npm install
 ### 2. Docker環境起動
 
 ```bash
-# 全サービス起動
-docker-compose --profile development up -d
+# 段階的起動（dbコンテナ競合回避）
+# 1) dbコンテナが未起動の場合は全て起動
+# 2) dbコンテナが起動している場合はappsコンテナのみ起動
+if ! docker-compose ps db | grep -q "Up"; then
+ echo "📦 dbコンテナが未起動のため、全サービスを起動します"
+ docker-compose --profile development up -d
+else
+ echo "📦 既存dbコンテナを使用し、appsコンテナのみ起動します"
+ docker-compose --profile development up -d --no-deps apps
+fi
+
 # 起動確認
 docker-compose ps
 ```
@@ -51,14 +60,13 @@ npm run docker:test:integration
 
 ## 実装ワークフロー
 
-詳細は [開発ガイド](docs/03_development/01_getting_started.md) を参照
-
-1. 要件分析・計画作成（TodoWrite使用）
-2. 実装前説明（issueコメント）
-3. 段階的実装・テスト・コミット
-4. 受け入れ基準検証
-5. PR作成
-6. 品質チェック
+1. **要件分析**: issueの内容を分析し、TodoWriteで実装計画を作成
+2. **実装前説明**: 技術選定と実装方針をissueコメントで事前説明
+3. **ドキュメント参照**: docs/ 内の技術仕様に厳密に従う
+4. **段階的実装**: 小さく実装→テスト→コミットのサイクル
+5. **受け入れ基準検証**: 実装完了後の厳密な要件チェック
+6. **PR作成**: 詳細な技術判断根拠を含むPR作成
+7. **品質チェック**: 全品質チェックコマンドが成功することを確認
 
 ## コミット・PR戦略
 
@@ -94,7 +102,7 @@ gh issue comment {{ISSUE_NUMBER}} --body "## 実装計画
 
 ## 受け入れ基準検証
 
-詳細は [Issue管理](docs/03_development/06_issue_management.md#issue-ライフサイクル) を参照
+詳細は [Issue管理](docs/03_development/06_issue_management.md#受け入れ基準検証) を参照
 
 ### 各基準の検証・更新
 
