@@ -8,6 +8,7 @@
   "arrowParens": "always",
   "plugins": ["@trivago/prettier-plugin-sort-imports"],
   "importOrder": [
+    "^(path|fs|url|os|crypto|http|https|stream|util|events)$",
     "^[^./]",
     "^@shared/(.*)$",
     "^@/(.*)$",
