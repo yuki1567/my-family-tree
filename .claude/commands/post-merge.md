@@ -25,12 +25,14 @@ post-merge 123
    - マージされていない場合は警告表示
 
 3. **worktree専用リソースの削除**
+
    ```bash
    # worktree専用データベース削除（安全チェック付き）
    docker-compose exec db mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "DROP DATABASE IF EXISTS \`${DB_NAME}\`;"
    ```
 
 4. **メインプロジェクトへの復帰**
+
    ```bash
    # メインディレクトリに移動
    cd "$MAIN_PROJECT_PATH"
@@ -46,19 +48,18 @@ post-merge 123
    - 変更があった場合、確認プロンプト後にappsコンテナ更新
 
    ```bash
+   # 依存関係とスキーマ更新
+   npm install
+
    # appsコンテナのみ更新
    docker-compose stop apps
    docker-compose rm -f apps
-   docker-compose build --no-cache apps
+   docker rmi apps
    docker-compose up -d apps
-
-   # 依存関係とスキーマ更新
-   docker-compose exec apps npm install
-   docker-compose exec apps npx prisma generate
-   docker-compose exec apps npx prisma migrate deploy
    ```
 
 6. **worktreeとブランチの削除**
+
    ```bash
    # worktree削除
    git worktree remove --force "$CURRENT_WORKTREE"
@@ -71,6 +72,7 @@ post-merge 123
    ```
 
 7. **issueの完了処理**
+
    ```bash
    # issueクローズ
    gh issue close "$ISSUE_NUMBER" --comment "✅ 開発完了・マージ済み"
@@ -86,7 +88,6 @@ post-merge 123
 
 - **PRマージ確認**: マージされていない場合の警告表示
 - **データベース保護**: メインDBの誤削除防止
-- **確認プロンプト**: コンテナ更新前の確認
 - **エラー処理**: 各段階でのエラーハンドリング
 
 ## 実行条件
@@ -99,6 +100,7 @@ post-merge 123
 ## 注意事項
 
 ⚠️ **このコマンドは以下のリソースを削除します**：
+
 - worktree専用データベース
 - worktreeディレクトリ
 - 開発ブランチ（ローカル・リモート）
