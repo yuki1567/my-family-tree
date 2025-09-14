@@ -46,7 +46,13 @@
 - **Development commands** (npm, prisma, etc.): `docker-compose exec apps [command]`
 - **Infrastructure commands** (.claude/commands/*.md): Execute on host environment
 - **Tests**: Ensure test-db container is running first
-- **Command files execution (CRITICAL)**: When executing `.claude/commands/*.md` files, execute bash command blocks exactly as written in sequential order. DO NOT interpret, modify, substitute, or add commands. The markdown files contain executable instructions, not reference documentation.
+- **Command files execution (CRITICAL)**:
+  - `.claude/commands/` directory contains executable command files in markdown format
+  - When user runs `/command-name`, read and execute `.claude/commands/command-name.md`
+  - Execute bash command blocks (```bash...```) exactly as written in sequential order
+  - DO NOT look for `.sh` files - `.claude/commands/` files are always `.md` format
+  - DO NOT interpret, modify, substitute, or add commands
+  - The markdown files contain executable instructions, not reference documentation
 - **Error Resolution**: Follow 3-stage analysis protocol - See `docs/03_development/05_error_resolution.md`
 - **Code Quality**: ESLint/Prettier configuration - See `docs/03_development/05_eslint_prettier_config.md`
 - **Issue Management**: Follow structured workflow - See `docs/03_development/06_issue_management.md`
