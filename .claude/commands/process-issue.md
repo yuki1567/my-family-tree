@@ -10,18 +10,14 @@ process-issue
 process-issue 123
 ```
 
-## 優先度とIssue選択
-
-詳細は [Issue管理](../docs/03_development/06_issue_management.md#優先度管理) を参照
-
-**要約**:
-- Open かつ未アサインのissueから選択
-- タイトルの `[数字]` で優先度決定（小さい数字 = 高優先度）
-- 数字なしは最低優先度
-
 ## 処理フロー
 
 ### 1. Issue選択とアサイン
+
+詳細は [Issue管理](../docs/03_development/06_issue_management.md#自動選択フロー) と [アサインコマンド](../docs/03_development/06_issue_management.md#アサインコマンド) を参照
+
+**実行内容**:
+
 - 最優先issueの自動選択または指定issue取得
 - issue詳細の確認表示
 - 自動アサイン
@@ -31,6 +27,7 @@ process-issue 123
 詳細は [Git Workflow](../docs/03_development/04_git_workflow.md#worktree-ワークフロー) を参照
 
 **実行内容**:
+
 - 最新の変更をpull
 - ブランチ名生成: `[ラベル]/[issue番号]-[タイトルスラッグ]`
 - worktree作成: `../[ラベル]/[issue番号]-[タイトルスラッグ]/`
@@ -43,6 +40,7 @@ process-issue 123
 **このコマンドの役割はここで終了です。**
 
 ### ✅ 完了済み項目の確認
+
 - [ ] issue詳細の取得・確認
 - [ ] issueのアサイン
 - [ ] Git準備作業（fetch、pull、worktree作成）
@@ -51,14 +49,20 @@ process-issue 123
 - [ ] プロンプトテンプレートの出力
 
 ### 🚫 実装作業は開始しない
+
 **重要**: このClaude Codeでは**絶対に実装作業を開始しないでください**。
+
 - Vitestの設定ファイル作成 ❌
 - package.json修正 ❌
 - その他のコード変更 ❌
 
 ### ✅ 次のステップ
+
 1. 新しく開いたVS CodeのClaude Codeで上記のプロンプトを貼り付け
 2. 新しい環境で実装作業を開始
 
 **process-issueコマンドは環境準備のみが責任範囲です。**
+
+```
+
 ```

@@ -110,11 +110,27 @@
 
 3. **同じ優先度の場合はissue番号昇順**
 
-### 自動選択条件（process-issueコマンド用）
+### 自動選択フロー
+
+1. 未アサインのOpen issueを一覧取得
+
+```bash
+gh issue list --state open --assignee "" --json number,title,labels --limit 100
+```
+
+2. 最優先issueを自動選択
 
 - **状態**: Open（未クローズ）
 - **アサイン**: 未アサイン（assignees が空）
 - **優先度**: 上記ルールに従って最高優先度
+
+3. Issue情報の取得と確認
+
+- 選択または指定されたissue番号の詳細を GitHub CLI で取得
+
+```bash
+gh issue view [issue番号]
+```
 
 ## Issue ライフサイクル
 
@@ -128,6 +144,13 @@
 
 - 作業開始時に自動アサイン（process-issueコマンド）
 - 作業完了後はアサインを維持（履歴として）
+
+### アサインコマンド
+
+```bash
+# issueを自分（現在のGitHubユーザー）にアサイン
+gh issue edit [issue番号] --add-assignee @me
+```
 
 ### 関連PR
 
