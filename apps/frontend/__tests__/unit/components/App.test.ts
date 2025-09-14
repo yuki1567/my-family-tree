@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import App from './app.vue'
+import App from '@/app.vue'
 
 describe('App.vue', () => {
   it('正常にマウントできるか', () => {
