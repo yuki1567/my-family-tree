@@ -1,12 +1,14 @@
 このworktreeでissue #{{ISSUE_NUMBER}}の開発を開始します。
 
 ## Issue情報
+
 - **タイトル**: {{ISSUE_TITLE}}
 - **ブランチ**: {{BRANCH_NAME}}
-- **Frontend**: http://localhost:{{APP_PORT}}
+- **Frontend**: http://localhost:{{WEB_PORT}}
 - **API**: http://localhost:{{API_PORT}}
 
 ## 重要ドキュメント
+
 - [開発ガイド](docs/03_development/01_getting_started.md)
 - [コーディング規約](docs/03_development/02_coding_standards.md)
 - [Git Workflow](docs/03_development/04_git_workflow.md)
@@ -17,11 +19,13 @@
 詳細は [Docker Setup](docs/04_infrastructure/01_docker_setup.md) を参照
 
 ### 1. 依存関係インストール
+
 ```bash
 npm install
 ```
 
 ### 2. Docker環境起動
+
 ```bash
 # 全サービス起動
 docker-compose --profile development up -d
@@ -30,6 +34,7 @@ docker-compose ps
 ```
 
 ### 3. アクセス確認
+
 - Frontend: http://localhost:{{APP_PORT}}
 - API: http://localhost:{{API_PORT}}
 
@@ -62,6 +67,7 @@ npm run docker:test:integration
 **コミット形式**: `[prefix](#{{ISSUE_NUMBER}}): [内容]`
 
 **例**:
+
 ```bash
 git commit -m "add(#{{ISSUE_NUMBER}}): ユーザー作成API追加"
 git commit -m "test(#{{ISSUE_NUMBER}}): APIテスト追加"
@@ -70,11 +76,13 @@ git commit -m "test(#{{ISSUE_NUMBER}}): APIテスト追加"
 ## 実装開始前の必須タスク
 
 ### 1. Issue詳細確認
+
 ```bash
 gh issue view {{ISSUE_NUMBER}}
 ```
 
 ### 2. 実装計画コメント
+
 ```bash
 gh issue comment {{ISSUE_NUMBER}} --body "## 実装計画
 
@@ -89,6 +97,7 @@ gh issue comment {{ISSUE_NUMBER}} --body "## 実装計画
 詳細は [Issue管理](docs/03_development/06_issue_management.md#issue-ライフサイクル) を参照
 
 ### 各基準の検証・更新
+
 1. 機能要件・技術要件を検証
 2. issue・PRのチェックリストを更新
 3. 未達成項目がある場合は追加実装
@@ -98,6 +107,7 @@ gh issue comment {{ISSUE_NUMBER}} --body "## 実装計画
 詳細は [Git Workflow](docs/03_development/04_git_workflow.md#pr-ワークフロー) を参照
 
 ### PR作成
+
 ```bash
 gh pr create --title "{{ISSUE_TITLE}}" --body "$(cat <<'EOF'
 ## 概要
