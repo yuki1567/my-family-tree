@@ -28,8 +28,10 @@ export const baseConfig = [
     files: ['**/*.{js,mjs,cjs,ts}'],
     languageOptions: {
       parser: typescriptParser,
-      ecmaVersion: 'latest',
-      sourceType: 'module',
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module',
+      },
       globals: {
         browser: true,
         node: true,
@@ -37,9 +39,6 @@ export const baseConfig = [
         process: true,
         setTimeout: 'readonly',
       },
-    },
-    env: {
-      node: true,
     },
     plugins: {
       '@typescript-eslint': typescript,
