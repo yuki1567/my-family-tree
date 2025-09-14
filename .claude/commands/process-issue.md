@@ -14,7 +14,7 @@ process-issue 123
 
 ### 1. Issue選択とアサイン
 
-詳細は [Issue管理](../docs/03_development/06_issue_management.md#自動選択フロー) と [アサインコマンド](../docs/03_development/06_issue_management.md#アサインコマンド) を参照
+詳細は [Issue管理](../../docs/03_development/06_issue_management.md#自動選択フロー) と [アサインコマンド](../../docs/03_development/06_issue_management.md#アサインコマンド) を参照
 
 **実行内容**:
 
@@ -24,7 +24,7 @@ process-issue 123
 
 ### 2. Git準備とWorktree作成
 
-詳細は [Git Workflow](../docs/03_development/04_git_workflow.md#処理実行フロー) を参照
+詳細は [Git Workflow](../../docs/03_development/04_git_workflow.md#処理実行フロー) を参照
 
 **実行内容**:
 

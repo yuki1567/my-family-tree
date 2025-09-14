@@ -1,6 +1,6 @@
 Claude Codeによる作業に最適化されたissueを作成するためのコマンドです。
 
-詳細は [Issue管理](../docs/03_development/06_issue_management.md) を参照
+詳細は [Issue管理](../../docs/03_development/06_issue_management.md) を参照
 
 ## 事前チェック（必須）
 
@@ -16,11 +16,11 @@ gh issue list --state open
 
 ### 3. ラベル選択
 
-詳細は [Issue管理](../docs/03_development/06_issue_management.md#ラベル定義) を参照
+詳細は [Issue管理](../../docs/03_development/06_issue_management.md#ラベル定義) を参照
 
 ## Issue作成要件
 
-詳細は [Issue管理](../docs/03_development/06_issue_management.md#issue作成要件) を参照
+詳細は [Issue管理](../../docs/03_development/06_issue_management.md#issue作成要件) を参照
 
 ### 要件サマリー
 
