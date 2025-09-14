@@ -41,6 +41,8 @@
 - **Tests**: Ensure test-db container is running first
 - **process-issue command**: Follow `.claude/commands/process-issue.md` exactly
 - **Error Resolution**: Follow 3-stage analysis protocol - See `docs/03_development/05_error_resolution.md`
+- **Code Quality**: ESLint/Prettier configuration - See `docs/03_development/05_eslint_prettier_config.md`
+- **Issue Management**: Follow structured workflow - See `docs/03_development/06_issue_management.md`
 
 *Detailed execution procedures: [Docker Setup](./docs/04_infrastructure/01_docker_setup.md) | [Testing Guide](./docs/03_development/03_testing_guide.md)*
 
@@ -66,9 +68,9 @@
 **All development must follow documents in `docs/` directory (written in Japanese - translate internally for understanding)**
 
 - **Project Foundation**: `docs/01_project/` - Overview, requirements
-- **Technical Design**: `docs/02_technical/` - Architecture, database, API, frontend, design system
-- **Development Guide**: `docs/03_development/` - Setup, coding standards, testing, git workflow
-- **Infrastructure**: `docs/04_infrastructure/` - Docker, deployment, monitoring, security
+- **Technical Design**: `docs/02_technical/` - Architecture, database, API, frontend, design system, TypeScript config, package.json design
+- **Development Guide**: `docs/03_development/` - Setup, coding standards, testing, git workflow, error resolution, code quality, issue management
+- **Infrastructure**: `docs/04_infrastructure/` - Docker, deployment, monitoring, PM2 configuration, security
 
 ### Documentation Update Rules
 - **Technical changes** → Update corresponding technical design documents
