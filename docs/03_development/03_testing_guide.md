@@ -7,9 +7,11 @@
 ### アプリケーション構成別テスト戦略
 
 #### バックエンド（Express.js + Prisma）
+
 レイヤードアーキテクチャ（Controller/Service/Repository）に基づいたテスト戦略を採用。
 
 #### フロントエンド（Nuxt3 + Vue3）
+
 コンポーネント指向アーキテクチャに基づいたテスト戦略を採用。
 
 ### テスト分類と構成比率
@@ -30,13 +32,12 @@
 
 ```
 単体テスト (Unit) - 70%
-├── コンポーネントテスト（Props、イベント、スロット）
+├── コンポーネントテスト（Props、イベント、算出プロパティ、メソッド）
 ├── Composables（Vue3の状態管理ロジック）
 └── Utility Functions
 
-統合テスト (Integration) - 30%
-├── ページレベルテスト（レイアウト + コンポーネント連携）
-└── API統合テスト（APIクライアント + レスポンス処理）
+結合テスト (Integration) - 30%
+└── 機能レベルテスト（複数コンポーネント + 状態管理の連携）
 ```
 
 ## 単体テスト (Unit Tests)
@@ -75,14 +76,52 @@
 ### 使用ツール
 
 #### バックエンド
-- **Jest** + **ts-jest**: テストフレームワーク
-- **モック**: Repository層の外部依存をモック
+
+**Jest** + **ts-jest**
+
+- **選定理由**: Node.jsエコシステムで最も成熟したテストフレームワーク
+- **利点**: 豊富なアサーション、強力なモック機能、スナップショットテスト対応
+- **用途**: 単体テスト・統合テスト両方で使用
+
+**モック戦略**
+
+- **選定理由**: Repository層の実際のDB操作はテスト環境の複雑化を避けるため
+- **実装**: `jest.fn()`を使用したService層テストでのRepository層モック化
 
 #### フロントエンド
-- **Vitest**: テストフレームワーク（Vue3/Nuxt3に最適化）
-- **Vue Test Utils**: Vueコンポーネントテスト用ライブラリ
-- **Happy DOM**: 軽量なDOM環境（jsdomより高速）
-- **モック**: APIクライアントや外部依存をモック
+
+**Vitest**
+
+- **選定理由**: Vue3・Nuxt3エコシステムに最適化された次世代テストフレームワーク
+- **利点**:
+  - Viteベースで高速実行（HMR対応）
+  - Vue SFC（Single File Component）のネイティブサポート
+  - ESM（ES Modules）完全サポート
+  - Jestとの互換APIで学習コストが低い
+- **Jest比較**: フロントエンドモダン環境における実行速度と開発体験が大幅改善
+
+**Vue Test Utils**
+
+- **選定理由**: Vue.js公式のコンポーネントテストライブラリ
+- **利点**:
+  - Vueコンポーネントのレンダリング・Props・イベント検証機能
+  - Vue3 Composition API完全対応
+  - 公式サポートで安定性と将来性を確保
+
+**Happy DOM**
+
+- **選定理由**: 軽量高速なDOM環境でテスト実行速度を最適化
+- **利点**:
+  - jsdomより高速（メモリ使用量も削減）
+  - Web標準API の十分なサポート
+  - Vitestとの組み合わせで最適なパフォーマンス
+- **jsdom比較**: 同等の機能でより高速な実行が可能
+
+**モック戦略**
+
+- **対象**: APIクライアント（Composables内のAPI呼び出し）
+- **実装**: `vi.mock()`を使用したAPIレスポンスのモック化
+- **理由**: 外部API依存を排除し、コンポーネントロジックに集中したテスト
 
 ### 実装例
 
@@ -117,9 +156,9 @@ describe('PersonService', () => {
 
 ```typescript
 // __tests__/unit/components/PersonCard.test.ts
-import { describe, it, expect } from 'vitest'
-import { mount } from '@vue/test-utils'
 import PersonCard from '@/components/PersonCard.vue'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 
 describe('PersonCard.vue', () => {
   const mockPerson = {
@@ -131,7 +170,7 @@ describe('PersonCard.vue', () => {
 
   it('人物情報が正常に表示されるか', () => {
     const wrapper = mount(PersonCard, {
-      props: { person: mockPerson }
+      props: { person: mockPerson },
     })
 
     expect(wrapper.text()).toContain('田中太郎')
@@ -140,7 +179,7 @@ describe('PersonCard.vue', () => {
 
   it('クリック時にイベントが発火されるか', async () => {
     const wrapper = mount(PersonCard, {
-      props: { person: mockPerson }
+      props: { person: mockPerson },
     })
 
     await wrapper.find('[data-testid="person-card"]').trigger('click')
@@ -153,8 +192,8 @@ describe('PersonCard.vue', () => {
 
 ```typescript
 // __tests__/unit/composables/usePerson.test.ts
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { usePerson } from '@/composables/usePerson'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('usePerson', () => {
   beforeEach(() => {
@@ -170,7 +209,7 @@ describe('usePerson', () => {
 
     // API モック
     vi.mock('@/api/person', () => ({
-      fetchPerson: vi.fn().mockResolvedValue(mockApiResponse)
+      fetchPerson: vi.fn().mockResolvedValue(mockApiResponse),
     }))
 
     const { person, loading, fetchPerson } = usePerson()
@@ -624,9 +663,9 @@ docker-compose stop test-db
 
 ```typescript
 // __tests__/integration/pages/people.test.ts
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
 import PeoplePage from '@/pages/people.vue'
+import { mount } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('People Page Integration', () => {
   beforeEach(() => {
@@ -645,7 +684,7 @@ describe('People Page Integration', () => {
         persons: ref(mockPersons),
         loading: ref(false),
         fetchPersons: vi.fn().mockResolvedValue(mockPersons),
-      })
+      }),
     }))
 
     const wrapper = mount(PeoplePage, {
@@ -675,7 +714,7 @@ describe('People Page Integration', () => {
       usePerson: () => ({
         createPerson: mockCreatePerson,
         loading: ref(false),
-      })
+      }),
     }))
 
     const wrapper = mount(PeoplePage)
@@ -686,7 +725,9 @@ describe('People Page Integration', () => {
 
     // フォーム入力
     await wrapper.find('[data-testid="name-input"]').setValue('新規太郎')
-    await wrapper.find('[data-testid="birth-date-input"]').setValue('2000-01-01')
+    await wrapper
+      .find('[data-testid="birth-date-input"]')
+      .setValue('2000-01-01')
 
     // 保存実行
     await wrapper.find('[data-testid="save-btn"]').trigger('click')
@@ -713,13 +754,13 @@ it('人物詳細ページが正常に表示されるか', async () => {
     usePerson: () => ({
       person: ref(mockPerson),
       loading: ref(false),
-    })
+    }),
   }))
 
   const wrapper = mount(PersonDetailPage, {
     global: {
-      mocks: { $route: { params: { id: '1' } } }
-    }
+      mocks: { $route: { params: { id: '1' } } },
+    },
   })
 
   // ページレベルの表示確認
@@ -858,7 +899,7 @@ describe('POST /api/people', () => {
 ```
 apps/
 ├── backend/
-│   └── __tests__/
+│   └── tests/
 │       ├── unit/
 │       │   ├── services/
 │       │   ├── validations/
@@ -868,15 +909,14 @@ apps/
 │       └── setup/
 │           └── globalSetup.ts
 └── frontend/
-    └── __tests__/
+    └── tests/
         ├── unit/
         │   ├── components/
         │   ├── composables/
         │   ├── stores/
         │   └── utils/
         ├── integration/
-        │   ├── pages/
-        │   └── api/
+        │   └── features/
         └── setup/
             └── setup.ts
 ```
@@ -884,8 +924,8 @@ apps/
 ### ファイル命名規則の統一
 
 **共通命名規則:**
+
 - テストファイル: `*.test.ts` 形式で統一
-- セットアップファイル: `setup.ts` で統一
 - モックファイル: `*.mock.ts` 形式（必要な場合）
 
 ### 統一化のメリット
@@ -894,28 +934,5 @@ apps/
 2. **保守性の向上**: 一貫した構造で理解・メンテナンスが容易
 3. **ツール設定の統一**: テスト実行スクリプトやCI/CDの設定が類似
 4. **ベストプラクティスの共有**: テスト戦略が統一されて品質向上
-
-### 移行前後の比較
-
-#### 移行前（現状）
-```
-apps/frontend/
-├── test/
-│   ├── sample.test.ts
-│   └── setup.ts
-└── app.test.ts (ルート直下)
-```
-
-#### 移行後（統一後）
-```
-apps/frontend/
-└── __tests__/
-    ├── unit/
-    │   └── components/
-    │       └── App.test.ts
-    ├── integration/
-    └── setup/
-        └── setup.ts
-```
 
 この統一により、バックエンドとフロントエンドで同一の思想に基づいたテスト戦略を実現できます。
