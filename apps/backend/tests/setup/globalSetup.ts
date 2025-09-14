@@ -1,7 +1,7 @@
 import { exec } from 'child_process'
 import { promisify } from 'util'
 
-import { envConfig } from './config/env'
+import { envConfig } from '../../config/env'
 
 const execAsync = promisify(exec)
 
