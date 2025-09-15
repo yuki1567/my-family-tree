@@ -68,11 +68,16 @@ sed -i "" "s#{{DB_NAME}}#$DB_NAME#g" "$WORKTREE_PATH/.env"
 sed -i "" "s#{{APP_NAME}}#$APP_NAME#g" "$WORKTREE_PATH/.env"
 sed -i "" "s#{{JWT_SECRET}}#$JWT_SECRET#g" "$WORKTREE_PATH/.env"
 
-# 4. VS Codeで新しいworktreeを開く
+# 4. worktree用DBスキーマ作成と権限付与
+docker-compose exec db mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;"
+
+docker-compose exec db mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON \`${DB_NAME}\`.* TO 'family_tree_user'@'%';"
+
+# 5. VS Codeで新しいworktreeを開く
 code "$WORKTREE_PATH"
 
-# 5. Claude Code用プロンプトテンプレート表示
-## 5-1. 要約版を画面表示
+# 6. Claude Code用プロンプトテンプレート表示
+## 6-1. 要約版を画面表示
 echo "========================================================================================"
 echo "🚀 Issue #$ISSUE_NUMBER の開発環境が準備完了"
 echo "========================================================================================"
@@ -85,7 +90,7 @@ echo "🌐 Frontend: http://localhost:$WEB_PORT"
 echo "⚡ API: http://localhost:$API_PORT"
 echo ""
 
-## 5-2. 完全版を.claude/templates/内に保存（上書き）
+## 6-2. 完全版を.claude/templates/内に保存（上書き）
 GENERATED_PROMPT=".claude/templates/generated-worktree-prompt.md"
 sed "s|{{ISSUE_NUMBER}}|$ISSUE_NUMBER|g; s|{{ISSUE_TITLE}}|$ISSUE_TITLE|g; s|{{BRANCH_NAME}}|$BRANCH_NAME|g; s|{{WEB_PORT}}|$WEB_PORT|g; s|{{API_PORT}}|$API_PORT|g" .claude/templates/worktree-prompt.md > "$GENERATED_PROMPT"
 
