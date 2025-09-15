@@ -71,9 +71,7 @@ sed -i "" "s#{{JWT_SECRET}}#$JWT_SECRET#g" "$WORKTREE_PATH/.env"
 
 # 4. worktree用DBスキーマ作成と権限付与
 MYSQL_ROOT_PASSWORD="$(grep "^MYSQL_ROOT_PASSWORD=" .env | cut -d'=' -f2)"
-docker-compose exec db mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;"
-
-docker-compose exec db mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON \`${DB_NAME}\`.* TO 'family_tree_user'@'%';"
+docker-compose exec db mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`; GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON \`${DB_NAME}\`.* TO 'family_tree_user'@'%';"
 
 # 5. VS Codeで新しいworktreeを開く
 code "$WORKTREE_PATH"
