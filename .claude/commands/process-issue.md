@@ -69,33 +69,25 @@ sed -i "" "s#{{APP_NAME}}#$APP_NAME#g" "$WORKTREE_PATH/.env"
 sed -i "" "s#{{JWT_SECRET}}#$JWT_SECRET#g" "$WORKTREE_PATH/.env"
 
 # 4. Claude Code用プロンプトテンプレート表示
-## テンプレートファイル: `.claude/templates/worktree-prompt.md`
-## 4-1. Claude Code用プロンプトテンプレートを準備
+## 4-1. 要約版を画面表示
 echo "========================================================================================"
-echo "🚀 新しいworktreeが作成されました！"
+echo "🚀 Issue #$ISSUE_NUMBER の開発環境が準備完了"
 echo "========================================================================================"
 echo ""
 echo "📁 Worktree Path: $WORKTREE_PATH"
 echo "🌿 Branch: $BRANCH_NAME"
-echo "🔢 Issue: #$ISSUE_NUMBER"
+echo "🔢 Issue番号: #$ISSUE_NUMBER"
+echo "📋 Issueタイトル: $ISSUE_TITLE"
 echo "🌐 Frontend: http://localhost:$WEB_PORT"
 echo "⚡ API: http://localhost:$API_PORT"
 echo ""
 
-## 4-2. プロンプトテンプレートを処理して直接表示
-echo "========================================================================================"
-echo "📋 Claude Code用プロンプト（以下をコピー&ペーストしてください）"
-echo "========================================================================================"
-echo ""
-echo "\`\`\`"
+## 4-2. 完全版を.claude/templates/内に保存（上書き）
+GENERATED_PROMPT=".claude/templates/generated-worktree-prompt.md"
+sed "s|{{ISSUE_NUMBER}}|$ISSUE_NUMBER|g; s|{{ISSUE_TITLE}}|$ISSUE_TITLE|g; s|{{BRANCH_NAME}}|$BRANCH_NAME|g; s|{{WEB_PORT}}|$WEB_PORT|g; s|{{API_PORT}}|$API_PORT|g" .claude/templates/worktree-prompt.md > "$GENERATED_PROMPT"
 
-### テンプレートファイルから読み込み、変数を置換して直接出力
-### 区切り文字を|に変更してハイフンを含むブランチ名に対応
-sed "s|{{ISSUE_NUMBER}}|$ISSUE_NUMBER|g; s|{{ISSUE_TITLE}}|$ISSUE_TITLE|g; s|{{BRANCH_NAME}}|$BRANCH_NAME|g; s|{{WEB_PORT}}|$WEB_PORT|g; s|{{API_PORT}}|$API_PORT|g" .claude/templates/worktree-prompt.md
-
-echo "\`\`\`"
-echo ""
 echo "========================================================================================"
-echo "✅ 上記のプロンプトをコピーして、新しいVS CodeのClaude Codeに貼り付けてください"
+echo "📋 完全プロンプト: $GENERATED_PROMPT"
+echo "   VS Codeで開いてClaude Codeに貼り付けてください"
 echo "========================================================================================"
 ```
