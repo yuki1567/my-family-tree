@@ -18,6 +18,7 @@
     "test:watch": "vitest tests/unit"
   },
   "dependencies": {
+    "@heroicons/vue": "2.2.0",
     "@pinia/nuxt": "0.5.5",
     "modern-normalize": "^3.0.1",
     "nuxt": "3.13.2",
@@ -25,11 +26,11 @@
     "vue": "3.5.10"
   },
   "devDependencies": {
+    "@nuxt/eslint": "0.5.7",
     "@vitejs/plugin-vue": "5.1.4",
     "@vue/test-utils": "2.4.6",
     "happy-dom": "15.7.4",
     "vitest": "2.1.2",
-    "vue-tsc": "2.1.6",
-    "@nuxt/eslint": "0.5.7"
+    "vue-tsc": "2.1.6"
   }
 }
