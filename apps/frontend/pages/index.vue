@@ -13,7 +13,92 @@
   <div class="content-area">
     <!-- 家系図表示エリア -->
     <main class="family-tree-area">
-      <div class="tree-container" />
+      <div class="tree-container">
+        <!-- アイコンテストセクション -->
+        <div class="icon-test-section">
+          <h2>Nuxticon テスト</h2>
+
+          <!-- 基本アイコン -->
+          <div class="icon-group">
+            <h3>基本アイコン</h3>
+            <div class="icon-list">
+              <div class="icon-item">
+                <Icon name="heroicons:user" />
+                <span>user</span>
+              </div>
+              <div class="icon-item">
+                <Icon name="heroicons:users" />
+                <span>users</span>
+              </div>
+              <div class="icon-item">
+                <Icon name="heroicons:user-plus" />
+                <span>user-plus</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 性別アイコン（エイリアス使用） -->
+          <div class="icon-group">
+            <h3>性別アイコン（エイリアス）</h3>
+            <div class="icon-list">
+              <div class="icon-item">
+                <Icon name="male" />
+                <span>male (alias)</span>
+              </div>
+              <div class="icon-item">
+                <Icon name="female" />
+                <span>female (alias)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 操作アイコン -->
+          <div class="icon-group">
+            <h3>操作アイコン</h3>
+            <div class="icon-list">
+              <div class="icon-item">
+                <Icon name="heroicons:plus" />
+                <span>plus</span>
+              </div>
+              <div class="icon-item">
+                <Icon name="heroicons:pencil" />
+                <span>pencil</span>
+              </div>
+              <div class="icon-item">
+                <Icon name="heroicons:trash" />
+                <span>trash</span>
+              </div>
+              <div class="icon-item">
+                <Icon name="heroicons:cog-6-tooth" />
+                <span>settings</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 状態アイコン -->
+          <div class="icon-group">
+            <h3>状態アイコン</h3>
+            <div class="icon-list">
+              <div class="icon-item">
+                <Icon name="heroicons:check" />
+                <span>check</span>
+              </div>
+              <div class="icon-item">
+                <Icon name="heroicons:x-mark" />
+                <span>x-mark</span>
+              </div>
+              <div class="icon-item">
+                <Icon name="heroicons:exclamation-triangle" />
+                <span>alert</span>
+              </div>
+              <div class="icon-item">
+                <Icon name="heroicons:information-circle" />
+                <span>info</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
   </div>
 
@@ -81,8 +166,63 @@
   width: 100%;
   height: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  padding: 2rem;
+}
+
+/* アイコンテストセクション */
+.icon-test-section {
+  max-width: 800px;
+  width: 100%;
+}
+
+.icon-test-section h2 {
+  margin: 0 0 2rem 0;
+  color: var(--color-primary);
+  text-align: center;
+}
+
+.icon-group {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: var(--color-surface);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.icon-group h3 {
+  margin: 0 0 1rem 0;
+  color: var(--color-text);
+  font-size: 1.1rem;
+}
+
+.icon-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--color-background);
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+}
+
+.icon-item :deep(.icon) {
+  font-size: 24px;
+  margin-bottom: 0.5rem;
+  color: var(--color-primary);
+}
+
+.icon-item span {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  text-align: center;
 }
 
 .tree-placeholder {
