@@ -1,12 +1,8 @@
 <template>
   <!-- ヘッダー -->
   <header class="app-header">
-    <h1 class="app-title">
-      Family Tree App
-    </h1>
-    <button class="settings-btn">
-      設定
-    </button>
+    <h1 class="app-title">Family Tree App</h1>
+    <button class="settings-btn">設定</button>
   </header>
 
   <!-- メインコンテンツエリア -->
@@ -14,88 +10,17 @@
     <!-- 家系図表示エリア -->
     <main class="family-tree-area">
       <div class="tree-container">
-        <!-- アイコンテストセクション -->
-        <div class="icon-test-section">
-          <h2>Nuxticon テスト</h2>
-
-          <!-- 基本アイコン -->
-          <div class="icon-group">
-            <h3>基本アイコン</h3>
-            <div class="icon-list">
-              <div class="icon-item">
-                <Icon name="heroicons:user" />
-                <span>user</span>
-              </div>
-              <div class="icon-item">
-                <Icon name="heroicons:users" />
-                <span>users</span>
-              </div>
-              <div class="icon-item">
-                <Icon name="heroicons:user-plus" />
-                <span>user-plus</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 性別アイコン（エイリアス使用） -->
-          <div class="icon-group">
-            <h3>性別アイコン（エイリアス）</h3>
-            <div class="icon-list">
-              <div class="icon-item">
-                <Icon name="male" />
-                <span>male (alias)</span>
-              </div>
-              <div class="icon-item">
-                <Icon name="female" />
-                <span>female (alias)</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 操作アイコン -->
-          <div class="icon-group">
-            <h3>操作アイコン</h3>
-            <div class="icon-list">
-              <div class="icon-item">
-                <Icon name="heroicons:plus" />
-                <span>plus</span>
-              </div>
-              <div class="icon-item">
-                <Icon name="heroicons:pencil" />
-                <span>pencil</span>
-              </div>
-              <div class="icon-item">
-                <Icon name="heroicons:trash" />
-                <span>trash</span>
-              </div>
-              <div class="icon-item">
-                <Icon name="heroicons:cog-6-tooth" />
-                <span>settings</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 状態アイコン -->
-          <div class="icon-group">
-            <h3>状態アイコン</h3>
-            <div class="icon-list">
-              <div class="icon-item">
-                <Icon name="heroicons:check" />
-                <span>check</span>
-              </div>
-              <div class="icon-item">
-                <Icon name="heroicons:x-mark" />
-                <span>x-mark</span>
-              </div>
-              <div class="icon-item">
-                <Icon name="heroicons:exclamation-triangle" />
-                <span>alert</span>
-              </div>
-              <div class="icon-item">
-                <Icon name="heroicons:information-circle" />
-                <span>info</span>
-              </div>
-            </div>
+        <!-- アイコンテスト -->
+        <div class="icon-test">
+          <h2>アイコンテスト</h2>
+          <div class="icons">
+            <UserIcon class="icon" />
+            <UsersIcon class="icon" />
+            <UserIcon class="icon male" />
+            <UserIcon class="icon female" />
+            <PlusIcon class="icon" />
+            <CheckIcon class="icon" />
+            <XMarkIcon class="icon" />
           </div>
         </div>
       </div>
@@ -103,15 +28,18 @@
   </div>
 
   <!-- フローティング追加ボタン -->
-  <button
-    class="floating-add-btn"
-    title="人物を追加"
-  >
-    +
-  </button>
+  <button class="floating-add-btn" title="人物を追加">+</button>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import {
+  CheckIcon,
+  PlusIcon,
+  UserIcon,
+  UsersIcon,
+  XMarkIcon,
+} from '@heroicons/vue/24/outline'
+</script>
 
 <style scoped>
 /* ヘッダー */
@@ -166,64 +94,36 @@
   width: 100%;
   height: 100%;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   padding: 2rem;
 }
 
-/* アイコンテストセクション */
-.icon-test-section {
-  max-width: 800px;
-  width: 100%;
-}
-
-.icon-test-section h2 {
-  margin: 0 0 2rem 0;
-  color: var(--color-primary);
+/* アイコンテスト 後で削除*/
+.icon-test {
   text-align: center;
 }
 
-.icon-group {
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background-color: var(--color-surface);
-  border-radius: 8px;
-  border: 1px solid var(--color-border);
-}
-
-.icon-group h3 {
-  margin: 0 0 1rem 0;
-  color: var(--color-text);
-  font-size: 1.1rem;
-}
-
-.icon-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 1rem;
-}
-
-.icon-item {
+.icons {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  background-color: var(--color-background);
-  border-radius: 4px;
-  border: 1px solid var(--color-border);
+  gap: 1rem;
+  justify-content: center;
 }
 
-.icon-item :deep(.icon) {
-  font-size: 24px;
-  margin-bottom: 0.5rem;
-  color: var(--color-primary);
+.icon {
+  width: 24px;
+  height: 24px;
 }
 
-.icon-item span {
-  font-size: 0.9rem;
-  color: var(--color-text-secondary);
-  text-align: center;
+.icon.male {
+  color: #3b82f6; /* 青色（男性） */
 }
+
+.icon.female {
+  color: #ec4899; /* ピンク色（女性） */
+}
+
+/* アイコンテスト */
 
 .tree-placeholder {
   text-align: center;
