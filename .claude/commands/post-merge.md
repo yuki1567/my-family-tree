@@ -39,7 +39,27 @@ post-merge 123
    docker-compose exec db mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "DROP DATABASE IF EXISTS \`${WORKTREE_DB_NAME}\`;"
    ```
 
-5. **依存関係・スキーマの変更チェック**
+5. **worktreeコンテナの停止・削除・イメージ削除**
+
+   ```bash
+   # worktreeの環境変数を読み込み
+   if [ -f "../issue-$ISSUE_NUMBER/.env" ]; then
+     WORKTREE_APP_NAME=$(grep "APP_NAME=" "../issue-$ISSUE_NUMBER/.env" | cut -d'=' -f2)
+
+     if [ -n "$WORKTREE_APP_NAME" ]; then
+       # コンテナ停止・削除
+       docker stop "$WORKTREE_APP_NAME" 2>/dev/null || echo "コンテナ ${WORKTREE_APP_NAME} は既に停止済み"
+       docker rm "$WORKTREE_APP_NAME" 2>/dev/null || echo "コンテナ ${WORKTREE_APP_NAME} は既に削除済み"
+
+       # イメージ削除
+       docker rmi "$WORKTREE_APP_NAME" 2>/dev/null || echo "イメージ ${WORKTREE_APP_NAME} は既に削除済み"
+
+       echo "worktreeコンテナ ${WORKTREE_APP_NAME} を完全削除しました"
+     fi
+   fi
+   ```
+
+6. **依存関係・スキーマの変更チェック**
    - worktree内のpackage.json, Dockerfile, docker-compose, prisma/schema の変更を検出
    - 変更があった場合、確認プロンプト後にappsコンテナ更新
 
@@ -54,7 +74,7 @@ post-merge 123
    docker-compose up -d apps
    ```
 
-6. **worktreeとブランチの削除**
+7. **worktreeとブランチの削除**
 
    ```bash
    # worktree削除（メインプロジェクトから安全に削除）
@@ -73,7 +93,7 @@ post-merge 123
    git push origin --delete "feature/issue-$ISSUE_NUMBER"
    ```
 
-7. **issueの完了処理**
+8. **issueの完了処理**
 
    ```bash
    # issueクローズ
@@ -103,3 +123,4 @@ post-merge 123
 - 指定issueの開発ブランチ（ローカル・リモート）
 
 実行前にPRがマージされ、必要なコードがmainブランチに反映されていることを確認してください。
+
