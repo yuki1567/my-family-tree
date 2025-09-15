@@ -59,6 +59,7 @@ JWT_SECRET="worktree_jwt_${ISSUE_NUMBER}_$(date +%s)"
 
 cp .env.example "$WORKTREE_PATH/.env"
 cp .env.test "$WORKTREE_PATH/.env.test"
+cp .claude/settings.local.json "$WORKTREE_PATH/.claude/settings.local.json"
 
 sed -i "" "s#{{BRANCH_NAME}}#$BRANCH_NAME#g" "$WORKTREE_PATH/.env"
 sed -i "" "s#{{ISSUE_NUMBER}}#$ISSUE_NUMBER#g" "$WORKTREE_PATH/.env"
@@ -69,9 +70,10 @@ sed -i "" "s#{{APP_NAME}}#$APP_NAME#g" "$WORKTREE_PATH/.env"
 sed -i "" "s#{{JWT_SECRET}}#$JWT_SECRET#g" "$WORKTREE_PATH/.env"
 
 # 4. worktree用DBスキーマ作成と権限付与
-docker-compose exec db mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;"
+MYSQL_ROOT_PASSWORD="$(grep "^MYSQL_ROOT_PASSWORD=" .env | cut -d'=' -f2)"
+docker-compose exec db mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;"
 
-docker-compose exec db mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON \`${DB_NAME}\`.* TO 'family_tree_user'@'%';"
+docker-compose exec db mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON \`${DB_NAME}\`.* TO 'family_tree_user'@'%';"
 
 # 5. VS Codeで新しいworktreeを開く
 code "$WORKTREE_PATH"
