@@ -53,7 +53,7 @@ git worktree add "$WORKTREE_PATH" -b "$BRANCH_NAME" main
 # 3. 環境設定ファイル生成
 WEB_PORT=$((3000 + ($ISSUE_NUMBER % 100)))
 API_PORT=$((4000 + ($ISSUE_NUMBER % 100)))
-DB_NAME="family_tree_${ISSUE_SLUG_TITLE}"
+DB_NAME="family_tree_$(echo ${ISSUE_SLUG_TITLE} | sed 's/-/_/g')"
 APP_NAME="app-${ISSUE_SLUG_TITLE}"
 JWT_SECRET="worktree_jwt_${ISSUE_NUMBER}_$(date +%s)"
 
