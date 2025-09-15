@@ -44,7 +44,7 @@ docker-compose ps
 
 ### 3. アクセス確認
 
-- Frontend: http://localhost:{{APP_PORT}}
+- Frontend: http://localhost:{{WEB_PORT}}
 - API: http://localhost:{{API_PORT}}
 
 ## 品質チェック
