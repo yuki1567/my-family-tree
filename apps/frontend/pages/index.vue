@@ -1,32 +1,45 @@
 <template>
   <!-- ヘッダー -->
   <header class="app-header">
-    <h1 class="app-title">
-      Family Tree App
-    </h1>
-    <button class="settings-btn">
-      設定
-    </button>
+    <h1 class="app-title">Family Tree App</h1>
+    <button class="settings-btn">設定</button>
   </header>
 
   <!-- メインコンテンツエリア -->
   <div class="content-area">
     <!-- 家系図表示エリア -->
     <main class="family-tree-area">
-      <div class="tree-container" />
+      <div class="tree-container">
+        <!-- アイコンテスト -->
+        <div class="icon-test">
+          <h2>アイコンテスト</h2>
+          <div class="icons">
+            <UserIcon class="icon" />
+            <UsersIcon class="icon" />
+            <UserIcon class="icon male" />
+            <UserIcon class="icon female" />
+            <PlusIcon class="icon" />
+            <CheckIcon class="icon" />
+            <XMarkIcon class="icon" />
+          </div>
+        </div>
+      </div>
     </main>
   </div>
 
   <!-- フローティング追加ボタン -->
-  <button
-    class="floating-add-btn"
-    title="人物を追加"
-  >
-    +
-  </button>
+  <button class="floating-add-btn" title="人物を追加">+</button>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import {
+  CheckIcon,
+  PlusIcon,
+  UserIcon,
+  UsersIcon,
+  XMarkIcon,
+} from '@heroicons/vue/24/outline'
+</script>
 
 <style scoped>
 /* ヘッダー */
@@ -83,7 +96,34 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 2rem;
 }
+
+/* アイコンテスト 後で削除*/
+.icon-test {
+  text-align: center;
+}
+
+.icons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+}
+
+.icon.male {
+  color: #3b82f6; /* 青色（男性） */
+}
+
+.icon.female {
+  color: #ec4899; /* ピンク色（女性） */
+}
+
+/* アイコンテスト */
 
 .tree-placeholder {
   text-align: center;
