@@ -1,5 +1,10 @@
 このworktreeでissue #{{ISSUE_NUMBER}}の開発を開始します。
 
+# 手順実行の厳格性
+
+- 番号付きリストや手順書は**必ず順番通り**に実行する
+- 手順を飛ばさず、各ステップを確実に完了してから次に進む
+
 ## Issue情報
 
 - **タイトル**: {{ISSUE_TITLE}}
@@ -30,13 +35,8 @@ npm install
 # 段階的起動（dbコンテナ競合回避）
 # 1) dbコンテナが未起動の場合は全て起動
 # 2) dbコンテナが起動している場合はappsコンテナのみ起動
-if ! docker-compose ps db | grep -q "Up"; then
- echo "📦 dbコンテナが未起動のため、全サービスを起動します"
- docker-compose --profile development up -d
-else
- echo "📦 既存dbコンテナを使用し、appsコンテナのみ起動します"
- docker-compose --profile development up -d --no-deps apps
-fi
+echo "📦 既存dbコンテナを使用し、appsコンテナのみ起動します"
+docker-compose --profile development up -d --no-deps apps
 
 # 起動確認
 docker-compose ps
