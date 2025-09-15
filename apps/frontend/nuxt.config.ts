@@ -20,18 +20,7 @@ export default defineNuxtConfig({
         },
       },
     ],
-    '@nuxt/icon',
   ],
-
-  // アイコン設定
-  icon: {
-    size: '24px',
-    class: 'icon',
-    aliases: {
-      male: 'heroicons:mars',
-      female: 'heroicons:venus',
-    },
-  },
 
   compatibilityDate: '2025-08-15',
 })
