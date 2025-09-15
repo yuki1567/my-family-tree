@@ -60,6 +60,12 @@ post-merge 123
    # worktree削除（メインプロジェクトから安全に削除）
    git worktree remove --force "../issue-$ISSUE_NUMBER"
 
+   # worktreeディレクトリの物理削除（残ったファイル・ディレクトリを確実に削除）
+   if [ -d "../issue-$ISSUE_NUMBER" ]; then
+     rm -rf "../issue-$ISSUE_NUMBER"
+     echo "worktreeディレクトリ ../issue-$ISSUE_NUMBER を削除しました"
+   fi
+
    # ローカルブランチ削除
    git branch -D "feature/issue-$ISSUE_NUMBER"
 
