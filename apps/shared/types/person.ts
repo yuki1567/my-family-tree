@@ -2,7 +2,7 @@ export type Gender = 'male' | 'female'
 
 export type Person = {
   readonly id: string
-  name: string
+  name?: string
   gender?: Gender
   birthDate?: string
   deathDate?: string

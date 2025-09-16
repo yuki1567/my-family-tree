@@ -54,13 +54,12 @@ describe('Person型定義のテスト', () => {
 
       const person: Person = {
         id: '12345',
-        name: '山田花子',
         createdAt: mockDate,
         updatedAt: mockDate,
       }
 
       expect(person.id).toBe('12345')
-      expect(person.name).toBe('山田花子')
+      expect(person.name).toBeUndefined()
       expect(person.gender).toBeUndefined()
       expect(person.birthDate).toBeUndefined()
       expect(person.deathDate).toBeUndefined()
@@ -117,11 +116,9 @@ describe('Person型定義のテスト', () => {
     })
 
     test('最小限の必須項目だけでも作成できること', () => {
-      const createData: CreatePersonData = {
-        name: '最小太郎',
-      }
+      const createData: CreatePersonData = {}
 
-      expect(createData.name).toBe('最小太郎')
+      expect(Object.keys(createData)).toHaveLength(0)
     })
   })
 
