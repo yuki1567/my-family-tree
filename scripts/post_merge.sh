@@ -67,7 +67,7 @@ remove_worktree_db() {
   fi
 
   log "🗄 データベース削除: $DB_NAME"
-  docker-compose exec db mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "DROP DATABASE IF EXISTS \`${DB_NAME}\`;"
+  docker-compose exec -e MYSQL_PWD="${MYSQL_ROOT_PASSWORD}" db mysql -u root -e "DROP DATABASE IF EXISTS \`${DB_NAME}\`;"
 }
 
 # --------------------------------------------
@@ -93,19 +93,40 @@ remove_worktree() {
 # ブランチ削除
 # --------------------------------------------
 remove_branch() {
-  log "🗑 ローカルブランチ削除: $WORKTREE_BRANCH"
-  git branch -D "$WORKTREE_BRANCH" || log "ローカルブランチは既に削除済み"
-  log "🗑 リモートブランチ削除: $WORKTREE_BRANCH"
-  git push origin --delete "$WORKTREE_BRANCH" || log "リモートブランチは既に削除済み"
+  if git show-ref --verify --quiet "refs/heads/$WORKTREE_BRANCH"; then
+    log "🗑 ローカルブランチ削除: $WORKTREE_BRANCH"
+    git branch -d "$WORKTREE_BRANCH" || {
+      log_error "ローカルブランチ削除に失敗しました: $WORKTREE_BRANCH"
+      exit 1
+    }
+  else
+    log "ℹ️ ローカルブランチは存在しません: $WORKTREE_BRANCH"
+  fi
+
+  if git ls-remote --exit-code --heads origin "$WORKTREE_BRANCH" >/dev/null 2>&1; then
+    log "🗑 リモートブランチ削除: $WORKTREE_BRANCH"
+    git push origin --delete "$WORKTREE_BRANCH" || {
+      log_error "リモートブランチ削除に失敗しました: $WORKTREE_BRANCH"
+      exit 1
+    }
+  else
+    log "ℹ️ リモートブランチは既に存在しません: $WORKTREE_BRANCH"
+  fi
 }
 
 # --------------------------------------------
 # Issueクローズ
 # --------------------------------------------
 close_issue() {
-  log "📌 Issueクローズ: $ISSUE_NUMBER"
-  gh issue close "$ISSUE_NUMBER" --comment "✅ 開発完了・マージ済み" || log "Issueは既にクローズ済み"
-  log "📌 Issueクローズ: $WORKTREE_BRANCH"
+  if gh issue view "$ISSUE_NUMBER" --json state -q ".state" | grep -q "CLOSED"; then
+    log "ℹ️ Issue #$ISSUE_NUMBER は既にクローズ済みです"
+  else
+    log "✅ Issueクローズ: #$ISSUE_NUMBER"
+    gh issue close "$ISSUE_NUMBER" --comment "✅ 開発完了・マージ済み" || {
+      log_error "Issueクローズに失敗しました: #$ISSUE_NUMBER"
+      exit 1
+    }
+  fi
 }
 
 # --------------------------------------------
