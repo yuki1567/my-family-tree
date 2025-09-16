@@ -1,9 +1,8 @@
 このworktreeでissue #{{ISSUE_NUMBER}}の開発を開始します。
 
-# 手順実行の厳格性
+## 🚨 CRITICAL: 手順実行の厳格性 🚨
 
-- 番号付きリストや手順書は**必ず順番通り**に実行する
-- 手順を飛ばさず、各ステップを確実に完了してから次に進む
+**このプロンプトの指示を絶対に無視せずに、TodoWriteで必須タスクを管理し、各ステップを順番通りに実行してください**
 
 ## Issue情報
 
@@ -12,135 +11,165 @@
 - **Frontend**: http://localhost:{{WEB_PORT}}
 - **API**: http://localhost:{{API_PORT}}
 
-## 重要ドキュメント
+---
 
-- [開発ガイド](docs/03_development/01_getting_started.md)
-- [コーディング規約](docs/03_development/02_coding_standards.md)
-- [Git Workflow](docs/03_development/04_git_workflow.md)
-- [Issue管理](docs/03_development/06_issue_management.md)
+## 📋 実装ワークフロー（TodoWrite必須）
 
-## 【CRITICAL: 必須セットアップ手順（Docker強制実行）】
+### ステップ1: 必須初期セットアップ
 
-- 以下を**必ず順番通り**に実行してください。ローカル実行は絶対禁止です。
+**実行前必須チェック:** まずTodoWriteで以下のタスクリストを作成してください：
 
-### 1. 依存関係インストール
-
-```bash
-npm install
+```
+TodoWrite必須タスク:
+- [ ] Issue詳細確認（gh issue view {{ISSUE_NUMBER}}）
+- [ ] 実装計画をissueコメントで事前説明
+- [ ] Docker環境起動・確認
+- [ ] 段階的実装（テスト含む）
+- [ ] 品質チェック実行（4つのコマンド）
+- [ ] コミット戦略実行（必須タイミング準拠）
+- [ ] PR作成（ラベル付与必須）
+- [ ] 受け入れ基準検証
 ```
 
-### 2. Docker環境起動
-
-```bash
-# 段階的起動（dbコンテナ競合回避）
-# 1) dbコンテナが未起動の場合は全て起動
-# 2) dbコンテナが起動している場合はappsコンテナのみ起動
-echo "📦 既存dbコンテナを使用し、appsコンテナのみ起動します"
-docker-compose --profile development up -d --no-deps apps
-
-# 起動確認
-docker-compose ps
-```
-
-### 3. アクセス確認
-
-- Frontend: http://localhost:{{WEB_PORT}}
-- API: http://localhost:{{API_PORT}}
-
-## 品質チェック
-
-詳細は [コーディング規約](docs/03_development/02_coding_standards.md) を参照
-
-```bash
-npm run docker:quality:backend
-npm run docker:quality:frontend
-npm run docker:test:unit
-npm run docker:test:integration
-```
-
-## 実装ワークフロー
-
-1. **要件分析**: issueの内容を分析し、TodoWriteで実装計画を作成
-2. **実装前説明**: 技術選定と実装方針をissueコメントで事前説明
-3. **ドキュメント参照**: docs/ 内の技術仕様に厳密に従う
-4. **段階的実装**: 小さく実装→テスト→コミットのサイクル
-5. **受け入れ基準検証**: 実装完了後の厳密な要件チェック
-6. **PR作成**: 詳細な技術判断根拠を含むPR作成
-7. **品質チェック**: 全品質チェックコマンドが成功することを確認
-
-### ⚠️ 重要：TodoWriteでの必須タスク設定
-
-実装計画作成時は必ず以下のタスクを含める：
-
-- [ ] 実装作業（具体的内容）
-- [ ] 品質チェック実行
-- [ ] **変更内容をコミット**
-- [ ] **リモートブランチにプッシュ**
-- [ ] **PR作成**
-- [ ] 受け入れ基準の最終検証
-
-## コミット・PR戦略
-
-詳細は [Git Workflow](docs/03_development/04_git_workflow.md#コミット規約) を参照
-
-**コミット形式**: `[prefix](#{{ISSUE_NUMBER}}): [内容]`
-
-**例**:
-
-```bash
-git commit -m "add(#{{ISSUE_NUMBER}}): ユーザー作成API追加"
-git commit -m "test(#{{ISSUE_NUMBER}}): APIテスト追加"
-```
-
-## 実装開始前の必須タスク
-
-### 1. Issue詳細確認
-
+#### 1.1 Issue詳細確認（必須）
 ```bash
 gh issue view {{ISSUE_NUMBER}}
 ```
 
-### 2. 実装計画コメント
-
+#### 1.2 実装計画コメント（必須）
 ```bash
 gh issue comment {{ISSUE_NUMBER}} --body "## 実装計画
 
-**技術選定**: [手法・理由]
-**手順**: [1.ステップ1 2.ステップ2...]
+**技術選定理由**: [なぜこの手法を選んだか]
+**実装手順**:
+1. [ステップ1の詳細]
+2. [ステップ2の詳細]
+3. [テスト追加]
+
+**コミット予定**:
+- コンポーネント作成時
+- テスト追加時
+- ドキュメント更新時
 
 実装を開始します。"
 ```
 
-## 受け入れ基準検証
+#### 1.3 Docker環境起動（強制実行）
+```bash
+# STEP1: 依存関係インストール（必須）
+npm install
 
-詳細は [Issue管理](docs/03_development/06_issue_management.md#受け入れ基準検証) を参照
+# STEP2: appsコンテナ起動（必須）
+docker-compose --profile development up -d --no-deps apps
 
-### 各基準の検証・更新
+# STEP3: 起動確認（必須）
+docker-compose ps
 
-1. 機能要件・技術要件を検証
-2. issue・PRのチェックリストを更新
-3. 未達成項目がある場合は追加実装
+# STEP4: アクセス確認（必須）
+echo "Frontend: http://localhost:{{WEB_PORT}}"
+echo "API: http://localhost:{{API_PORT}}"
+```
 
-## 開発完了時のタスク
+---
 
-詳細は [Git Workflow](docs/03_development/04_git_workflow.md#pr-ワークフロー) を参照
+### ステップ2: 段階的コミット戦略（絶対遵守）
 
-### PR作成
+**コミット形式（厳格）**: `[prefix](#{{ISSUE_NUMBER}}): [内容]`
+
+**必須コミットタイミング**:
+1. ✅ **新しいファイル・コンポーネント作成時**
+2. ✅ **テスト追加・修正時**
+3. ✅ **ドキュメント更新時**
+4. ✅ **バグ修正時**
+5. ✅ **リファクタリング完了時**
+
+**推奨単位**: テストと実装コードは**別コミット**
+
+**例**:
+```bash
+# ファイル作成コミット
+git add types/person.ts
+git commit -m "add(#{{ISSUE_NUMBER}}): Person型定義ファイル作成"
+
+# テストコミット
+git add __tests__/types/person.test.ts
+git commit -m "test(#{{ISSUE_NUMBER}}): Person型のテストケース追加"
+
+# ドキュメントコミット
+git add docs/technical/types.md
+git commit -m "docs(#{{ISSUE_NUMBER}}): Person型仕様をドキュメント追加"
+```
+
+---
+
+### ステップ3: 品質チェック（全コマンド実行必須）
+
+**実行確認**: すべてのコマンドが**成功**することを確認
 
 ```bash
-gh pr create --title "{{ISSUE_TITLE}}" --body "$(cat <<'EOF'
+# 1. Backend品質チェック（必須）
+npm run docker:quality:backend
+
+# 2. Frontend品質チェック（必須）
+npm run docker:quality:frontend
+
+# 3. Unit テスト（必須）
+npm run docker:test:unit
+
+# 4. Integration テスト（必須）
+npm run docker:test:integration
+```
+
+**失敗時の対応**: エラーがある場合は修正→再実行→全通過まで繰り返し
+
+---
+
+### ステップ4: PR作成（厳格テンプレート）
+
+#### 4.1 PRタイトル
+```
+{{ISSUE_TITLE}}
+```
+**（注: issueタイトルをそのまま使用）**
+
+#### 4.2 PR作成コマンド（ラベル付与必須）
+```bash
+# ラベル確認（issueと同じラベル付与）
+gh issue view {{ISSUE_NUMBER}} --json labels
+
+# PR作成（テンプレート厳守）
+gh pr create --title "{{ISSUE_TITLE}}" --label "{{ISSUE_LABELS}}" --body "$(cat <<'EOF'
 ## 概要
-issue #{{ISSUE_NUMBER}} の実装
+issue #{{ISSUE_NUMBER}}の要件を満たすため、以下の実装を行いました：
+- [具体的に何を解決したか]
+- [ユーザーにとってどのような価値を提供するか]
+- [システム全体への影響や改善点]
 
 ## 実装内容
-[技術判断と根拠]
+
+### 追加・変更したファイル
+- [ファイル名]: [変更内容と理由]
+- [ファイル名]: [変更内容と理由]
+
+### 技術的判断と根拠
+- **選択した技術・手法**: [具体的な技術名]
+- **選択理由**: [なぜこの方法を選んだか、他の選択肢との比較]
+- **既存システムとの整合性**: [既存コードとの一貫性確保方法]
+- **将来への考慮**: [拡張性・保守性への配慮]
 
 ## テスト結果
-[品質チェック結果]
+
+### 品質チェック結果
+- Backend品質チェック: ✅ 通過
+- Frontend品質チェック: ✅ 通過
+- Unit テスト: ✅ 通過
+- Integration テスト: ✅ 通過
 
 ## 受け入れ基準チェックリスト
-- [ ] [基準1]
-- [ ] [基準2]
+
+- [ ] [issue基準1]
+- [ ] [issue基準2]
+- [ ] [issue基準3]
 
 Closes #{{ISSUE_NUMBER}}
 EOF
@@ -149,4 +178,88 @@ EOF
 
 ---
 
-このworktreeは独立環境です。上記手順に従って開発を進めてください。
+### ステップ5: 受け入れ基準検証（必須プロセス）
+
+#### 5.1 各基準の詳細検証
+```bash
+# issue受け入れ基準の再確認
+gh issue view {{ISSUE_NUMBER}}
+
+# 基準ごとの検証実行
+# 例: 基準1「Person型が正しく定義されている」
+# → 実際にimportして型チェック確認
+```
+
+#### 5.2 検証結果の記録（詳細必須）
+```bash
+gh pr comment --body "✅ 受け入れ基準検証完了
+
+**検証詳細**：
+- [基準1]: ✅ 検証済み
+  - 検証方法: [具体的な確認手順]
+  - 結果: [OK/期待通りの動作確認]
+  - 証跡: [スクリーンショット/ログ等]
+
+**品質確認**：
+- テスト結果: 全て通過
+- 品質チェック: 全て通過
+
+レビューをお願いします 🙏"
+```
+
+#### 5.3 チェックリスト更新（必須）
+```bash
+# issue側のチェックリスト更新
+gh issue edit {{ISSUE_NUMBER}} --body "[更新された本文（チェック済みマーク追加）]"
+
+# PR側のチェックリスト更新
+gh pr edit --body "[更新されたPR本文（チェック完了）]"
+```
+
+---
+
+## 🔴 失敗時の強制リカバリー手順
+
+### コミット戦略違反時
+```bash
+# 不適切なコミットの修正
+git reset --soft HEAD~1
+git add [適切なファイル群]
+git commit -m "[正しい形式](#{{ISSUE_NUMBER}}): [内容]"
+```
+
+### PR作成不備時
+```bash
+# PR削除→再作成
+gh pr close [PR番号]
+gh pr create [正しいテンプレート使用]
+```
+
+### 品質チェック失敗時
+```bash
+# エラー修正→再実行
+[修正作業]
+npm run docker:quality:backend
+npm run docker:quality:frontend
+npm run docker:test:unit
+npm run docker:test:integration
+```
+
+---
+
+## ✅ 完了確認チェックリスト
+
+**このチェックリストをすべてクリアするまで作業完了とみなしません**:
+
+- [ ] TodoWriteでタスク管理を実行した
+- [ ] Issue詳細を確認し、実装計画をコメントした
+- [ ] Docker環境を起動・確認した
+- [ ] 段階的コミット戦略に従って適切にコミットした
+- [ ] 4つの品質チェックコマンドすべてが成功した
+- [ ] PRを正しいテンプレートで作成し、ラベルを付与した
+- [ ] 受け入れ基準を詳細に検証し、結果を記録した
+- [ ] issue・PRのチェックリストを更新した
+
+---
+
+**重要**: この手順を守らない場合、品質問題や要件未達のリスクが高まります。必ず順番通りに実行してください。
