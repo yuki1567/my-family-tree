@@ -1,4 +1,4 @@
-export type Gender = 'male' | 'female'
+export type Gender = 'male' | 'female' | 'unknown'
 
 export type Person = {
   readonly id: string
