@@ -1,20 +1,20 @@
-export interface ErrorDetail {
+export type ErrorDetail = {
   field: string
   code: string
 }
 
-export interface ErrorResponse {
+export type ErrorResponse = {
   statusCode: number
   errorCode: string
   details?: ErrorDetail[]
 }
 
-export interface ApiSuccessResponse<T> {
+export type ApiSuccessResponse<T> = {
   isSuccess: true
   data: T
 }
 
-export interface ApiErrorResponse {
+export type ApiErrorResponse = {
   isSuccess: false
   error: ErrorResponse
 }
