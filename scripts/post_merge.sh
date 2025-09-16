@@ -71,6 +71,24 @@ remove_worktree_db() {
 }
 
 # --------------------------------------------
+# コンテナ停止・削除・イメージ削除
+# --------------------------------------------
+remove_worktree_container() {
+  if [ -z "${APP_NAME:-}" ]; then
+    log "ℹ️ APP_NAME が.envに設定されていないため、コンテナ削除をスキップします"
+    return
+  fi
+
+  log "🐳 Worktreeコンテナ処理開始: $APP_NAME"
+
+  docker stop "$APP_NAME" 2>/dev/null && log "🛑 コンテナ停止: $APP_NAME" || log "ℹ️ コンテナは既に停止済み: $APP_NAME"
+  docker rm "$APP_NAME" 2>/dev/null && log "🗑 コンテナ削除: $APP_NAME" || log "ℹ️ コンテナは既に存在しません: $APP_NAME"
+  docker rmi "$APP_NAME" 2>/dev/null && log "🗑 イメージ削除: $APP_NAME" || log "ℹ️ イメージは既に存在しません: $APP_NAME"
+
+  log "✅ Worktreeコンテナ削除完了: $APP_NAME"
+}
+
+# --------------------------------------------
 # worktree削除
 # --------------------------------------------
 remove_worktree() {
@@ -142,4 +160,4 @@ main() {
   close_issue
 }
 
-main "$@"
+# main "$@"
