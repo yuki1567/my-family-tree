@@ -4,9 +4,9 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug with tsx",
+      "name": "Debug start-issue",
       "runtimeExecutable": "npx",
-      "args": ["env-cmd", "-f", ".env", "tsx", "${file}"],
+      "args": ["env-cmd", "-f", ".env", "tsx", "scripts/start-issue.ts"],
       "cwd": "${workspaceFolder}",
       "skipFiles": ["<node_internals>/**"]
     }
