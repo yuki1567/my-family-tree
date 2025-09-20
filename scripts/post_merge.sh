@@ -160,4 +160,4 @@ main() {
   close_issue
 }
 
-# main "$@"
+main "$@"
