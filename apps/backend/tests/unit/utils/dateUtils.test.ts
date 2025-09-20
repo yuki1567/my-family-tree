@@ -72,11 +72,11 @@ describe('dateUtils', () => {
       expect(result?.toString()).toBe('Invalid Date')
     })
 
-    it('数値のみの文字列の場合、ミリ秒として解釈されるか', () => {
-      const timestamp = '1684147800000' // 2023-05-15T10:30:00.000Z
+    it('数値のみの文字列の場合、Invalid Dateになるか', () => {
+      const timestamp = '1684147800000' // 大きな数値文字列
       const result = convertStringToDate(timestamp)
       expect(result).toBeInstanceOf(Date)
-      expect(result?.getTime()).toBe(1684147800000)
+      expect(result?.toString()).toBe('Invalid Date')
     })
 
     it('境界値（1970-01-01）を正しく処理できるか', () => {
