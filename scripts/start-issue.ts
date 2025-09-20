@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process'
 import { copyFileSync, readFileSync, writeFileSync } from 'node:fs'
+import { EOL } from 'node:os'
 import path from 'node:path'
 
 type GitHub = {
@@ -302,6 +303,10 @@ function generateEnvFile(ctx: Ctx): Ctx {
     throw new Error('Worktreeパスが定義されていません')
   }
 
+  if (!isValidBranchName(ctx)) {
+    throw new Error('ブランチ名が定義されていません')
+  }
+
   const webPort = 3000 + (ctx.gitHub.issueNumber % 100)
   const apiPort = 4000 + (ctx.gitHub.issueNumber % 100)
   const dbName = `family_tree_${ctx.gitHub.issueSlugTitle.replace(/-/g, '_')}`
@@ -325,11 +330,13 @@ function generateEnvFile(ctx: Ctx): Ctx {
   )
 
   const envContent = readFileSync(srcEnvExample, 'utf-8')
-    .replace(/WEB_PORT=.*/g, `WEB_PORT=${webPort}`)
-    .replace(/API_PORT=.*/g, `API_PORT=${apiPort}`)
-    .replace(/DB_NAME=.*/g, `DB_NAME=${dbName}`)
-    .replace(/APP_NAME=.*/g, `APP_NAME=${appName}`)
-    .replace(/JWT_SECRET=.*/g, `JWT_SECRET=${jwtSecret}`)
+    .replaceAll('{{BRANCH_NAME}}', ctx.gitHub.branchName)
+    .replaceAll('{{ISSUE_NUMBER}}', String(ctx.gitHub.issueNumber))
+    .replaceAll('{{APP_NAME}}', appName)
+    .replaceAll('{{WEB_PORT}}', String(webPort))
+    .replaceAll('{{API_PORT}}', String(apiPort))
+    .replaceAll('{{DB_NAME}}', dbName)
+    .replaceAll('{{JWT_SECRET}}', jwtSecret)
 
   writeFileSync(dstEnv, envContent)
   log(`📝 環境ファイルを作成しました: ${dstEnv}`)
@@ -593,12 +600,12 @@ function isValidWebPort(
 
 function log(message: string) {
   const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0]
-  console.log(`[${timestamp}] ${message}`)
+  process.stdout.write(`[${timestamp}] ${message}${EOL}`)
 }
 
 function logError(message: string) {
   const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0]
-  console.error(`[${timestamp}] ❌ ERROR: ${message}`)
+  process.stderr.write(`[${timestamp}] ❌ ERROR: ${message}${EOL}`)
 }
 
 main().catch((error) => {
