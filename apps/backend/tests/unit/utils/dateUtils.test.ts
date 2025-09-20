@@ -1,4 +1,4 @@
-import { formatDateToYYYYMMDD, convertStringToDate } from '@/utils/dateUtils'
+import { convertStringToDate, formatDateToYYYYMMDD } from '@/utils/dateUtils'
 import { describe, expect, it } from '@jest/globals'
 
 describe('dateUtils', () => {
@@ -34,7 +34,9 @@ describe('dateUtils', () => {
 
     it('Invalid Dateオブジェクトの場合、エラーがスローされるか', () => {
       const invalidDate = new Date('invalid-date')
-      expect(() => formatDateToYYYYMMDD(invalidDate)).toThrow('Invalid time value')
+      expect(() => formatDateToYYYYMMDD(invalidDate)).toThrow(
+        'Invalid time value'
+      )
     })
   })
 
