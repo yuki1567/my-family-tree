@@ -32,10 +32,9 @@ describe('dateUtils', () => {
       expect(result).toBe('2024-02-29')
     })
 
-    it('Invalid Dateオブジェクトの場合、無効な文字列を返すか', () => {
+    it('Invalid Dateオブジェクトの場合、エラーがスローされるか', () => {
       const invalidDate = new Date('invalid-date')
-      const result = formatDateToYYYYMMDD(invalidDate)
-      expect(result).toBe('NaN-aN-aN')
+      expect(() => formatDateToYYYYMMDD(invalidDate)).toThrow('Invalid time value')
     })
   })
 
@@ -77,7 +76,7 @@ describe('dateUtils', () => {
       const timestamp = '1684147800000' // 2023-05-15T10:30:00.000Z
       const result = convertStringToDate(timestamp)
       expect(result).toBeInstanceOf(Date)
-      expect(result?.toISOString()).toBe('2023-05-15T10:30:00.000Z')
+      expect(result?.getTime()).toBe(1684147800000)
     })
 
     it('境界値（1970-01-01）を正しく処理できるか', () => {
