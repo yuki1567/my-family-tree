@@ -165,6 +165,51 @@ describe('personValidation', () => {
             expect(result.error.errors[0]?.message).toBe('INVALID_DATE_FORMAT')
           }
         })
+
+        it('平年の2月29日でINVALID_DATE_FORMATエラーを返す', () => {
+          const data = { birthDate: '2023-02-29' }
+          const result = createPersonSchema.safeParse(data)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.errors[0]?.message).toBe('INVALID_DATE_FORMAT')
+          }
+        })
+
+        it('4月31日でINVALID_DATE_FORMATエラーを返す', () => {
+          const data = { birthDate: '2023-04-31' }
+          const result = createPersonSchema.safeParse(data)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.errors[0]?.message).toBe('INVALID_DATE_FORMAT')
+          }
+        })
+
+        it('6月31日でINVALID_DATE_FORMATエラーを返す', () => {
+          const data = { birthDate: '2023-06-31' }
+          const result = createPersonSchema.safeParse(data)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.errors[0]?.message).toBe('INVALID_DATE_FORMAT')
+          }
+        })
+
+        it('9月31日でINVALID_DATE_FORMATエラーを返す', () => {
+          const data = { birthDate: '2023-09-31' }
+          const result = createPersonSchema.safeParse(data)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.errors[0]?.message).toBe('INVALID_DATE_FORMAT')
+          }
+        })
+
+        it('11月31日でINVALID_DATE_FORMATエラーを返す', () => {
+          const data = { birthDate: '2023-11-31' }
+          const result = createPersonSchema.safeParse(data)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.errors[0]?.message).toBe('INVALID_DATE_FORMAT')
+          }
+        })
       })
     })
 
@@ -186,6 +231,24 @@ describe('personValidation', () => {
       describe('異常系', () => {
         it('無効な日付形式でINVALID_DATE_FORMATエラーを返す', () => {
           const data = { deathDate: '2023/12/31' }
+          const result = createPersonSchema.safeParse(data)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.errors[0]?.message).toBe('INVALID_DATE_FORMAT')
+          }
+        })
+
+        it('平年の2月29日でINVALID_DATE_FORMATエラーを返す', () => {
+          const data = { deathDate: '2023-02-29' }
+          const result = createPersonSchema.safeParse(data)
+          expect(result.success).toBe(false)
+          if (!result.success) {
+            expect(result.error.errors[0]?.message).toBe('INVALID_DATE_FORMAT')
+          }
+        })
+
+        it('4月31日でINVALID_DATE_FORMATエラーを返す', () => {
+          const data = { deathDate: '2023-04-31' }
           const result = createPersonSchema.safeParse(data)
           expect(result.success).toBe(false)
           if (!result.success) {
