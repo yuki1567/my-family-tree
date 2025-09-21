@@ -58,6 +58,21 @@ load_env() {
 }
 
 # --------------------------------------------
+# main 修正を取り込み
+# --------------------------------------------
+merge_into_main() {
+  log "🔄 main に取り込み処理開始"
+
+  git stash push -u
+
+  git checkout main
+  git pull origin main
+  git stash pop
+  
+  log "✅ main への取り込み完了"
+}
+
+# --------------------------------------------
 # DB削除
 # --------------------------------------------
 remove_worktree_db() {
@@ -154,6 +169,7 @@ main() {
   check_args "$@"
   fetch_worktree_info
   load_env
+  merge_into_main
   remove_worktree_db
   remove_worktree
   remove_branch
