@@ -1,4 +1,3 @@
-import { envConfig } from '@/config/env'
 import { globalErrorHandler } from '@/middlewares/errorHandler'
 import { personRoutes } from '@/routes/personRoutes'
 import express from 'express'
@@ -16,18 +15,4 @@ export function createApp(): express.Express {
   app.use(globalErrorHandler)
 
   return app
-}
-
-function startServer(): void {
-  const app = createApp()
-  const port = envConfig.API_PORT
-
-  app.listen(port, () => {
-    console.log(`Backend server is running on port ${port}`)
-  })
-}
-
-// テスト環境以外でサーバーを起動
-if (envConfig.NODE_ENV !== 'test') {
-  startServer()
 }

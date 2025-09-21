@@ -31,7 +31,7 @@
     "test:integration": "npm run test:integration --workspace=apps/backend",
     "test:coverage:frontend": "npm run test:coverage --workspace=apps/frontend",
     "test:coverage:backend": "npm run test:coverage --workspace=apps/backend",
-    "clean": "rm -rf node_modules apps/*/node_modules apps/*/dist apps/*/.nuxt",
+    "clean": "rm -rf node_modules package-lock.json apps/*/node_modules apps/*/dist apps/*/.nuxt",
     "clean:install": "npm run clean && npm install",
     "db:generate": "npm run db:generate --workspace=apps/backend",
     "db:migrate": "npm run db:migrate --workspace=apps/backend",

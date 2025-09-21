@@ -1,7 +1,6 @@
 import dotenv from 'dotenv'
 import { spawnSync } from 'node:child_process'
 import { copyFileSync, readFileSync, writeFileSync } from 'node:fs'
-import { EOL } from 'node:os'
 import path from 'node:path'
 
 type GitHub = {
@@ -603,12 +602,12 @@ function isValidWebPort(
 
 function log(message: string) {
   const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0]
-  process.stdout.write(`[${timestamp}] ${message}${EOL}`)
+  console.log(`[${timestamp}] ${message}`)
 }
 
 function logError(message: string) {
   const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0]
-  process.stderr.write(`[${timestamp}] ❌ ERROR: ${message}${EOL}`)
+  console.error(`[${timestamp}] ❌ ERROR: ${message}`)
 }
 
 main().catch((error) => {
