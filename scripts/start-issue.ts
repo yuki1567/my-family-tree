@@ -1,3 +1,4 @@
+import dotenv from 'dotenv'
 import { spawnSync } from 'node:child_process'
 import { copyFileSync, readFileSync, writeFileSync } from 'node:fs'
 import { EOL } from 'node:os'
@@ -48,6 +49,8 @@ type SearchResponse = {
 }
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '..')
+
+dotenv.config({ path: path.join(PROJECT_ROOT, '.env') })
 
 async function main() {
   const loadEnvCtx = loadEnv()

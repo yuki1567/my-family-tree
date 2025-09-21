@@ -171,6 +171,7 @@ main() {
   load_env
   merge_into_main
   remove_worktree_db
+  remove_worktree_container
   remove_worktree
   remove_branch
   close_issue
