@@ -1,20 +1,11 @@
-import { envConfig } from '@/config/env'
+import { envConfig } from '@/config/env.js'
 import { PrismaClient } from '@prisma/client'
-
-// テスト環境ではTEST_DATABASE_URLを使用
-const databaseUrl =
-  envConfig.NODE_ENV === 'test'
-    ? envConfig.TEST_DATABASE_URL
-    : envConfig.DATABASE_URL
 
 export const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: databaseUrl,
+      url: envConfig.DATABASE_URL,
     },
   },
-  log:
-    envConfig.NODE_ENV === 'development'
-      ? ['query', 'info', 'warn', 'error']
-      : ['warn', 'error'],
+  log: envConfig.LOG_LEVEL,
 })

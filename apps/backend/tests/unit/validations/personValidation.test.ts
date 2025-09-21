@@ -1,5 +1,5 @@
-import { createPersonSchema } from '@/validations/personValidation'
-import { describe, expect, it } from '@jest/globals'
+import { createPersonSchema } from '@/validations/personValidation.js'
+import { describe, expect, it } from 'vitest'
 
 describe('personValidation', () => {
   describe('createPersonSchema', () => {

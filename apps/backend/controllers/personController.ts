@@ -1,5 +1,5 @@
-import { PersonService } from '@/services/personService'
-import { CreatePersonRequest } from '@/validations/personValidation'
+import { PersonService } from '@/services/personService.js'
+import { CreatePersonRequest } from '@/validations/personValidation.js'
 import { Request, Response } from 'express'
 
 export class PersonController {

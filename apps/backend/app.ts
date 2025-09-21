@@ -1,5 +1,5 @@
-import { globalErrorHandler } from '@/middlewares/errorHandler'
-import { personRoutes } from '@/routes/personRoutes'
+import { globalErrorHandler } from '@/middlewares/errorHandler.js'
+import { personRoutes } from '@/routes/personRoutes.js'
 import express from 'express'
 
 export function createApp(): express.Express {

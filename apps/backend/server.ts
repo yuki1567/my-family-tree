@@ -1,5 +1,5 @@
-import { createApp } from '@/app'
-import { envConfig } from '@/config/env'
+import { createApp } from '@/app.js'
+import { envConfig } from '@/config/env.js'
 
 export function startServer(): void {
   const app = createApp()
