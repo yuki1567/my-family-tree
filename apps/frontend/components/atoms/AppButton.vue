@@ -60,8 +60,7 @@ const handleClick = (event: MouseEvent): void => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
@@ -70,46 +69,52 @@ const handleClick = (event: MouseEvent): void => {
 
 /* Variants */
 .app-button--primary {
-  background-color: #007bff;
+  background-color: var(--color-primary);
   color: white;
+  border: 1px solid var(--color-primary);
 }
 
 .app-button--primary:hover:not(:disabled) {
-  background-color: #0056b3;
+  background-color: #ea580c;
+  border-color: #ea580c;
 }
 
 .app-button--secondary {
-  background-color: #6c757d;
-  color: white;
+  background-color: var(--color-background);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
 }
 
 .app-button--secondary:hover:not(:disabled) {
-  background-color: #545b62;
+  background-color: var(--color-primary);
+  color: var(--color-background);
 }
 
 .app-button--danger {
-  background-color: #dc3545;
+  background-color: #ef4444;
   color: white;
+  border: 1px solid #ef4444;
 }
 
 .app-button--danger:hover:not(:disabled) {
-  background-color: #c82333;
+  background-color: #dc2626;
+  border-color: #dc2626;
 }
 
 /* Sizes */
 .app-button--small {
-  padding: 4px 8px;
-  font-size: 12px;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
 }
 
 .app-button--medium {
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
 }
 
 .app-button--large {
-  padding: 12px 24px;
-  font-size: 16px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
 }
 
 /* States */

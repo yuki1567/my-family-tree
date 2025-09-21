@@ -120,16 +120,16 @@ const handleInput = (event: Event): void => {
 }
 
 .form-field__label {
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: var(--color-text);
   display: flex;
   align-items: center;
   gap: 2px;
 }
 
 .form-field__required {
-  color: #dc3545;
+  color: #ef4444;
 }
 
 .form-field__input-wrapper {
@@ -138,48 +138,48 @@ const handleInput = (event: Event): void => {
 
 .form-field__input {
   width: 100%;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  background-color: white;
-  font-size: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background-color: var(--color-background);
+  font-size: 0.9rem;
   transition: all 0.2s ease-in-out;
   font-family: inherit;
 }
 
 .form-field__input:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
 .form-field__input::placeholder {
-  color: #9ca3af;
+  color: var(--color-text-secondary);
 }
 
 /* Sizes */
 .form-field__input--small {
-  padding: 6px 8px;
-  font-size: 12px;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
 }
 
 .form-field__input--medium {
-  padding: 8px 12px;
-  font-size: 14px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
 }
 
 .form-field__input--large {
-  padding: 12px 16px;
-  font-size: 16px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
 }
 
 /* States */
 .form-field__input--error {
-  border-color: #dc3545;
+  border-color: #ef4444;
 }
 
 .form-field__input--error:focus {
-  border-color: #dc3545;
-  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
 .form-field__input--disabled {
@@ -194,12 +194,12 @@ const handleInput = (event: Event): void => {
 }
 
 .form-field__error {
-  font-size: 12px;
-  color: #dc3545;
+  font-size: 0.75rem;
+  color: #ef4444;
 }
 
 .form-field__help {
-  font-size: 12px;
-  color: #6b7280;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
 }
 </style>
