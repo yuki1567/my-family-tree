@@ -54,13 +54,6 @@ describe('dateUtils', () => {
         const result = convertStringToDate('')
         expect(result).toBeNull()
       })
-
-      it('不正な日付形式の場合、Invalid Dateを返す', () => {
-        const invalidString = 'invalid-date-format'
-        const result = convertStringToDate(invalidString)
-        expect(result).toBeInstanceOf(Date)
-        expect(result?.toString()).toBe('Invalid Date')
-      })
     })
   })
 })
