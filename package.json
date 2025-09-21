@@ -40,7 +40,7 @@
     "db:reset": "npm run db:reset --workspace=apps/backend",
     "quality:frontend": "npm-run-all --parallel test:frontend type-check:frontend lint:frontend",
     "quality:backend": "npm-run-all --parallel test:unit type-check:backend lint:backend",
-    "start:issue": "env-cmd -f .env tsx scripts/start-issue.ts"
+    "start:issue": "tsx scripts/start-issue.ts"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "4.3.0",

@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "lib": ["ES2022", "DOM"],
+    "target": "es2024",
+    "module": "es2022",
+    "moduleResolution": "nodenext",
+    "lib": ["es2024", "DOM"],
     "strict": true,
     "sourceMap": true,
     "noUnusedLocals": true,
