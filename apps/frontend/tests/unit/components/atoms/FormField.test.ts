@@ -207,7 +207,7 @@ describe('FormField', () => {
       expect(input.element.value).toBe('123')
 
       await input.setValue('456')
-      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['456'])
+      expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([456])
     })
   })
 })

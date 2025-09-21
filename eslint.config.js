@@ -61,14 +61,12 @@ export const baseConfig = [
       'object-shorthand': 'error',
       'prettier/prettier': 'error',
     },
-    overrides: [
-      {
-        files: ['scripts/**/*.{js,ts,sh}'],
-        rules: {
-          'no-console': 'off',
-        },
-      },
-    ],
+  },
+  {
+    files: ['scripts/**/*.{js,ts,sh}'],
+    rules: {
+      'no-console': 'off',
+    },
   },
 ]
 
