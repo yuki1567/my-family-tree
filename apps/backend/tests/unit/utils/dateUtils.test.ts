@@ -1,5 +1,5 @@
-import { convertStringToDate, formatDateToYYYYMMDD } from '@/utils/dateUtils'
-import { describe, expect, it } from '@jest/globals'
+import { convertStringToDate, formatDateToYYYYMMDD } from '@/utils/dateUtils.js'
+import { describe, expect, it } from 'vitest'
 
 describe('dateUtils', () => {
   describe('formatDateToYYYYMMDD', () => {

@@ -1,5 +1,5 @@
-import { PersonRepository } from '@/repositories/personRepository'
-import { CreatePersonRequest } from '@/validations/personValidation'
+import { PersonRepository } from '@/repositories/personRepository.js'
+import { CreatePersonRequest } from '@/validations/personValidation.js'
 
 export class PersonService {
   constructor(private personRepository: PersonRepository) {}

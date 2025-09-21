@@ -1,8 +1,8 @@
-import { PersonController } from '@/controllers/personController'
-import { validateBody } from '@/middlewares/validate'
-import { PersonRepository } from '@/repositories/personRepository'
-import { PersonService } from '@/services/personService'
-import { createPersonSchema } from '@/validations/personValidation'
+import { PersonController } from '@/controllers/personController.js'
+import { validateBody } from '@/middlewares/validate.js'
+import { PersonRepository } from '@/repositories/personRepository.js'
+import { PersonService } from '@/services/personService.js'
+import { createPersonSchema } from '@/validations/personValidation.js'
 import { Router } from 'express'
 
 // 依存性注入でインスタンス作成
