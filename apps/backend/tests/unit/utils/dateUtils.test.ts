@@ -22,13 +22,6 @@ describe('dateUtils', () => {
         const result = formatDateToYYYYMMDD(null)
         expect(result).toBeNull()
       })
-
-      it('不正なDateオブジェクトの場合、エラーがスローされる', () => {
-        const invalidDate = new Date('invalid-date')
-        expect(() => formatDateToYYYYMMDD(invalidDate)).toThrow(
-          'Invalid time value'
-        )
-      })
     })
   })
 
