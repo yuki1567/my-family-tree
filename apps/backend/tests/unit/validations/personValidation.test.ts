@@ -235,7 +235,7 @@ describe('personValidation', () => {
         it('生年月日と没年月日が同じ日付を受け入れる', () => {
           const data = {
             birthDate: '1990-05-15',
-            deathDate: '1990-05-15'
+            deathDate: '1990-05-15',
           }
           const result = createPersonSchema.safeParse(data)
           expect(result.success).toBe(true)
@@ -244,7 +244,7 @@ describe('personValidation', () => {
         it('生年月日より後の没年月日を受け入れる', () => {
           const data = {
             birthDate: '1990-05-15',
-            deathDate: '2023-12-31'
+            deathDate: '2023-12-31',
           }
           const result = createPersonSchema.safeParse(data)
           expect(result.success).toBe(true)
@@ -267,7 +267,7 @@ describe('personValidation', () => {
         it('没年月日が生年月日より前の場合DEATH_BEFORE_BIRTHエラーを返す', () => {
           const data = {
             birthDate: '1990-05-15',
-            deathDate: '1989-12-31'
+            deathDate: '1989-12-31',
           }
           const result = createPersonSchema.safeParse(data)
           expect(result.success).toBe(false)
@@ -286,7 +286,7 @@ describe('personValidation', () => {
           gender: 0,
           birthDate: '1990-05-15',
           deathDate: '2023-12-31',
-          birthPlace: '東京都新宿区'
+          birthPlace: '東京都新宿区',
         }
         const result = createPersonSchema.safeParse(data)
         expect(result.success).toBe(true)
@@ -297,12 +297,12 @@ describe('personValidation', () => {
           name: 'あ'.repeat(101), // NAME_TOO_LONG
           gender: 5, // INVALID_GENDER
           birthDate: '1990/05/15', // INVALID_DATE_FORMAT
-          birthPlace: 'あ'.repeat(201) // BIRTH_PLACE_TOO_LONG
+          birthPlace: 'あ'.repeat(201), // BIRTH_PLACE_TOO_LONG
         }
         const result = createPersonSchema.safeParse(data)
         expect(result.success).toBe(false)
         if (!result.success) {
-          const errorMessages = result.error.errors.map(e => e.message)
+          const errorMessages = result.error.errors.map((e) => e.message)
           expect(errorMessages).toContain('NAME_TOO_LONG')
           expect(errorMessages).toContain('INVALID_GENDER')
           expect(errorMessages).toContain('INVALID_DATE_FORMAT')
