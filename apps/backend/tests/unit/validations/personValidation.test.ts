@@ -40,7 +40,7 @@ describe('personValidation', () => {
 
     describe('gender validation', () => {
       describe('正常系', () => {
-        it('性別0（男性）を受け入れる', () => {
+        it('性別0（不明）を受け入れる', () => {
           const data = { gender: 0 }
           const result = createPersonSchema.safeParse(data)
           expect(result.success).toBe(true)
@@ -49,7 +49,7 @@ describe('personValidation', () => {
           }
         })
 
-        it('性別1（女性）を受け入れる', () => {
+        it('性別1（男性）を受け入れる', () => {
           const data = { gender: 1 }
           const result = createPersonSchema.safeParse(data)
           expect(result.success).toBe(true)
@@ -58,7 +58,7 @@ describe('personValidation', () => {
           }
         })
 
-        it('性別2（その他）を受け入れる', () => {
+        it('性別2（女性）を受け入れる', () => {
           const data = { gender: 2 }
           const result = createPersonSchema.safeParse(data)
           expect(result.success).toBe(true)
@@ -67,7 +67,7 @@ describe('personValidation', () => {
           }
         })
 
-        it('性別未指定時はデフォルト値0を設定する', () => {
+        it('性別未指定時はデフォルト値0（不明）を設定する', () => {
           const data = {}
           const result = createPersonSchema.safeParse(data)
           expect(result.success).toBe(true)
