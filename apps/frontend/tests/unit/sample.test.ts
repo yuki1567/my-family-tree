@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 describe('サンプルテスト', () => {
   it('基本的なテスト動作確認', () => {

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
 import FormField from '@/components/atoms/FormField.vue'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 
 describe('FormField', () => {
   describe('基本機能', () => {
@@ -17,8 +17,9 @@ describe('FormField', () => {
     it('v-modelが正しく動作する', async () => {
       const wrapper = mount(FormField, {
         props: {
-          modelValue: 'initial value',
-          'onUpdate:modelValue': (value: string) => wrapper.setProps({ modelValue: value }),
+          'modelValue': 'initial value',
+          'onUpdate:modelValue': (value: string) =>
+            wrapper.setProps({ modelValue: value }),
         },
       })
 
@@ -49,7 +50,9 @@ describe('FormField', () => {
       const wrapper = mount(FormField, {
         props: { placeholder: 'プレースホルダーテキスト' },
       })
-      expect(wrapper.find('input').attributes('placeholder')).toBe('プレースホルダーテキスト')
+      expect(wrapper.find('input').attributes('placeholder')).toBe(
+        'プレースホルダーテキスト'
+      )
     })
 
     it('disabled状態が正しく適用される', () => {
@@ -57,7 +60,9 @@ describe('FormField', () => {
         props: { disabled: true },
       })
       expect(wrapper.find('input').attributes('disabled')).toBeDefined()
-      expect(wrapper.find('input').classes()).toContain('form-field__input--disabled')
+      expect(wrapper.find('input').classes()).toContain(
+        'form-field__input--disabled'
+      )
     })
 
     it('readonly状態が正しく適用される', () => {
@@ -65,7 +70,9 @@ describe('FormField', () => {
         props: { readonly: true },
       })
       expect(wrapper.find('input').attributes('readonly')).toBeDefined()
-      expect(wrapper.find('input').classes()).toContain('form-field__input--readonly')
+      expect(wrapper.find('input').classes()).toContain(
+        'form-field__input--readonly'
+      )
     })
 
     it('required状態が正しく適用される', () => {
@@ -81,7 +88,9 @@ describe('FormField', () => {
       const wrapper = mount(FormField, {
         props: { size: 'large' },
       })
-      expect(wrapper.find('input').classes()).toContain('form-field__input--large')
+      expect(wrapper.find('input').classes()).toContain(
+        'form-field__input--large'
+      )
     })
   })
 
@@ -92,7 +101,9 @@ describe('FormField', () => {
       })
       expect(wrapper.find('.form-field__error').exists()).toBe(true)
       expect(wrapper.find('.form-field__error').text()).toBe('エラーメッセージ')
-      expect(wrapper.find('input').classes()).toContain('form-field__input--error')
+      expect(wrapper.find('input').classes()).toContain(
+        'form-field__input--error'
+      )
     })
 
     it('エラーがある場合、ヘルプテキストは表示されない', () => {
@@ -197,9 +208,10 @@ describe('FormField', () => {
     it('number型のmodelValueが正しく動作する', async () => {
       const wrapper = mount(FormField, {
         props: {
-          modelValue: 123,
-          type: 'number',
-          'onUpdate:modelValue': (value: number) => wrapper.setProps({ modelValue: value }),
+          'modelValue': 123,
+          'type': 'number',
+          'onUpdate:modelValue': (value: number) =>
+            wrapper.setProps({ modelValue: value }),
         },
       })
 

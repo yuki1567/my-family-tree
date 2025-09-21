@@ -60,9 +60,9 @@ const props = withDefaults(defineProps<Props>(), {
 
 type Emits = {
   'update:modelValue': [value: string | number]
-  blur: [event: FocusEvent]
-  focus: [event: FocusEvent]
-  input: [event: Event]
+  'blur': [event: FocusEvent]
+  'focus': [event: FocusEvent]
+  'input': [event: Event]
 }
 
 const emit = defineEmits<Emits>()

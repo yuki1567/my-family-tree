@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
 import AppButton from '@/components/atoms/AppButton.vue'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
 
 describe('AppButton', () => {
   describe('基本機能', () => {
