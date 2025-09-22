@@ -35,7 +35,7 @@
     "db:studio": "npm run db:studio --workspace=apps/backend",
     "db:reset": "npm run db:reset --workspace=apps/backend",
     "quality": "npm-run-all --parallel docker:quality:frontend docker:quality:backend",
-    "start:issue": "tsx scripts/start-issue.ts"
+    "start:issue": "tsx scripts/start-issue/main.ts"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "4.3.0",

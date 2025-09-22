@@ -1,46 +1,39 @@
 import { spawnSync } from 'node:child_process'
 import { copyFileSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
+
 import {
   type Ctx,
   PROJECT_ROOT,
+  assertIssueLabel,
+  assertIssueNumber,
+  assertIssueSlugTitle,
+  assertIssueTitle,
+  assertWorktreePath,
+  assertBranchName,
+  assertDbName,
+  assertDbUser,
+  assertApiPort,
+  assertWebPort,
   log,
   runCommand,
-  isValidIssueLabel,
-  isValidIssueNumber,
-  isValidIssueSlugTitle,
-  isValidWorktreePath,
-  isValidBranchName,
-  isValidDbName,
-  isValidDbUser,
-  isValidIssueTitle,
-  isValidApiPort,
-  isValidWebPort,
 } from './context.js'
 
 export function createWorktree(ctx: Ctx): Ctx {
-  if (!isValidIssueLabel(ctx)) {
-    throw new Error('GitHubnIssueéÙëLš©UŒfD~[“')
-  }
-
-  if (!isValidIssueNumber(ctx)) {
-    throw new Error('GitHubnIssuej÷Lš©UŒfD~[“')
-  }
-
-  if (!isValidIssueSlugTitle(ctx)) {
-    throw new Error('¹é°UŒ_Issue¿¤ÈëLš©UŒfD~[“')
-  }
+  assertIssueLabel(ctx)
+  assertIssueNumber(ctx)
+  assertIssueSlugTitle(ctx)
 
   runCommand('git', ['fetch', 'origin'])
   runCommand('git', ['stash', '-u'])
   runCommand('git', ['pull', 'origin', 'main'])
   runCommand('git', ['stash', 'pop'])
 
-  const branchName = `${ctx.gitHub.issueLable}/${ctx.gitHub.issueNumber}-${ctx.gitHub.issueSlugTitle}`
+  const branchName = `${ctx.gitHub.issueLabel}/${ctx.gitHub.issueNumber}-${ctx.gitHub.issueSlugTitle}`
   const worktreePath = path.resolve(PROJECT_ROOT, '..', branchName)
 
   runCommand('git', ['worktree', 'add', worktreePath, '-b', branchName, 'main'])
-  log(`=à Worktree’\W~W_: ${worktreePath}`)
+  log(`ğŸ›  Worktreeã‚’ä½œæˆã—ã¾ã—ãŸ: ${worktreePath}`)
 
   return {
     ...ctx,
@@ -56,24 +49,13 @@ export function createWorktree(ctx: Ctx): Ctx {
 }
 
 export function generateEnvFile(ctx: Ctx): Ctx {
-  if (!isValidIssueNumber(ctx)) {
-    throw new Error('GitHubnIssuej÷Lš©UŒfD~[“')
-  }
+  assertIssueNumber(ctx)
+  assertIssueSlugTitle(ctx)
+  assertWorktreePath(ctx)
+  assertBranchName(ctx)
 
-  if (!isValidIssueSlugTitle(ctx)) {
-    throw new Error('¹é°UŒ_Issue¿¤ÈëLš©UŒfD~[“')
-  }
-
-  if (!isValidWorktreePath(ctx)) {
-    throw new Error('WorktreeÑ¹Lš©UŒfD~[“')
-  }
-
-  if (!isValidBranchName(ctx)) {
-    throw new Error('ÖéóÁLš©UŒfD~[“')
-  }
-
-  const webPort = 3000 + (ctx.gitHub.issueNumber % 100)
-  const apiPort = 4000 + (ctx.gitHub.issueNumber % 100)
+  const webPort = 3000 + ctx.gitHub.issueNumber
+  const apiPort = 4000 + ctx.gitHub.issueNumber
   const dbName = `family_tree_${ctx.gitHub.issueSlugTitle.replace(/-/g, '_')}`
   const appName = `app-${ctx.gitHub.issueSlugTitle}`
   const jwtSecret = `worktree_jwt_${ctx.gitHub.issueNumber}_${Date.now()}`
@@ -104,14 +86,14 @@ export function generateEnvFile(ctx: Ctx): Ctx {
     .replaceAll('{{JWT_SECRET}}', jwtSecret)
 
   writeFileSync(dstEnv, envContent)
-  log(`=İ °ƒÕ¡¤ë’\W~W_: ${dstEnv}`)
+  log(`ğŸ“ ç’°å¢ƒãƒ•ã‚¡ã‚¤ãƒ«ã‚’ä½œæˆã—ã¾ã—ãŸ: ${dstEnv}`)
 
   copyFileSync(srcEnvTest, dstEnvTest)
-  log(`=İ Æ¹È°ƒÕ¡¤ë’³ÔüW~W_: ${dstEnvTest}`)
+  log(`ğŸ“ ãƒ†ã‚¹ãƒˆç’°å¢ƒãƒ•ã‚¡ã‚¤ãƒ«ã‚’ã‚³ãƒ”ãƒ¼ã—ã¾ã—ãŸ: ${dstEnvTest}`)
 
   copyFileSync(srcClaudeLocalSettings, dstClaudeLocalSettings)
   log(
-    `=İ Claudeíü«ë-šÕ¡¤ë’³ÔüW~W_: ${dstClaudeLocalSettings}`
+    `ğŸ“ Claudeãƒ­ãƒ¼ã‚«ãƒ«è¨­å®šãƒ•ã‚¡ã‚¤ãƒ«ã‚’ã‚³ãƒ”ãƒ¼ã—ã¾ã—ãŸ: ${dstClaudeLocalSettings}`
   )
 
   return {
@@ -127,13 +109,8 @@ export function generateEnvFile(ctx: Ctx): Ctx {
 }
 
 export function createDbSchema(ctx: Ctx): void {
-  if (!isValidDbName(ctx)) {
-    throw new Error('DBLš©UŒfD~[“')
-  }
-
-  if (!isValidDbUser(ctx)) {
-    throw new Error('DBæü¶Lš©UŒfD~[“')
-  }
+  assertDbName(ctx)
+  assertDbUser(ctx)
 
   const dbName = ctx.environment.dbName
   const dbUser = ctx.environment.dbUser
@@ -142,7 +119,7 @@ export function createDbSchema(ctx: Ctx): void {
     `GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON \`${dbName}\`.* TO '${dbUser}'@'%';`,
   ]
 
-  log('= MySQLnëüÈÑ¹ïüÉe›LB‰Œ~Y...')
+  log('ğŸ” MySQLã®ãƒ«ãƒ¼ãƒˆãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰å…¥åŠ›ãŒæ±‚ã‚ã‚‰ã‚Œã¾ã™...')
   const result = spawnSync(
     'docker-compose',
     ['exec', 'db', 'mysql', '-u', 'root', '-p', '-e', statements.join(' ')],
@@ -153,41 +130,25 @@ export function createDbSchema(ctx: Ctx): void {
   )
 
   if (result.status !== 0) {
-    throw new Error('MySQL³ŞóÉnŸLk1WW~W_')
+    throw new Error('MySQLã‚³ãƒãƒ³ãƒ‰ã®å®Ÿè¡Œã«å¤±æ•—ã—ã¾ã—ãŸ')
   }
 
-  log(`=Ä DB¹­üŞ’\W~W_: ${dbName}`)
+  log(`ğŸ—„ DBã‚¹ã‚­ãƒ¼ãƒã‚’ä½œæˆã—ã¾ã—ãŸ: ${dbName}`)
 }
 
 export function openVscode(ctx: Ctx) {
-  if (!isValidWorktreePath(ctx)) {
-    throw new Error('WorktreeÑ¹Lš©UŒfD~[“')
-  }
+  assertWorktreePath(ctx)
 
   runCommand('code', [ctx.environment.worktreePath])
-  log('=» VS Codegworktree’‹M~W_')
+  log('ğŸ’» VS Codeã§worktreeã‚’é–‹ãã¾ã—ãŸ')
 }
 
 export function generatePrompt(ctx: Ctx) {
-  if (!isValidIssueNumber(ctx)) {
-    throw new Error('GitHubnIssuej÷Lš©UŒfD~[“')
-  }
-
-  if (!isValidIssueTitle(ctx)) {
-    throw new Error('Issue¿¤ÈëLš©UŒfD~[“')
-  }
-
-  if (!isValidBranchName(ctx)) {
-    throw new Error('ÖéóÁLš©UŒfD~[“')
-  }
-
-  if (!isValidApiPort(ctx)) {
-    throw new Error('APIİüÈLš©UŒfD~[“')
-  }
-
-  if (!isValidWebPort(ctx)) {
-    throw new Error('WEBİüÈLš©UŒfD~[“')
-  }
+  assertIssueNumber(ctx)
+  assertIssueTitle(ctx)
+  assertBranchName(ctx)
+  assertApiPort(ctx)
+  assertWebPort(ctx)
 
   const templatePath = path.join(
     PROJECT_ROOT,
@@ -210,5 +171,5 @@ export function generatePrompt(ctx: Ctx) {
     .replaceAll('{{API_PORT}}', String(ctx.environment.apiPort))
 
   writeFileSync(outputPath, replaced, 'utf-8')
-  log('=İ Claude Code(×íó×È’W~W_')
+  log('ğŸ“ Claude Codeç”¨ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆã‚’ç”Ÿæˆã—ã¾ã—ãŸ')
 }
