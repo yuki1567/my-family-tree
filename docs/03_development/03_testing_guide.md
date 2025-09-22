@@ -354,7 +354,7 @@ describe('Test B', () => {
 
 ```bash
 # ✅ 正しい実行方法
-npm run test:integration  # --runInBand フラグで直列実行
+npm run docker:test:integration  # --runInBand フラグで直列実行
 ```
 
 ```json
@@ -400,7 +400,7 @@ docker-compose -f docker-compose.test.yml up -d
 docker-compose exec apps npm run db:migrate
 
 # その後はデータクリーンアップのみでテスト実行
-npm run test:integration
+npm run docker:test:integration
 ```
 
 ### なぜ毎回マイグレーションが不要か
@@ -610,7 +610,7 @@ docker-compose ps test-db
 docker-compose --profile test up test-db -d
 
 # 2. テスト実行（モノレポ構造）
-docker-compose exec apps bash -c "cd apps/backend && TEST_DATABASE_URL='mysql://testuser:testpass@localhost:3307/family_tree_test' npm run test:integration"
+docker-compose exec apps bash -c "cd apps/backend && TEST_DATABASE_URL='mysql://testuser:testpass@localhost:3307/family_tree_test' npm run docker:test:integration"
 ```
 
 **重要**:
@@ -634,7 +634,7 @@ docker-compose --profile test up test-db -d
 # テスト実行（backendワークスペース内で）
 docker-compose exec apps bash
 cd apps/backend
-npm run test:integration
+npm run docker:test:integration
 
 # 開発セッション終了時のみ停止
 docker-compose stop test-db
@@ -813,8 +813,8 @@ it('すべての入力フィールドのバリデーションテスト', () => {
 npm test
 
 # 個別実行
-npm run test:unit
-npm run test:integration
+npm run docker:test:unit
+npm run docker:test:integration
 
 # 開発時のwatch mode
 npm run test:watch
