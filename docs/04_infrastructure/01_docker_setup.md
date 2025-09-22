@@ -313,8 +313,7 @@ docker-compose exec app npm run build:frontend              # フロントエン
 docker-compose exec app npm run build:backend               # バックエンドビルド
 
 # テスト実行
-docker-compose exec app npm run test:frontend               # フロントエンドテスト
-docker-compose exec app npm run test:backend                # バックエンドテスト
+docker-compose exec app npm run test                        # 全体テスト
 
 # Prisma操作（アプリケーションコンテナで実行）
 docker-compose exec app npx prisma studio
