@@ -1,4 +1,4 @@
-import { prisma } from '@/database/config/database.js'
+import { prisma } from '@/database/connection.js'
 import { convertStringToDate, formatDateToYYYYMMDD } from '@/utils/dateUtils.js'
 import { CreatePersonRequest } from '@/validations/personValidation.js'
 

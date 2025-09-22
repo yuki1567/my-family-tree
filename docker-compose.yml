@@ -16,9 +16,7 @@ services:
     environment:
       - TZ=Asia/Tokyo
     env_file:
-      - .env
-    networks:
-      - my-family-tree_default
+      - ${ENV_FILE:-.env}
 
   db:
     build:
@@ -50,12 +48,14 @@ services:
       - MYSQL_USER=testuser
       - MYSQL_PASSWORD=testpass
       - TZ=Asia/Tokyo
-    ports:
-      - '3307:3306'
+    env_file:
+      - ${ENV_FILE:-.env.test}
     tmpfs:
       - /var/lib/mysql # メモリ上での高速実行
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', '127.0.0.1', '-ptestpass']
+      interval: 2s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
     profiles: ['test'] # テストプロファイル指定
-
-networks:
-  my-family-tree_default:
-    external: true

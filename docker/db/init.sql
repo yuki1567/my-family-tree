@@ -13,3 +13,5 @@ GRANT INDEX ON family_tree.* TO 'family_tree_user'@'%';
 
 -- Flush privileges to apply changes
 FLUSH PRIVILEGES;
+
+CREATE DATABASE IF NOT EXISTS family_tree_shadow;

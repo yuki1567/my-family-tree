@@ -3,9 +3,7 @@ import { PrismaClient } from '@prisma/client'
 
 export const prisma = new PrismaClient({
   datasources: {
-    db: {
-      url: envConfig.DATABASE_URL,
-    },
+    db: { url: envConfig.DATABASE_URL },
   },
   log: envConfig.LOG_LEVEL,
 })
