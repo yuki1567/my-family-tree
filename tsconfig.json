@@ -25,6 +25,6 @@
       "@shared/*": ["./apps/shared/*"]
     }
   },
-  "include": ["apps/**/*.ts", "scripts/**/*.ts", "scripts/start-issue"],
+  "include": ["apps/**/*.ts", "scripts/**/*.ts"],
   "exclude": ["node_modules", "dist", ".nuxt", "coverage"]
 }

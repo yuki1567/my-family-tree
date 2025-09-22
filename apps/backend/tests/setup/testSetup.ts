@@ -1,8 +1,6 @@
-// 統合テスト用のセットアップファイル
-import { afterAll } from '@jest/globals'
+import { TestPrismaManager } from '@/tests/helpers/prismaHelpers.js'
+import { afterAll } from 'vitest'
 
-// 各テストファイルの後にPrisma接続を確実にクローズ
 afterAll(async () => {
-  // Prismaクライアントの切断処理をここに追加予定
-  // 実際のPrismaクライアントが利用可能になったら実装
+  await TestPrismaManager.closeTestDbConnection()
 })

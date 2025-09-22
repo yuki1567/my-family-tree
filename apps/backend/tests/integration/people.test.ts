@@ -1,10 +1,11 @@
 import { createApp } from '@/app.js'
-import { prisma } from '@/database/config/database.js'
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { TestPrismaManager } from '@/tests/helpers/prismaHelpers.js'
 import request from 'supertest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 describe('POST /api/people - 人物追加API', () => {
   const app = createApp()
+  const prisma = TestPrismaManager.getTestDbConnection()
 
   beforeAll(async () => {
     await prisma.$connect()
