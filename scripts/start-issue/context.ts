@@ -1,11 +1,10 @@
 import { spawnSync } from 'node:child_process'
-import { EOL } from 'node:os'
 import path from 'node:path'
 
 export type GitHub = {
   issueNumber?: number
   issueTitle?: string
-  issueLable?: string
+  issueLabel?: string
   issueSlugTitle?: string
   branchName?: string
 }
@@ -48,6 +47,106 @@ export type SearchResponse = {
 
 export const PROJECT_ROOT = path.resolve(import.meta.dirname, '../..')
 
+function createValidationError(fieldName: string): Error {
+  return new Error(`${fieldName}が定義されていません`)
+}
+
+export function assertField(condition: boolean, fieldName: string): void {
+  if (!condition) {
+    throw createValidationError(fieldName)
+  }
+}
+
+export function assertZenHubTodoPipelineId(
+  ctx: Ctx
+): asserts ctx is Ctx & { zenHub: ZenHub & { todoPipelineId: string } } {
+  assertField(isValidZenHubTodoPipelineId(ctx), 'ZenHubのTodoパイプラインID')
+}
+
+export function assertZenHubEndPoint(
+  ctx: Ctx
+): asserts ctx is Ctx & { zenHub: ZenHub & { endPoint: string } } {
+  assertField(isValidZenHubEndPoint(ctx), 'ZenHubのエンドポイント')
+}
+
+export function assertZenHubToken(
+  ctx: Ctx
+): asserts ctx is Ctx & { zenHub: ZenHub & { token: string } } {
+  assertField(isValidZenHubToken(ctx), 'ZenHubのトークン')
+}
+
+export function assertZenHubIssueId(
+  ctx: Ctx
+): asserts ctx is Ctx & { zenHub: ZenHub & { zenHubIssueId: string } } {
+  assertField(isValidZenHubIssueId(ctx), 'ZenHubのIssueId')
+}
+
+export function assertIssueNumber(
+  ctx: Ctx
+): asserts ctx is Ctx & { gitHub: GitHub & { issueNumber: number } } {
+  assertField(isValidIssueNumber(ctx), 'GitHubのIssue番号')
+}
+
+export function assertIssueTitle(
+  ctx: Ctx
+): asserts ctx is Ctx & { gitHub: GitHub & { issueTitle: string } } {
+  assertField(isValidIssueTitle(ctx), 'Issueタイトル')
+}
+
+export function assertCloudTranslation(
+  ctx: Ctx
+): asserts ctx is Ctx & { cloudTranslation: string } {
+  assertField(isValidcloudTranslation(ctx), 'Google TranslateのAPIキー')
+}
+
+export function assertIssueLabel(
+  ctx: Ctx
+): asserts ctx is Ctx & { gitHub: GitHub & { issueLabel: string } } {
+  assertField(isValidIssueLabel(ctx), 'GitHubのIssueラベル')
+}
+
+export function assertIssueSlugTitle(
+  ctx: Ctx
+): asserts ctx is Ctx & { gitHub: GitHub & { issueSlugTitle: string } } {
+  assertField(isValidIssueSlugTitle(ctx), 'スラグ化されたIssueタイトル')
+}
+
+export function assertWorktreePath(
+  ctx: Ctx
+): asserts ctx is Ctx & { environment: Environment & { worktreePath: string } } {
+  assertField(isValidWorktreePath(ctx), 'Worktreeパス')
+}
+
+export function assertBranchName(
+  ctx: Ctx
+): asserts ctx is Ctx & { gitHub: GitHub & { branchName: string } } {
+  assertField(isValidBranchName(ctx), 'ブランチ名')
+}
+
+export function assertDbName(
+  ctx: Ctx
+): asserts ctx is Ctx & { environment: Environment & { dbName: string } } {
+  assertField(isValidDbName(ctx), 'DB名')
+}
+
+export function assertDbUser(
+  ctx: Ctx
+): asserts ctx is Ctx & { environment: Environment & { dbUser: string } } {
+  assertField(isValidDbUser(ctx), 'DBユーザ名')
+}
+
+export function assertApiPort(
+  ctx: Ctx
+): asserts ctx is Ctx & { environment: Environment & { apiPort: number } } {
+  assertField(isValidApiPort(ctx), 'APIポート')
+}
+
+export function assertWebPort(
+  ctx: Ctx
+): asserts ctx is Ctx & { environment: Environment & { webPort: number } } {
+  assertField(isValidWebPort(ctx), 'WEBポート')
+}
+
 export function isValidZenHubEndPoint(
   ctx: Ctx
 ): ctx is Ctx & { zenHub: ZenHub & { endPoint: string } } {
@@ -86,8 +185,8 @@ export function isValidIssueTitle(
 
 export function isValidIssueLabel(
   ctx: Ctx
-): ctx is Ctx & { gitHub: GitHub & { issueLable: string } } {
-  return typeof ctx.gitHub?.issueLable === 'string'
+): ctx is Ctx & { gitHub: GitHub & { issueLabel: string } } {
+  return typeof ctx.gitHub?.issueLabel === 'string'
 }
 
 export function isValidIssueSlugTitle(
@@ -108,7 +207,9 @@ export function isValidcloudTranslation(
   return typeof ctx.cloudTranslation === 'string'
 }
 
-export function isValidDbName(ctx: Ctx): ctx is Ctx & { dbName: string } {
+export function isValidDbName(
+  ctx: Ctx
+): ctx is Ctx & { environment: Environment & { dbName: string } } {
   return typeof ctx.environment?.dbName === 'string'
 }
 
@@ -154,17 +255,17 @@ export function runCommand(command: string, args: string[]): string {
 export function getRequiredEnv(key: string): string {
   const value = process.env[key]
   if (!value) {
-    throw new Error(`��	p${key}L-�U�fD~[�`)
+    throw new Error(`環境変数${key}が設定されていません`)
   }
   return value
 }
 
 export function log(message: string) {
   const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0]
-  process.stdout.write(`[${timestamp}] ${message}${EOL}`)
+  console.log(`[${timestamp}] ${message}`)
 }
 
 export function logError(message: string) {
   const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0]
-  process.stderr.write(`[${timestamp}] L ERROR: ${message}${EOL}`)
+  console.error(`[${timestamp}] ❌ ERROR: ${message}`)
 }

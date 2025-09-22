@@ -1,19 +1,24 @@
+import dotenv from 'dotenv'
+import path from 'node:path'
+
 import {
   type Ctx,
+  PROJECT_ROOT,
   type SearchResponse,
+  assertCloudTranslation,
+  assertIssueNumber,
+  assertIssueTitle,
+  assertZenHubEndPoint,
+  assertZenHubIssueId,
+  assertZenHubTodoPipelineId,
+  assertZenHubToken,
   getRequiredEnv,
   log,
   runCommand,
-  isValidZenHubTodoPipelineId,
-  isValidZenHubEndPoint,
-  isValidZenHubToken,
-  isValidZenHubIssueId,
-  isValidIssueNumber,
-  isValidIssueTitle,
-  isValidcloudTranslation,
 } from './context.js'
 
 export function loadEnv(): Ctx {
+  dotenv.config({ path: path.join(PROJECT_ROOT, '.env') })
   const mysqlRootPassword = getRequiredEnv('MYSQL_ROOT_PASSWORD')
   const mysqlUser = getRequiredEnv('MYSQL_USER')
   const googleTranslateApiKey = getRequiredEnv('GOOGLE_TRANSLATE_API_KEY')
@@ -22,7 +27,7 @@ export function loadEnv(): Ctx {
   const todoPipelineId = getRequiredEnv('ZENHUB_TODO_PIPELINE_ID')
   const doingPipelineId = getRequiredEnv('ZENHUB_DOING_PIPELINE_ID')
 
-  log(`°ƒ	p’­¼~W_`)
+  log('ç’°å¢ƒå¤‰æ•°ã‚’èª­ã¿è¾¼ã¿ã¾ã—ãŸ')
   return {
     zenHub: {
       token: zenhubToken,
@@ -39,17 +44,9 @@ export function loadEnv(): Ctx {
 }
 
 export async function fetchIssue(ctx: Ctx): Promise<Ctx> {
-  if (!isValidZenHubTodoPipelineId(ctx)) {
-    throw new Error('ZenHubnTodoÑ¤×é¤óIDLš©UŒfD~[“')
-  }
-
-  if (!isValidZenHubEndPoint(ctx)) {
-    throw new Error('ZenHubn¨óÉİ¤óÈLš©UŒfD~[“')
-  }
-
-  if (!isValidZenHubToken(ctx)) {
-    throw new Error('ZenHubnÈü¯óLš©UŒfD~[“')
-  }
+  assertZenHubTodoPipelineId(ctx)
+  assertZenHubEndPoint(ctx)
+  assertZenHubToken(ctx)
 
   const query = `
     query($pipelineId: ID!, $labels: [String!]) {
@@ -81,14 +78,14 @@ export async function fetchIssue(ctx: Ctx): Promise<Ctx> {
 
   const firstNode = data.searchIssuesByPipeline.nodes[0]
   if (!firstNode) {
-    throw new Error('şanIssueL‹dKŠ~[“gW_')
+    throw new Error('å¯¾è±¡ã®IssueãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸ')
   }
   const nonPriorityLabel = firstNode.labels.nodes.find(
     (label: { name: string }) => !label.name.startsWith('priority:')
   )
-  const labelName = nonPriorityLabel ? nonPriorityLabel.name : 'éÙëjW'
+  const labelName = nonPriorityLabel ? nonPriorityLabel.name : 'ãƒ©ãƒ™ãƒ«ãªã—'
   log(
-    `=d xUŒ_Issue: #${firstNode.number} - ${firstNode.title} (${labelName})`
+    `ğŸ‘¤ é¸æŠã•ã‚ŒãŸIssue: #${firstNode.number} - ${firstNode.title} (${labelName})`
   )
 
   return {
@@ -96,7 +93,7 @@ export async function fetchIssue(ctx: Ctx): Promise<Ctx> {
     gitHub: {
       issueNumber: firstNode.number,
       issueTitle: firstNode.title,
-      issueLable: labelName,
+      issueLabel: labelName,
     },
     zenHub: {
       ...ctx.zenHub,
@@ -106,17 +103,9 @@ export async function fetchIssue(ctx: Ctx): Promise<Ctx> {
 }
 
 export async function moveIssueToDoing(ctx: Ctx): Promise<void> {
-  if (!isValidZenHubTodoPipelineId(ctx)) {
-    throw new Error('ZenHubnTodoÑ¤×é¤óIDLš©UŒfD~[“')
-  }
-
-  if (!isValidZenHubIssueId(ctx)) {
-    throw new Error('ZenHubnTodoÑ¤×é¤óIDLš©UŒfD~[“')
-  }
-
-  if (!isValidIssueNumber(ctx)) {
-    throw new Error('GitHubnIssuej÷Lš©UŒfD~[“')
-  }
+  assertZenHubTodoPipelineId(ctx)
+  assertZenHubIssueId(ctx)
+  assertIssueNumber(ctx)
 
   const currentUser = runCommand('gh', ['api', 'user', '--jq', '.login'])
   runCommand('gh', [
@@ -128,7 +117,7 @@ export async function moveIssueToDoing(ctx: Ctx): Promise<void> {
   ])
 
   log(
-    `=d Issue #${ctx.gitHub.issueNumber} ’ ${currentUser} k¢µ¤óW~W_`
+    `ğŸ‘¤ Issue #${ctx.gitHub.issueNumber} ã‚’ ${currentUser} ã«ã‚¢ã‚µã‚¤ãƒ³ã—ã¾ã—ãŸ`
   )
 
   const mutation = `
@@ -148,17 +137,12 @@ export async function moveIssueToDoing(ctx: Ctx): Promise<void> {
 
   await zenHubRequest(ctx, mutation, variables)
 
-  log(`=š Issue #${ctx.gitHub.issueNumber} ’DoingÑ¤×é¤óxûÕW~W_`)
+  log(`ğŸšš Issue #${ctx.gitHub.issueNumber} ã‚’Doingãƒ‘ã‚¤ãƒ—ãƒ©ã‚¤ãƒ³ã¸ç§»å‹•ã—ã¾ã—ãŸ`)
 }
 
 export async function generateSlugTitle(ctx: Ctx): Promise<Ctx> {
-  if (!isValidIssueTitle(ctx)) {
-    throw new Error('Issue¿¤ÈëLš©UŒfD~[“')
-  }
-
-  if (!isValidcloudTranslation(ctx)) {
-    throw new Error('Google TranslatenAPI­üLš©UŒfD~[“')
-  }
+  assertIssueTitle(ctx)
+  assertCloudTranslation(ctx)
 
   const endPoint = `https://translation.googleapis.com/language/translate/v2?key=${ctx.cloudTranslation}`
 
@@ -185,7 +169,7 @@ export async function generateSlugTitle(ctx: Ctx): Promise<Ctx> {
   }
 
   if (!payload.data) {
-    throw new Error('APIK‰Çü¿LÖ—gM~[“gW_')
+    throw new Error('APIã‹ã‚‰ãƒ‡ãƒ¼ã‚¿ãŒå–å¾—ã§ãã¾ã›ã‚“ã§ã—ãŸã€‚')
   }
   const translated = payload.data.translations[0].translatedText
 
@@ -194,7 +178,7 @@ export async function generateSlugTitle(ctx: Ctx): Promise<Ctx> {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
 
-  log(`=İ Issue¿¤Èë’û3û¹é°W~W_: ${issueSlugTitle}`)
+  log(`ğŸ“ Issueã‚¿ã‚¤ãƒˆãƒ«ã‚’ç¿»è¨³ãƒ»ã‚¹ãƒ©ã‚°åŒ–ã—ã¾ã—ãŸ: ${issueSlugTitle}`)
 
   return {
     ...ctx,
@@ -210,13 +194,8 @@ export async function zenHubRequest<T, U>(
   query: string,
   variables: Record<string, T>
 ): Promise<U> {
-  if (!isValidZenHubEndPoint(config)) {
-    throw new Error('ZenHubn¨óÉİ¤óÈLš©UŒfD~[“')
-  }
-
-  if (!isValidZenHubToken(config)) {
-    throw new Error('ZenHubnÈü¯óLš©UŒfD~[“')
-  }
+  assertZenHubEndPoint(config)
+  assertZenHubToken(config)
 
   const response = await fetch(config.zenHub.endPoint, {
     method: 'POST',
@@ -238,7 +217,7 @@ export async function zenHubRequest<T, U>(
   }
 
   if (!payload.data) {
-    throw new Error('ZenHub APIK‰Çü¿LÖ—gM~[“gW_')
+    throw new Error('ZenHub APIã‹ã‚‰ãƒ‡ãƒ¼ã‚¿ãŒå–å¾—ã§ãã¾ã›ã‚“ã§ã—ãŸã€‚')
   }
 
   return payload.data

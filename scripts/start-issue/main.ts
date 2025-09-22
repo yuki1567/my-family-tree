@@ -1,6 +1,17 @@
 import { logError } from './context.js'
-import { loadEnv, fetchIssue, moveIssueToDoing, generateSlugTitle } from './issue-service.js'
-import { createWorktree, generateEnvFile, createDbSchema, openVscode, generatePrompt } from './workspace.js'
+import {
+  fetchIssue,
+  generateSlugTitle,
+  loadEnv,
+  moveIssueToDoing,
+} from './issue-service.js'
+import {
+  createDbSchema,
+  createWorktree,
+  generateEnvFile,
+  generatePrompt,
+  openVscode,
+} from './workspace.js'
 
 async function main() {
   const loadEnvCtx = loadEnv()
