@@ -23,7 +23,7 @@
     "format:check": "prettier --check \"**/*.{js,ts,vue,json,md}\"",
     "docker:test:unit": "docker-compose exec apps npm run test:unit",
     "docker:test:integration": "docker-compose exec apps npm run test:integration",
-    "docker:test:backend": "export ENV_FILE=.env.test && docker-compose --profile test up --wait -d test-db && docker-compose run --rm -e ENV_FILE=.env.test apps npm run test:backend; docker-compose --profile test down",
+    "docker:test:backend": "export ENV_FILE=.env.test && docker-compose --profile test up --wait -d test-db && docker-compose run --rm apps npm run test:backend; docker-compose --profile test down test-db",
     "docker:quality:frontend": "docker-compose exec apps npm run quality:frontend",
     "docker:quality:backend": "docker-compose exec apps npm run quality:backend",
     "test:frontend": "npm run test --workspace=apps/frontend",
