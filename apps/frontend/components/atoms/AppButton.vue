@@ -1,12 +1,12 @@
 <template>
   <button
     :type="type"
-    :disabled="disabled || loading"
+    :disabled="isDisabled || isLoading"
     :class="buttonClasses"
     @click="handleClick"
   >
-    <span v-if="loading" class="loading-spinner" />
-    <span :class="{ 'content-hidden': loading }">
+    <span v-if="isLoading" class="loading-spinner" />
+    <span :class="{ 'content-hidden': isLoading }">
       <slot />
     </span>
   </button>
@@ -17,18 +17,16 @@ import { computed } from 'vue'
 
 type Props = {
   variant?: 'primary' | 'secondary' | 'danger'
-  size?: 'small' | 'medium' | 'large'
-  type?: 'button' | 'submit' | 'reset'
-  disabled?: boolean
-  loading?: boolean
+  type?: 'button' | 'submit'
+  isDisabled?: boolean
+  isLoading?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   variant: 'primary',
-  size: 'medium',
   type: 'button',
-  disabled: false,
-  loading: false,
+  isDisabled: false,
+  isLoading: true,
 })
 
 type Emits = {
@@ -40,15 +38,14 @@ const emit = defineEmits<Emits>()
 const buttonClasses = computed(() => [
   'app-button',
   `app-button--${props.variant}`,
-  `app-button--${props.size}`,
   {
-    'app-button--disabled': props.disabled,
-    'app-button--loading': props.loading,
+    'app-button--disabled': props.isDisabled,
+    'app-button--loading': props.isLoading,
   },
 ])
 
 const handleClick = (event: MouseEvent): void => {
-  if (!props.disabled && !props.loading) {
+  if (!props.isDisabled && !props.isLoading) {
     emit('click', event)
   }
 }
@@ -65,56 +62,44 @@ const handleClick = (event: MouseEvent): void => {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   font-family: inherit;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
 }
 
 /* Variants */
 .app-button--primary {
-  background-color: var(--color-primary);
-  color: white;
-  border: 1px solid var(--color-primary);
-}
-
-.app-button--primary:hover:not(:disabled) {
-  background-color: #ea580c;
-  border-color: #ea580c;
-}
-
-.app-button--secondary {
   background-color: var(--color-background);
   color: var(--color-primary);
   border: 1px solid var(--color-primary);
 }
 
-.app-button--secondary:hover:not(:disabled) {
+.app-button--primary:hover:not(:disabled) {
   background-color: var(--color-primary);
   color: var(--color-background);
 }
 
+.app-button--secondary {
+  background-color: white;
+  background-color: #f9fafb;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+}
+
+.app-button--secondary:hover:not(:disabled) {
+  background-color: #eceff1;
+  border-color: #d1d5db;
+  color: #505966;
+}
+
 .app-button--danger {
-  background-color: #ef4444;
-  color: white;
+  background-color: var(--color-background);
+  color: #ef4444;
   border: 1px solid #ef4444;
 }
 
 .app-button--danger:hover:not(:disabled) {
-  background-color: #dc2626;
-  border-color: #dc2626;
-}
-
-/* Sizes */
-.app-button--small {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.875rem;
-}
-
-.app-button--medium {
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-}
-
-.app-button--large {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  background-color: #ef4444;
+  color: var(--color-background);
 }
 
 /* States */

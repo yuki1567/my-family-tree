@@ -2,7 +2,9 @@
   <div class="demo-page">
     <header class="page-header">
       <h1>家系図アプリ - UIコンポーネント</h1>
-      <p class="header-subtitle">実際の機能に即したUIコンポーネントのサンプル</p>
+      <p class="header-subtitle">
+        実際の機能に即したUIコンポーネントのサンプル
+      </p>
     </header>
 
     <!-- 人物追加フォーム例 -->
@@ -41,12 +43,7 @@
           >
             人物を追加
           </AppButton>
-          <AppButton
-            variant="secondary"
-            @click="clearForm"
-          >
-            クリア
-          </AppButton>
+          <AppButton variant="secondary" @click="clearForm"> クリア </AppButton>
         </div>
       </div>
     </section>
@@ -62,13 +59,7 @@
             placeholder="名前で検索..."
             size="large"
           />
-          <AppButton
-            variant="primary"
-            size="large"
-            @click="handleSearch"
-          >
-            検索
-          </AppButton>
+          <AppButton variant="primary" @click="handleSearch"> 検索 </AppButton>
         </div>
 
         <div v-if="searchQuery" class="search-results">
@@ -101,7 +92,7 @@
             <AppButton variant="primary" @click="handleSaveRelationship">
               関係を保存
             </AppButton>
-            <AppButton variant="danger" size="small" @click="handleDeleteRelationship">
+            <AppButton variant="danger" @click="handleDeleteRelationship">
               関係を削除
             </AppButton>
           </div>
@@ -146,17 +137,10 @@
       <div class="danger-actions">
         <p>重要なデータの削除など、取り返しのつかない操作の例：</p>
         <div class="danger-buttons">
-          <AppButton
-            variant="danger"
-            @click="handleDeletePerson"
-          >
+          <AppButton variant="danger" @click="handleDeletePerson">
             人物を削除
           </AppButton>
-          <AppButton
-            variant="danger"
-            size="small"
-            @click="handleDeleteFamily"
-          >
+          <AppButton variant="danger" @click="handleDeleteFamily">
             家系図全体を削除
           </AppButton>
         </div>
@@ -164,18 +148,10 @@
         <div v-if="showConfirmation" class="confirmation-dialog">
           <p>この操作は取り消せません。本当に実行しますか？</p>
           <div class="confirmation-actions">
-            <AppButton
-              variant="danger"
-              size="small"
-              @click="confirmAction"
-            >
+            <AppButton variant="danger" @click="confirmAction">
               はい、削除します
             </AppButton>
-            <AppButton
-              variant="secondary"
-              size="small"
-              @click="cancelAction"
-            >
+            <AppButton variant="secondary" @click="cancelAction">
               キャンセル
             </AppButton>
           </div>
@@ -211,9 +187,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import AppButton from '~/components/atoms/AppButton.vue'
-import FormField from '~/components/atoms/FormField.vue'
+import AppButton from '@/components/atoms/AppButton.vue'
+import FormField from '@/components/atoms/FormField.vue'
+import { computed, ref } from 'vue'
 
 // 人物追加フォーム
 const personForm = ref({
@@ -247,14 +223,16 @@ const showConfirmation = ref(false)
 // バリデーションエラー
 const nameError = computed(() => {
   if (!errorForm.value.name) return '氏名は必須項目です'
-  if (errorForm.value.name.length < 2) return '氏名は2文字以上で入力してください'
+  if (errorForm.value.name.length < 2)
+    return '氏名は2文字以上で入力してください'
   return ''
 })
 
 const emailError = computed(() => {
   if (!errorForm.value.email) return ''
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(errorForm.value.email)) return '正しいメールアドレス形式で入力してください'
+  if (!emailRegex.test(errorForm.value.email))
+    return '正しいメールアドレス形式で入力してください'
   return ''
 })
 
@@ -266,7 +244,7 @@ const hasErrors = computed(() => {
 const handleAddPerson = async (): Promise<void> => {
   isSubmitting.value = true
   // 実際のAPIコールをシミュレート
-  await new Promise(resolve => setTimeout(resolve, 2000))
+  await new Promise((resolve) => setTimeout(resolve, 2000))
   isSubmitting.value = false
   alert(`人物「${personForm.value.name}」を追加しました`)
 }
@@ -326,7 +304,8 @@ const cancelAction = (): void => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: #f8fafc;
   min-height: 100vh;
 }
