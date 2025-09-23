@@ -120,7 +120,7 @@ const handleInput = (event: Event): void => {
 }
 
 .form-field__label {
-  font-size: 0.875rem;
+  font-size: 1.4rem;
   font-weight: 500;
   color: var(--color-text);
   display: flex;
@@ -141,7 +141,7 @@ const handleInput = (event: Event): void => {
   border: 1px solid var(--color-border);
   border-radius: 6px;
   background-color: var(--color-background);
-  font-size: 0.9rem;
+  font-size: 1.6rem;
   transition: all 0.2s ease-in-out;
   font-family: inherit;
 }
@@ -158,18 +158,18 @@ const handleInput = (event: Event): void => {
 
 /* Sizes */
 .form-field__input--small {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.875rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 1.4rem;
 }
 
 .form-field__input--medium {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.9rem;
+  padding: 0.8rem 1.2rem;
+  font-size: 1.6rem;
 }
 
 .form-field__input--large {
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
+  padding: 1.2rem 1.6rem;
+  font-size: 1.8rem;
 }
 
 /* States */
@@ -194,12 +194,12 @@ const handleInput = (event: Event): void => {
 }
 
 .form-field__error {
-  font-size: 0.75rem;
+  font-size: 1.2rem;
   color: #ef4444;
 }
 
 .form-field__help {
-  font-size: 0.75rem;
+  font-size: 1.2rem;
   color: var(--color-text-secondary);
 }
 </style>

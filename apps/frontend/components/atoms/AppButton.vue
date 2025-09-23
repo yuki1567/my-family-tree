@@ -5,10 +5,13 @@
     :class="buttonClasses"
     @click="handleClick"
   >
-    <span v-if="isLoading" class="loading-spinner" />
-    <span :class="{ 'content-hidden': isLoading }">
+    <template v-if="isLoading">
+      <span class="loading-spinner" />
+      <span class="loading-text">読み込み中...</span>
+    </template>
+    <template v-else>
       <slot />
-    </span>
+    </template>
   </button>
 </template>
 
@@ -26,7 +29,7 @@ const props = withDefaults(defineProps<Props>(), {
   variant: 'primary',
   type: 'button',
   isDisabled: false,
-  isLoading: true,
+  isLoading: false,
 })
 
 type Emits = {
@@ -39,7 +42,6 @@ const buttonClasses = computed(() => [
   'app-button',
   `app-button--${props.variant}`,
   {
-    'app-button--disabled': props.isDisabled,
     'app-button--loading': props.isLoading,
   },
 ])
@@ -53,17 +55,17 @@ const handleClick = (event: MouseEvent): void => {
 
 <style scoped>
 .app-button {
-  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  font-weight: 500;
+  gap: 0.3rem;
+  border-radius: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  font-family: inherit;
-  padding: 0.375rem 0.75rem;
-  font-size: 0.875rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 1.4rem;
+  min-width: fit-content;
+  white-space: nowrap;
 }
 
 /* Variants */
@@ -79,7 +81,6 @@ const handleClick = (event: MouseEvent): void => {
 }
 
 .app-button--secondary {
-  background-color: white;
   background-color: #f9fafb;
   color: #6b7280;
   border: 1px solid #e5e7eb;
@@ -103,9 +104,10 @@ const handleClick = (event: MouseEvent): void => {
 }
 
 /* States */
-.app-button--disabled,
 .app-button:disabled {
   opacity: 0.6;
+  color: #6b7280;
+  border: 1px solid #6b7280;
   cursor: not-allowed;
 }
 
@@ -114,17 +116,13 @@ const handleClick = (event: MouseEvent): void => {
 }
 
 .loading-spinner {
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  border: 2px solid transparent;
-  border-top: 2px solid currentColor;
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 0.2rem solid transparent;
+  border-top: 0.2rem solid currentColor;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-}
-
-.content-hidden {
-  opacity: 0;
+  flex-shrink: 0;
 }
 
 @keyframes spin {

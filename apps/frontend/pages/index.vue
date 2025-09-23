@@ -47,7 +47,7 @@ import {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 1rem;
+  padding: 1.6rem 1.6rem;
   background-color: var(--color-background);
   border-top: 3px solid var(--color-primary);
   border-bottom: 1px solid var(--color-border);
@@ -56,18 +56,18 @@ import {
 .app-title {
   margin: 0;
   color: var(--color-primary);
-  font-size: 1.2rem;
+  font-size: 1.9rem;
   font-weight: 600;
 }
 
 .settings-btn {
-  padding: 0.3rem 1rem;
+  padding: 0.5rem 1.6rem;
   background-color: var(--color-background);
   color: var(--color-primary);
   border: 1px solid var(--color-primary);
   border-radius: 8px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 1.6rem;
 }
 
 .settings-btn:hover {
@@ -86,7 +86,7 @@ import {
 .family-tree-area {
   flex: 1;
   background-color: #f1f5f9;
-  padding: 1rem;
+  padding: 1.6rem;
   overflow: auto;
 }
 
@@ -96,7 +96,7 @@ import {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 3.2rem;
 }
 
 /* アイコンテスト 後で削除*/
@@ -106,7 +106,7 @@ import {
 
 .icons {
   display: flex;
-  gap: 1rem;
+  gap: 1.6rem;
   justify-content: center;
 }
 
@@ -127,14 +127,14 @@ import {
 
 .tree-placeholder {
   text-align: center;
-  padding: 2rem;
+  padding: 3.2rem;
   border: 2px dashed var(--color-border);
   border-radius: 8px;
   background-color: var(--color-surface);
 }
 
 .tree-placeholder h2 {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.8rem 0;
   color: var(--color-text);
 }
 
@@ -148,17 +148,17 @@ import {
   flex: 0 0 200px;
   background-color: var(--color-surface);
   border-left: 1px solid var(--color-border);
-  padding: 1rem;
+  padding: 1.6rem;
   overflow-y: auto;
 }
 
 .control-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.4rem;
 }
 
 .control-group h3 {
-  margin: 0 0 0.5rem 0;
-  font-size: 0.9rem;
+  margin: 0 0 0.8rem 0;
+  font-size: 1.6rem;
   color: var(--color-text);
   font-weight: 600;
 }
@@ -166,13 +166,13 @@ import {
 .control-btn {
   display: block;
   width: 100%;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
+  margin-bottom: 0.8rem;
+  padding: 0.8rem;
   background-color: var(--color-background);
   border: 1px solid var(--color-border);
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 1.6rem;
 }
 
 .control-btn:hover {
