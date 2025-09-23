@@ -59,3 +59,7 @@ services:
       retries: 20
       start_period: 5s
     profiles: ['test'] # テストプロファイル指定
+
+networks:
+  default:
+    name: my-family-tree-shared
