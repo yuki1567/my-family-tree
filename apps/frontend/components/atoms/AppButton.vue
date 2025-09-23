@@ -62,7 +62,7 @@ const handleClick = (event: MouseEvent): void => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0.8rem;
+  border-radius: 0.6rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   padding: 0.5rem 1rem;

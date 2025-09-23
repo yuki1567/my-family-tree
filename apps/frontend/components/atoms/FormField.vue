@@ -65,13 +65,13 @@ const inputClasses = computed(() => [
   color: var(--color-text);
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 0.5rem;
 }
 
 .form-field-label-text {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 0.22rem;
 }
 
 .form-field-required {
@@ -81,7 +81,7 @@ const inputClasses = computed(() => [
 .form-field-input {
   width: 100%;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: 0.6rem;
   background-color: var(--color-background);
   font-size: 1.4rem;
   padding: 0.6rem 1.2rem;

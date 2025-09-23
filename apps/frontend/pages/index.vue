@@ -65,7 +65,7 @@ import {
   background-color: var(--color-background);
   color: var(--color-primary);
   border: 1px solid var(--color-primary);
-  border-radius: 8px;
+  border-radius: 0.6rem;
   cursor: pointer;
   font-size: 1.6rem;
 }
@@ -129,7 +129,7 @@ import {
   text-align: center;
   padding: 3.2rem;
   border: 2px dashed var(--color-border);
-  border-radius: 8px;
+  border-radius: 0.6rem;
   background-color: var(--color-surface);
 }
 
@@ -170,7 +170,7 @@ import {
   padding: 0.8rem;
   background-color: var(--color-background);
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 0.4rem;
   cursor: pointer;
   font-size: 1.6rem;
 }
