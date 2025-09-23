@@ -14,22 +14,26 @@
         <div class="form-grid">
           <FormField
             v-model="personForm.name"
+            name="personName"
             label="氏名"
             placeholder="山田太郎"
             required
           />
           <FormField
             v-model="personForm.birthDate"
+            name="personBirthDate"
             type="date"
             label="生年月日"
           />
           <FormField
             v-model="personForm.birthPlace"
+            name="personBirthPlace"
             label="出生地"
             placeholder="東京都"
           />
           <FormField
             v-model="personForm.occupation"
+            name="personOccupation"
             label="職業"
             placeholder="会社員"
           />
@@ -61,9 +65,9 @@
         <div class="search-row">
           <FormField
             v-model="searchQuery"
+            name="searchQuery"
             label="検索"
             placeholder="名前で検索..."
-            size="large"
           />
           <AppButton variant="primary" @click="handleSearch"> 検索 </AppButton>
         </div>
@@ -83,14 +87,15 @@
           <div class="form-grid">
             <FormField
               v-model="relationship.type"
+              name="relationshipType"
               label="関係の種類"
               placeholder="夫婦、親子、兄弟姉妹など"
             />
             <FormField
               v-model="relationship.startDate"
+              name="relationshipStartDate"
               type="date"
               label="関係開始日"
-              help-text="結婚日、養子縁組日など"
             />
           </div>
 
@@ -110,20 +115,46 @@
     <section class="demo-section">
       <h2>⚠️ エラー状態の表示例</h2>
       <div class="error-examples">
-        <FormField
-          v-model="errorForm.name"
-          label="氏名"
-          placeholder="必須項目です"
-          required
-          :error="nameError"
-        />
-        <FormField
-          v-model="errorForm.email"
-          type="email"
-          label="メールアドレス"
-          placeholder="正しい形式で入力してください"
-          :error="emailError"
-        />
+        <div class="error-demo-section">
+          <h3>正常な状態</h3>
+          <div class="form-grid">
+            <FormField
+              v-model="normalForm.name"
+              name="normalName"
+              label="氏名"
+              placeholder="山田太郎"
+            />
+            <FormField
+              v-model="normalForm.email"
+              name="normalEmail"
+              type="text"
+              label="メールアドレス"
+              placeholder="example@domain.com"
+            />
+          </div>
+        </div>
+
+        <div class="error-demo-section">
+          <h3>エラー状態</h3>
+          <div class="form-grid">
+            <FormField
+              v-model="errorForm.name"
+              name="errorName"
+              label="氏名"
+              placeholder="必須項目です"
+              required
+              :error-message="nameError"
+            />
+            <FormField
+              v-model="errorForm.email"
+              name="errorEmail"
+              type="text"
+              label="メールアドレス"
+              placeholder="正しい形式で入力してください"
+              :error-message="emailError"
+            />
+          </div>
+        </div>
 
         <div class="form-actions">
           <AppButton
@@ -190,6 +221,16 @@
             <li>関係開始日: {{ relationship.startDate || '未入力' }}</li>
           </ul>
         </div>
+
+        <div class="value-group">
+          <h3>フォーム入力値</h3>
+          <ul>
+            <li>正常フォーム名前: {{ normalForm.name || '未入力' }}</li>
+            <li>正常フォームメール: {{ normalForm.email || '未入力' }}</li>
+            <li>エラーフォーム名前: {{ errorForm.name || '未入力' }}</li>
+            <li>エラーフォームメール: {{ errorForm.email || '未入力' }}</li>
+          </ul>
+        </div>
       </div>
     </section>
   </div>
@@ -216,6 +257,12 @@ const searchQuery = ref('')
 const relationship = ref({
   type: '',
   startDate: '',
+})
+
+// 正常状態のフォーム
+const normalForm = ref({
+  name: '',
+  email: '',
 })
 
 // エラー状態のフォーム
@@ -366,6 +413,22 @@ const cancelAction = (): void => {
 .relationship-container,
 .error-examples {
   max-width: 600px;
+}
+
+/* エラーデモセクション */
+.error-demo-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.error-demo-section h3 {
+  margin: 0 0 15px 0;
+  color: #374151;
+  font-size: 1.6rem;
+  font-weight: 600;
 }
 
 .form-grid {

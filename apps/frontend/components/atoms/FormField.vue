@@ -1,35 +1,21 @@
 <template>
-  <div class="form-field">
-    <label v-if="label" class="form-field-label">
+  <label class="form-field-label">
+    <div class="form-field-label-text">
       {{ label }}
       <span v-if="required" class="form-field-required">*</span>
-      <div class="form-field-input-wrapper">
-        <input
-          v-model="inputValue"
-          :type="type"
-          :name="name"
-          :placeholder="placeholder"
-          :required="required"
-          :class="inputClasses"
-        />
-      </div>
-    </label>
-
-    <div v-else class="form-field-input-wrapper">
-      <input
-        v-model="inputValue"
-        :type="type"
-        :name="name"
-        :placeholder="placeholder"
-        :required="required"
-        :class="inputClasses"
-      />
     </div>
-
+    <input
+      v-model="inputValue"
+      :type="type"
+      :name="name"
+      :placeholder="placeholder"
+      :required="required"
+      :class="inputClasses"
+    />
     <div v-if="errorMessage" class="form-field-error">
       {{ errorMessage }}
     </div>
-  </div>
+  </label>
 </template>
 
 <script setup lang="ts">
@@ -37,7 +23,7 @@ import { computed } from 'vue'
 
 type Props = {
   modelValue?: string | number
-  label?: string
+  label: string
   type?: 'text' | 'number' | 'date'
   name: string
   placeholder?: string
@@ -73,16 +59,16 @@ const inputClasses = computed(() => [
 </script>
 
 <style scoped>
-.form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
 .form-field-label {
   font-size: 1.4rem;
   font-weight: 500;
   color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-field-label-text {
   display: flex;
   align-items: center;
   gap: 2px;
@@ -90,10 +76,6 @@ const inputClasses = computed(() => [
 
 .form-field-required {
   color: #ef4444;
-}
-
-.form-field-input-wrapper {
-  position: relative;
 }
 
 .form-field-input {
@@ -104,7 +86,6 @@ const inputClasses = computed(() => [
   font-size: 1.4rem;
   padding: 0.6rem 1.2rem;
   transition: all 0.2s ease-in-out;
-  font-family: inherit;
 }
 
 .form-field-input:focus {

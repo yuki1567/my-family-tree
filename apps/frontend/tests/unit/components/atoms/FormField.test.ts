@@ -6,14 +6,14 @@ describe('FormField', () => {
   describe('基本機能', () => {
     it('正常にマウントされる', () => {
       const wrapper = mount(FormField, {
-        props: { name: 'test-field' }
+        props: { name: 'test-field', label: 'Test Label' }
       })
       expect(wrapper.exists()).toBe(true)
     })
 
     it('inputタグが存在する', () => {
       const wrapper = mount(FormField, {
-        props: { name: 'test-field' }
+        props: { name: 'test-field', label: 'Test Label' }
       })
       expect(wrapper.find('input').exists()).toBe(true)
     })
@@ -22,6 +22,7 @@ describe('FormField', () => {
       const wrapper = mount(FormField, {
         props: {
           'name': 'test-field',
+          'label': 'Test Label',
           'modelValue': 'initial value',
           'onUpdate:modelValue': (value: string) =>
             wrapper.setProps({ modelValue: value }),
@@ -89,7 +90,7 @@ describe('FormField', () => {
   describe('デフォルト値', () => {
     it('デフォルトpropsが正しく設定される', () => {
       const wrapper = mount(FormField, {
-        props: { name: 'test-field' }
+        props: { name: 'test-field', label: 'Test Label' }
       })
       const input = wrapper.find('input')
 
@@ -112,17 +113,6 @@ describe('FormField', () => {
       expect(input.attributes('name')).toBe('test-field')
     })
 
-    it('ラベルがない場合、インプットが直接配置される', () => {
-      const wrapper = mount(FormField, {
-        props: { name: 'test-field' },
-      })
-      const label = wrapper.find('label')
-      const input = wrapper.find('input')
-
-      expect(label.exists()).toBe(false)
-      expect(input.exists()).toBe(true)
-      expect(input.attributes('name')).toBe('test-field')
-    })
   })
 
   describe('number型のmodelValue', () => {
@@ -130,6 +120,7 @@ describe('FormField', () => {
       const wrapper = mount(FormField, {
         props: {
           'name': 'test-field',
+          'label': 'Test Number Field',
           'modelValue': 123,
           'type': 'number' as const,
           'onUpdate:modelValue': (value: string | number): void => {
