@@ -38,10 +38,16 @@
         <div class="form-actions">
           <AppButton
             variant="primary"
-            :loading="isSubmitting"
+            :width="11"
+            :is-loading="isSubmitting"
             @click="handleAddPerson"
           >
+            <UserPlusIcon class="icon" />
             人物を追加
+          </AppButton>
+          <AppButton variant="primary" :is-loading="true">
+            <UserPlusIcon class="icon" />
+            ローディング中
           </AppButton>
           <AppButton variant="secondary" @click="clearForm"> クリア </AppButton>
         </div>
@@ -127,6 +133,9 @@
           >
             検証実行
           </AppButton>
+          <AppButton variant="primary" :is-disabled="true">
+            無効なボタン
+          </AppButton>
         </div>
       </div>
     </section>
@@ -189,6 +198,7 @@
 <script setup lang="ts">
 import AppButton from '@/components/atoms/AppButton.vue'
 import FormField from '@/components/atoms/FormField.vue'
+import { UserPlusIcon } from '@heroicons/vue/24/outline'
 import { computed, ref } from 'vue'
 
 // 人物追加フォーム
@@ -322,13 +332,13 @@ const cancelAction = (): void => {
 
 .page-header h1 {
   margin: 0 0 10px 0;
-  font-size: 2.5rem;
+  font-size: 4rem;
   font-weight: 700;
 }
 
 .header-subtitle {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.8rem;
   opacity: 0.9;
 }
 
@@ -344,7 +354,7 @@ const cancelAction = (): void => {
 .demo-section h2 {
   color: #2d3748;
   margin: 0 0 25px 0;
-  font-size: 1.5rem;
+  font-size: 2.4rem;
   font-weight: 600;
   border-bottom: 2px solid #e2e8f0;
   padding-bottom: 12px;
@@ -395,7 +405,7 @@ const cancelAction = (): void => {
 .relationship-form h3 {
   color: #4a5568;
   margin-bottom: 20px;
-  font-size: 1.2rem;
+  font-size: 1.9rem;
 }
 
 /* 危険なアクション */
@@ -447,7 +457,7 @@ const cancelAction = (): void => {
 .value-group h3 {
   margin: 0 0 15px 0;
   color: #2d3748;
-  font-size: 1.1rem;
+  font-size: 1.8rem;
   font-weight: 600;
 }
 
@@ -462,11 +472,18 @@ const cancelAction = (): void => {
   border-bottom: 1px solid #e2e8f0;
   color: #4a5568;
   font-family: 'SF Mono', Monaco, 'Inconsolata', 'Roboto Mono', monospace;
-  font-size: 0.9rem;
+  font-size: 1.6rem;
 }
 
 .value-group li:last-child {
   border-bottom: none;
+}
+
+/* アイコンスタイル */
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
 }
 
 /* レスポンシブ対応 */
@@ -480,7 +497,7 @@ const cancelAction = (): void => {
   }
 
   .page-header h1 {
-    font-size: 2rem;
+    font-size: 3.2rem;
   }
 
   .demo-section {

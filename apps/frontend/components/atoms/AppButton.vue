@@ -3,15 +3,13 @@
     :type="type"
     :disabled="isDisabled || isLoading"
     :class="buttonClasses"
+    :style="buttonStyles"
     @click="handleClick"
   >
-    <template v-if="isLoading">
-      <span class="loading-spinner" />
-      <span class="loading-text">読み込み中...</span>
-    </template>
-    <template v-else>
+    <span v-if="!isLoading" class="button-contents">
       <slot />
-    </template>
+    </span>
+    <span v-else class="loading-spinner" />
   </button>
 </template>
 
@@ -20,6 +18,7 @@ import { computed } from 'vue'
 
 type Props = {
   variant?: 'primary' | 'secondary' | 'danger'
+  width?: number
   type?: 'button' | 'submit'
   isDisabled?: boolean
   isLoading?: boolean
@@ -46,6 +45,10 @@ const buttonClasses = computed(() => [
   },
 ])
 
+const buttonStyles = computed(() => ({
+  ...(props.width && { width: `${props.width}rem` }),
+}))
+
 const handleClick = (event: MouseEvent): void => {
   if (!props.isDisabled && !props.isLoading) {
     emit('click', event)
@@ -58,14 +61,18 @@ const handleClick = (event: MouseEvent): void => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
   border-radius: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  padding: 0.6rem 1.2rem;
+  padding: 0.5rem 1rem;
   font-size: 1.4rem;
-  min-width: fit-content;
-  white-space: nowrap;
+}
+
+.button-contents {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
 }
 
 /* Variants */
@@ -105,9 +112,7 @@ const handleClick = (event: MouseEvent): void => {
 
 /* States */
 .app-button:disabled {
-  opacity: 0.6;
-  color: #6b7280;
-  border: 1px solid #6b7280;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
