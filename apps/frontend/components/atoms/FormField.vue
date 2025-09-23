@@ -1,11 +1,11 @@
 <template>
   <div class="form-field">
-    <label v-if="label" :for="fieldId" class="form-field__label">
+    <label v-if="label" :for="fieldId" class="form-field-label">
       {{ label }}
-      <span v-if="required" class="form-field__required">*</span>
+      <span v-if="required" class="form-field-required">*</span>
     </label>
 
-    <div class="form-field__input-wrapper">
+    <div class="form-field-input-wrapper">
       <input
         :id="fieldId"
         v-model="inputValue"
@@ -22,11 +22,11 @@
       />
     </div>
 
-    <div v-if="hasError" class="form-field__error">
+    <div v-if="hasError" class="form-field-error">
       {{ errorMessage }}
     </div>
 
-    <div v-else-if="helpText" class="form-field__help">
+    <div v-else-if="helpText" class="form-field-help">
       {{ helpText }}
     </div>
   </div>
@@ -85,13 +85,13 @@ const inputValue = computed({
 })
 
 const inputClasses = computed(() => [
-  'form-field__input',
-  `form-field__input--${props.size}`,
+  'form-field-input',
+  `form-field-input-${props.size}`,
   {
-    'form-field__input--error': hasError.value,
-    'form-field__input--disabled': props.disabled,
-    'form-field__input--readonly': props.readonly,
-    'form-field__input--focused': isFocused.value,
+    'form-field-input-error': hasError.value,
+    'form-field-input-disabled': props.disabled,
+    'form-field-input-readonly': props.readonly,
+    'form-field-input-focused': isFocused.value,
   },
 ])
 
@@ -119,7 +119,7 @@ const handleInput = (event: Event): void => {
   gap: 4px;
 }
 
-.form-field__label {
+.form-field-label {
   font-size: 1.4rem;
   font-weight: 500;
   color: var(--color-text);
@@ -128,15 +128,15 @@ const handleInput = (event: Event): void => {
   gap: 2px;
 }
 
-.form-field__required {
+.form-field-required {
   color: #ef4444;
 }
 
-.form-field__input-wrapper {
+.form-field-input-wrapper {
   position: relative;
 }
 
-.form-field__input {
+.form-field-input {
   width: 100%;
   border: 1px solid var(--color-border);
   border-radius: 6px;
@@ -146,59 +146,59 @@ const handleInput = (event: Event): void => {
   font-family: inherit;
 }
 
-.form-field__input:focus {
+.form-field-input:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
-.form-field__input::placeholder {
+.form-field-input::placeholder {
   color: var(--color-text-secondary);
 }
 
 /* Sizes */
-.form-field__input--small {
+.form-field-input-small {
   padding: 0.6rem 1.2rem;
   font-size: 1.4rem;
 }
 
-.form-field__input--medium {
+.form-field-input-medium {
   padding: 0.8rem 1.2rem;
   font-size: 1.6rem;
 }
 
-.form-field__input--large {
+.form-field-input-large {
   padding: 1.2rem 1.6rem;
   font-size: 1.8rem;
 }
 
 /* States */
-.form-field__input--error {
+.form-field-input-error {
   border-color: #ef4444;
 }
 
-.form-field__input--error:focus {
+.form-field-input-error:focus {
   border-color: #ef4444;
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
-.form-field__input--disabled {
+.form-field-input-disabled {
   background-color: #f3f4f6;
   color: #6b7280;
   cursor: not-allowed;
 }
 
-.form-field__input--readonly {
+.form-field-input-readonly {
   background-color: #f9fafb;
   cursor: default;
 }
 
-.form-field__error {
+.form-field-error {
   font-size: 1.2rem;
   color: #ef4444;
 }
 
-.form-field__help {
+.form-field-help {
   font-size: 1.2rem;
   color: var(--color-text-secondary);
 }

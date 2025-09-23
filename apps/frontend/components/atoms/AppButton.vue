@@ -40,9 +40,9 @@ const emit = defineEmits<Emits>()
 
 const buttonClasses = computed(() => [
   'app-button',
-  `app-button--${props.variant}`,
+  `app-button-${props.variant}`,
   {
-    'app-button--loading': props.isLoading,
+    'app-button-loading': props.isLoading,
   },
 ])
 
@@ -77,36 +77,36 @@ const handleClick = (event: MouseEvent): void => {
 }
 
 /* Variants */
-.app-button--primary {
+.app-button-primary {
   background-color: var(--color-background);
   color: var(--color-primary);
   border: 1px solid var(--color-primary);
 }
 
-.app-button--primary:hover:not(:disabled) {
+.app-button-primary:hover:not(:disabled) {
   background-color: var(--color-primary);
   color: var(--color-background);
 }
 
-.app-button--secondary {
+.app-button-secondary {
   background-color: #f9fafb;
   color: #6b7280;
   border: 1px solid #e5e7eb;
 }
 
-.app-button--secondary:hover:not(:disabled) {
+.app-button-secondary:hover:not(:disabled) {
   background-color: #eceff1;
   border-color: #d1d5db;
   color: #505966;
 }
 
-.app-button--danger {
+.app-button-danger {
   background-color: var(--color-background);
   color: #ef4444;
   border: 1px solid #ef4444;
 }
 
-.app-button--danger:hover:not(:disabled) {
+.app-button-danger:hover:not(:disabled) {
   background-color: #ef4444;
   color: var(--color-background);
 }
@@ -117,7 +117,7 @@ const handleClick = (event: MouseEvent): void => {
   cursor: not-allowed;
 }
 
-.app-button--loading {
+.app-button-loading {
   cursor: wait;
 }
 
