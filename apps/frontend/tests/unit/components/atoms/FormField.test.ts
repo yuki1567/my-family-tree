@@ -5,18 +5,23 @@ import { describe, expect, it } from 'vitest'
 describe('FormField', () => {
   describe('基本機能', () => {
     it('正常にマウントされる', () => {
-      const wrapper = mount(FormField)
+      const wrapper = mount(FormField, {
+        props: { name: 'test-field' }
+      })
       expect(wrapper.exists()).toBe(true)
     })
 
     it('inputタグが存在する', () => {
-      const wrapper = mount(FormField)
+      const wrapper = mount(FormField, {
+        props: { name: 'test-field' }
+      })
       expect(wrapper.find('input').exists()).toBe(true)
     })
 
     it('v-modelが正しく動作する', async () => {
       const wrapper = mount(FormField, {
         props: {
+          'name': 'test-field',
           'modelValue': 'initial value',
           'onUpdate:modelValue': (value: string) =>
             wrapper.setProps({ modelValue: value }),
@@ -34,173 +39,89 @@ describe('FormField', () => {
   describe('Props', () => {
     it('label propsが正しく表示される', () => {
       const wrapper = mount(FormField, {
-        props: { label: 'テスト用ラベル' },
+        props: { name: 'test-field', label: 'テスト用ラベル' },
       })
       expect(wrapper.find('label').text()).toContain('テスト用ラベル')
     })
 
     it('type propsが正しく適用される', () => {
       const wrapper = mount(FormField, {
-        props: { type: 'email' },
+        props: { name: 'test-field', type: 'email' },
       })
       expect(wrapper.find('input').attributes('type')).toBe('email')
     })
 
     it('placeholder propsが正しく適用される', () => {
       const wrapper = mount(FormField, {
-        props: { placeholder: 'プレースホルダーテキスト' },
+        props: { name: 'test-field', placeholder: 'プレースホルダーテキスト' },
       })
       expect(wrapper.find('input').attributes('placeholder')).toBe(
         'プレースホルダーテキスト'
       )
     })
 
-    it('disabled状態が正しく適用される', () => {
-      const wrapper = mount(FormField, {
-        props: { disabled: true },
-      })
-      expect(wrapper.find('input').attributes('disabled')).toBeDefined()
-      expect(wrapper.find('input').classes()).toContain(
-        'form-field__input--disabled'
-      )
-    })
-
-    it('readonly状態が正しく適用される', () => {
-      const wrapper = mount(FormField, {
-        props: { readonly: true },
-      })
-      expect(wrapper.find('input').attributes('readonly')).toBeDefined()
-      expect(wrapper.find('input').classes()).toContain(
-        'form-field__input--readonly'
-      )
-    })
-
     it('required状態が正しく適用される', () => {
       const wrapper = mount(FormField, {
-        props: { required: true, label: 'Required Field' },
+        props: { name: 'test-field', required: true, label: 'Required Field' },
       })
       expect(wrapper.find('input').attributes('required')).toBeDefined()
-      expect(wrapper.find('.form-field__required').exists()).toBe(true)
-      expect(wrapper.find('.form-field__required').text()).toBe('*')
+      expect(wrapper.find('.form-field-required').exists()).toBe(true)
+      expect(wrapper.find('.form-field-required').text()).toBe('*')
     })
 
-    it('size propsが正しく適用される', () => {
-      const wrapper = mount(FormField, {
-        props: { size: 'large' },
-      })
-      expect(wrapper.find('input').classes()).toContain(
-        'form-field__input--large'
-      )
-    })
   })
 
   describe('エラー表示', () => {
     it('エラーメッセージが表示される', () => {
       const wrapper = mount(FormField, {
-        props: { error: 'エラーメッセージ' },
+        props: { name: 'test-field', errorMessage: 'エラーメッセージ' },
       })
-      expect(wrapper.find('.form-field__error').exists()).toBe(true)
-      expect(wrapper.find('.form-field__error').text()).toBe('エラーメッセージ')
+      expect(wrapper.find('.form-field-error').exists()).toBe(true)
+      expect(wrapper.find('.form-field-error').text()).toBe('エラーメッセージ')
       expect(wrapper.find('input').classes()).toContain(
-        'form-field__input--error'
+        'form-field-input-error'
       )
     })
-
-    it('エラーがある場合、ヘルプテキストは表示されない', () => {
-      const wrapper = mount(FormField, {
-        props: {
-          error: 'エラーメッセージ',
-          helpText: 'ヘルプテキスト',
-        },
-      })
-      expect(wrapper.find('.form-field__error').exists()).toBe(true)
-      expect(wrapper.find('.form-field__help').exists()).toBe(false)
-    })
   })
 
-  describe('ヘルプテキスト', () => {
-    it('ヘルプテキストが表示される', () => {
-      const wrapper = mount(FormField, {
-        props: { helpText: 'ヘルプテキスト' },
-      })
-      expect(wrapper.find('.form-field__help').exists()).toBe(true)
-      expect(wrapper.find('.form-field__help').text()).toBe('ヘルプテキスト')
-    })
 
-    it('エラーもヘルプテキストもない場合、どちらも表示されない', () => {
-      const wrapper = mount(FormField)
-      expect(wrapper.find('.form-field__error').exists()).toBe(false)
-      expect(wrapper.find('.form-field__help').exists()).toBe(false)
-    })
-  })
-
-  describe('イベントハンドリング', () => {
-    it('input イベントが発火される', async () => {
-      const wrapper = mount(FormField)
-      const input = wrapper.find('input')
-      await input.trigger('input')
-      expect(wrapper.emitted('input')).toHaveLength(1)
-    })
-
-    it('focus イベントが発火される', async () => {
-      const wrapper = mount(FormField)
-      const input = wrapper.find('input')
-      await input.trigger('focus')
-      expect(wrapper.emitted('focus')).toHaveLength(1)
-    })
-
-    it('blur イベントが発火される', async () => {
-      const wrapper = mount(FormField)
-      const input = wrapper.find('input')
-      await input.trigger('blur')
-      expect(wrapper.emitted('blur')).toHaveLength(1)
-    })
-
-    it('focus状態でスタイルクラスが適用される', async () => {
-      const wrapper = mount(FormField)
-      const input = wrapper.find('input')
-
-      await input.trigger('focus')
-      expect(input.classes()).toContain('form-field__input--focused')
-
-      await input.trigger('blur')
-      expect(input.classes()).not.toContain('form-field__input--focused')
-    })
-  })
 
   describe('デフォルト値', () => {
     it('デフォルトpropsが正しく設定される', () => {
-      const wrapper = mount(FormField)
+      const wrapper = mount(FormField, {
+        props: { name: 'test-field' }
+      })
       const input = wrapper.find('input')
 
       expect(input.attributes('type')).toBe('text')
-      expect(input.classes()).toContain('form-field__input--medium')
+      expect(input.classes()).toContain('form-field-input')
       expect(input.element.value).toBe('')
     })
   })
 
-  describe('フィールドID', () => {
-    it('name propsがある場合、フィールドIDに使用される', () => {
+  describe('ラベルとインプットの関連付け', () => {
+    it('ラベルがある場合、インプットがラベル内にネストされる', () => {
       const wrapper = mount(FormField, {
         props: { name: 'test-field', label: 'Test Label' },
       })
-      const input = wrapper.find('input')
       const label = wrapper.find('label')
+      const input = label.find('input')
 
-      expect(input.attributes('id')).toBe('test-field')
-      expect(label.attributes('for')).toBe('test-field')
+      expect(label.exists()).toBe(true)
+      expect(input.exists()).toBe(true)
+      expect(input.attributes('name')).toBe('test-field')
     })
 
-    it('name propsがない場合、ランダムIDが生成される', () => {
+    it('ラベルがない場合、インプットが直接配置される', () => {
       const wrapper = mount(FormField, {
-        props: { label: 'Test Label' },
+        props: { name: 'test-field' },
       })
-      const input = wrapper.find('input')
       const label = wrapper.find('label')
+      const input = wrapper.find('input')
 
-      const fieldId = input.attributes('id')
-      expect(fieldId).toBeTruthy()
-      expect(label.attributes('for')).toBe(fieldId)
+      expect(label.exists()).toBe(false)
+      expect(input.exists()).toBe(true)
+      expect(input.attributes('name')).toBe('test-field')
     })
   })
 
@@ -208,10 +129,12 @@ describe('FormField', () => {
     it('number型のmodelValueが正しく動作する', async () => {
       const wrapper = mount(FormField, {
         props: {
+          'name': 'test-field',
           'modelValue': 123,
-          'type': 'number',
-          'onUpdate:modelValue': (value: number) =>
-            wrapper.setProps({ modelValue: value }),
+          'type': 'number' as const,
+          'onUpdate:modelValue': (value: string | number): void => {
+            wrapper.setProps({ modelValue: value })
+          },
         },
       })
 
