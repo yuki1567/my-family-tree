@@ -9,11 +9,12 @@
     <span v-if="!isLoading" class="button-contents">
       <slot />
     </span>
-    <span v-else class="loading-spinner" />
+    <ArrowPathIcon v-else class="loading-icon" />
   </button>
 </template>
 
 <script setup lang="ts">
+import { ArrowPathIcon } from '@heroicons/vue/24/outline'
 import { computed } from 'vue'
 
 type Props = {
@@ -120,14 +121,10 @@ const handleClick = (event: MouseEvent): void => {
   cursor: wait;
 }
 
-.loading-spinner {
+.loading-icon {
   width: 1.4rem;
   height: 1.4rem;
-  border: 0.2rem solid transparent;
-  border-top: 0.2rem solid currentColor;
-  border-radius: 50%;
   animation: spin 1s linear infinite;
-  flex-shrink: 0;
 }
 
 @keyframes spin {
