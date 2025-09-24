@@ -10,19 +10,11 @@
     <!-- 家系図表示エリア -->
     <main class="family-tree-area">
       <div class="tree-container">
-        <!-- アイコンテスト -->
-        <div class="icon-test">
-          <h2>アイコンテスト</h2>
-          <div class="icons">
-            <UserIcon class="icon" />
-            <UsersIcon class="icon" />
-            <UserIcon class="icon male" />
-            <UserIcon class="icon female" />
-            <PlusIcon class="icon" />
-            <CheckIcon class="icon" />
-            <XMarkIcon class="icon" />
-          </div>
-        </div>
+        <!-- 人物データがある場合：将来の人物一覧表示 -->
+        <PersonList v-if="hasPersonData" />
+
+        <!-- 人物データがない場合：空状態プレースホルダー -->
+        <EmptyState v-else @start-guide="handleStartGuide" />
       </div>
     </main>
   </div>
@@ -32,13 +24,23 @@
 </template>
 
 <script setup lang="ts">
-import {
-  CheckIcon,
-  PlusIcon,
-  UserIcon,
-  UsersIcon,
-  XMarkIcon,
-} from '@heroicons/vue/24/outline'
+import { computed } from 'vue'
+import EmptyState from '~/components/molecules/EmptyState.vue'
+
+// 暫定的に人物データは空として扱う
+// 将来的にPersonStoreやAPIから取得
+const personData = computed(() => [])
+const hasPersonData = computed(() => personData.value.length > 0)
+
+// PersonListコンポーネントは将来実装予定
+// const PersonList = defineAsyncComponent(() => import('~/components/organisms/PersonList.vue'))
+
+// 空状態からの人物追加ガイド開始
+const handleStartGuide = () => {
+  // フローティングボタンと同じ動作をシミュレート
+  // 将来的にはモーダルやルート遷移を実装
+  console.log('人物追加ガイドを開始')
+}
 </script>
 
 <style scoped>
@@ -99,31 +101,6 @@ import {
   padding: 3.2rem;
 }
 
-/* アイコンテスト 後で削除*/
-.icon-test {
-  text-align: center;
-}
-
-.icons {
-  display: flex;
-  gap: 1.6rem;
-  justify-content: center;
-}
-
-.icon {
-  width: 24px;
-  height: 24px;
-}
-
-.icon.male {
-  color: #3b82f6; /* 青色（男性） */
-}
-
-.icon.female {
-  color: #ec4899; /* ピンク色（女性） */
-}
-
-/* アイコンテスト */
 
 .tree-placeholder {
   text-align: center;
