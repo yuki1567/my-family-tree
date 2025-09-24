@@ -54,7 +54,11 @@ load_env() {
     log_error ".env ファイルが見つかりません: $ENV_FILE"
     exit 1
   fi
-  export $(grep -v '^#' "$ENV_FILE" | xargs)
+
+  # .envファイルをsourceで読み込み（ダブルクォート対応）
+  set -a
+  source "$ENV_FILE"
+  set +a
 }
 
 # --------------------------------------------
@@ -82,7 +86,14 @@ remove_worktree_db() {
   fi
 
   log "🗄 データベース削除: $DB_NAME"
-  docker-compose exec -e MYSQL_PWD="${MYSQL_ROOT_PASSWORD}" db mysql -u root -e "DROP DATABASE IF EXISTS \`${DB_NAME}\`;"
+  log "デバッグ: 実行コマンド = docker exec -e MYSQL_PWD=\"${MYSQL_ROOT_PASSWORD}\" db mysql -u root -e \"DROP DATABASE IF EXISTS \\\`${DB_NAME}\\\`;\""
+
+  if ! docker exec -e MYSQL_PWD="${MYSQL_ROOT_PASSWORD}" db mysql -u root -e "DROP DATABASE IF EXISTS \`${DB_NAME}\`;"; then
+    log_error "データベース削除に失敗しました: $DB_NAME"
+    exit 1
+  fi
+
+  log "✅ データベース削除完了: $DB_NAME"
 }
 
 # --------------------------------------------
