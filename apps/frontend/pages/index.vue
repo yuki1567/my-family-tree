@@ -20,7 +20,7 @@
   </div>
 
   <!-- フローティング追加ボタン -->
-  <button class="floating-add-btn" title="人物を追加">+</button>
+  <button class="floating-add-btn" title="人物を追加" @click="handleStartGuide">+</button>
 </template>
 
 <script setup lang="ts">
@@ -35,11 +35,17 @@ const hasPersonData = computed(() => personData.value.length > 0)
 // PersonListコンポーネントは将来実装予定
 // const PersonList = defineAsyncComponent(() => import('~/components/organisms/PersonList.vue'))
 
-// 空状態からの人物追加ガイド開始
+// 人物追加の処理（EmptyStateとフローティングボタン共通）
 const handleStartGuide = () => {
-  // フローティングボタンと同じ動作をシミュレート
-  // 将来的にはモーダルやルート遷移を実装
-  console.log('人物追加ガイドを開始')
+  // 将来的には人物追加モーダルを開く
+  // 暫定的にアラートでユーザーフィードバック提供
+  alert('人物追加機能は今後実装予定です。\n現在は空状態デザインの確認ができます。')
+
+  // 将来の実装イメージ:
+  // - モーダルコンポーネントの表示
+  // - 人物情報入力フォーム
+  // - APIへのデータ送信
+  console.log('人物追加処理を実行 - 将来的にモーダルを開きます')
 }
 </script>
 
