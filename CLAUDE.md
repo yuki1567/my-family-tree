@@ -30,9 +30,10 @@
 
 ### Priority Order for Implementation
 
-1. **Coding Standards** (highest priority) - See `docs/03_development/02_coding_standards.md`
-2. Implementation examples from documentation
-3. Reference document patterns
+1. **Error Resolution Protocol** (highest priority) - MANDATORY root cause analysis - See `docs/03_development/05_error_resolution.md`
+2. **Coding Standards** - See `docs/03_development/02_coding_standards.md`
+3. Implementation examples from documentation
+4. Reference document patterns
 
 ### Prohibited Technologies
 
@@ -53,7 +54,10 @@
   - DO NOT look for `.sh` files - `.claude/commands/` files are always `.md` format
   - DO NOT interpret, modify, substitute, or add commands
   - The markdown files contain executable instructions, not reference documentation
-- **Error Resolution**: Follow 3-stage analysis protocol - See `docs/03_development/05_error_resolution.md`
+- **Error Resolution (MANDATORY)**: Follow 3-stage analysis protocol - See `docs/03_development/05_error_resolution.md`
+  - Root cause analysis REQUIRED before any fixes
+  - Temporary workarounds PROHIBITED until exhaustive analysis complete
+  - Permanent solutions always prioritized over patches
 - **Code Quality**: ESLint/Prettier configuration - See `docs/03_development/05_eslint_prettier_config.md`
 - **Issue Management**: Follow structured workflow - See `docs/03_development/06_issue_management.md`
 
@@ -74,6 +78,7 @@ _Detailed execution procedures: [Docker Setup](./docs/04_infrastructure/01_docke
 - **Code + Docs Together**: All code changes require simultaneous documentation updates
 - **Explain Before Code**: Show concrete examples of what you plan to implement
 - **TodoWrite Usage**: Create paired todo items: `[Implement X, Update docs for X]`
+- **Error TodoWrite**: Always create analysis-first pairs: `[Analyze root cause of X, Fix X permanently]`
 
 _Detailed workflow: [Development Guide](./docs/03_development/) | [Git Workflow](./docs/03_development/04_git_workflow.md)_
 
@@ -98,7 +103,8 @@ _Start here: [Getting Started](./docs/03_development/01_getting_started.md) | [D
 
 ## Important Reminders
 
-- Do what has been asked; nothing more, nothing less
+- **Root Cause Priority**: Always identify and fix root causes - temporary fixes only as last resort after thorough analysis
+- **Complete Resolution Required**: Do what has been asked AND ensure permanent, stable solutions
 - NEVER create files unless absolutely necessary
 - ALWAYS prefer editing existing files over creating new ones
 - NEVER proactively create documentation files unless explicitly requested
