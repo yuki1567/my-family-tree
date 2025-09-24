@@ -29,6 +29,11 @@
   --color-text-secondary: #9ca3af;
 }
 
+/* ルートフォントサイズ設定（1rem = 10px） */
+html {
+  font-size: 62.5%; /* 16px × 62.5% = 10px */
+}
+
 /* 基本スタイル */
 body {
   font-family:
