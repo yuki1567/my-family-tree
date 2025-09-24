@@ -37,6 +37,29 @@
             label="職業"
             placeholder="会社員"
           />
+          <FormField
+            v-model="personForm.gender"
+            name="personGender"
+            type="radio"
+            label="性別"
+            required
+            :options="genderOptions"
+          />
+        </div>
+
+        <!-- 関係性選択 -->
+        <div class="relationship-selection">
+          <FormField
+            v-model="personForm.relationship"
+            name="personRelationship"
+            type="radio"
+            label="関係性"
+            required
+            :options="relationshipOptions"
+          />
+        </div>
+
+        <div class="form-grid">
         </div>
 
         <div class="form-actions">
@@ -199,6 +222,21 @@
       </div>
     </section>
 
+    <!-- アイコン比較セクション -->
+    <section class="demo-section">
+      <h2>👶 子供アイコン比較</h2>
+      <div class="icon-comparison">
+        <p>現在の関係性で使用されている子供アイコンと、より適切な候補を比較してください：</p>
+        <FormField
+          v-model="iconComparisonValue"
+          name="iconComparison"
+          type="radio"
+          label="子供アイコンの候補"
+          :options="childIconOptions"
+        />
+      </div>
+    </section>
+
     <!-- 実際の入力値確認 -->
     <section class="demo-section">
       <h2>📊 現在の入力値</h2>
@@ -210,6 +248,8 @@
             <li>生年月日: {{ personForm.birthDate || '未入力' }}</li>
             <li>出生地: {{ personForm.birthPlace || '未入力' }}</li>
             <li>職業: {{ personForm.occupation || '未入力' }}</li>
+            <li>性別: {{ getGenderLabel(personForm.gender) || '未選択' }}</li>
+            <li>関係性: {{ getRelationshipLabel(personForm.relationship) || '未選択' }}</li>
           </ul>
         </div>
 
@@ -239,7 +279,7 @@
 <script setup lang="ts">
 import AppButton from '@/components/atoms/AppButton.vue'
 import FormField from '@/components/atoms/FormField.vue'
-import { UserPlusIcon } from '@heroicons/vue/24/outline'
+import { UserPlusIcon, UserIcon, HeartIcon, UsersIcon, FaceSmileIcon, SparklesIcon, StarIcon, SunIcon } from '@heroicons/vue/24/outline'
 import { computed, ref } from 'vue'
 
 // 人物追加フォーム
@@ -248,7 +288,36 @@ const personForm = ref({
   birthDate: '',
   birthPlace: '',
   occupation: '',
+  gender: 'male',
+  relationship: 'father',
 })
+
+// radioボタンのオプション
+const genderOptions = [
+  { label: '男性', value: 'male' },
+  { label: '女性', value: 'female' },
+  { label: '不明', value: 'unknown' },
+]
+
+// 関係性選択のオプション
+const relationshipOptions = [
+  { label: '父親', value: 'father', icon: UserIcon },
+  { label: '母親', value: 'mother', icon: UserIcon },
+  { label: '配偶者', value: 'spouse', icon: HeartIcon },
+  { label: '子供', value: 'child', icon: FaceSmileIcon },
+]
+
+// 子供アイコン比較用のオプション
+const childIconOptions = [
+  { label: '現在（UsersIcon）', value: 'current', icon: UsersIcon },
+  { label: '笑顔（FaceSmileIcon）', value: 'smile', icon: FaceSmileIcon },
+  { label: 'キラキラ（SparklesIcon）', value: 'sparkles', icon: SparklesIcon },
+  { label: '星（StarIcon）', value: 'star', icon: StarIcon },
+  { label: '太陽（SunIcon）', value: 'sun', icon: SunIcon },
+]
+
+// アイコン比較用の値
+const iconComparisonValue = ref('current')
 
 // 検索関連
 const searchQuery = ref('')
@@ -297,6 +366,18 @@ const hasErrors = computed(() => {
   return !!nameError.value || !!emailError.value
 })
 
+// 性別の値をラベルに変換
+const getGenderLabel = (value: string): string => {
+  const option = genderOptions.find(opt => opt.value === value)
+  return option ? option.label : ''
+}
+
+// 関係性の値をラベルに変換
+const getRelationshipLabel = (value: string): string => {
+  const option = relationshipOptions.find(opt => opt.value === value)
+  return option ? option.label : ''
+}
+
 // イベントハンドラー
 const handleAddPerson = async (): Promise<void> => {
   isSubmitting.value = true
@@ -312,6 +393,8 @@ const clearForm = (): void => {
     birthDate: '',
     birthPlace: '',
     occupation: '',
+    gender: 'male',
+    relationship: 'father',
   }
 }
 

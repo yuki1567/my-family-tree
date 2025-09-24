@@ -118,6 +118,8 @@ const handleClick = (event: MouseEvent): void => {
 }
 
 .app-button-loading {
+  background-color: var(--color-primary);
+  color: var(--color-background);
   cursor: wait;
 }
 
