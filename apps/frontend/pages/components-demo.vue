@@ -222,6 +222,150 @@
       </div>
     </section>
 
+    <!-- モーダルベースコンポーネント -->
+    <section class="demo-section">
+      <h2>🪟 モーダルベースコンポーネント</h2>
+      <p>人物詳細・追加・編集機能の基盤となる汎用モーダルコンポーネント：</p>
+
+      <div class="modal-demos">
+        <!-- 基本的なモーダル -->
+        <div class="modal-demo-group">
+          <h3>基本的なモーダル</h3>
+          <AppButton @click="showBasicModal = true">
+            基本モーダルを開く
+          </AppButton>
+        </div>
+
+        <!-- 人物詳細モーダル風 -->
+        <div class="modal-demo-group">
+          <h3>人物詳細風モーダル</h3>
+          <AppButton @click="showPersonModal = true">
+            人物詳細モーダルを開く
+          </AppButton>
+        </div>
+
+        <!-- フッター付きモーダル -->
+        <div class="modal-demo-group">
+          <h3>フッター付きモーダル</h3>
+          <AppButton @click="showFooterModal = true">
+            確認ダイアログを開く
+          </AppButton>
+        </div>
+
+        <!-- 長いコンテンツモーダル -->
+        <div class="modal-demo-group">
+          <h3>長いコンテンツモーダル</h3>
+          <AppButton @click="showNoOverlayModal = true">
+            フォーム入力モーダルを開く
+          </AppButton>
+        </div>
+      </div>
+
+      <!-- 基本モーダル -->
+      <AppModal
+        :is-open="showBasicModal"
+        @close="showBasicModal = false"
+      >
+        <p>これは基本的なモーダルです。</p>
+        <p>ESCキーまたは背景をクリックして閉じることができます。</p>
+        <p>レスポンシブ対応により、スマートフォン（768px未満）では自動的にフルスクリーン表示になります。</p>
+      </AppModal>
+
+      <!-- 人物詳細風モーダル -->
+      <AppModal
+        :is-open="showPersonModal"
+        @close="showPersonModal = false"
+      >
+        <div class="person-detail-content">
+          <div class="person-info-grid">
+            <div class="info-item">
+              <strong>氏名:</strong>
+              <span>山田太郎</span>
+            </div>
+            <div class="info-item">
+              <strong>生年月日:</strong>
+              <span>1980年4月15日</span>
+            </div>
+            <div class="info-item">
+              <strong>出生地:</strong>
+              <span>東京都</span>
+            </div>
+            <div class="info-item">
+              <strong>職業:</strong>
+              <span>エンジニア</span>
+            </div>
+            <div class="info-item">
+              <strong>性別:</strong>
+              <span>男性</span>
+            </div>
+          </div>
+
+          <div class="person-relationships">
+            <h4>家族関係</h4>
+            <ul>
+              <li>父親: 山田一郎</li>
+              <li>母親: 山田花子</li>
+              <li>配偶者: 山田美子</li>
+              <li>子供: 山田次郎、山田花</li>
+            </ul>
+          </div>
+        </div>
+      </AppModal>
+
+      <!-- フッター付きモーダル -->
+      <AppModal
+        :is-open="showFooterModal"
+        @close="showFooterModal = false"
+      >
+        <p>「山田太郎」を家系図から削除しますか？</p>
+        <p><strong>※ この操作は取り消せません。</strong></p>
+
+        <template #footer>
+          <AppButton variant="secondary" @click="showFooterModal = false">
+            キャンセル
+          </AppButton>
+          <AppButton variant="danger" @click="confirmDelete">
+            削除する
+          </AppButton>
+        </template>
+      </AppModal>
+
+      <!-- 長いコンテンツモーダル -->
+      <AppModal
+        :is-open="showNoOverlayModal"
+        @close="showNoOverlayModal = false"
+      >
+        <p>フォーム入力機能を含むモーダルの例です。</p>
+        <p>ESCキーまたは背景クリックで閉じることができます。</p>
+        <p>必要に応じてフッターにアクションボタンを配置できます。</p>
+
+        <div class="modal-form-example">
+          <FormField
+            v-model="modalFormData.name"
+            name="modalName"
+            label="氏名"
+            placeholder="必須項目"
+            required
+          />
+          <FormField
+            v-model="modalFormData.email"
+            name="modalEmail"
+            label="メールアドレス"
+            placeholder="example@domain.com"
+          />
+        </div>
+
+        <template #footer>
+          <AppButton variant="secondary" @click="showNoOverlayModal = false">
+            閉じる
+          </AppButton>
+          <AppButton @click="saveModalForm">
+            保存
+          </AppButton>
+        </template>
+      </AppModal>
+    </section>
+
     <!-- アイコン比較セクション -->
     <section class="demo-section">
       <h2>👶 子供アイコン比較</h2>
@@ -279,6 +423,7 @@
 <script setup lang="ts">
 import AppButton from '@/components/atoms/AppButton.vue'
 import FormField from '@/components/atoms/FormField.vue'
+import AppModal from '@/components/layout/AppModal.vue'
 import { UserPlusIcon, UserIcon, HeartIcon, UsersIcon, FaceSmileIcon, SparklesIcon, StarIcon, SunIcon } from '@heroicons/vue/24/outline'
 import { computed, ref } from 'vue'
 
@@ -345,6 +490,18 @@ const isSubmitting = ref(false)
 
 // 確認ダイアログ
 const showConfirmation = ref(false)
+
+// モーダルの表示状態
+const showBasicModal = ref(false)
+const showPersonModal = ref(false)
+const showFooterModal = ref(false)
+const showNoOverlayModal = ref(false)
+
+// モーダル内のフォームデータ
+const modalFormData = ref({
+  name: '',
+  email: '',
+})
 
 // バリデーションエラー
 const nameError = computed(() => {
@@ -436,6 +593,18 @@ const confirmAction = (): void => {
 
 const cancelAction = (): void => {
   showConfirmation.value = false
+}
+
+// モーダル関連の関数
+const confirmDelete = (): void => {
+  showFooterModal.value = false
+  alert('削除処理を実行しました')
+}
+
+const saveModalForm = (): void => {
+  showNoOverlayModal.value = false
+  alert(`データを保存しました: ${modalFormData.value.name}`)
+  modalFormData.value = { name: '', email: '' }
 }
 </script>
 
@@ -630,6 +799,81 @@ const cancelAction = (): void => {
   width: 1em;
   height: 1em;
   vertical-align: middle;
+}
+
+/* モーダルデモ関連のスタイル */
+.modal-demos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.modal-demo-group {
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f9fafb;
+  text-align: center;
+}
+
+.modal-demo-group h3 {
+  margin: 0 0 15px 0;
+  color: #374151;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+/* 人物詳細モーダル内のスタイル */
+.person-detail-content {
+  font-size: 1.4rem;
+}
+
+
+.person-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.info-item strong {
+  color: #374151;
+  font-weight: 600;
+}
+
+.info-item span {
+  color: #6b7280;
+}
+
+.person-relationships h4 {
+  color: #374151;
+  margin-bottom: 15px;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.person-relationships ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #6b7280;
+}
+
+.person-relationships li {
+  margin-bottom: 8px;
+}
+
+.modal-form-example {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 20px 0;
 }
 
 /* レスポンシブ対応 */
