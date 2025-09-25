@@ -5,13 +5,9 @@
         ref="modalRef"
         class="modal-container"
         role="dialog"
-        :aria-labelledby="titleId"
         aria-modal="true"
         @click.stop
       >
-        <div class="modal-header">
-          <h2 :id="titleId" class="modal-title">{{ title }}</h2>
-        </div>
 
         <div class="modal-body">
           <slot />
@@ -30,15 +26,9 @@ import { computed, onMounted, onUnmounted, ref, useSlots, watch } from 'vue'
 
 type Props = {
   isOpen: boolean
-  title: string
-  closeOnOverlayClick?: boolean
-  closeOnEscape?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  closeOnOverlayClick: true,
-  closeOnEscape: true,
-})
+const props = defineProps<Props>()
 
 type Emits = {
   close: []
@@ -48,9 +38,6 @@ const emit = defineEmits<Emits>()
 
 const slots = useSlots()
 const modalRef = ref<HTMLElement>()
-
-// ユニークなIDを生成（アクセシビリティ対応）
-const titleId = `modal-title-${Math.random().toString(36).substr(2, 9)}`
 
 // フッタースロットの存在確認
 const hasFooterSlot = computed(() => !!slots.footer)
@@ -62,14 +49,12 @@ const handleClose = (): void => {
 
 // オーバーレイクリック処理
 const handleOverlayClick = (): void => {
-  if (props.closeOnOverlayClick) {
-    handleClose()
-  }
+  handleClose()
 }
 
 // ESCキー処理
 const handleEscapeKey = (event: KeyboardEvent): void => {
-  if (event.key === 'Escape' && props.closeOnEscape && props.isOpen) {
+  if (event.key === 'Escape' && props.isOpen) {
     handleClose()
   }
 }
@@ -83,7 +68,9 @@ const handleTabKey = (event: KeyboardEvent): void => {
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     )
     const firstElement = focusableElements[0] as HTMLElement
-    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement
+    const lastElement = focusableElements[
+      focusableElements.length - 1
+    ] as HTMLElement
 
     if (event.shiftKey) {
       if (document.activeElement === firstElement) {
@@ -100,15 +87,18 @@ const handleTabKey = (event: KeyboardEvent): void => {
 }
 
 // モーダル開閉時のbody スクロール制御
-watch(() => props.isOpen, (newValue) => {
-  if (newValue) {
-    // body スクロールを無効化
-    document.body.style.overflow = 'hidden'
-  } else {
-    // モーダル閉鎖時
-    document.body.style.overflow = ''
+watch(
+  () => props.isOpen,
+  (newValue) => {
+    if (newValue) {
+      // body スクロールを無効化
+      document.body.style.overflow = 'hidden'
+    } else {
+      // モーダル閉鎖時
+      document.body.style.overflow = ''
+    }
   }
-})
+)
 
 onMounted(() => {
   document.addEventListener('keydown', handleEscapeKey)
@@ -141,25 +131,15 @@ onUnmounted(() => {
 .modal-container {
   background-color: var(--color-background);
   border-radius: 0.8rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   max-width: 50rem;
   width: 100%;
   max-height: 90vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-}
-
-.modal-header {
-  padding: 2rem 2.4rem 1.6rem;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.modal-title {
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin: 0;
 }
 
 
