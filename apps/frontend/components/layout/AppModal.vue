@@ -11,14 +11,6 @@
       >
         <div class="modal-header">
           <h2 :id="titleId" class="modal-title">{{ title }}</h2>
-          <button
-            class="modal-close-button"
-            type="button"
-            aria-label="モーダルを閉じる"
-            @click="handleClose"
-          >
-            <XMarkIcon class="modal-close-icon" />
-          </button>
         </div>
 
         <div class="modal-body">
@@ -34,8 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { XMarkIcon } from '@heroicons/vue/24/outline'
-import { computed, nextTick, onMounted, onUnmounted, ref, useSlots, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, useSlots, watch } from 'vue'
 
 type Props = {
   isOpen: boolean
@@ -108,14 +99,9 @@ const handleTabKey = (event: KeyboardEvent): void => {
   }
 }
 
-// モーダル開閉時のフォーカス管理
-watch(() => props.isOpen, async (newValue) => {
+// モーダル開閉時のbody スクロール制御
+watch(() => props.isOpen, (newValue) => {
   if (newValue) {
-    // モーダル開放時
-    await nextTick()
-    const closeButton = modalRef.value?.querySelector('.modal-close-button') as HTMLElement
-    closeButton?.focus()
-
     // body スクロールを無効化
     document.body.style.overflow = 'hidden'
   } else {
@@ -165,9 +151,6 @@ onUnmounted(() => {
 }
 
 .modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding: 2rem 2.4rem 1.6rem;
   border-bottom: 1px solid var(--color-border);
 }
@@ -179,31 +162,6 @@ onUnmounted(() => {
   margin: 0;
 }
 
-.modal-close-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.4rem;
-  border-radius: 0.4rem;
-  color: var(--color-text-secondary);
-  transition: all 0.2s ease-in-out;
-}
-
-.modal-close-button:hover {
-  color: var(--color-text);
-  background-color: var(--color-surface);
-}
-
-.modal-close-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
-  border-color: var(--color-primary);
-}
-
-.modal-close-icon {
-  width: 2rem;
-  height: 2rem;
-}
 
 .modal-body {
   padding: 2.4rem;
