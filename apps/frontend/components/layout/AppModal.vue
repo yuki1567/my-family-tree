@@ -12,7 +12,7 @@
           <slot />
         </div>
 
-        <div v-if="hasFooterSlot" class="modal-footer">
+        <div class="modal-footer">
           <slot name="footer" />
         </div>
       </div>
@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, useSlots, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 type Props = {
   isOpen: boolean
@@ -35,10 +35,7 @@ type Emits = {
 
 const emit = defineEmits<Emits>()
 
-const slots = useSlots()
 const modalRef = ref<HTMLElement>()
-
-const hasFooterSlot = computed(() => !!slots.footer)
 
 const handleClose = (): void => {
   emit('close')
@@ -146,6 +143,10 @@ onUnmounted(() => {
   align-items: center;
   justify-content: flex-end;
   gap: 1.2rem;
+}
+
+.modal-footer:empty {
+  display: none;
 }
 
 /* レスポンシブ対応（768px未満はフルスクリーン） */
