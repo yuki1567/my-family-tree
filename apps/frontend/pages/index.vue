@@ -1,8 +1,12 @@
 <template>
   <!-- ヘッダー -->
   <header class="app-header">
-    <h1 class="app-title">Family Tree App</h1>
-    <button class="settings-btn">設定</button>
+    <h1 class="app-title">
+      Family Tree App
+    </h1>
+    <button class="settings-btn">
+      設定
+    </button>
   </header>
 
   <!-- メインコンテンツエリア -->
@@ -20,7 +24,13 @@
   </div>
 
   <!-- フローティング追加ボタン -->
-  <button class="floating-add-btn" title="人物を追加" @click="handleStartGuide">+</button>
+  <button
+    class="floating-add-btn"
+    title="人物を追加"
+    @click="handleStartGuide"
+  >
+    +
+  </button>
 </template>
 
 <script setup lang="ts">
