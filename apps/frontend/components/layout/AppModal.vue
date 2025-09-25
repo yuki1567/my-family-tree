@@ -8,7 +8,6 @@
         aria-modal="true"
         @click.stop
       >
-
         <div class="modal-body">
           <slot />
         </div>
@@ -39,27 +38,22 @@ const emit = defineEmits<Emits>()
 const slots = useSlots()
 const modalRef = ref<HTMLElement>()
 
-// フッタースロットの存在確認
 const hasFooterSlot = computed(() => !!slots.footer)
 
-// モーダルを閉じる処理
 const handleClose = (): void => {
   emit('close')
 }
 
-// オーバーレイクリック処理
 const handleOverlayClick = (): void => {
   handleClose()
 }
 
-// ESCキー処理
 const handleEscapeKey = (event: KeyboardEvent): void => {
   if (event.key === 'Escape' && props.isOpen) {
     handleClose()
   }
 }
 
-// フォーカストラップ処理
 const handleTabKey = (event: KeyboardEvent): void => {
   if (!props.isOpen || !modalRef.value) return
 
@@ -86,15 +80,12 @@ const handleTabKey = (event: KeyboardEvent): void => {
   }
 }
 
-// モーダル開閉時のbody スクロール制御
 watch(
   () => props.isOpen,
   (newValue) => {
     if (newValue) {
-      // body スクロールを無効化
       document.body.style.overflow = 'hidden'
     } else {
-      // モーダル閉鎖時
       document.body.style.overflow = ''
     }
   }
@@ -141,7 +132,6 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
 }
-
 
 .modal-body {
   padding: 2.4rem;
