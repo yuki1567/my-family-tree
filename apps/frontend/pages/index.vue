@@ -1,33 +1,35 @@
 <template>
-  <!-- ヘッダー -->
-  <header class="app-header">
-    <h1 class="app-title">
-      Family Tree App
-    </h1>
-    <button class="settings-btn">
-      設定
+  <div class="page-container">
+    <!-- ヘッダー -->
+    <header class="app-header">
+      <h1 class="app-title">
+        Family Tree App
+      </h1>
+      <button class="settings-btn">
+        設定
+      </button>
+    </header>
+
+    <!-- メインコンテンツエリア -->
+    <div class="content-area">
+      <!-- 家系図表示エリア -->
+      <main class="family-tree-area">
+        <div class="tree-container">
+          <!-- デフォルト人物の表示 -->
+          <PersonCard :person="defaultPerson" />
+        </div>
+      </main>
+    </div>
+
+    <!-- フローティング追加ボタン -->
+    <button
+      class="floating-add-btn"
+      title="人物を追加"
+      @click="handleStartGuide"
+    >
+      +
     </button>
-  </header>
-
-  <!-- メインコンテンツエリア -->
-  <div class="content-area">
-    <!-- 家系図表示エリア -->
-    <main class="family-tree-area">
-      <div class="tree-container">
-        <!-- デフォルト人物の表示 -->
-        <PersonCard :person="defaultPerson" />
-      </div>
-    </main>
   </div>
-
-  <!-- フローティング追加ボタン -->
-  <button
-    class="floating-add-btn"
-    title="人物を追加"
-    @click="handleStartGuide"
-  >
-    +
-  </button>
 </template>
 
 <script setup lang="ts">
@@ -60,6 +62,14 @@ const handleStartGuide = () => {
 </script>
 
 <style scoped>
+/* ページコンテナ */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--color-background);
+}
+
 /* ヘッダー */
 .app-header {
   display: flex;
@@ -106,6 +116,8 @@ const handleStartGuide = () => {
   background-color: #f1f5f9;
   padding: 1.6rem;
   overflow: auto;
+  /* 背景を画面の一番下まで拡張 */
+  min-height: calc(100vh - 95px); /* ヘッダー高さ分を引く */
 }
 
 .tree-container {
