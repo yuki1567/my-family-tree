@@ -11,32 +11,24 @@ describe('EmptyState.vue', () => {
   it('必要な要素が表示されているか', () => {
     const wrapper = mount(EmptyState)
 
-    // アイコンの存在確認
-    const icon = wrapper.find('.empty-icon')
+    // person-placeholderの存在確認
+    const placeholder = wrapper.find('.person-placeholder')
+    expect(placeholder.exists()).toBe(true)
+
+    // person-iconの存在確認
+    const icon = wrapper.find('.person-icon')
     expect(icon.exists()).toBe(true)
-    expect(icon.text()).toBe('🌳')
 
-    // タイトルの存在確認
-    const title = wrapper.find('.empty-title')
-    expect(title.exists()).toBe(true)
-    expect(title.text()).toBe('家系図を作成しましょう')
-
-    // 説明文の存在確認
-    const description = wrapper.find('.empty-description')
-    expect(description.exists()).toBe(true)
-    expect(description.text()).toContain('右下の「+」ボタンから最初の人物を追加して')
-
-    // CTAボタンの存在確認
-    const ctaButton = wrapper.find('.cta-button')
-    expect(ctaButton.exists()).toBe(true)
-    expect(ctaButton.text()).toBe('最初の人物を追加')
+    // UserIconコンポーネントが存在するか
+    const userIcon = wrapper.findComponent({ name: 'UserIcon' })
+    expect(userIcon.exists()).toBe(true)
   })
 
-  it('CTAボタンクリック時にstartGuideイベントが発行されるか', async () => {
+  it('person-placeholderクリック時にstartGuideイベントが発行されるか', async () => {
     const wrapper = mount(EmptyState)
-    const ctaButton = wrapper.find('.cta-button')
+    const placeholder = wrapper.find('.person-placeholder')
 
-    await ctaButton.trigger('click')
+    await placeholder.trigger('click')
 
     // イベントが発行されたかチェック
     const emittedEvents = wrapper.emitted('startGuide')
@@ -51,18 +43,19 @@ describe('EmptyState.vue', () => {
     expect(wrapper.find('.empty-state').exists()).toBe(true)
 
     // 各要素のクラス確認
-    expect(wrapper.find('.empty-icon').exists()).toBe(true)
-    expect(wrapper.find('.empty-title').exists()).toBe(true)
-    expect(wrapper.find('.empty-description').exists()).toBe(true)
-    expect(wrapper.find('.cta-button').exists()).toBe(true)
+    expect(wrapper.find('.person-placeholder').exists()).toBe(true)
+    expect(wrapper.find('.person-icon').exists()).toBe(true)
   })
 
-  it('レスポンシブ対応のCSS構造が正しいか', () => {
+  it('クリック可能な要素としての動作確認', () => {
     const wrapper = mount(EmptyState)
-    const emptyState = wrapper.find('.empty-state')
+    const placeholder = wrapper.find('.person-placeholder')
 
-    // CSS構造の基本的な確認（実際のスタイル適用は統合テストで確認）
-    expect(emptyState.exists()).toBe(true)
-    expect(emptyState.classes()).toContain('empty-state')
+    // クリッカブル要素の確認
+    expect(placeholder.exists()).toBe(true)
+    expect(placeholder.element.tagName).toBe('DIV')
+
+    // カーソルスタイルが適用されているか（CSS確認）
+    expect(placeholder.classes()).toContain('person-placeholder')
   })
 })
