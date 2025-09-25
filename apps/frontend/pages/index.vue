@@ -14,11 +14,8 @@
     <!-- 家系図表示エリア -->
     <main class="family-tree-area">
       <div class="tree-container">
-        <!-- 人物データがある場合：将来の人物一覧表示 -->
-        <PersonList v-if="hasPersonData" />
-
-        <!-- 人物データがない場合：空状態プレースホルダー -->
-        <EmptyState v-else @start-guide="handleStartGuide" />
+        <!-- デフォルト人物の表示 -->
+        <PersonCard :person="defaultPerson" />
       </div>
     </main>
   </div>
@@ -35,21 +32,24 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import EmptyState from '~/components/molecules/EmptyState.vue'
+import PersonCard from '~/components/molecules/PersonCard.vue'
+import type { Person } from '~/../../shared/types/person'
 
-// 暫定的に人物データは空として扱う
-// 将来的にPersonStoreやAPIから取得
-const personData = computed(() => [])
-const hasPersonData = computed(() => personData.value.length > 0)
+// デフォルト人物データ
+const defaultPerson = computed((): Person => ({
+  id: 'default-person-1',
+  name: '田中 太郎',
+  gender: 'male',
+  birthDate: '1990-04-15',
+  birthPlace: '東京都',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}))
 
-// PersonListコンポーネントは将来実装予定
-// const PersonList = defineAsyncComponent(() => import('~/components/organisms/PersonList.vue'))
-
-// 人物追加の処理（EmptyStateとフローティングボタン共通）
+// 人物追加の処理（フローティングボタン用）
 const handleStartGuide = () => {
   // 将来的には人物追加モーダルを開く
-  // 暫定的にアラートでユーザーフィードバック提供
-  alert('人物追加機能は今後実装予定です。\n現在は空状態デザインの確認ができます。')
+  alert('人物追加機能は今後実装予定です。\n現在は人物表示デザインの確認ができます。')
 
   // 将来の実装イメージ:
   // - モーダルコンポーネントの表示

@@ -1,5 +1,5 @@
 import IndexPage from '@/pages/index.vue'
-import EmptyState from '@/components/molecules/EmptyState.vue'
+import PersonCard from '@/components/molecules/PersonCard.vue'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -11,7 +11,7 @@ describe('index.vue', () => {
     const wrapper = mount(IndexPage, {
       global: {
         stubs: {
-          EmptyState: true,
+          PersonCard: true,
         },
       },
     })
@@ -22,7 +22,7 @@ describe('index.vue', () => {
     const wrapper = mount(IndexPage, {
       global: {
         stubs: {
-          EmptyState: true,
+          PersonCard: true,
         },
       },
     })
@@ -37,19 +37,27 @@ describe('index.vue', () => {
     expect(settingsBtn.text()).toBe('設定')
   })
 
-  it('人物データが空の場合EmptyStateが表示されるか', () => {
+  it('デフォルト人物データでPersonCardが表示されるか', () => {
     const wrapper = mount(IndexPage)
 
-    // EmptyStateコンポーネントが存在するか
-    const emptyState = wrapper.findComponent(EmptyState)
-    expect(emptyState.exists()).toBe(true)
+    // PersonCardコンポーネントが存在するか
+    const personCard = wrapper.findComponent(PersonCard)
+    expect(personCard.exists()).toBe(true)
+
+    // デフォルト人物データが渡されているか
+    const props = personCard.props()
+    expect(props.person).toBeDefined()
+    expect(props.person.name).toBe('田中 太郎')
+    expect(props.person.gender).toBe('male')
+    expect(props.person.birthDate).toBe('1990-04-15')
+    expect(props.person.birthPlace).toBe('東京都')
   })
 
   it('フローティングボタンが存在し、クリック時に適切に動作するか', async () => {
     const wrapper = mount(IndexPage, {
       global: {
         stubs: {
-          EmptyState: true,
+          PersonCard: true,
         },
       },
     })
@@ -63,43 +71,34 @@ describe('index.vue', () => {
 
     // アラートが呼ばれたかチェック
     expect(global.alert).toHaveBeenCalledWith(
-      '人物追加機能は今後実装予定です。\n現在は空状態デザインの確認ができます。'
+      '人物追加機能は今後実装予定です。\n現在は人物表示デザインの確認ができます。'
     )
   })
 
-  it('EmptyStateからstartGuideイベントを受け取ったときに適切に処理されるか', async () => {
-    const wrapper = mount(IndexPage)
-    const emptyState = wrapper.findComponent(EmptyState)
-
-    // startGuideイベントを発行
-    await emptyState.vm.$emit('startGuide')
-
-    // アラートが呼ばれたかチェック
-    expect(global.alert).toHaveBeenCalledWith(
-      '人物追加機能は今後実装予定です。\n現在は空状態デザインの確認ができます。'
-    )
-  })
-
-  it('hasPersonDataの計算プロパティが正しく動作するか', () => {
+  it('defaultPersonの計算プロパティが正しく動作するか', () => {
     const wrapper = mount(IndexPage, {
       global: {
         stubs: {
-          EmptyState: true,
+          PersonCard: true,
         },
       },
     })
 
-    // 現在は空データなので false を期待
+    // defaultPersonが正しく設定されているか
     const vm = wrapper.vm as any
-    expect(vm.hasPersonData).toBe(false)
-    expect(vm.personData).toEqual([])
+    expect(vm.defaultPerson).toBeDefined()
+    expect(vm.defaultPerson.id).toBe('default-person-1')
+    expect(vm.defaultPerson.name).toBe('田中 太郎')
+    expect(vm.defaultPerson.gender).toBe('male')
+    expect(vm.defaultPerson.birthDate).toBe('1990-04-15')
+    expect(vm.defaultPerson.birthPlace).toBe('東京都')
   })
 
   it('レスポンシブ対応のCSS構造が適用されているか', () => {
     const wrapper = mount(IndexPage, {
       global: {
         stubs: {
-          EmptyState: true,
+          PersonCard: true,
         },
       },
     })
@@ -109,5 +108,22 @@ describe('index.vue', () => {
     expect(wrapper.find('.content-area').exists()).toBe(true)
     expect(wrapper.find('.family-tree-area').exists()).toBe(true)
     expect(wrapper.find('.floating-add-btn').exists()).toBe(true)
+  })
+
+  it('tree-containerが正しく構成されているか', () => {
+    const wrapper = mount(IndexPage, {
+      global: {
+        stubs: {
+          PersonCard: true,
+        },
+      },
+    })
+
+    const treeContainer = wrapper.find('.tree-container')
+    expect(treeContainer.exists()).toBe(true)
+
+    // PersonCardが tree-container 内に配置されているか
+    const personCardInContainer = treeContainer.findComponent(PersonCard)
+    expect(personCardInContainer.exists()).toBe(true)
   })
 })
