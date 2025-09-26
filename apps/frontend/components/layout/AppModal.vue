@@ -1,8 +1,8 @@
 <template>
   <Teleport to="body">
-    <div v-if="isOpen" class="modal-overlay" @click="handleOverlayClick">
+    <div class="modal-overlay">
       <div
-        ref="modalRef"
+        ref="modalTarget"
         class="modal-container"
         role="dialog"
         aria-modal="true"
@@ -21,13 +21,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from 'vue'
-
-type Props = {
-  isOpen: boolean
-}
-
-const props = defineProps<Props>()
+import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 
 type Emits = {
   close: []
@@ -35,69 +30,24 @@ type Emits = {
 
 const emit = defineEmits<Emits>()
 
-const modalRef = ref<HTMLElement>()
+const modalTarget = ref<HTMLElement>()
 
-const handleClose = (): void => {
-  emit('close')
-}
+const { activate, deactivate } = useFocusTrap(modalTarget, {
+  escapeDeactivates: true,
+  clickOutsideDeactivates: true,
+  returnFocusOnDeactivate: true,
+  initialFocus: () => modalTarget.value!,
+  fallbackFocus: () => modalTarget.value!,
+  onDeactivate: () => emit('close'),
+})
 
-const handleOverlayClick = (): void => {
-  handleClose()
-}
-
-const handleEscapeKey = (event: KeyboardEvent): void => {
-  if (event.key === 'Escape' && props.isOpen) {
-    handleClose()
-  }
-}
-
-const handleTabKey = (event: KeyboardEvent): void => {
-  if (!props.isOpen || !modalRef.value) return
-
-  if (event.key === 'Tab') {
-    const focusableElements = modalRef.value.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    )
-    const firstElement = focusableElements[0] as HTMLElement
-    const lastElement = focusableElements[
-      focusableElements.length - 1
-    ] as HTMLElement
-
-    if (event.shiftKey) {
-      if (document.activeElement === firstElement) {
-        event.preventDefault()
-        lastElement?.focus()
-      }
-    } else {
-      if (document.activeElement === lastElement) {
-        event.preventDefault()
-        firstElement?.focus()
-      }
-    }
-  }
-}
-
-watch(
-  () => props.isOpen,
-  (newValue) => {
-    if (newValue) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-  }
-)
-
-onMounted(() => {
-  document.addEventListener('keydown', handleEscapeKey)
-  document.addEventListener('keydown', handleTabKey)
+onMounted(async () => {
+  await nextTick()
+  activate()
 })
 
 onUnmounted(() => {
-  document.removeEventListener('keydown', handleEscapeKey)
-  document.removeEventListener('keydown', handleTabKey)
-  // cleanup: body スクロールを復元
-  document.body.style.overflow = ''
+  deactivate()
 })
 </script>
 
