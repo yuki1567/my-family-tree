@@ -22,5 +22,11 @@ export default defineNuxtConfig({
     ],
   ],
 
+  vite: {
+    resolve: {
+      preserveSymlinks: true,
+    },
+  },
+
   compatibilityDate: '2025-08-15',
 })

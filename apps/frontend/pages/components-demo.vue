@@ -59,8 +59,7 @@
           />
         </div>
 
-        <div class="form-grid">
-        </div>
+        <div class="form-grid"></div>
 
         <div class="form-actions">
           <AppButton
@@ -262,20 +261,16 @@
       </div>
 
       <!-- 基本モーダル -->
-      <AppModal
-        :is-open="showBasicModal"
-        @close="showBasicModal = false"
-      >
+      <AppModal v-if="showNoOverlayModal" @close="showBasicModal = false">
         <p>これは基本的なモーダルです。</p>
         <p>ESCキーまたは背景をクリックして閉じることができます。</p>
-        <p>レスポンシブ対応により、スマートフォン（768px未満）では自動的にフルスクリーン表示になります。</p>
+        <p>
+          レスポンシブ対応により、スマートフォン（768px未満）では自動的にフルスクリーン表示になります。
+        </p>
       </AppModal>
 
       <!-- 人物詳細風モーダル -->
-      <AppModal
-        :is-open="showPersonModal"
-        @close="showPersonModal = false"
-      >
+      <AppModal v-if="showNoOverlayModal" @close="showPersonModal = false">
         <div class="person-detail-content">
           <div class="person-info-grid">
             <div class="info-item">
@@ -313,10 +308,7 @@
       </AppModal>
 
       <!-- フッター付きモーダル -->
-      <AppModal
-        :is-open="showFooterModal"
-        @close="showFooterModal = false"
-      >
+      <AppModal v-if="showNoOverlayModal" @close="showFooterModal = false">
         <p>「山田太郎」を家系図から削除しますか？</p>
         <p><strong>※ この操作は取り消せません。</strong></p>
 
@@ -331,10 +323,7 @@
       </AppModal>
 
       <!-- 長いコンテンツモーダル -->
-      <AppModal
-        :is-open="showNoOverlayModal"
-        @close="showNoOverlayModal = false"
-      >
+      <AppModal v-if="showNoOverlayModal" @close="!showNoOverlayModal">
         <p>フォーム入力機能を含むモーダルの例です。</p>
         <p>ESCキーまたは背景クリックで閉じることができます。</p>
         <p>必要に応じてフッターにアクションボタンを配置できます。</p>
@@ -359,9 +348,7 @@
           <AppButton variant="secondary" @click="showNoOverlayModal = false">
             閉じる
           </AppButton>
-          <AppButton @click="saveModalForm">
-            保存
-          </AppButton>
+          <AppButton @click="saveModalForm"> 保存 </AppButton>
         </template>
       </AppModal>
     </section>
@@ -370,7 +357,9 @@
     <section class="demo-section">
       <h2>👶 子供アイコン比較</h2>
       <div class="icon-comparison">
-        <p>現在の関係性で使用されている子供アイコンと、より適切な候補を比較してください：</p>
+        <p>
+          現在の関係性で使用されている子供アイコンと、より適切な候補を比較してください：
+        </p>
         <FormField
           v-model="iconComparisonValue"
           name="iconComparison"
@@ -393,7 +382,10 @@
             <li>出生地: {{ personForm.birthPlace || '未入力' }}</li>
             <li>職業: {{ personForm.occupation || '未入力' }}</li>
             <li>性別: {{ getGenderLabel(personForm.gender) || '未選択' }}</li>
-            <li>関係性: {{ getRelationshipLabel(personForm.relationship) || '未選択' }}</li>
+            <li>
+              関係性:
+              {{ getRelationshipLabel(personForm.relationship) || '未選択' }}
+            </li>
           </ul>
         </div>
 
@@ -424,7 +416,17 @@
 import AppButton from '@/components/atoms/AppButton.vue'
 import FormField from '@/components/atoms/FormField.vue'
 import AppModal from '@/components/layout/AppModal.vue'
-import { UserPlusIcon, UserIcon, HeartIcon, UsersIcon, FaceSmileIcon, SparklesIcon, StarIcon, SunIcon } from '@heroicons/vue/24/outline'
+import {
+  FaceSmileIcon,
+  HeartIcon,
+  SparklesIcon,
+  StarIcon,
+  SunIcon,
+  UserIcon,
+  UserPlusIcon,
+  UsersIcon,
+} from '@heroicons/vue/24/outline'
+import { useHead } from 'nuxt/app'
 import { computed, ref } from 'vue'
 
 // 人物追加フォーム
@@ -503,6 +505,12 @@ const modalFormData = ref({
   email: '',
 })
 
+useHead({
+  bodyAttrs: {
+    class: showNoOverlayModal.value ? 'overflow-hidden' : undefined,
+  },
+})
+
 // バリデーションエラー
 const nameError = computed(() => {
   if (!errorForm.value.name) return '氏名は必須項目です'
@@ -525,13 +533,13 @@ const hasErrors = computed(() => {
 
 // 性別の値をラベルに変換
 const getGenderLabel = (value: string): string => {
-  const option = genderOptions.find(opt => opt.value === value)
+  const option = genderOptions.find((opt) => opt.value === value)
   return option ? option.label : ''
 }
 
 // 関係性の値をラベルに変換
 const getRelationshipLabel = (value: string): string => {
-  const option = relationshipOptions.find(opt => opt.value === value)
+  const option = relationshipOptions.find((opt) => opt.value === value)
   return option ? option.label : ''
 }
 
@@ -828,7 +836,6 @@ const saveModalForm = (): void => {
 .person-detail-content {
   font-size: 1.4rem;
 }
-
 
 .person-info-grid {
   display: grid;
