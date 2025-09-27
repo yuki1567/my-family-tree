@@ -1,10 +1,15 @@
 <template>
   <div class="empty-state">
-    <div class="person-placeholder pulse-animation" @click="handleStartGuide">
+    <div
+      class="person-placeholder pulse-animation"
+      @click="handleStartGuide"
+    >
       <UserIcon class="person-icon" />
-      <div class="pulse-ring"></div>
+      <div class="pulse-ring" />
     </div>
-    <p class="click-hint">クリックして人物を追加</p>
+    <p class="click-hint">
+      クリックして人物を追加
+    </p>
   </div>
 </template>
 

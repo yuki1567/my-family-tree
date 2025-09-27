@@ -22,12 +22,6 @@
       >
         出生地: {{ person.birthPlace }}
       </p>
-      <p
-        v-if="person.memo"
-        class="person-memo"
-      >
-        {{ person.memo }}
-      </p>
     </div>
   </div>
 </template>
