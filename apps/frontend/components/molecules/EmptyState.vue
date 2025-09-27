@@ -9,6 +9,7 @@
         <div class="person-dates">クリック</div>
       </div>
     </div>
+    <p class="click-hint">クリックして人物を追加</p>
   </div>
 </template>
 
@@ -26,6 +27,7 @@ const handleStartGuide = () => {
 
 <style scoped>
 .empty-state {
+<<<<<<< Updated upstream
   min-height: 400px;
 }
 
@@ -51,14 +53,37 @@ const handleStartGuide = () => {
 .avatar {
   width: 50px;
   height: 50px;
+=======
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 400px;
+}
+
+
+.person-placeholder {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border: 2px dashed #d1d5db;
+>>>>>>> Stashed changes
   border-radius: 50%;
   border: 2px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: center;
+<<<<<<< Updated upstream
   margin: 0 auto 10px auto;
   border-color: var(--color-unknown);
   background: rgba(156, 163, 175, 0.1);
+=======
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #e9eaec;
+  margin-bottom: 1.6rem;
+>>>>>>> Stashed changes
 }
 
 .avatar-icon {
@@ -77,5 +102,110 @@ const handleStartGuide = () => {
 .person-dates {
   font-size: 1.1rem;
   color: var(--color-text-secondary);
+<<<<<<< Updated upstream
 }
+=======
+  transition: color 0.3s ease;
+  z-index: 2;
+  position: relative;
+}
+
+.person-placeholder:hover .person-icon {
+  color: var(--color-primary);
+}
+
+/* パルスアニメーション */
+.pulse-animation::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  border: 2px solid var(--color-primary);
+  border-radius: 50%;
+  opacity: 0;
+  animation: pulse 2s infinite;
+}
+
+.pulse-ring {
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  right: -15px;
+  bottom: -15px;
+  border: 1px solid var(--color-primary);
+  border-radius: 50%;
+  opacity: 0;
+  animation: pulse 2s infinite 1s;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* クリックヒントテキスト */
+.click-hint {
+  color: var(--color-text-secondary);
+  font-size: 1.4rem;
+  margin: 0;
+  animation: fade-in-out 3s infinite;
+}
+
+@keyframes fade-in-out {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .empty-state {
+    min-height: 300px;
+  }
+
+  .person-placeholder {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 1.2rem;
+  }
+
+  .person-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .pulse-animation::before {
+    top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
+  }
+
+  .pulse-ring {
+    top: -12px;
+    left: -12px;
+    right: -12px;
+    bottom: -12px;
+  }
+
+  .click-hint {
+    font-size: 1.2rem;
+  }
+}
+>>>>>>> Stashed changes
 </style>
