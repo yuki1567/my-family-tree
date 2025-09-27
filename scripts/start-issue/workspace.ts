@@ -25,9 +25,7 @@ export function createWorktree(ctx: Ctx): Ctx {
   assertIssueSlugTitle(ctx)
 
   runCommand('git', ['fetch', 'origin'])
-  runCommand('git', ['stash', '-u'])
   runCommand('git', ['pull', 'origin', 'main'])
-  runCommand('git', ['stash', 'pop'])
 
   const branchName = `${ctx.gitHub.issueLabel}/${ctx.gitHub.issueNumber}-${ctx.gitHub.issueSlugTitle}`
   const worktreePath = path.resolve(PROJECT_ROOT, '..', branchName)
