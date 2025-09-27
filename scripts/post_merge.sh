@@ -67,11 +67,8 @@ load_env() {
 merge_into_main() {
   log "🔄 main に取り込み処理開始"
 
-  git stash push -u
-
   git checkout main
   git pull origin main
-  git stash pop
   
   log "✅ main への取り込み完了"
 }

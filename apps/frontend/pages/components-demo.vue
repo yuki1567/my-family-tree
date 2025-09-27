@@ -609,13 +609,13 @@ const hasErrors = computed(() => {
 
 // 性別の値をラベルに変換
 const getGenderLabel = (value: string): string => {
-  const option = genderOptions.find((opt) => opt.value === value)
+  const option = genderOptions.find(opt => opt.value === value)
   return option ? option.label : ''
 }
 
 // 関係性の値をラベルに変換
 const getRelationshipLabel = (value: string): string => {
-  const option = relationshipOptions.find((opt) => opt.value === value)
+  const option = relationshipOptions.find(opt => opt.value === value)
   return option ? option.label : ''
 }
 

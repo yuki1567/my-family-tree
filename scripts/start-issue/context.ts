@@ -237,11 +237,16 @@ export function isValidWebPort(
   return typeof ctx.environment?.webPort === 'number'
 }
 
-export function runCommand(command: string, args: string[]): string {
+export function runCommand(
+  command: string,
+  args: string[],
+  env?: NodeJS.ProcessEnv
+): string {
   const result = spawnSync(command, args, {
     encoding: 'utf-8',
     stdio: ['ignore', 'pipe', 'pipe'],
     cwd: PROJECT_ROOT,
+    env,
   })
 
   if (result.status !== 0) {

@@ -25,9 +25,7 @@ export function createWorktree(ctx: Ctx): Ctx {
   assertIssueSlugTitle(ctx)
 
   runCommand('git', ['fetch', 'origin'])
-  runCommand('git', ['stash', '-u'])
   runCommand('git', ['pull', 'origin', 'main'])
-  runCommand('git', ['stash', 'pop'])
 
   const branchName = `${ctx.gitHub.issueLabel}/${ctx.gitHub.issueNumber}-${ctx.gitHub.issueSlugTitle}`
   const worktreePath = path.resolve(PROJECT_ROOT, '..', branchName)
@@ -139,7 +137,15 @@ export function createDbSchema(ctx: Ctx): void {
 export function openVscode(ctx: Ctx) {
   assertWorktreePath(ctx)
 
-  runCommand('code', [ctx.environment.worktreePath])
+  const cleanEnv = { ...process.env }
+  delete cleanEnv['WEB_PORT']
+  delete cleanEnv['API_PORT']
+  delete cleanEnv['COMPOSE_PROJECT_NAME']
+  delete cleanEnv['DATABASE_URL']
+  delete cleanEnv['MYSQL_DATABASE']
+  delete cleanEnv['JWT_SECRET']
+
+  runCommand('code', [ctx.environment.worktreePath], cleanEnv)
   log('💻 VS Codeでworktreeを開きました')
 }
 

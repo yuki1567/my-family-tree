@@ -14,7 +14,7 @@ services:
     environment:
       - TZ=Asia/Tokyo
     env_file:
-      - ${ENV_FILE:-.env}
+      - .env
 
   db:
     build:
@@ -47,7 +47,7 @@ services:
       - MYSQL_PASSWORD=testpass
       - TZ=Asia/Tokyo
     env_file:
-      - ${ENV_FILE:-.env.test}
+      - .env.test
     tmpfs:
       - /var/lib/mysql # メモリ上での高速実行
     healthcheck:

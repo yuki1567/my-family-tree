@@ -39,6 +39,7 @@ export const baseConfig = [
         process: true,
         setTimeout: 'readonly',
         fetch: 'readonly',
+        NodeJS: 'readonly',
       },
     },
     plugins: {
