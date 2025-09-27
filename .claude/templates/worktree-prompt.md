@@ -32,11 +32,13 @@ TodoWrite必須タスク:
 ```
 
 #### 1.1 Issue詳細確認（必須）
+
 ```bash
 gh issue view {{ISSUE_NUMBER}}
 ```
 
 #### 1.2 実装計画コメント（必須）
+
 ```bash
 gh issue comment {{ISSUE_NUMBER}} --body "## 実装計画
 
@@ -55,15 +57,16 @@ gh issue comment {{ISSUE_NUMBER}} --body "## 実装計画
 ```
 
 #### 1.3 Docker環境起動（強制実行）
+
 ```bash
 # STEP1: 依存関係インストール（必須）
 npm install
 
 # STEP2: appsコンテナ起動（必須）
-docker-compose --profile development up -d --no-deps apps
+docker compose --profile development up -d --no-deps apps
 
 # STEP3: 起動確認（必須）
-docker-compose ps
+docker compose ps
 
 # STEP4: アクセス確認（必須）
 echo "Frontend: http://localhost:{{WEB_PORT}}"
@@ -77,6 +80,7 @@ echo "API: http://localhost:{{API_PORT}}"
 **コミット形式（厳格）**: `[prefix](#{{ISSUE_NUMBER}}): [内容]`
 
 **必須コミットタイミング**:
+
 1. ✅ **新しいファイル・コンポーネント作成時**
 2. ✅ **テスト追加・修正時**
 3. ✅ **ドキュメント更新時**
@@ -86,6 +90,7 @@ echo "API: http://localhost:{{API_PORT}}"
 **推奨単位**: テストと実装コードは**別コミット**
 
 **例**:
+
 ```bash
 # ファイル作成コミット
 git add types/person.ts
@@ -113,11 +118,8 @@ npm run docker:quality:backend
 # 2. Frontend品質チェック（必須）
 npm run docker:quality:frontend
 
-# 3. Unit テスト（必須）
-npm run docker:test:unit
-
-# 4. Integration テスト（必須）
-npm run docker:test:integration
+# 3. テスト（必須）
+npm run test:backend
 ```
 
 **失敗時の対応**: エラーがある場合は修正→再実行→全通過まで繰り返し
@@ -127,12 +129,15 @@ npm run docker:test:integration
 ### ステップ4: PR作成（厳格テンプレート）
 
 #### 4.1 PRタイトル
+
 ```
 {{ISSUE_TITLE}}
 ```
+
 **（注: issueタイトルをそのまま使用）**
 
 #### 4.2 PR作成コマンド（ラベル付与必須）
+
 ```bash
 # ラベル確認（issueと同じラベル付与）
 gh issue view {{ISSUE_NUMBER}} --json labels
@@ -181,6 +186,7 @@ EOF
 ### ステップ5: 受け入れ基準検証（必須プロセス）
 
 #### 5.1 各基準の詳細検証
+
 ```bash
 # issue受け入れ基準の再確認
 gh issue view {{ISSUE_NUMBER}}
@@ -191,6 +197,7 @@ gh issue view {{ISSUE_NUMBER}}
 ```
 
 #### 5.2 検証結果の記録（詳細必須）
+
 ```bash
 gh pr comment --body "✅ 受け入れ基準検証完了
 
@@ -208,6 +215,7 @@ gh pr comment --body "✅ 受け入れ基準検証完了
 ```
 
 #### 5.3 チェックリスト更新（必須）
+
 ```bash
 # issue側のチェックリスト更新
 gh issue edit {{ISSUE_NUMBER}} --body "[更新された本文（チェック済みマーク追加）]"
@@ -221,6 +229,7 @@ gh pr edit --body "[更新されたPR本文（チェック完了）]"
 ## 🔴 失敗時の強制リカバリー手順
 
 ### コミット戦略違反時
+
 ```bash
 # 不適切なコミットの修正
 git reset --soft HEAD~1
@@ -229,6 +238,7 @@ git commit -m "[正しい形式](#{{ISSUE_NUMBER}}): [内容]"
 ```
 
 ### PR作成不備時
+
 ```bash
 # PR削除→再作成
 gh pr close [PR番号]
@@ -236,6 +246,7 @@ gh pr create [正しいテンプレート使用]
 ```
 
 ### 品質チェック失敗時
+
 ```bash
 # エラー修正→再実行
 [修正作業]
