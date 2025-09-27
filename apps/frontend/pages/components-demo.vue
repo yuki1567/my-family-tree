@@ -261,7 +261,7 @@
       </div>
 
       <!-- 基本モーダル -->
-      <AppModal v-if="showNoOverlayModal" @close="showBasicModal = false">
+      <AppModal v-if="showBasicModal" @close="showBasicModal = false">
         <p>これは基本的なモーダルです。</p>
         <p>ESCキーまたは背景をクリックして閉じることができます。</p>
         <p>
@@ -270,7 +270,7 @@
       </AppModal>
 
       <!-- 人物詳細風モーダル -->
-      <AppModal v-if="showNoOverlayModal" @close="showPersonModal = false">
+      <AppModal v-if="showPersonModal" @close="showPersonModal = false">
         <div class="person-detail-content">
           <div class="person-info-grid">
             <div class="info-item">
@@ -308,7 +308,7 @@
       </AppModal>
 
       <!-- フッター付きモーダル -->
-      <AppModal v-if="showNoOverlayModal" @close="showFooterModal = false">
+      <AppModal v-if="showFooterModal" @close="showFooterModal = false">
         <p>「山田太郎」を家系図から削除しますか？</p>
         <p><strong>※ この操作は取り消せません。</strong></p>
 
@@ -323,7 +323,7 @@
       </AppModal>
 
       <!-- 長いコンテンツモーダル -->
-      <AppModal v-if="showNoOverlayModal" @close="!showNoOverlayModal">
+      <AppModal v-if="showNoOverlayModal" @close="showNoOverlayModal = false">
         <p>フォーム入力機能を含むモーダルの例です。</p>
         <p>ESCキーまたは背景クリックで閉じることができます。</p>
         <p>必要に応じてフッターにアクションボタンを配置できます。</p>
@@ -345,10 +345,16 @@
         </div>
 
         <template #footer>
-          <AppButton variant="secondary" @click="showNoOverlayModal = false">
+          <AppButton
+            variant="secondary"
+            :full-width="true"
+            @click="showNoOverlayModal = false"
+          >
             閉じる
           </AppButton>
-          <AppButton @click="saveModalForm"> 保存 </AppButton>
+          <AppButton :full-width="true" @click="saveModalForm">
+            保存
+          </AppButton>
         </template>
       </AppModal>
     </section>
@@ -505,11 +511,20 @@ const modalFormData = ref({
   email: '',
 })
 
-useHead({
+// すべてのモーダル状態を監視してbodyスクロールを制御
+const isAnyModalOpen = computed(
+  () =>
+    showBasicModal.value ||
+    showPersonModal.value ||
+    showFooterModal.value ||
+    showNoOverlayModal.value
+)
+
+useHead(() => ({
   bodyAttrs: {
-    class: showNoOverlayModal.value ? 'overflow-hidden' : undefined,
+    class: isAnyModalOpen.value ? 'overflow-hidden' : undefined,
   },
-})
+}))
 
 // バリデーションエラー
 const nameError = computed(() => {

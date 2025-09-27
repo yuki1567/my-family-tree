@@ -1,13 +1,7 @@
 <template>
   <Teleport to="body">
     <div class="modal-overlay">
-      <div
-        ref="modalTarget"
-        class="modal-container"
-        role="dialog"
-        aria-modal="true"
-        @click.stop
-      >
+      <div ref="modalTarget" class="modal-container">
         <div class="modal-body">
           <slot />
         </div>
@@ -62,16 +56,11 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 1.6rem;
 }
 
 .modal-container {
   background-color: var(--color-background);
   border-radius: 0.8rem;
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
   max-width: 50rem;
   width: 100%;
   max-height: 90vh;
@@ -87,8 +76,7 @@ onUnmounted(() => {
 }
 
 .modal-footer {
-  padding: 1.6rem 2.4rem 2rem;
-  border-top: 1px solid var(--color-border);
+  padding: 0rem 2.4rem 2.4rem;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -101,54 +89,9 @@ onUnmounted(() => {
 
 /* レスポンシブ対応（768px未満はフルスクリーン） */
 @media (max-width: 767px) {
-  .modal-overlay {
-    padding: 0;
-  }
-
-  .modal-container {
-    max-width: 100vw;
-    width: 100vw;
-    max-height: 100vh;
-    height: 100vh;
-    border-radius: 0;
-  }
-
-  .modal-body {
-    flex: 1;
-  }
-}
-
-/* フォーカス時のアクセシビリティ対応 */
-.modal-container:focus {
-  outline: none;
-}
-
-/* アニメーション */
-.modal-overlay {
-  animation: fadeIn 0.2s ease-out;
-}
-
-.modal-container {
-  animation: slideIn 0.2s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-2rem) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
+  .modal-footer {
+    display: flex;
+    flex-direction: column;
   }
 }
 </style>

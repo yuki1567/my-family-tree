@@ -23,6 +23,7 @@ type Props = {
   type?: 'button' | 'submit'
   isDisabled?: boolean
   isLoading?: boolean
+  fullWidth?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -30,6 +31,7 @@ const props = withDefaults(defineProps<Props>(), {
   type: 'button',
   isDisabled: false,
   isLoading: false,
+  fullWidth: false,
 })
 
 type Emits = {
@@ -43,6 +45,7 @@ const buttonClasses = computed(() => [
   `app-button-${props.variant}`,
   {
     'app-button-loading': props.isLoading,
+    'app-button-full-width': props.fullWidth,
   },
 ])
 
@@ -127,6 +130,12 @@ const handleClick = (event: MouseEvent): void => {
   width: 1.4rem;
   height: 1.4rem;
   animation: spin 1s linear infinite;
+}
+
+@media (max-width: 767px) {
+  .app-button-full-width {
+    width: 100%;
+  }
 }
 
 @keyframes spin {
