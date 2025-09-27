@@ -1,13 +1,7 @@
 <template>
   <div class="empty-state">
-    <div class="person-card" @click="handleStartGuide">
-      <div class="avatar unknown">
-        <UserIcon class="avatar-icon" />
-      </div>
-      <div class="person-info">
-        <div class="person-name">人物を追加</div>
-        <div class="person-dates">クリック</div>
-      </div>
+    <div class="person-placeholder" @click="handleStartGuide">
+      <UserIcon class="person-icon" />
     </div>
     <p class="click-hint">クリックして人物を追加</p>
   </div>
@@ -27,7 +21,6 @@ const handleStartGuide = () => {
 
 <style scoped>
 .empty-state {
-<<<<<<< Updated upstream
   min-height: 400px;
 }
 
@@ -53,7 +46,6 @@ const handleStartGuide = () => {
 .avatar {
   width: 50px;
   height: 50px;
-=======
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -62,28 +54,22 @@ const handleStartGuide = () => {
   min-height: 400px;
 }
 
-
 .person-placeholder {
   position: relative;
   width: 120px;
   height: 120px;
-  border: 2px dashed #d1d5db;
->>>>>>> Stashed changes
+  border: 2px dashed var(--color-border);
   border-radius: 50%;
   border: 2px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: center;
-<<<<<<< Updated upstream
   margin: 0 auto 10px auto;
   border-color: var(--color-unknown);
   background: rgba(156, 163, 175, 0.1);
-=======
   cursor: pointer;
   transition: all 0.3s ease;
-  background: #e9eaec;
-  margin-bottom: 1.6rem;
->>>>>>> Stashed changes
+  background-color: var(--color-surface);
 }
 
 .avatar-icon {
@@ -102,9 +88,6 @@ const handleStartGuide = () => {
 .person-dates {
   font-size: 1.1rem;
   color: var(--color-text-secondary);
-<<<<<<< Updated upstream
-}
-=======
   transition: color 0.3s ease;
   z-index: 2;
   position: relative;
@@ -164,7 +147,8 @@ const handleStartGuide = () => {
 }
 
 @keyframes fade-in-out {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.6;
   }
   50% {
@@ -188,24 +172,5 @@ const handleStartGuide = () => {
     width: 40px;
     height: 40px;
   }
-
-  .pulse-animation::before {
-    top: -8px;
-    left: -8px;
-    right: -8px;
-    bottom: -8px;
-  }
-
-  .pulse-ring {
-    top: -12px;
-    left: -12px;
-    right: -12px;
-    bottom: -12px;
-  }
-
-  .click-hint {
-    font-size: 1.2rem;
-  }
 }
->>>>>>> Stashed changes
 </style>
