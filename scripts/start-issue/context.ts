@@ -111,9 +111,9 @@ export function assertIssueSlugTitle(
   assertField(isValidIssueSlugTitle(ctx), 'スラグ化されたIssueタイトル')
 }
 
-export function assertWorktreePath(
-  ctx: Ctx
-): asserts ctx is Ctx & { environment: Environment & { worktreePath: string } } {
+export function assertWorktreePath(ctx: Ctx): asserts ctx is Ctx & {
+  environment: Environment & { worktreePath: string }
+} {
   assertField(isValidWorktreePath(ctx), 'Worktreeパス')
 }
 
