@@ -59,7 +59,7 @@
           />
         </div>
 
-        <div class="form-grid"></div>
+        <div class="form-grid" />
 
         <div class="form-actions">
           <AppButton
@@ -71,11 +71,19 @@
             <UserPlusIcon class="icon" />
             人物を追加
           </AppButton>
-          <AppButton variant="primary" :is-loading="true">
+          <AppButton
+            variant="primary"
+            :is-loading="true"
+          >
             <UserPlusIcon class="icon" />
             ローディング中
           </AppButton>
-          <AppButton variant="secondary" @click="clearForm"> クリア </AppButton>
+          <AppButton
+            variant="secondary"
+            @click="clearForm"
+          >
+            クリア
+          </AppButton>
         </div>
       </div>
     </section>
@@ -91,10 +99,18 @@
             label="検索"
             placeholder="名前で検索..."
           />
-          <AppButton variant="primary" @click="handleSearch"> 検索 </AppButton>
+          <AppButton
+            variant="primary"
+            @click="handleSearch"
+          >
+            検索
+          </AppButton>
         </div>
 
-        <div v-if="searchQuery" class="search-results">
+        <div
+          v-if="searchQuery"
+          class="search-results"
+        >
           <p>検索結果: "{{ searchQuery }}" に関する人物</p>
         </div>
       </div>
@@ -122,10 +138,16 @@
           </div>
 
           <div class="form-actions">
-            <AppButton variant="primary" @click="handleSaveRelationship">
+            <AppButton
+              variant="primary"
+              @click="handleSaveRelationship"
+            >
               関係を保存
             </AppButton>
-            <AppButton variant="danger" @click="handleDeleteRelationship">
+            <AppButton
+              variant="danger"
+              @click="handleDeleteRelationship"
+            >
               関係を削除
             </AppButton>
           </div>
@@ -186,7 +208,10 @@
           >
             検証実行
           </AppButton>
-          <AppButton variant="primary" :is-disabled="true">
+          <AppButton
+            variant="primary"
+            :is-disabled="true"
+          >
             無効なボタン
           </AppButton>
         </div>
@@ -199,21 +224,36 @@
       <div class="danger-actions">
         <p>重要なデータの削除など、取り返しのつかない操作の例：</p>
         <div class="danger-buttons">
-          <AppButton variant="danger" @click="handleDeletePerson">
+          <AppButton
+            variant="danger"
+            @click="handleDeletePerson"
+          >
             人物を削除
           </AppButton>
-          <AppButton variant="danger" @click="handleDeleteFamily">
+          <AppButton
+            variant="danger"
+            @click="handleDeleteFamily"
+          >
             家系図全体を削除
           </AppButton>
         </div>
 
-        <div v-if="showConfirmation" class="confirmation-dialog">
+        <div
+          v-if="showConfirmation"
+          class="confirmation-dialog"
+        >
           <p>この操作は取り消せません。本当に実行しますか？</p>
           <div class="confirmation-actions">
-            <AppButton variant="danger" @click="confirmAction">
+            <AppButton
+              variant="danger"
+              @click="confirmAction"
+            >
               はい、削除します
             </AppButton>
-            <AppButton variant="secondary" @click="cancelAction">
+            <AppButton
+              variant="secondary"
+              @click="cancelAction"
+            >
               キャンセル
             </AppButton>
           </div>
@@ -261,7 +301,10 @@
       </div>
 
       <!-- 基本モーダル -->
-      <AppModal v-if="showBasicModal" @close="showBasicModal = false">
+      <AppModal
+        v-if="showBasicModal"
+        @close="showBasicModal = false"
+      >
         <p>これは基本的なモーダルです。</p>
         <p>ESCキーまたは背景をクリックして閉じることができます。</p>
         <p>
@@ -270,7 +313,10 @@
       </AppModal>
 
       <!-- 人物詳細風モーダル -->
-      <AppModal v-if="showPersonModal" @close="showPersonModal = false">
+      <AppModal
+        v-if="showPersonModal"
+        @close="showPersonModal = false"
+      >
         <div class="person-detail-content">
           <div class="person-info-grid">
             <div class="info-item">
@@ -308,22 +354,34 @@
       </AppModal>
 
       <!-- フッター付きモーダル -->
-      <AppModal v-if="showFooterModal" @close="showFooterModal = false">
+      <AppModal
+        v-if="showFooterModal"
+        @close="showFooterModal = false"
+      >
         <p>「山田太郎」を家系図から削除しますか？</p>
         <p><strong>※ この操作は取り消せません。</strong></p>
 
         <template #footer>
-          <AppButton variant="secondary" @click="showFooterModal = false">
+          <AppButton
+            variant="secondary"
+            @click="showFooterModal = false"
+          >
             キャンセル
           </AppButton>
-          <AppButton variant="danger" @click="confirmDelete">
+          <AppButton
+            variant="danger"
+            @click="confirmDelete"
+          >
             削除する
           </AppButton>
         </template>
       </AppModal>
 
       <!-- 長いコンテンツモーダル -->
-      <AppModal v-if="showNoOverlayModal" @close="showNoOverlayModal = false">
+      <AppModal
+        v-if="showNoOverlayModal"
+        @close="showNoOverlayModal = false"
+      >
         <p>フォーム入力機能を含むモーダルの例です。</p>
         <p>ESCキーまたは背景クリックで閉じることができます。</p>
         <p>必要に応じてフッターにアクションボタンを配置できます。</p>
@@ -352,7 +410,10 @@
           >
             閉じる
           </AppButton>
-          <AppButton :full-width="true" @click="saveModalForm">
+          <AppButton
+            :full-width="true"
+            @click="saveModalForm"
+          >
             保存
           </AppButton>
         </template>
@@ -514,10 +575,10 @@ const modalFormData = ref({
 // すべてのモーダル状態を監視してbodyスクロールを制御
 const isAnyModalOpen = computed(
   () =>
-    showBasicModal.value ||
-    showPersonModal.value ||
-    showFooterModal.value ||
-    showNoOverlayModal.value
+    showBasicModal.value
+    || showPersonModal.value
+    || showFooterModal.value
+    || showNoOverlayModal.value,
 )
 
 useHead(() => ({
@@ -548,13 +609,13 @@ const hasErrors = computed(() => {
 
 // 性別の値をラベルに変換
 const getGenderLabel = (value: string): string => {
-  const option = genderOptions.find((opt) => opt.value === value)
+  const option = genderOptions.find(opt => opt.value === value)
   return option ? option.label : ''
 }
 
 // 関係性の値をラベルに変換
 const getRelationshipLabel = (value: string): string => {
-  const option = relationshipOptions.find((opt) => opt.value === value)
+  const option = relationshipOptions.find(opt => opt.value === value)
   return option ? option.label : ''
 }
 
@@ -562,7 +623,7 @@ const getRelationshipLabel = (value: string): string => {
 const handleAddPerson = async (): Promise<void> => {
   isSubmitting.value = true
   // 実際のAPIコールをシミュレート
-  await new Promise((resolve) => setTimeout(resolve, 2000))
+  await new Promise(resolve => setTimeout(resolve, 2000))
   isSubmitting.value = false
   alert(`人物「${personForm.value.name}」を追加しました`)
 }

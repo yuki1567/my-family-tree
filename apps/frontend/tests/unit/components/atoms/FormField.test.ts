@@ -6,14 +6,14 @@ describe('FormField', () => {
   describe('基本機能', () => {
     it('正常にマウントされる', () => {
       const wrapper = mount(FormField, {
-        props: { name: 'test-field', label: 'Test Label' }
+        props: { name: 'test-field', label: 'Test Label' },
       })
       expect(wrapper.exists()).toBe(true)
     })
 
     it('inputタグが存在する', () => {
       const wrapper = mount(FormField, {
-        props: { name: 'test-field', label: 'Test Label' }
+        props: { name: 'test-field', label: 'Test Label' },
       })
       expect(wrapper.find('input').exists()).toBe(true)
     })
@@ -57,7 +57,7 @@ describe('FormField', () => {
         props: { name: 'test-field', placeholder: 'プレースホルダーテキスト' },
       })
       expect(wrapper.find('input').attributes('placeholder')).toBe(
-        'プレースホルダーテキスト'
+        'プレースホルダーテキスト',
       )
     })
 
@@ -69,7 +69,6 @@ describe('FormField', () => {
       expect(wrapper.find('.form-field-required').exists()).toBe(true)
       expect(wrapper.find('.form-field-required').text()).toBe('*')
     })
-
   })
 
   describe('エラー表示', () => {
@@ -80,17 +79,15 @@ describe('FormField', () => {
       expect(wrapper.find('.form-field-error').exists()).toBe(true)
       expect(wrapper.find('.form-field-error').text()).toBe('エラーメッセージ')
       expect(wrapper.find('input').classes()).toContain(
-        'form-field-input-error'
+        'form-field-input-error',
       )
     })
   })
 
-
-
   describe('デフォルト値', () => {
     it('デフォルトpropsが正しく設定される', () => {
       const wrapper = mount(FormField, {
-        props: { name: 'test-field', label: 'Test Label' }
+        props: { name: 'test-field', label: 'Test Label' },
       })
       const input = wrapper.find('input')
 
@@ -112,7 +109,6 @@ describe('FormField', () => {
       expect(input.exists()).toBe(true)
       expect(input.attributes('name')).toBe('test-field')
     })
-
   })
 
   describe('number型のmodelValue', () => {

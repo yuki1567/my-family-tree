@@ -68,7 +68,7 @@ describe('index.vue', () => {
 
     // アラートが呼ばれたかチェック
     expect(global.alert).toHaveBeenCalledWith(
-      '人物追加機能は今後実装予定です。\n現在は空状態デザインの確認ができます。'
+      '人物追加機能は今後実装予定です。\n現在は空状態デザインの確認ができます。',
     )
   })
 
@@ -97,7 +97,7 @@ describe('index.vue', () => {
 
     // アラートが呼ばれたかチェック
     expect(global.alert).toHaveBeenCalledWith(
-      '人物追加機能は今後実装予定です。\n現在は空状態デザインの確認ができます。'
+      '人物追加機能は今後実装予定です。\n現在は空状態デザインの確認ができます。',
     )
   })
 

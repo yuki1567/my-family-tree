@@ -16,10 +16,16 @@
       <main class="family-tree-area">
         <div class="tree-container">
           <!-- 人物データがある場合：人物カード表示 -->
-          <PersonCard v-if="hasPersonData" :person="defaultPerson" />
+          <PersonCard
+            v-if="hasPersonData"
+            :person="defaultPerson"
+          />
 
           <!-- 人物データがない場合：空状態プレースホルダー -->
-          <EmptyState v-else @start-guide="handleStartGuide" />
+          <EmptyState
+            v-else
+            @start-guide="handleStartGuide"
+          />
         </div>
       </main>
     </div>
@@ -36,10 +42,10 @@
 </template>
 
 <script setup lang="ts">
+import EmptyState from '@/components/molecules/EmptyState.vue'
+import PersonCard from '@/components/molecules/PersonCard.vue'
+import type { Person } from '@shared/types/person'
 import { computed, ref } from 'vue'
-import PersonCard from '~/components/molecules/PersonCard.vue'
-import EmptyState from '~/components/molecules/EmptyState.vue'
-import type { Person } from '~/../../shared/types/person'
 
 // 人物データの状態管理
 const personData = ref<Person[]>([])
@@ -48,21 +54,25 @@ const personData = ref<Person[]>([])
 const hasPersonData = computed(() => personData.value.length > 0)
 
 // デフォルト人物データ（テスト用 - 将来的にAPIから取得）
-const defaultPerson = computed((): Person => ({
-  id: 'default-person-1',
-  name: '田中 太郎',
-  gender: 'male',
-  birthDate: '1990-04-15',
-  birthPlace: '東京都',
-  createdAt: new Date(),
-  updatedAt: new Date(),
-}))
+const defaultPerson = computed(
+  (): Person => ({
+    id: 'default-person-1',
+    name: '田中 太郎',
+    gender: 'male',
+    birthDate: '1990-04-15',
+    birthPlace: '東京都',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }),
+)
 
 // 人物追加の処理（EmptyStateとフローティングボタン共通）
 const handleStartGuide = () => {
   // 将来的には人物追加モーダルを開く
   // 暫定的にアラートでユーザーフィードバック提供
-  alert('人物追加機能は今後実装予定です。\n現在は空状態デザインの確認ができます。')
+  alert(
+    '人物追加機能は今後実装予定です。\n現在は空状態デザインの確認ができます。',
+  )
 
   // 将来の実装イメージ:
   // - モーダルコンポーネントの表示
@@ -140,7 +150,6 @@ const handleStartGuide = () => {
   justify-content: center;
   padding: 3.2rem;
 }
-
 
 .tree-placeholder {
   text-align: center;

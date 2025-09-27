@@ -1,17 +1,31 @@
 <template>
   <div class="person-card">
-    <div class="person-avatar" :class="genderClass">
+    <div
+      class="person-avatar"
+      :class="genderClass"
+    >
       <UserIcon class="person-icon" />
     </div>
-    <h3 class="person-name">{{ person.name || '名前未設定' }}</h3>
+    <h3 class="person-name">
+      {{ person.name || '名前未設定' }}
+    </h3>
     <div class="person-details">
-      <p v-if="person.birthDate" class="person-birth">
+      <p
+        v-if="person.birthDate"
+        class="person-birth"
+      >
         生年月日: {{ formatDate(person.birthDate) }}
       </p>
-      <p v-if="person.birthPlace" class="person-place">
+      <p
+        v-if="person.birthPlace"
+        class="person-place"
+      >
         出生地: {{ person.birthPlace }}
       </p>
-      <p v-if="person.memo" class="person-memo">
+      <p
+        v-if="person.memo"
+        class="person-memo"
+      >
         {{ person.memo }}
       </p>
     </div>

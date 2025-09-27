@@ -7,8 +7,8 @@ const originalWarn = console.warn
 console.warn = (...args: unknown[]) => {
   // 必要な警告のみを表示するフィルタリング
   if (
-    typeof args[0] === 'string' &&
-    !args[0].includes('[Vue warn]') // Vueの開発時警告を非表示にする場合
+    typeof args[0] === 'string'
+    && !args[0].includes('[Vue warn]') // Vueの開発時警告を非表示にする場合
   ) {
     originalWarn(...args)
   }
