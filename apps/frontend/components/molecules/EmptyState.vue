@@ -1,7 +1,8 @@
 <template>
   <div class="empty-state">
-    <div class="person-placeholder" @click="handleStartGuide">
+    <div class="person-placeholder pulse-animation" @click="handleStartGuide">
       <UserIcon class="person-icon" />
+      <div class="pulse-ring"></div>
     </div>
     <p class="click-hint">クリックして人物を追加</p>
   </div>
@@ -58,7 +59,7 @@ const handleStartGuide = () => {
   position: relative;
   width: 120px;
   height: 120px;
-  border: 2px dashed var(--color-border);
+  border: 2px dashed #d1d5db;
   border-radius: 50%;
   border: 2px solid var(--color-border);
   display: flex;
@@ -69,7 +70,8 @@ const handleStartGuide = () => {
   background: rgba(156, 163, 175, 0.1);
   cursor: pointer;
   transition: all 0.3s ease;
-  background-color: var(--color-surface);
+  background: #e9eaec;
+  margin-bottom: 1.6rem;
 }
 
 .avatar-icon {
@@ -171,6 +173,24 @@ const handleStartGuide = () => {
   .person-icon {
     width: 40px;
     height: 40px;
+  }
+
+  .pulse-animation::before {
+    top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
+  }
+
+  .pulse-ring {
+    top: -12px;
+    left: -12px;
+    right: -12px;
+    bottom: -12px;
+  }
+
+  .click-hint {
+    font-size: 1.2rem;
   }
 }
 </style>
