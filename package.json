@@ -24,7 +24,7 @@
     "lint:fix:backend": "npm run lint:fix --workspace=apps/backend",
     "format": "prettier --write \"**/*.{js,ts,vue,json,md}\"",
     "format:check": "prettier --check \"**/*.{js,ts,vue,json,md}\"",
-    "docker:test:backend": "export ENV_FILE=.env.test && docker-compose --profile test up --wait -d test-db && docker-compose run --rm apps npm run test --workspace=apps/backend; docker-compose --profile test down test-db",
+    "test:backend": "./scripts/test-backend.sh",
     "docker:quality:frontend": "docker-compose exec apps npm-run-all --parallel test type-check lint --workspace=apps/frontend",
     "docker:quality:backend": "docker-compose exec apps npm-run-all --parallel test:unit type-check lint --workspace=apps/backend",
     "clean": "rm -rf node_modules package-lock.json apps/*/node_modules apps/*/dist apps/*/.nuxt",
