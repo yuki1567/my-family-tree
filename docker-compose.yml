@@ -14,7 +14,7 @@ services:
     environment:
       - TZ=Asia/Tokyo
     env_file:
-      - ${ENV_FILE:-.env}
+      - .env
 
   db:
     build:
