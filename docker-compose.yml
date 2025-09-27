@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   apps:
     build:
@@ -9,8 +7,8 @@ services:
     container_name: ${APP_NAME:-apps}
     working_dir: /usr/src
     ports:
-      - '${WEB_PORT:-3000}:3000'
-      - '${API_PORT:-4000}:4000'
+      - "${WEB_PORT:-3000}:3000"
+      - "${API_PORT:-4000}:4000"
     volumes:
       - ./apps:/usr/src/apps
     environment:
@@ -33,7 +31,7 @@ services:
     env_file:
       - .env
     ports:
-      - '${MYSQL_PORT}:3306'
+      - "${MYSQL_PORT}:3306"
     volumes:
       - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
@@ -53,12 +51,12 @@ services:
     tmpfs:
       - /var/lib/mysql # メモリ上での高速実行
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', '127.0.0.1', '-ptestpass']
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-ptestpass"]
       interval: 2s
       timeout: 3s
       retries: 20
       start_period: 5s
-    profiles: ['test'] # テストプロファイル指定
+    profiles: ["test"] # テストプロファイル指定
 
 networks:
   default:
