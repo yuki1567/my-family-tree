@@ -1,7 +1,13 @@
 <template>
   <div class="empty-state">
-    <div class="person-placeholder" @click="handleStartGuide">
-      <UserIcon class="person-icon" />
+    <div class="person-card" @click="handleStartGuide">
+      <div class="avatar unknown">
+        <UserIcon class="avatar-icon" />
+      </div>
+      <div class="person-info">
+        <div class="person-name">人物を追加</div>
+        <div class="person-dates">クリック</div>
+      </div>
     </div>
   </div>
 </template>
@@ -20,61 +26,56 @@ const handleStartGuide = () => {
 
 <style scoped>
 .empty-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
   min-height: 400px;
 }
 
-.person-placeholder {
-  width: 120px;
-  height: 120px;
+/* 人物カード */
+.person-card {
+  background: var(--color-background);
   border: 2px dashed var(--color-border);
+  border-radius: 0.8rem;
+  padding: 1.6rem 0rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.person-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border-color: var(--color-primary);
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
+  border: 2px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background-color: var(--color-surface);
+  margin: 0 auto 10px auto;
+  border-color: var(--color-unknown);
+  background: rgba(156, 163, 175, 0.1);
 }
 
-.person-placeholder:hover {
-  border-color: var(--color-primary);
-  background-color: rgba(249, 115, 22, 0.05);
-  transform: scale(1.05);
+.avatar-icon {
+  width: 24px;
+  height: 24px;
+  fill: var(--color-text-secondary);
+  stroke: var(--color-text-seconfary);
 }
 
-.person-placeholder:active {
-  transform: scale(0.95);
+.person-name {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 4px;
 }
 
-.person-icon {
-  width: 48px;
-  height: 48px;
+.person-dates {
+  font-size: 1.1rem;
   color: var(--color-text-secondary);
-  transition: color 0.3s ease;
-}
-
-.person-placeholder:hover .person-icon {
-  color: var(--color-primary);
-}
-
-/* レスポンシブ対応 */
-@media (max-width: 768px) {
-  .empty-state {
-    min-height: 300px;
-  }
-
-  .person-placeholder {
-    width: 100px;
-    height: 100px;
-  }
-
-  .person-icon {
-    width: 40px;
-    height: 40px;
-  }
 }
 </style>
