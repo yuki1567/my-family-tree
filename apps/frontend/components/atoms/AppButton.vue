@@ -6,10 +6,16 @@
     :style="buttonStyles"
     @click="handleClick"
   >
-    <span v-if="!isLoading" class="button-contents">
+    <span
+      v-if="!isLoading"
+      class="button-contents"
+    >
       <slot />
     </span>
-    <ArrowPathIcon v-else class="loading-icon" />
+    <ArrowPathIcon
+      v-else
+      class="loading-icon"
+    />
   </button>
 </template>
 

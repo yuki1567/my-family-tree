@@ -2,11 +2,17 @@
   <div class="form-field-label">
     <div class="form-field-label-text">
       {{ label }}
-      <span v-if="required" class="form-field-required">*</span>
+      <span
+        v-if="required"
+        class="form-field-required"
+      >*</span>
     </div>
 
     <!-- Radio buttons -->
-    <div v-if="type === 'radio'" class="form-field-radio-group">
+    <div
+      v-if="type === 'radio'"
+      class="form-field-radio-group"
+    >
       <label
         v-for="option in options"
         :key="option.value"
@@ -14,9 +20,9 @@
         :style="
           inputValue === option.value
             ? {
-                borderColor: getOptionColor(option.value).border,
-                backgroundColor: getOptionColor(option.value).background,
-              }
+              borderColor: getOptionColor(option.value).border,
+              backgroundColor: getOptionColor(option.value).background,
+            }
             : {}
         "
       >
@@ -27,15 +33,15 @@
           :value="option.value"
           :required="required"
           class="form-field-radio-input-button"
-        />
+        >
         <component
           :is="option.icon"
           class="form-field-radio-icon"
           :style="
             inputValue === option.value
               ? {
-                  color: getOptionColor(option.value).text,
-                }
+                color: getOptionColor(option.value).text,
+              }
               : {}
           "
         />
@@ -44,12 +50,11 @@
           :style="
             inputValue === option.value
               ? {
-                  color: getOptionColor(option.value).text,
-                }
+                color: getOptionColor(option.value).text,
+              }
               : {}
           "
-          >{{ option.label }}</span
-        >
+        >{{ option.label }}</span>
       </label>
     </div>
 
@@ -62,9 +67,12 @@
       :placeholder="placeholder"
       :required="required"
       :class="inputClasses"
-    />
+    >
 
-    <div v-if="errorMessage" class="form-field-error">
+    <div
+      v-if="errorMessage"
+      class="form-field-error"
+    >
       {{ errorMessage }}
     </div>
   </div>
@@ -120,7 +128,7 @@ const inputClasses = computed(() => [
 const getOptionColor = (value: string | number) => {
   const colorMap: Record<
     string,
-    { border: string; background: string; text: string }
+    { border: string, background: string, text: string }
   > = {
     male: { border: '#3b82f6', background: '#eff6ff', text: '#3b82f6' },
     female: { border: '#ec4899', background: '#fdf2f8', text: '#ec4899' },

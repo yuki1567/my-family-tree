@@ -1,15 +1,6 @@
 import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
-  // 開発設定
-  devtools: { enabled: true },
-
-  // SPAモード
-  ssr: false,
-
-  // CSS設定
-  css: ['~/assets/css/main.css'],
-
   modules: [
     '@pinia/nuxt',
     [
@@ -22,11 +13,20 @@ export default defineNuxtConfig({
     ],
   ],
 
+  // SPAモード
+  ssr: false,
+
+  // 開発設定
+  devtools: { enabled: true },
+
+  // CSS設定
+  css: ['~/assets/css/main.css'],
+
+  compatibilityDate: '2025-08-15',
+
   vite: {
     resolve: {
       preserveSymlinks: true,
     },
   },
-
-  compatibilityDate: '2025-08-15',
 })

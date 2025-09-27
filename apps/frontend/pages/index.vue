@@ -1,47 +1,97 @@
 <template>
-  <!-- ヘッダー -->
-  <header class="app-header">
-    <h1 class="app-title">Family Tree App</h1>
-    <button class="settings-btn">設定</button>
-  </header>
+  <div class="page-container">
+    <!-- ヘッダー -->
+    <header class="app-header">
+      <h1 class="app-title">
+        Family Tree App
+      </h1>
+      <button class="settings-btn">
+        設定
+      </button>
+    </header>
 
-  <!-- メインコンテンツエリア -->
-  <div class="content-area">
-    <!-- 家系図表示エリア -->
-    <main class="family-tree-area">
-      <div class="tree-container">
-        <!-- アイコンテスト -->
-        <div class="icon-test">
-          <h2>アイコンテスト</h2>
-          <div class="icons">
-            <UserIcon class="icon" />
-            <UsersIcon class="icon" />
-            <UserIcon class="icon male" />
-            <UserIcon class="icon female" />
-            <PlusIcon class="icon" />
-            <CheckIcon class="icon" />
-            <XMarkIcon class="icon" />
-          </div>
+    <!-- メインコンテンツエリア -->
+    <div class="content-area">
+      <!-- 家系図表示エリア -->
+      <main class="family-tree-area">
+        <div class="tree-container">
+          <!-- 人物データがある場合：人物カード表示 -->
+          <PersonCard
+            v-if="hasPersonData"
+            :person="defaultPerson"
+          />
+
+          <!-- 人物データがない場合：空状態プレースホルダー -->
+          <EmptyState
+            v-else
+            @start-guide="handleStartGuide"
+          />
         </div>
-      </div>
-    </main>
-  </div>
+      </main>
+    </div>
 
-  <!-- フローティング追加ボタン -->
-  <button class="floating-add-btn" title="人物を追加">+</button>
+    <!-- フローティング追加ボタン -->
+    <button
+      class="floating-add-btn"
+      title="人物を追加"
+      @click="handleStartGuide"
+    >
+      +
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">
-import {
-  CheckIcon,
-  PlusIcon,
-  UserIcon,
-  UsersIcon,
-  XMarkIcon,
-} from '@heroicons/vue/24/outline'
+import EmptyState from '@/components/molecules/EmptyState.vue'
+import PersonCard from '@/components/molecules/PersonCard.vue'
+import type { Person } from '@shared/types/person'
+import { computed, ref } from 'vue'
+
+// 人物データの状態管理
+const personData = ref<Person[]>([])
+
+// 人物データの有無判定
+const hasPersonData = computed(() => personData.value.length > 0)
+
+// デフォルト人物データ（テスト用 - 将来的にAPIから取得）
+const defaultPerson = computed(
+  (): Person => ({
+    id: 'default-person-1',
+    name: '田中 太郎',
+    gender: 'male',
+    birthDate: '1990-04-15',
+    birthPlace: '東京都',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }),
+)
+
+// 人物追加の処理（EmptyStateとフローティングボタン共通）
+const handleStartGuide = () => {
+  // 将来的には人物追加モーダルを開く
+  // 暫定的にアラートでユーザーフィードバック提供
+  alert(
+    '人物追加機能は今後実装予定です。\n現在は空状態デザインの確認ができます。',
+  )
+
+  // 将来の実装イメージ:
+  // - モーダルコンポーネントの表示
+  // - 人物情報入力フォーム
+  // - APIへのデータ送信
+  // - personData.value.push(newPerson)
+  console.log('人物追加処理を実行 - 将来的にモーダルを開きます')
+}
 </script>
 
 <style scoped>
+/* ページコンテナ */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--color-background);
+}
+
 /* ヘッダー */
 .app-header {
   display: flex;
@@ -88,6 +138,8 @@ import {
   background-color: #f1f5f9;
   padding: 1.6rem;
   overflow: auto;
+  /* 背景を画面の一番下まで拡張 */
+  min-height: calc(100vh - 95px); /* ヘッダー高さ分を引く */
 }
 
 .tree-container {
@@ -98,32 +150,6 @@ import {
   justify-content: center;
   padding: 3.2rem;
 }
-
-/* アイコンテスト 後で削除*/
-.icon-test {
-  text-align: center;
-}
-
-.icons {
-  display: flex;
-  gap: 1.6rem;
-  justify-content: center;
-}
-
-.icon {
-  width: 24px;
-  height: 24px;
-}
-
-.icon.male {
-  color: #3b82f6; /* 青色（男性） */
-}
-
-.icon.female {
-  color: #ec4899; /* ピンク色（女性） */
-}
-
-/* アイコンテスト */
 
 .tree-placeholder {
   text-align: center;

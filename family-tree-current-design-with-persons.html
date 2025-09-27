@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Family Tree App - 現在のデザイン + 人物表示</title>
+    <style>
+      /* modern-normalize リセットCSS（簡略版） */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* CSS変数定義 */
+      :root {
+        /* メインカラー */
+        --color-primary: #f97316; /* メインカラー：オレンジ（メニュー枠・フォーカス用） */
+        --color-blue: #3b82f6; /* 補助色：青系 */
+
+        /* 性別色分け */
+        --color-male: #56b4f5; /* 男性：青系 */
+        --color-female: #f1878c; /* 女性：ピンク系 */
+        --color-unknown: #9ca3af; /* 性別不明：グレー */
+
+        /* 家系図ノードサイズ（ドキュメント仕様準拠） */
+        --node-width: 100px;
+        --node-height: 80px;
+        --node-gap-horizontal: 160px;
+        --node-gap-vertical: 120px;
+
+        /* レスポンシブブレイクポイント */
+        --breakpoint-desktop: 768px;
+
+        /* 基本カラー */
+        --color-background: #ffffff;
+        --color-surface: #f1f5f9;
+        --color-border: #e5e7eb;
+        --color-text: #1f2937;
+        --color-text-secondary: #9ca3af;
+      }
+
+      /* ルートフォントサイズ設定（1rem = 10px） */
+      html {
+        font-size: 62.5%; /* 16px × 62.5% = 10px */
+      }
+
+      /* 基本スタイル */
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        color: var(--color-text);
+        background-color: var(--color-background);
+      }
+
+      /* ページコンテナ */
+      .page-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        background-color: var(--color-background);
+      }
+
+      /* ヘッダー */
+      .app-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.6rem 1.6rem;
+        background-color: var(--color-background);
+        border-top: 3px solid var(--color-primary);
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .app-title {
+        margin: 0;
+        color: var(--color-primary);
+        font-size: 1.9rem;
+        font-weight: 600;
+      }
+
+      .settings-btn {
+        padding: 0.5rem 1.6rem;
+        background-color: var(--color-background);
+        color: var(--color-primary);
+        border: 1px solid var(--color-primary);
+        border-radius: 0.6rem;
+        cursor: pointer;
+        font-size: 1.6rem;
+      }
+
+      .settings-btn:hover {
+        background-color: var(--color-primary);
+        color: var(--color-background);
+      }
+
+      /* メインコンテンツエリア */
+      .content-area {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      /* 家系図表示エリア */
+      .family-tree-area {
+        flex: 1;
+        background-color: #f1f5f9;
+        padding: 1.6rem;
+        overflow: auto;
+        /* 背景を画面の一番下まで拡張 */
+        min-height: calc(100vh - 95px); /* ヘッダー高さ分を引く */
+      }
+
+      .tree-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 3.2rem;
+      }
+
+      /* フローティング追加ボタン */
+      .floating-add-btn {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 56px;
+        height: 56px;
+        background-color: var(--color-primary);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 1.5rem;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+      }
+
+      .floating-add-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      }
+
+      /* 家系図グリッド */
+      .family-tree {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        min-height: 500px;
+        max-width: 1200px;
+        width: 100%;
+      }
+
+      /* 世代レベル */
+      .generation {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 40px 0;
+        position: relative;
+        width: 100%;
+      }
+
+      .generation:first-child {
+        margin-top: 0;
+      }
+
+      /* 人物カード */
+      .person-card {
+        background: var(--color-background);
+        border: 1px solid var(--color-border);
+        border-radius: 0.8rem;
+        padding: 1.6rem 0rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        margin: 0 20px;
+        width: var(--node-width);
+        min-height: var(--node-height);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .person-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        border-color: var(--color-primary);
+      }
+
+      /* 本人カードのハイライト */
+      .person-card.is-current {
+        border: 2px solid var(--color-primary);
+        box-shadow: 0 4px 16px rgba(249, 115, 22, 0.2);
+      }
+
+      /* アバター */
+      .avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: 2px solid var(--color-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 8px auto;
+        position: relative;
+        overflow: hidden;
+        background: var(--color-surface);
+      }
+
+      /* 性別による色分け */
+      .avatar.male {
+        border-color: var(--color-male);
+        background: rgba(86, 180, 245, 0.1);
+      }
+
+      .avatar.female {
+        border-color: var(--color-female);
+        background: rgba(241, 135, 140, 0.1);
+      }
+
+      .avatar.unknown {
+        border-color: var(--color-unknown);
+        background: rgba(156, 163, 175, 0.1);
+      }
+
+      .avatar-icon {
+        width: 24px;
+        height: 24px;
+        fill: var(--color-text-secondary);
+      }
+
+      .avatar.male .avatar-icon {
+        fill: var(--color-male);
+      }
+
+      .avatar.female .avatar-icon {
+        fill: var(--color-female);
+      }
+
+      .avatar.unknown .avatar-icon {
+        fill: var(--color-unknown);
+      }
+
+      /* 人物情報 */
+      .person-info {
+        color: var(--color-text);
+      }
+
+      .person-name {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: var(--color-text);
+      }
+
+      .person-relation {
+        font-size: 1.2rem;
+        color: var(--color-text-secondary);
+        margin-bottom: 4px;
+      }
+
+      .person-dates {
+        font-size: 1.1rem;
+        color: var(--color-text-secondary);
+      }
+
+      .second-female {
+        border: 2px dashed var(--color-border);
+      }
+
+      /* 追加ボタン */
+      .add-person-card {
+        background: var(--color-background);
+        border: 2px dashed var(--color-border);
+        border-radius: 0.8rem;
+        padding: 1.6rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        margin: 0 20px;
+        width: var(--node-width);
+        min-height: var(--node-height);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .add-person-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--color-primary);
+        background: rgba(249, 115, 22, 0.05);
+      }
+
+      .add-icon {
+        width: 30px;
+        height: 30px;
+        stroke: var(--color-text-secondary);
+        stroke-width: 2;
+        margin-bottom: 8px;
+      }
+
+      .add-person-card:hover .add-icon {
+        stroke: var(--color-primary);
+      }
+
+      .add-text {
+        color: var(--color-text-secondary);
+        font-size: 1.2rem;
+        font-weight: 500;
+      }
+
+      .add-person-card:hover .add-text {
+        color: var(--color-primary);
+      }
+
+      /* 接続線 */
+      .connection-line {
+        position: absolute;
+        background: var(--color-border);
+        z-index: 1;
+      }
+
+      .vertical-line {
+        width: 2px;
+        height: 40px;
+        top: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .horizontal-line {
+        height: 2px;
+        width: 300px;
+        top: -40px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      /* レスポンシブ対応 */
+      @media (max-width: 768px) {
+        .app-header {
+          padding: 1rem;
+        }
+
+        .content-area {
+          flex-direction: column;
+        }
+
+        .tree-container {
+          padding: 2rem 1rem;
+        }
+
+        .person-card,
+        .add-person-card {
+          width: 90px;
+          margin: 0 10px;
+          padding: 1.2rem;
+        }
+
+        .avatar {
+          width: 40px;
+          height: 40px;
+        }
+
+        .avatar-icon {
+          width: 20px;
+          height: 20px;
+        }
+
+        .person-name {
+          font-size: 1.2rem;
+        }
+
+        .person-relation,
+        .add-text {
+          font-size: 1.1rem;
+        }
+
+        .person-dates {
+          font-size: 1rem;
+        }
+
+        .generation {
+          margin: 30px 0;
+        }
+
+        .horizontal-line {
+          width: 200px;
+        }
+
+        .floating-add-btn {
+          bottom: 1rem;
+          right: 1rem;
+          width: 48px;
+          height: 48px;
+          font-size: 1.25rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .tree-container {
+          padding: 1.5rem 0.5rem;
+        }
+
+        .person-card,
+        .add-person-card {
+          width: 90px;
+          margin: 0 5px;
+          padding: 1rem;
+        }
+
+        .horizontal-line {
+          width: 150px;
+        }
+      }
+
+      /* アニメーション効果 */
+      .person-card,
+      .add-person-card {
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      .person-card:nth-child(1),
+      .add-person-card:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .person-card:nth-child(2),
+      .add-person-card:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .person-card:nth-child(3),
+      .add-person-card:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-container">
+      <!-- ヘッダー -->
+      <header class="app-header">
+        <h1 class="app-title">Family Tree App</h1>
+        <button class="settings-btn" onclick="openSettings()">設定</button>
+      </header>
+
+      <!-- メインコンテンツエリア -->
+      <div class="content-area">
+        <!-- 家系図表示エリア -->
+        <main class="family-tree-area">
+          <div class="tree-container">
+            <!-- 家系図 -->
+            <div class="family-tree">
+              <!-- 第2世代（両親） -->
+              <div class="generation">
+                <div class="connection-line vertical-line"></div>
+                <div class="connection-line horizontal-line"></div>
+
+                <div class="person-card" onclick="editPerson('father')">
+                  <div class="avatar male">
+                    <svg class="avatar-icon" viewBox="0 0 24 24">
+                      <path
+                        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                      />
+                    </svg>
+                  </div>
+                  <div class="person-info">
+                    <div class="person-name">田中 一郎</div>
+                    <div class="person-dates">1960-</div>
+                  </div>
+                </div>
+
+                <div
+                  class="person-card second-female"
+                  onclick="editPerson('mother')"
+                >
+                  <div class="avatar unknown">
+                    <svg class="avatar-icon" viewBox="0 0 24 24">
+                      <path
+                        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                      />
+                    </svg>
+                  </div>
+                  <div class="person-info">
+                    <div class="person-name">人物を追加</div>
+                    <div class="person-dates">クリック</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 第3世代（本人・兄弟） -->
+              <div class="generation">
+                <div class="connection-line vertical-line"></div>
+                <div class="connection-line horizontal-line"></div>
+
+                <div
+                  class="person-card is-current"
+                  onclick="editPerson('self')"
+                >
+                  <div class="avatar male">
+                    <svg class="avatar-icon" viewBox="0 0 24 24">
+                      <path
+                        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                      />
+                    </svg>
+                  </div>
+                  <div class="person-info">
+                    <div class="person-name">田中 太郎</div>
+                    <div class="person-relation">本人</div>
+                    <div class="person-dates">1990-</div>
+                  </div>
+                </div>
+
+                <div class="person-card" onclick="editPerson('sibling')">
+                  <div class="avatar unknown">
+                    <svg class="avatar-icon" viewBox="0 0 24 24">
+                      <path
+                        d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                      />
+                    </svg>
+                  </div>
+                  <div class="person-info">
+                    <div class="person-name">田中 みどり</div>
+                    <div class="person-relation">兄弟（性別不明）</div>
+                    <div class="person-dates">1992-</div>
+                  </div>
+                </div>
+
+                <div class="add-person-card" onclick="addSibling()">
+                  <svg class="add-icon" viewBox="0 0 24 24" fill="none">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  <div class="add-text">兄弟・姉妹を追加</div>
+                </div>
+              </div>
+
+              <!-- 第4世代（子供） -->
+              <div class="generation">
+                <div class="add-person-card" onclick="addChild()">
+                  <svg class="add-icon" viewBox="0 0 24 24" fill="none">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  <div class="add-text">子供を追加</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <!-- フローティング追加ボタン -->
+      <button
+        class="floating-add-btn"
+        title="人物を追加"
+        onclick="openAddPersonModal()"
+      >
+        +
+      </button>
+    </div>
+
+    <script>
+      function editPerson(personId) {
+        console.log(`${personId}の詳細を編集`)
+        alert(`${personId}の詳細情報と編集オプションを表示します`)
+      }
+
+      function addSibling() {
+        console.log('兄弟・姉妹を追加')
+        alert('兄弟・姉妹の追加フォームを開きます')
+      }
+
+      function addChild() {
+        console.log('子供を追加')
+        alert('子供の追加フォームを開きます')
+      }
+
+      function openSettings() {
+        console.log('設定パネルを開く')
+        alert('設定パネルを開きます')
+      }
+
+      function openAddPersonModal() {
+        console.log('人物追加モーダルを開く')
+        alert('人物追加モーダルを開きます')
+      }
+
+      // インタラクティブ効果
+      document.addEventListener('DOMContentLoaded', function () {
+        // 人物カードのホバー効果
+        const personCards = document.querySelectorAll('.person-card')
+
+        personCards.forEach((card) => {
+          card.addEventListener('mouseenter', function () {
+            this.style.filter = 'brightness(1.02)'
+          })
+
+          card.addEventListener('mouseleave', function () {
+            this.style.filter = 'brightness(1)'
+          })
+        })
+
+        // 追加カードのホバー効果
+        const addCards = document.querySelectorAll('.add-person-card')
+
+        addCards.forEach((card) => {
+          card.addEventListener('mouseenter', function () {
+            this.style.filter = 'brightness(1.02)'
+          })
+
+          card.addEventListener('mouseleave', function () {
+            this.style.filter = 'brightness(1)'
+          })
+        })
+      })
+    </script>
+  </body>
+</html>
