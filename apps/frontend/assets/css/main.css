@@ -42,6 +42,10 @@ body {
   background-color: var(--color-background);
 }
 
+.overflow-hidden {
+  overflow: hidden;
+}
+
 /* レスポンシブユーティリティクラス */
 .mobile-only {
   display: block;
