@@ -89,13 +89,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed } from 'vue'
+import { reactive, ref } from 'vue'
 import { UserIcon, UsersIcon } from '@heroicons/vue/24/outline'
 import AppModal from '@/components/layout/AppModal.vue'
 import FormField from '@/components/atoms/FormField.vue'
 import AppButton from '@/components/atoms/AppButton.vue'
 import { usePersonValidation } from '@/composables/useValidation'
-import { usePersonStore } from '@/stores/personStore'
 import type { PersonForm } from '@/types/person'
 import { INITIAL_PERSON_FORM } from '@/types/person'
 
@@ -112,11 +111,8 @@ const form = reactive<PersonForm>({ ...INITIAL_PERSON_FORM })
 // バリデーション機能
 const { errors, validateForm } = usePersonValidation(form)
 
-// PersonStore
-const personStore = usePersonStore()
-
-// ローディング状態（Storeのローディングと統合）
-const isLoading = computed(() => personStore.isLoading)
+// ローディング状態
+const isLoading = ref(false)
 
 // 性別オプション（アイコン付き）
 const genderOptions = [
@@ -140,6 +136,8 @@ const handleSubmit = async (): Promise<void> => {
     return
   }
 
+  isLoading.value = true
+
   try {
     // 空文字列をundefinedに変換してから送信
     const cleanedForm: PersonForm = {}
@@ -151,16 +149,11 @@ const handleSubmit = async (): Promise<void> => {
     if (form.birthPlace && form.birthPlace !== '') cleanedForm.birthPlace = form.birthPlace
     if (form.memo && form.memo !== '') cleanedForm.memo = form.memo
 
-    // PersonStoreを使用してAPIに保存
-    await personStore.addPerson(cleanedForm)
-
-    // 保存成功時は保存イベントを発行してモーダルを閉じる
+    // 親コンポーネントにデータを渡す
     emit('save', cleanedForm)
-    emit('close')
   }
-  catch (error) {
-    // エラーハンドリングは PersonStore で行われる
-    console.error('人物の保存に失敗しました:', error)
+  finally {
+    isLoading.value = false
   }
 }
 
