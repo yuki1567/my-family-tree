@@ -3,14 +3,14 @@ import type { ApiResponse } from '../../shared/types/response'
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
-export interface UseApiOptions {
+export type UseApiOptions = {
   method?: HttpMethod
   body?: Record<string, unknown> | string
   headers?: Record<string, string>
   immediate?: boolean
 }
 
-export interface UseApiReturn<T> {
+export type UseApiReturn<T> = {
   data: Ref<T | null>
   loading: Ref<boolean>
   error: Ref<string | null>
