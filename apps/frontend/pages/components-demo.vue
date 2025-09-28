@@ -261,6 +261,51 @@
       </div>
     </section>
 
+    <!-- 人物追加モーダル（Issue #39実装） -->
+    <section class="demo-section">
+      <h2>🆕 人物追加モーダル（Issue #39実装）</h2>
+      <p>
+        家系図アプリの最優先機能である人物追加モーダルコンポーネントのデモです。
+        リアルタイムバリデーション機能付きで、レスポンシブ対応しています。
+      </p>
+
+      <div class="person-add-demo">
+        <AppButton
+          variant="primary"
+          @click="showPersonAddModal = true"
+        >
+          <UserPlusIcon class="icon" />
+          人物追加モーダルを開く
+        </AppButton>
+
+        <div class="demo-info">
+          <h3>実装機能:</h3>
+          <ul>
+            <li>✅ 全人物情報入力項目（氏名、性別、生年月日、没年月日、出生地、メモ）</li>
+            <li>✅ リアルタイムバリデーション（日付関係チェック、未来日付制限、文字数制限）</li>
+            <li>✅ レスポンシブデザイン対応（モバイル・デスクトップ）</li>
+            <li>✅ 型安全なフォーム処理（TypeScript strict mode）</li>
+            <li>✅ 独立性の高いコンポーネント設計（親にデータ委譲）</li>
+          </ul>
+        </div>
+
+        <div
+          v-if="savedPersonData"
+          class="saved-data-display"
+        >
+          <h4>保存されたデータ:</h4>
+          <pre>{{ JSON.stringify(savedPersonData, null, 2) }}</pre>
+        </div>
+      </div>
+
+      <!-- PersonAddModal -->
+      <PersonAddModal
+        v-if="showPersonAddModal"
+        @close="showPersonAddModal = false"
+        @save="handlePersonSave"
+      />
+    </section>
+
     <!-- モーダルベースコンポーネント -->
     <section class="demo-section">
       <h2>🪟 モーダルベースコンポーネント</h2>
@@ -483,6 +528,8 @@
 import AppButton from '@/components/atoms/AppButton.vue'
 import FormField from '@/components/atoms/FormField.vue'
 import AppModal from '@/components/layout/AppModal.vue'
+import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
+import type { PersonForm } from '@/types/person'
 import {
   FaceSmileIcon,
   HeartIcon,
@@ -565,6 +612,10 @@ const showBasicModal = ref(false)
 const showPersonModal = ref(false)
 const showFooterModal = ref(false)
 const showNoOverlayModal = ref(false)
+const showPersonAddModal = ref(false)
+
+// PersonAddModal関連
+const savedPersonData = ref<PersonForm | null>(null)
 
 // モーダル内のフォームデータ
 const modalFormData = ref({
@@ -578,7 +629,8 @@ const isAnyModalOpen = computed(
     showBasicModal.value
     || showPersonModal.value
     || showFooterModal.value
-    || showNoOverlayModal.value,
+    || showNoOverlayModal.value
+    || showPersonAddModal.value,
 )
 
 useHead(() => ({
@@ -689,6 +741,13 @@ const saveModalForm = (): void => {
   showNoOverlayModal.value = false
   alert(`データを保存しました: ${modalFormData.value.name}`)
   modalFormData.value = { name: '', email: '' }
+}
+
+// PersonAddModal関連の関数
+const handlePersonSave = (personData: PersonForm): void => {
+  savedPersonData.value = personData
+  showPersonAddModal.value = false
+  alert('人物データが正常に保存されました！デモ表示を確認してください。')
 }
 </script>
 
@@ -959,6 +1018,64 @@ const saveModalForm = (): void => {
   margin: 20px 0;
 }
 
+/* PersonAddModal デモ関連のスタイル */
+.person-add-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.demo-info {
+  padding: 20px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+}
+
+.demo-info h3 {
+  color: #0369a1;
+  margin: 0 0 15px 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.demo-info ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #075985;
+}
+
+.demo-info li {
+  margin-bottom: 8px;
+  font-size: 1.4rem;
+}
+
+.saved-data-display {
+  padding: 20px;
+  background: #ecfdf5;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+}
+
+.saved-data-display h4 {
+  color: #065f46;
+  margin: 0 0 15px 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.saved-data-display pre {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 15px;
+  font-family: 'SF Mono', Monaco, 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 1.3rem;
+  color: #374151;
+  overflow-x: auto;
+  margin: 0;
+}
+
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
   .demo-page {
@@ -988,6 +1105,10 @@ const saveModalForm = (): void => {
 
   .values-display {
     grid-template-columns: 1fr;
+  }
+
+  .saved-data-display pre {
+    font-size: 1.2rem;
   }
 }
 </style>
