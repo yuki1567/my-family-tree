@@ -1,12 +1,19 @@
 <template>
   <div class="empty-state">
-    <div class="person-card" @click="handleStartGuide">
+    <div
+      class="person-card"
+      @click="handleStartGuide"
+    >
       <div class="avatar unknown">
         <UserIcon class="avatar-icon" />
       </div>
       <div class="person-info">
-        <div class="person-name">人物を追加</div>
-        <div class="person-dates">クリック</div>
+        <div class="person-name">
+          人物を追加
+        </div>
+        <div class="person-dates">
+          クリック
+        </div>
       </div>
     </div>
   </div>
