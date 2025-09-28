@@ -1,7 +1,7 @@
 /**
  * 人物追加フォーム用の型定義
  */
-export interface PersonForm {
+export type PersonForm = {
   /** 氏名（任意） */
   name?: string
   /** 性別（任意） */
@@ -19,7 +19,7 @@ export interface PersonForm {
 /**
  * フォームバリデーション結果
  */
-export interface ValidationErrors {
+export type ValidationErrors = {
   name?: string
   gender?: string
   birthDate?: string
