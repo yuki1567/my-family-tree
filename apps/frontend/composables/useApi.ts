@@ -53,11 +53,16 @@ export function useApi<T = unknown>(
 
       const response = await fetch(url, requestOptions)
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
       const result: ApiResponse<T> = await response.json()
+
+      if (!response.ok) {
+        if ('error' in result && result.error) {
+          error.value = result.error.errorCode
+        } else {
+          error.value = `HTTP error! status: ${response.status}`
+        }
+        return null
+      }
 
       if (result.isSuccess) {
         data.value = result.data
