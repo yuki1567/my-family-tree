@@ -54,7 +54,15 @@ export function generateEnvFile(ctx: Ctx): Ctx {
 
   const webPort = 3000 + ctx.gitHub.issueNumber
   const apiPort = 4000 + ctx.gitHub.issueNumber
-  const dbName = `family_tree_${ctx.gitHub.issueSlugTitle.replace(/-/g, '_')}`
+  const maxSlugLength = 50
+  const truncatedSlug =
+    ctx.gitHub.issueSlugTitle.length > maxSlugLength
+      ? ctx.gitHub.issueSlugTitle.substring(
+          0,
+          ctx.gitHub.issueSlugTitle.lastIndexOf('-', maxSlugLength)
+        )
+      : ctx.gitHub.issueSlugTitle
+  const dbName = `family_tree_${truncatedSlug.replace(/-/g, '_')}`
   const appName = `app-${ctx.gitHub.issueSlugTitle}`
   const jwtSecret = `worktree_jwt_${ctx.gitHub.issueNumber}_${Date.now()}`
 
