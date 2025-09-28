@@ -9,7 +9,7 @@
 
     <!-- 人物追加フォーム例 -->
     <section class="demo-section">
-      <h2>📝 人物追加フォーム</h2>
+      <h2>📝 人物追加フォーム（PersonAddModal項目ベース）</h2>
       <div class="form-container">
         <div class="form-grid">
           <FormField
@@ -17,7 +17,13 @@
             name="personName"
             label="氏名"
             placeholder="山田太郎"
-            required
+          />
+          <FormField
+            v-model="personForm.gender"
+            name="personGender"
+            type="radio"
+            label="性別"
+            :options="genderOptions"
           />
           <FormField
             v-model="personForm.birthDate"
@@ -26,40 +32,24 @@
             label="生年月日"
           />
           <FormField
+            v-model="personForm.deathDate"
+            name="personDeathDate"
+            type="date"
+            label="没年月日"
+          />
+          <FormField
             v-model="personForm.birthPlace"
             name="personBirthPlace"
             label="出生地"
-            placeholder="東京都"
+            placeholder="東京都渋谷区"
           />
           <FormField
-            v-model="personForm.occupation"
-            name="personOccupation"
-            label="職業"
-            placeholder="会社員"
-          />
-          <FormField
-            v-model="personForm.gender"
-            name="personGender"
-            type="radio"
-            label="性別"
-            required
-            :options="genderOptions"
+            v-model="personForm.memo"
+            name="personMemo"
+            label="メモ"
+            placeholder="備考やエピソードなど"
           />
         </div>
-
-        <!-- 関係性選択 -->
-        <div class="relationship-selection">
-          <FormField
-            v-model="personForm.relationship"
-            name="personRelationship"
-            type="radio"
-            label="関係性"
-            required
-            :options="relationshipOptions"
-          />
-        </div>
-
-        <div class="form-grid" />
 
         <div class="form-actions">
           <AppButton
@@ -487,17 +477,14 @@
       <h2>📊 現在の入力値</h2>
       <div class="values-display">
         <div class="value-group">
-          <h3>人物情報</h3>
+          <h3>人物情報（PersonAddModal項目）</h3>
           <ul>
             <li>氏名: {{ personForm.name || '未入力' }}</li>
-            <li>生年月日: {{ personForm.birthDate || '未入力' }}</li>
-            <li>出生地: {{ personForm.birthPlace || '未入力' }}</li>
-            <li>職業: {{ personForm.occupation || '未入力' }}</li>
             <li>性別: {{ getGenderLabel(personForm.gender) || '未選択' }}</li>
-            <li>
-              関係性:
-              {{ getRelationshipLabel(personForm.relationship) || '未選択' }}
-            </li>
+            <li>生年月日: {{ personForm.birthDate || '未入力' }}</li>
+            <li>没年月日: {{ personForm.deathDate || '未入力' }}</li>
+            <li>出生地: {{ personForm.birthPlace || '未入力' }}</li>
+            <li>メモ: {{ personForm.memo || '未入力' }}</li>
           </ul>
         </div>
 
@@ -543,29 +530,20 @@ import {
 import { useHead } from 'nuxt/app'
 import { computed, ref } from 'vue'
 
-// 人物追加フォーム
+// 人物追加フォーム（PersonAddModal項目ベース）
 const personForm = ref({
   name: '',
+  gender: '',
   birthDate: '',
+  deathDate: '',
   birthPlace: '',
-  occupation: '',
-  gender: 'male',
-  relationship: 'father',
+  memo: '',
 })
 
-// radioボタンのオプション
+// radioボタンのオプション（PersonAddModal準拠）
 const genderOptions = [
-  { label: '男性', value: 'male' },
-  { label: '女性', value: 'female' },
-  { label: '不明', value: 'unknown' },
-]
-
-// 関係性選択のオプション
-const relationshipOptions = [
-  { label: '父親', value: 'father', icon: UserIcon },
-  { label: '母親', value: 'mother', icon: UserIcon },
-  { label: '配偶者', value: 'spouse', icon: HeartIcon },
-  { label: '子供', value: 'child', icon: FaceSmileIcon },
+  { label: '男性', value: 'male', icon: UserIcon },
+  { label: '女性', value: 'female', icon: UsersIcon },
 ]
 
 // 子供アイコン比較用のオプション
@@ -665,12 +643,6 @@ const getGenderLabel = (value: string): string => {
   return option ? option.label : ''
 }
 
-// 関係性の値をラベルに変換
-const getRelationshipLabel = (value: string): string => {
-  const option = relationshipOptions.find(opt => opt.value === value)
-  return option ? option.label : ''
-}
-
 // イベントハンドラー
 const handleAddPerson = async (): Promise<void> => {
   isSubmitting.value = true
@@ -683,11 +655,11 @@ const handleAddPerson = async (): Promise<void> => {
 const clearForm = (): void => {
   personForm.value = {
     name: '',
+    gender: '',
     birthDate: '',
+    deathDate: '',
     birthPlace: '',
-    occupation: '',
-    gender: 'male',
-    relationship: 'father',
+    memo: '',
   }
 }
 
