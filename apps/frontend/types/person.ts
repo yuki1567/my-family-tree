@@ -12,8 +12,6 @@ export type PersonForm = {
   deathDate?: string
   /** 出生地（任意） */
   birthPlace?: string
-  /** メモ（任意） */
-  memo?: string
 }
 
 /**
@@ -25,7 +23,6 @@ export type ValidationErrors = {
   birthDate?: string
   deathDate?: string
   birthPlace?: string
-  memo?: string
 }
 
 /**
@@ -45,5 +42,4 @@ export const INITIAL_PERSON_FORM: PersonForm = {
   birthDate: '',
   deathDate: '',
   birthPlace: '',
-  memo: '',
 }

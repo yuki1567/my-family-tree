@@ -33,9 +33,6 @@ export function usePersonValidation(form: PersonForm) {
       case 'birthPlace':
         validateBirthPlace(value)
         break
-      case 'memo':
-        validateMemo(value)
-        break
     }
 
     updateValidationState()
@@ -55,7 +52,6 @@ export function usePersonValidation(form: PersonForm) {
     if (form.birthDate) validateBirthDate(form.birthDate)
     if (form.deathDate) validateDeathDate(form.deathDate)
     if (form.birthPlace) validateBirthPlace(form.birthPlace)
-    if (form.memo) validateMemo(form.memo)
 
     // 生年月日と没年月日の関係をチェック
     validateDateRelation()
@@ -120,14 +116,6 @@ export function usePersonValidation(form: PersonForm) {
     }
   }
 
-  /**
-   * メモバリデーション
-   */
-  const validateMemo = (memo: string): void => {
-    if (memo.length > 1000) {
-      errors.memo = 'メモは1000文字以内で入力してください'
-    }
-  }
 
   /**
    * 生年月日と没年月日の関係をバリデーション
@@ -203,11 +191,6 @@ export function usePersonValidation(form: PersonForm) {
     }
   })
 
-  watch(() => form.memo, (newValue) => {
-    if (newValue !== undefined) {
-      validateField('memo', newValue)
-    }
-  })
 
   return {
     errors,

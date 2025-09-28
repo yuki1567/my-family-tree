@@ -1,36 +1,28 @@
 <template>
-  <AppModal @close="handleClose">
-    <h2 class="modal-title">
-      人物の追加
-    </h2>
-
-    <form
-      class="person-form"
-      @submit.prevent="handleSubmit"
-    >
-      <div class="form-row">
-        <FormField
-          v-model="form.name"
-          label="氏名"
-          name="name"
-          placeholder="山田 太郎"
-          :error-message="errors.name"
-        />
+  <AppModal @close="closeModal">
+    <form class="person-form" @submit.prevent="submitForm">
+      <div class="field-row">
+        <div class="field-columns">
+          <FormField
+            v-model="form.name"
+            label="氏名"
+            name="name"
+            placeholder="山田 太郎"
+            :error-message="errors.name"
+          />
+          <FormField
+            v-model="form.gender"
+            label="性別"
+            name="gender"
+            type="radio"
+            :options="genderOptions"
+            :error-message="errors.gender"
+          />
+        </div>
       </div>
 
-      <div class="form-row">
-        <FormField
-          v-model="form.gender"
-          label="性別"
-          name="gender"
-          type="radio"
-          :options="genderOptions"
-          :error-message="errors.gender"
-        />
-      </div>
-
-      <div class="form-row">
-        <div class="form-row-group">
+      <div class="field-row">
+        <div class="field-columns">
           <FormField
             v-model="form.birthDate"
             label="生年月日"
@@ -48,7 +40,7 @@
         </div>
       </div>
 
-      <div class="form-row">
+      <div class="field-row">
         <FormField
           v-model="form.birthPlace"
           label="出生地"
@@ -57,46 +49,33 @@
           :error-message="errors.birthPlace"
         />
       </div>
-
-      <div class="form-row">
-        <FormField
-          v-model="form.memo"
-          label="メモ"
-          name="memo"
-          placeholder="備考やエピソードなど"
-          :error-message="errors.memo"
-        />
-      </div>
     </form>
 
     <template #footer>
-      <AppButton
-        variant="secondary"
-        @click="handleClose"
-      >
+      <AppButton variant="secondary" @click="closeModal">
         キャンセル
       </AppButton>
       <AppButton
         variant="primary"
         type="submit"
         :is-loading="isLoading"
-        @click="handleSubmit"
+        @click="submitForm"
       >
-        保存
+        追加
       </AppButton>
     </template>
   </AppModal>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { UserIcon, UsersIcon } from '@heroicons/vue/24/outline'
-import AppModal from '@/components/layout/AppModal.vue'
-import FormField from '@/components/atoms/FormField.vue'
 import AppButton from '@/components/atoms/AppButton.vue'
+import FormField from '@/components/atoms/FormField.vue'
+import AppModal from '@/components/layout/AppModal.vue'
 import { usePersonValidation } from '@/composables/useValidation'
 import type { PersonForm } from '@/types/person'
 import { INITIAL_PERSON_FORM } from '@/types/person'
+import { UserIcon, UsersIcon } from '@heroicons/vue/24/outline'
+import { reactive, ref } from 'vue'
 
 type Emits = {
   close: []
@@ -131,7 +110,7 @@ const genderOptions = [
 /**
  * フォーム送信処理
  */
-const handleSubmit = async (): Promise<void> => {
+const submitForm = async (): Promise<void> => {
   if (!validateForm()) {
     return
   }
@@ -144,15 +123,16 @@ const handleSubmit = async (): Promise<void> => {
 
     if (form.name && form.name !== '') cleanedForm.name = form.name
     if (form.gender) cleanedForm.gender = form.gender
-    if (form.birthDate && form.birthDate !== '') cleanedForm.birthDate = form.birthDate
-    if (form.deathDate && form.deathDate !== '') cleanedForm.deathDate = form.deathDate
-    if (form.birthPlace && form.birthPlace !== '') cleanedForm.birthPlace = form.birthPlace
-    if (form.memo && form.memo !== '') cleanedForm.memo = form.memo
+    if (form.birthDate && form.birthDate !== '')
+      cleanedForm.birthDate = form.birthDate
+    if (form.deathDate && form.deathDate !== '')
+      cleanedForm.deathDate = form.deathDate
+    if (form.birthPlace && form.birthPlace !== '')
+      cleanedForm.birthPlace = form.birthPlace
 
     // 親コンポーネントにデータを渡す
     emit('save', cleanedForm)
-  }
-  finally {
+  } finally {
     isLoading.value = false
   }
 }
@@ -160,40 +140,37 @@ const handleSubmit = async (): Promise<void> => {
 /**
  * モーダルクローズ処理
  */
-const handleClose = (): void => {
+const closeModal = (): void => {
   emit('close')
 }
 </script>
 
 <style scoped>
-.modal-title {
-  font-size: 2rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: 2.4rem;
-}
-
 .person-form {
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
-.form-row {
+.field-row {
   display: flex;
   flex-direction: column;
 }
 
-.form-row-group {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.field-columns {
+  display: flex;
+  flex-direction: column;
   gap: 1.6rem;
 }
 
 /* レスポンシブ対応 */
-@media (max-width: 767px) {
-  .form-row-group {
-    grid-template-columns: 1fr;
+@media (min-width: 768px) {
+  .field-columns {
+    flex-direction: row;
+  }
+
+  .field-columns > * {
+    flex: 1;
   }
 }
 </style>
