@@ -1,10 +1,7 @@
 <template>
   <Teleport to="body">
     <div class="modal-overlay">
-      <div
-        ref="modalTarget"
-        class="modal-container"
-      >
+      <div ref="modalTarget" class="modal-container">
         <div class="modal-body">
           <slot />
         </div>
@@ -73,7 +70,7 @@ onUnmounted(() => {
 }
 
 .modal-body {
-  padding: 2.4rem;
+  padding: 3rem 2.4rem;
   flex: 1;
   overflow-y: auto;
 }
@@ -88,13 +85,5 @@ onUnmounted(() => {
 
 .modal-footer:empty {
   display: none;
-}
-
-/* レスポンシブ対応（768px未満はフルスクリーン） */
-@media (max-width: 767px) {
-  .modal-footer {
-    display: flex;
-    flex-direction: column;
-  }
 }
 </style>

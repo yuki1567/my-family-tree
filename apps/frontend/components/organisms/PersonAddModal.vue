@@ -2,23 +2,24 @@
   <AppModal @close="closeModal">
     <form class="person-form" @submit.prevent="submitForm">
       <div class="field-row">
-        <div class="field-columns">
-          <FormField
-            v-model="form.name"
-            label="氏名"
-            name="name"
-            placeholder="山田 太郎"
-            :error-message="errors.name"
-          />
-          <FormField
-            v-model="form.gender"
-            label="性別"
-            name="gender"
-            type="radio"
-            :options="genderOptions"
-            :error-message="errors.gender"
-          />
-        </div>
+        <FormField
+          v-model="form.name"
+          label="氏名"
+          name="name"
+          placeholder="山田 太郎"
+          :error-message="errors.name"
+        />
+      </div>
+
+      <div class="field-row">
+        <FormField
+          v-model="form.gender"
+          label="性別"
+          name="gender"
+          type="radio"
+          :options="genderOptions"
+          :error-message="errors.gender"
+        />
       </div>
 
       <div class="field-row">
@@ -105,6 +106,11 @@ const genderOptions = [
     value: 'female',
     icon: UsersIcon,
   },
+  {
+    label: '不明',
+    value: 'unknown',
+    icon: UserIcon,
+  },
 ]
 
 /**
@@ -159,14 +165,13 @@ const closeModal = (): void => {
 
 .field-columns {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 1.6rem;
 }
 
-/* レスポンシブ対応 */
-@media (min-width: 768px) {
+@media (max-width: 767px) {
   .field-columns {
-    flex-direction: row;
+    flex-direction: column;
   }
 
   .field-columns > * {

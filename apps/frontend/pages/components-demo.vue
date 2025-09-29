@@ -488,6 +488,7 @@ const personForm = ref({
 const genderOptions = [
   { label: '男性', value: 'male', icon: UserIcon },
   { label: '女性', value: 'female', icon: UsersIcon },
+  { label: '不明', value: 'unknown', icon: UserIcon },
 ]
 
 // 関係性のオプション
