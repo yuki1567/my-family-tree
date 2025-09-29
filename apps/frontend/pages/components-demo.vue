@@ -9,7 +9,7 @@
 
     <!-- 人物追加フォーム例 -->
     <section class="demo-section">
-      <h2>📝 人物追加フォーム</h2>
+      <h2>📝 人物追加フォーム（PersonAddModal項目ベース）</h2>
       <div class="form-container">
         <div class="form-grid">
           <FormField
@@ -17,7 +17,13 @@
             name="personName"
             label="氏名"
             placeholder="山田太郎"
-            required
+          />
+          <FormField
+            v-model="personForm.gender"
+            name="personGender"
+            type="radio"
+            label="性別"
+            :options="genderOptions"
           />
           <FormField
             v-model="personForm.birthDate"
@@ -26,24 +32,16 @@
             label="生年月日"
           />
           <FormField
+            v-model="personForm.deathDate"
+            name="personDeathDate"
+            type="date"
+            label="没年月日"
+          />
+          <FormField
             v-model="personForm.birthPlace"
             name="personBirthPlace"
             label="出生地"
-            placeholder="東京都"
-          />
-          <FormField
-            v-model="personForm.occupation"
-            name="personOccupation"
-            label="職業"
-            placeholder="会社員"
-          />
-          <FormField
-            v-model="personForm.gender"
-            name="personGender"
-            type="radio"
-            label="性別"
-            required
-            :options="genderOptions"
+            placeholder="東京都渋谷区"
           />
         </div>
 
@@ -59,8 +57,6 @@
           />
         </div>
 
-        <div class="form-grid" />
-
         <div class="form-actions">
           <AppButton
             variant="primary"
@@ -71,19 +67,11 @@
             <UserPlusIcon class="icon" />
             人物を追加
           </AppButton>
-          <AppButton
-            variant="primary"
-            :is-loading="true"
-          >
+          <AppButton variant="primary" :is-loading="true">
             <UserPlusIcon class="icon" />
             ローディング中
           </AppButton>
-          <AppButton
-            variant="secondary"
-            @click="clearForm"
-          >
-            クリア
-          </AppButton>
+          <AppButton variant="secondary" @click="clearForm"> クリア </AppButton>
         </div>
       </div>
     </section>
@@ -99,18 +87,10 @@
             label="検索"
             placeholder="名前で検索..."
           />
-          <AppButton
-            variant="primary"
-            @click="handleSearch"
-          >
-            検索
-          </AppButton>
+          <AppButton variant="primary" @click="handleSearch"> 検索 </AppButton>
         </div>
 
-        <div
-          v-if="searchQuery"
-          class="search-results"
-        >
+        <div v-if="searchQuery" class="search-results">
           <p>検索結果: "{{ searchQuery }}" に関する人物</p>
         </div>
       </div>
@@ -138,16 +118,10 @@
           </div>
 
           <div class="form-actions">
-            <AppButton
-              variant="primary"
-              @click="handleSaveRelationship"
-            >
+            <AppButton variant="primary" @click="handleSaveRelationship">
               関係を保存
             </AppButton>
-            <AppButton
-              variant="danger"
-              @click="handleDeleteRelationship"
-            >
+            <AppButton variant="danger" @click="handleDeleteRelationship">
               関係を削除
             </AppButton>
           </div>
@@ -208,10 +182,7 @@
           >
             検証実行
           </AppButton>
-          <AppButton
-            variant="primary"
-            :is-disabled="true"
-          >
+          <AppButton variant="primary" :is-disabled="true">
             無効なボタン
           </AppButton>
         </div>
@@ -224,41 +195,70 @@
       <div class="danger-actions">
         <p>重要なデータの削除など、取り返しのつかない操作の例：</p>
         <div class="danger-buttons">
-          <AppButton
-            variant="danger"
-            @click="handleDeletePerson"
-          >
+          <AppButton variant="danger" @click="handleDeletePerson">
             人物を削除
           </AppButton>
-          <AppButton
-            variant="danger"
-            @click="handleDeleteFamily"
-          >
+          <AppButton variant="danger" @click="handleDeleteFamily">
             家系図全体を削除
           </AppButton>
         </div>
 
-        <div
-          v-if="showConfirmation"
-          class="confirmation-dialog"
-        >
+        <div v-if="showConfirmation" class="confirmation-dialog">
           <p>この操作は取り消せません。本当に実行しますか？</p>
           <div class="confirmation-actions">
-            <AppButton
-              variant="danger"
-              @click="confirmAction"
-            >
+            <AppButton variant="danger" @click="confirmAction">
               はい、削除します
             </AppButton>
-            <AppButton
-              variant="secondary"
-              @click="cancelAction"
-            >
+            <AppButton variant="secondary" @click="cancelAction">
               キャンセル
             </AppButton>
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- 人物追加モーダル（Issue #39実装） -->
+    <section class="demo-section">
+      <h2>🆕 人物追加モーダル（Issue #39実装）</h2>
+      <p>
+        家系図アプリの最優先機能である人物追加モーダルコンポーネントのデモです。
+        リアルタイムバリデーション機能付きで、レスポンシブ対応しています。
+      </p>
+
+      <div class="person-add-demo">
+        <AppButton variant="primary" @click="showPersonAddModal = true">
+          <UserPlusIcon class="icon" />
+          人物追加モーダルを開く
+        </AppButton>
+
+        <div class="demo-info">
+          <h3>実装機能:</h3>
+          <ul>
+            <li>
+              ✅ 全人物情報入力項目（氏名、性別、生年月日、没年月日、出生地）
+            </li>
+            <li>
+              ✅
+              リアルタイムバリデーション（日付関係チェック、未来日付制限、文字数制限）
+            </li>
+            <li>✅ レスポンシブデザイン対応（モバイル・デスクトップ）</li>
+            <li>✅ 型安全なフォーム処理（TypeScript strict mode）</li>
+            <li>✅ 独立性の高いコンポーネント設計（親にデータ委譲）</li>
+          </ul>
+        </div>
+
+        <div v-if="savedPersonData" class="saved-data-display">
+          <h4>保存されたデータ:</h4>
+          <pre>{{ JSON.stringify(savedPersonData, null, 2) }}</pre>
+        </div>
+      </div>
+
+      <!-- PersonAddModal -->
+      <PersonAddModal
+        v-if="showPersonAddModal"
+        @close="showPersonAddModal = false"
+        @save="handlePersonSave"
+      />
     </section>
 
     <!-- モーダルベースコンポーネント -->
@@ -301,10 +301,7 @@
       </div>
 
       <!-- 基本モーダル -->
-      <AppModal
-        v-if="showBasicModal"
-        @close="showBasicModal = false"
-      >
+      <AppModal v-if="showBasicModal" @close="showBasicModal = false">
         <p>これは基本的なモーダルです。</p>
         <p>ESCキーまたは背景をクリックして閉じることができます。</p>
         <p>
@@ -313,10 +310,7 @@
       </AppModal>
 
       <!-- 人物詳細風モーダル -->
-      <AppModal
-        v-if="showPersonModal"
-        @close="showPersonModal = false"
-      >
+      <AppModal v-if="showPersonModal" @close="showPersonModal = false">
         <div class="person-detail-content">
           <div class="person-info-grid">
             <div class="info-item">
@@ -354,34 +348,22 @@
       </AppModal>
 
       <!-- フッター付きモーダル -->
-      <AppModal
-        v-if="showFooterModal"
-        @close="showFooterModal = false"
-      >
+      <AppModal v-if="showFooterModal" @close="showFooterModal = false">
         <p>「山田太郎」を家系図から削除しますか？</p>
         <p><strong>※ この操作は取り消せません。</strong></p>
 
         <template #footer>
-          <AppButton
-            variant="secondary"
-            @click="showFooterModal = false"
-          >
+          <AppButton variant="secondary" @click="showFooterModal = false">
             キャンセル
           </AppButton>
-          <AppButton
-            variant="danger"
-            @click="confirmDelete"
-          >
+          <AppButton variant="danger" @click="confirmDelete">
             削除する
           </AppButton>
         </template>
       </AppModal>
 
       <!-- 長いコンテンツモーダル -->
-      <AppModal
-        v-if="showNoOverlayModal"
-        @close="showNoOverlayModal = false"
-      >
+      <AppModal v-if="showNoOverlayModal" @close="showNoOverlayModal = false">
         <p>フォーム入力機能を含むモーダルの例です。</p>
         <p>ESCキーまたは背景クリックで閉じることができます。</p>
         <p>必要に応じてフッターにアクションボタンを配置できます。</p>
@@ -410,10 +392,7 @@
           >
             閉じる
           </AppButton>
-          <AppButton
-            :full-width="true"
-            @click="saveModalForm"
-          >
+          <AppButton :full-width="true" @click="saveModalForm">
             保存
           </AppButton>
         </template>
@@ -442,17 +421,14 @@
       <h2>📊 現在の入力値</h2>
       <div class="values-display">
         <div class="value-group">
-          <h3>人物情報</h3>
+          <h3>人物情報（PersonAddModal項目）</h3>
           <ul>
             <li>氏名: {{ personForm.name || '未入力' }}</li>
-            <li>生年月日: {{ personForm.birthDate || '未入力' }}</li>
-            <li>出生地: {{ personForm.birthPlace || '未入力' }}</li>
-            <li>職業: {{ personForm.occupation || '未入力' }}</li>
             <li>性別: {{ getGenderLabel(personForm.gender) || '未選択' }}</li>
-            <li>
-              関係性:
-              {{ getRelationshipLabel(personForm.relationship) || '未選択' }}
-            </li>
+            <li>生年月日: {{ personForm.birthDate || '未入力' }}</li>
+            <li>没年月日: {{ personForm.deathDate || '未入力' }}</li>
+            <li>出生地: {{ personForm.birthPlace || '未入力' }}</li>
+            <li>関係性: {{ getRelationshipLabel(personForm.relationship) || '未選択' }}</li>
           </ul>
         </div>
 
@@ -483,6 +459,8 @@
 import AppButton from '@/components/atoms/AppButton.vue'
 import FormField from '@/components/atoms/FormField.vue'
 import AppModal from '@/components/layout/AppModal.vue'
+import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
+import type { PersonForm } from '@/types/person'
 import {
   FaceSmileIcon,
   HeartIcon,
@@ -496,29 +474,29 @@ import {
 import { useHead } from 'nuxt/app'
 import { computed, ref } from 'vue'
 
-// 人物追加フォーム
+// 人物追加フォーム（PersonAddModal項目ベース）
 const personForm = ref({
   name: '',
+  gender: '',
   birthDate: '',
+  deathDate: '',
   birthPlace: '',
-  occupation: '',
-  gender: 'male',
-  relationship: 'father',
+  relationship: '',
 })
 
-// radioボタンのオプション
+// radioボタンのオプション（PersonAddModal準拠）
 const genderOptions = [
-  { label: '男性', value: 'male' },
-  { label: '女性', value: 'female' },
-  { label: '不明', value: 'unknown' },
+  { label: '男性', value: 'male', icon: UserIcon },
+  { label: '女性', value: 'female', icon: UsersIcon },
+  { label: '不明', value: 'unknown', icon: UserIcon },
 ]
 
-// 関係性選択のオプション
+// 関係性のオプション
 const relationshipOptions = [
   { label: '父親', value: 'father', icon: UserIcon },
-  { label: '母親', value: 'mother', icon: UserIcon },
-  { label: '配偶者', value: 'spouse', icon: HeartIcon },
+  { label: '母親', value: 'mother', icon: UsersIcon },
   { label: '子供', value: 'child', icon: FaceSmileIcon },
+  { label: '配偶者', value: 'spouse', icon: HeartIcon },
 ]
 
 // 子供アイコン比較用のオプション
@@ -565,6 +543,10 @@ const showBasicModal = ref(false)
 const showPersonModal = ref(false)
 const showFooterModal = ref(false)
 const showNoOverlayModal = ref(false)
+const showPersonAddModal = ref(false)
+
+// PersonAddModal関連
+const savedPersonData = ref<PersonForm | null>(null)
 
 // モーダル内のフォームデータ
 const modalFormData = ref({
@@ -575,10 +557,11 @@ const modalFormData = ref({
 // すべてのモーダル状態を監視してbodyスクロールを制御
 const isAnyModalOpen = computed(
   () =>
-    showBasicModal.value
-    || showPersonModal.value
-    || showFooterModal.value
-    || showNoOverlayModal.value,
+    showBasicModal.value ||
+    showPersonModal.value ||
+    showFooterModal.value ||
+    showNoOverlayModal.value ||
+    showPersonAddModal.value
 )
 
 useHead(() => ({
@@ -609,13 +592,13 @@ const hasErrors = computed(() => {
 
 // 性別の値をラベルに変換
 const getGenderLabel = (value: string): string => {
-  const option = genderOptions.find(opt => opt.value === value)
+  const option = genderOptions.find((opt) => opt.value === value)
   return option ? option.label : ''
 }
 
 // 関係性の値をラベルに変換
 const getRelationshipLabel = (value: string): string => {
-  const option = relationshipOptions.find(opt => opt.value === value)
+  const option = relationshipOptions.find((opt) => opt.value === value)
   return option ? option.label : ''
 }
 
@@ -623,7 +606,7 @@ const getRelationshipLabel = (value: string): string => {
 const handleAddPerson = async (): Promise<void> => {
   isSubmitting.value = true
   // 実際のAPIコールをシミュレート
-  await new Promise(resolve => setTimeout(resolve, 2000))
+  await new Promise((resolve) => setTimeout(resolve, 2000))
   isSubmitting.value = false
   alert(`人物「${personForm.value.name}」を追加しました`)
 }
@@ -631,11 +614,11 @@ const handleAddPerson = async (): Promise<void> => {
 const clearForm = (): void => {
   personForm.value = {
     name: '',
+    gender: '',
     birthDate: '',
+    deathDate: '',
     birthPlace: '',
-    occupation: '',
-    gender: 'male',
-    relationship: 'father',
+    relationship: '',
   }
 }
 
@@ -689,6 +672,13 @@ const saveModalForm = (): void => {
   showNoOverlayModal.value = false
   alert(`データを保存しました: ${modalFormData.value.name}`)
   modalFormData.value = { name: '', email: '' }
+}
+
+// PersonAddModal関連の関数
+const handlePersonSave = (personData: PersonForm): void => {
+  savedPersonData.value = personData
+  showPersonAddModal.value = false
+  alert('人物データが正常に保存されました！デモ表示を確認してください。')
 }
 </script>
 
@@ -959,6 +949,64 @@ const saveModalForm = (): void => {
   margin: 20px 0;
 }
 
+/* PersonAddModal デモ関連のスタイル */
+.person-add-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.demo-info {
+  padding: 20px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+}
+
+.demo-info h3 {
+  color: #0369a1;
+  margin: 0 0 15px 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.demo-info ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #075985;
+}
+
+.demo-info li {
+  margin-bottom: 8px;
+  font-size: 1.4rem;
+}
+
+.saved-data-display {
+  padding: 20px;
+  background: #ecfdf5;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+}
+
+.saved-data-display h4 {
+  color: #065f46;
+  margin: 0 0 15px 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.saved-data-display pre {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 15px;
+  font-family: 'SF Mono', Monaco, 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 1.3rem;
+  color: #374151;
+  overflow-x: auto;
+  margin: 0;
+}
+
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
   .demo-page {
@@ -988,6 +1036,10 @@ const saveModalForm = (): void => {
 
   .values-display {
     grid-template-columns: 1fr;
+  }
+
+  .saved-data-display pre {
+    font-size: 1.2rem;
   }
 }
 </style>
