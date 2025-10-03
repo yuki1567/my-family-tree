@@ -10,7 +10,6 @@ export class PersonController {
     const result = await this.personService.create(validatedData)
 
     res.status(201).json({
-      isSuccess: true,
       data: result,
     })
   }

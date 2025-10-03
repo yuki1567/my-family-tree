@@ -35,7 +35,6 @@ describe('POST /api/people - 人物追加API', () => {
         .expect(201)
 
       expect(response.body).toEqual({
-        isSuccess: true,
         data: {
           id: expect.any(String),
           ...requestData,
@@ -67,7 +66,6 @@ describe('POST /api/people - 人物追加API', () => {
         .expect(201)
 
       expect(response.body).toEqual({
-        isSuccess: true,
         data: {
           id: expect.any(String),
           name: null,
@@ -109,7 +107,6 @@ describe('POST /api/people - 人物追加API', () => {
         .expect(400)
 
       expect(response.body).toEqual({
-        isSuccess: false,
         error: {
           statusCode: 400,
           errorCode: 'VALIDATION_ERROR',
