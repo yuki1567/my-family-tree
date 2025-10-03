@@ -10,12 +10,10 @@ export type ErrorResponse = {
 }
 
 export type ApiSuccessResponse<T> = {
-  isSuccess: true
   data: T
 }
 
 export type ApiErrorResponse = {
-  isSuccess: false
   error: ErrorResponse
 }
 
