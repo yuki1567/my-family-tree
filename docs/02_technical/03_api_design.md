@@ -83,7 +83,6 @@ Production: https://your-domain.com/api
 
 ```json
 {
-  "isSuccess": true,
   "data": {}
 }
 ```
@@ -92,7 +91,6 @@ Production: https://your-domain.com/api
 
 ```json
 {
-  "isSuccess": false,
   "error": {
     "statusCode": 400,
     "errorCode": "VALIDATION_ERROR",
@@ -151,7 +149,6 @@ Production: https://your-domain.com/api
 
 ```json
 {
-  "isSuccess": true,
   "data": {
     "id": "uuid-string",
     "name": "田中太郎",
@@ -167,7 +164,6 @@ Production: https://your-domain.com/api
 
 ```json
 {
-  "isSuccess": false,
   "error": {
     "statusCode": 400,
     "errorCode": "VALIDATION_ERROR",
