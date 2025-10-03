@@ -11,7 +11,6 @@ export function globalErrorHandler(
 
   if (!error) {
     res.status(404).json({
-      isSuccess: false,
       error: { statusCode: 404, errorCode: 'NOT_FOUND', details: [] },
     })
     return
@@ -24,7 +23,6 @@ export function globalErrorHandler(
     }))
 
     res.status(400).json({
-      isSuccess: false,
       error: {
         statusCode: 400,
         errorCode: 'VALIDATION_ERROR',
@@ -37,7 +35,6 @@ export function globalErrorHandler(
   console.error('Unexpected error:', error)
 
   res.status(500).json({
-    isSuccess: false,
     error: {
       statusCode: 500,
       errorCode: 'UNEXPECTED_ERROR',
@@ -48,7 +45,6 @@ export function globalErrorHandler(
 
 export function notFoundHandler(_req: Request, res: Response): void {
   res.status(404).json({
-    isSuccess: false,
     error: {
       statusCode: 404,
       errorCode: 'NOT_FOUND',

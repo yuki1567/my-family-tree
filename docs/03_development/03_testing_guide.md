@@ -261,7 +261,6 @@ it('有効なデータの場合、201ステータスでレスポンスを返す�
 
   expect(response.status).toBe(201)
   expect(response.body).toEqual({
-    isSuccess: true,
     data: {
       id: expect.any(String),
       name: '田中花子',
@@ -442,7 +441,6 @@ describe('POST /api/people', () => {
     })
 
     expect(response.status).toBe(201)
-    expect(response.body.isSuccess).toBe(true)
     expect(response.body.data).toHaveProperty('id')
 
     const createdId = response.body.data.id
