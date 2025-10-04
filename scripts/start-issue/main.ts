@@ -3,7 +3,7 @@ import {
   fetchIssue,
   generateSlugTitle,
   loadEnv,
-  moveIssueToDoing,
+  moveIssueToInProgress,
 } from './issue-service.js'
 import {
   createDbSchema,
@@ -16,7 +16,7 @@ import {
 async function main() {
   const loadEnvCtx = loadEnv()
   const fetchIssueCtx = await fetchIssue(loadEnvCtx)
-  await moveIssueToDoing(fetchIssueCtx)
+  await moveIssueToInProgress(fetchIssueCtx)
   const generateSlugTitleCtx = await generateSlugTitle(fetchIssueCtx)
   const createWorktreeCtx = createWorktree(generateSlugTitleCtx)
   const generateEnvFileCtx = generateEnvFile(createWorktreeCtx)

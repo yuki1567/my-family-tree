@@ -4,14 +4,13 @@ import path from 'node:path'
 import {
   type Ctx,
   PROJECT_ROOT,
-  type SearchResponse,
   assertCloudTranslation,
+  assertInProgressStatusId,
   assertIssueNumber,
   assertIssueTitle,
-  assertZenHubEndPoint,
-  assertZenHubIssueId,
-  assertZenHubTodoPipelineId,
-  assertZenHubToken,
+  assertProjectId,
+  assertProjectItemId,
+  assertTodoStatusId,
   getRequiredEnv,
   log,
   runCommand,
@@ -22,18 +21,16 @@ export function loadEnv(): Ctx {
   const mysqlRootPassword = getRequiredEnv('MYSQL_ROOT_PASSWORD')
   const mysqlUser = getRequiredEnv('MYSQL_USER')
   const googleTranslateApiKey = getRequiredEnv('GOOGLE_TRANSLATE_API_KEY')
-  const zenhubToken = getRequiredEnv('ZENHUB_TOKEN')
-  const zenhubEndpoint = getRequiredEnv('ZENHUB_ENDPOINT')
-  const todoPipelineId = getRequiredEnv('ZENHUB_TODO_PIPELINE_ID')
-  const doingPipelineId = getRequiredEnv('ZENHUB_DOING_PIPELINE_ID')
+  const githubProjectId = getRequiredEnv('GITHUB_PROJECT_ID')
+  const todoStatusId = getRequiredEnv('GITHUB_TODO_STATUS_ID')
+  const inProgressStatusId = getRequiredEnv('GITHUB_INPROGRESS_STATUS_ID')
 
   log('環境変数を読み込みました')
   return {
-    zenHub: {
-      token: zenhubToken,
-      endPoint: zenhubEndpoint,
-      todoPipelineId,
-      doingPipelineId,
+    githubProjects: {
+      projectId: githubProjectId,
+      todoStatusId,
+      inProgressStatusId,
     },
     cloudTranslation: googleTranslateApiKey,
     environment: {
@@ -44,20 +41,32 @@ export function loadEnv(): Ctx {
 }
 
 export async function fetchIssue(ctx: Ctx): Promise<Ctx> {
-  assertZenHubTodoPipelineId(ctx)
-  assertZenHubEndPoint(ctx)
-  assertZenHubToken(ctx)
+  assertProjectId(ctx)
+  assertTodoStatusId(ctx)
 
   const query = `
-    query($pipelineId: ID!, $labels: [String!]) {
-      searchIssuesByPipeline(pipelineId: $pipelineId, filters: { labels: { in: $labels } }) {
-        nodes {
-          id
-          number
-          title
-          labels {
+    query($projectId: ID!) {
+      node(id: $projectId) {
+        ... on ProjectV2 {
+          items(first: 100) {
             nodes {
-              name
+              id
+              fieldValueByName(name: "Status") {
+                ... on ProjectV2ItemFieldSingleSelectValue {
+                  optionId
+                }
+              }
+              content {
+                ... on Issue {
+                  number
+                  title
+                  labels(first: 10) {
+                    nodes {
+                      name
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -65,46 +74,66 @@ export async function fetchIssue(ctx: Ctx): Promise<Ctx> {
     }
   `
 
-  const variables = {
-    pipelineId: ctx.zenHub.todoPipelineId,
-    labels: ['priority:1'],
+  const result = runCommand('gh', [
+    'api',
+    'graphql',
+    '-f',
+    `query=${query}`,
+    '-f',
+    `projectId=${ctx.githubProjects.projectId}`,
+  ])
+
+  const data = JSON.parse(result)
+
+  if (!data.data?.node?.items?.nodes) {
+    throw new Error('Github Projects APIからデータが取得できませんでした')
   }
 
-  const data = await zenHubRequest<string | string[], SearchResponse>(
-    ctx,
-    query,
-    variables
+  const todoItems = data.data.node.items.nodes.filter(
+    (item: {
+      fieldValueByName: { optionId: string } | null
+      content: {
+        number: number
+        title: string
+        labels: { nodes: Array<{ name: string }> }
+      } | null
+    }) =>
+      item.fieldValueByName?.optionId === ctx.githubProjects.todoStatusId &&
+      item.content
   )
 
-  const firstNode = data.searchIssuesByPipeline.nodes[0]
-  if (!firstNode) {
-    throw new Error('対象のIssueが見つかりませんでした')
+  if (todoItems.length === 0) {
+    throw new Error('To Doステータスのissueが見つかりませんでした')
   }
-  const nonPriorityLabel = firstNode.labels.nodes.find(
+
+  const firstItem = todoItems[0]
+  const issue = firstItem.content
+
+  const nonPriorityLabel = issue.labels.nodes.find(
     (label: { name: string }) => !label.name.startsWith('priority:')
   )
   const labelName = nonPriorityLabel ? nonPriorityLabel.name : 'ラベルなし'
-  log(
-    `👤 選択されたIssue: #${firstNode.number} - ${firstNode.title} (${labelName})`
-  )
+
+  log(`👤 選択されたIssue: #${issue.number} - ${issue.title} (${labelName})`)
 
   return {
     ...ctx,
     gitHub: {
-      issueNumber: firstNode.number,
-      issueTitle: firstNode.title,
+      issueNumber: issue.number,
+      issueTitle: issue.title,
       issueLabel: labelName,
     },
-    zenHub: {
-      ...ctx.zenHub,
-      zenHubIssueId: firstNode.id,
+    githubProjects: {
+      ...ctx.githubProjects,
+      projectItemId: firstItem.id,
     },
   }
 }
 
-export async function moveIssueToDoing(ctx: Ctx): Promise<void> {
-  assertZenHubTodoPipelineId(ctx)
-  assertZenHubIssueId(ctx)
+export async function moveIssueToInProgress(ctx: Ctx): Promise<void> {
+  assertProjectId(ctx)
+  assertProjectItemId(ctx)
+  assertInProgressStatusId(ctx)
   assertIssueNumber(ctx)
 
   const currentUser = runCommand('gh', ['api', 'user', '--jq', '.login'])
@@ -121,23 +150,71 @@ export async function moveIssueToDoing(ctx: Ctx): Promise<void> {
   )
 
   const mutation = `
-    mutation($issueId: ID!, $pipelineId: ID!) {
-      moveIssue(input: { issueId: $issueId, pipelineId: $pipelineId }) {
-        issue {
-          number
+    mutation($projectId: ID!, $itemId: ID!, $statusFieldId: ID!, $statusValueId: String!) {
+      updateProjectV2ItemFieldValue(
+        input: {
+          projectId: $projectId
+          itemId: $itemId
+          fieldId: $statusFieldId
+          value: { singleSelectOptionId: $statusValueId }
+        }
+      ) {
+        projectV2Item {
+          id
         }
       }
     }
   `
 
-  const variables = {
-    issueId: ctx.zenHub.zenHubIssueId,
-    pipelineId: ctx.zenHub.doingPipelineId,
+  // まずStatusフィールドのIDを取得
+  const fieldQuery = `
+    query($projectId: ID!) {
+      node(id: $projectId) {
+        ... on ProjectV2 {
+          field(name: "Status") {
+            ... on ProjectV2SingleSelectField {
+              id
+            }
+          }
+        }
+      }
+    }
+  `
+
+  const fieldResult = runCommand('gh', [
+    'api',
+    'graphql',
+    '-f',
+    `query=${fieldQuery}`,
+    '-f',
+    `projectId=${ctx.githubProjects.projectId}`,
+  ])
+
+  const fieldData = JSON.parse(fieldResult)
+  const statusFieldId = fieldData.data?.node?.field?.id
+
+  if (!statusFieldId) {
+    throw new Error('StatusフィールドのIDが取得できませんでした')
   }
 
-  await zenHubRequest(ctx, mutation, variables)
+  runCommand('gh', [
+    'api',
+    'graphql',
+    '-f',
+    `query=${mutation}`,
+    '-f',
+    `projectId=${ctx.githubProjects.projectId}`,
+    '-f',
+    `itemId=${ctx.githubProjects.projectItemId}`,
+    '-f',
+    `statusFieldId=${statusFieldId}`,
+    '-f',
+    `statusValueId=${ctx.githubProjects.inProgressStatusId}`,
+  ])
 
-  log(`🚚 Issue #${ctx.gitHub.issueNumber} をDoingパイプラインへ移動しました`)
+  log(
+    `🚚 Issue #${ctx.gitHub.issueNumber} をIn Progressステータスへ移動しました`
+  )
 }
 
 export async function generateSlugTitle(ctx: Ctx): Promise<Ctx> {
@@ -187,38 +264,4 @@ export async function generateSlugTitle(ctx: Ctx): Promise<Ctx> {
       issueSlugTitle,
     },
   }
-}
-
-export async function zenHubRequest<T, U>(
-  config: Ctx,
-  query: string,
-  variables: Record<string, T>
-): Promise<U> {
-  assertZenHubEndPoint(config)
-  assertZenHubToken(config)
-
-  const response = await fetch(config.zenHub.endPoint, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${config.zenHub.token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ query, variables }),
-  })
-
-  if (!response.ok) {
-    throw new Error(`ZenHub API: ${response.status} ${response.statusText}`)
-  }
-
-  const payload = await response.json()
-
-  if (payload.errors) {
-    throw new Error(`ZenHub API: ${JSON.stringify(payload.errors)}`)
-  }
-
-  if (!payload.data) {
-    throw new Error('ZenHub APIからデータが取得できませんでした。')
-  }
-
-  return payload.data
 }

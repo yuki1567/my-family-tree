@@ -9,12 +9,11 @@ export type GitHub = {
   branchName?: string
 }
 
-export type ZenHub = {
-  token?: string
-  endPoint?: string
-  todoPipelineId?: string
-  doingPipelineId?: string
-  zenHubIssueId?: string
+export type GithubProjects = {
+  projectId?: string
+  todoStatusId?: string
+  inProgressStatusId?: string
+  projectItemId?: string
 }
 
 export type Environment = {
@@ -29,20 +28,9 @@ export type Environment = {
 
 export type Ctx = {
   gitHub?: GitHub
-  zenHub?: ZenHub
+  githubProjects?: GithubProjects
   cloudTranslation?: string
   environment?: Environment
-}
-
-export type SearchResponse = {
-  searchIssuesByPipeline: {
-    nodes: Array<{
-      id: string
-      number: number
-      title: string
-      labels: { nodes: Array<{ name: string }> }
-    }>
-  }
 }
 
 export const PROJECT_ROOT = path.resolve(import.meta.dirname, '../..')
@@ -57,28 +45,31 @@ export function assertField(condition: boolean, fieldName: string): void {
   }
 }
 
-export function assertZenHubTodoPipelineId(
-  ctx: Ctx
-): asserts ctx is Ctx & { zenHub: ZenHub & { todoPipelineId: string } } {
-  assertField(isValidZenHubTodoPipelineId(ctx), 'ZenHubのTodoパイプラインID')
+export function assertProjectId(ctx: Ctx): asserts ctx is Ctx & {
+  githubProjects: GithubProjects & { projectId: string }
+} {
+  assertField(isValidProjectId(ctx), 'Github ProjectのID')
 }
 
-export function assertZenHubEndPoint(
-  ctx: Ctx
-): asserts ctx is Ctx & { zenHub: ZenHub & { endPoint: string } } {
-  assertField(isValidZenHubEndPoint(ctx), 'ZenHubのエンドポイント')
+export function assertTodoStatusId(ctx: Ctx): asserts ctx is Ctx & {
+  githubProjects: GithubProjects & { todoStatusId: string }
+} {
+  assertField(isValidTodoStatusId(ctx), 'Github ProjectのTo DoステータスID')
 }
 
-export function assertZenHubToken(
-  ctx: Ctx
-): asserts ctx is Ctx & { zenHub: ZenHub & { token: string } } {
-  assertField(isValidZenHubToken(ctx), 'ZenHubのトークン')
+export function assertInProgressStatusId(ctx: Ctx): asserts ctx is Ctx & {
+  githubProjects: GithubProjects & { inProgressStatusId: string }
+} {
+  assertField(
+    isValidInProgressStatusId(ctx),
+    'Github ProjectのIn ProgressステータスID'
+  )
 }
 
-export function assertZenHubIssueId(
-  ctx: Ctx
-): asserts ctx is Ctx & { zenHub: ZenHub & { zenHubIssueId: string } } {
-  assertField(isValidZenHubIssueId(ctx), 'ZenHubのIssueId')
+export function assertProjectItemId(ctx: Ctx): asserts ctx is Ctx & {
+  githubProjects: GithubProjects & { projectItemId: string }
+} {
+  assertField(isValidProjectItemId(ctx), 'Github ProjectのアイテムID')
 }
 
 export function assertIssueNumber(
@@ -147,28 +138,28 @@ export function assertWebPort(
   assertField(isValidWebPort(ctx), 'WEBポート')
 }
 
-export function isValidZenHubEndPoint(
+export function isValidProjectId(
   ctx: Ctx
-): ctx is Ctx & { zenHub: ZenHub & { endPoint: string } } {
-  return typeof ctx.zenHub?.endPoint === 'string'
+): ctx is Ctx & { githubProjects: GithubProjects & { projectId: string } } {
+  return typeof ctx.githubProjects?.projectId === 'string'
 }
 
-export function isValidZenHubTodoPipelineId(
+export function isValidTodoStatusId(
   ctx: Ctx
-): ctx is Ctx & { zenHub: ZenHub & { todoPipelineId: string } } {
-  return typeof ctx.zenHub?.todoPipelineId === 'string'
+): ctx is Ctx & { githubProjects: GithubProjects & { todoStatusId: string } } {
+  return typeof ctx.githubProjects?.todoStatusId === 'string'
 }
 
-export function isValidZenHubToken(
-  ctx: Ctx
-): ctx is Ctx & { zenHub: ZenHub & { token: string } } {
-  return typeof ctx.zenHub?.token === 'string'
+export function isValidInProgressStatusId(ctx: Ctx): ctx is Ctx & {
+  githubProjects: GithubProjects & { inProgressStatusId: string }
+} {
+  return typeof ctx.githubProjects?.inProgressStatusId === 'string'
 }
 
-export function isValidZenHubIssueId(
-  ctx: Ctx
-): ctx is Ctx & { zenHub: ZenHub & { zenHubIssueId: string } } {
-  return typeof ctx.zenHub?.zenHubIssueId === 'string'
+export function isValidProjectItemId(ctx: Ctx): ctx is Ctx & {
+  githubProjects: GithubProjects & { projectItemId: string }
+} {
+  return typeof ctx.githubProjects?.projectItemId === 'string'
 }
 
 export function isValidIssueNumber(
