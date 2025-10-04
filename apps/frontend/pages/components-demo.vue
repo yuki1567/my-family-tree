@@ -428,7 +428,10 @@
             <li>生年月日: {{ personForm.birthDate || '未入力' }}</li>
             <li>没年月日: {{ personForm.deathDate || '未入力' }}</li>
             <li>出生地: {{ personForm.birthPlace || '未入力' }}</li>
-            <li>関係性: {{ getRelationshipLabel(personForm.relationship) || '未選択' }}</li>
+            <li>
+              関係性:
+              {{ getRelationshipLabel(personForm.relationship) || '未選択' }}
+            </li>
           </ul>
         </div>
 
