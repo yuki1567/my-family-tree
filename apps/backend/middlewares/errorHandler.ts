@@ -1,5 +1,11 @@
+import { AppError } from '@/errors/AppError.js'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js'
 import { NextFunction, Request, Response } from 'express'
 import { ZodError } from 'zod'
+
+function isPrismaError(error: unknown): error is PrismaClientKnownRequestError {
+  return error instanceof PrismaClientKnownRequestError
+}
 
 export function globalErrorHandler(
   error: Error,
@@ -8,13 +14,6 @@ export function globalErrorHandler(
   _next: NextFunction
 ): void {
   if (res.headersSent) return
-
-  if (!error) {
-    res.status(404).json({
-      error: { statusCode: 404, errorCode: 'NOT_FOUND', details: [] },
-    })
-    return
-  }
 
   if (error instanceof ZodError) {
     const details = error.errors.map((e) => ({
@@ -32,12 +31,38 @@ export function globalErrorHandler(
     return
   }
 
+  if (isPrismaError(error)) {
+    console.error('Database error:', error)
+
+    res.status(500).json({
+      error: {
+        statusCode: 500,
+        errorCode: 'DATABASE_ERROR',
+        details: [],
+      },
+    })
+    return
+  }
+
+  if (error instanceof AppError) {
+    console.error('Application error:', error)
+
+    res.status(error.statusCode).json({
+      error: {
+        statusCode: error.statusCode,
+        errorCode: error.errorCode,
+        details: [],
+      },
+    })
+    return
+  }
+
   console.error('Unexpected error:', error)
 
   res.status(500).json({
     error: {
       statusCode: 500,
-      errorCode: 'UNEXPECTED_ERROR',
+      errorCode: 'UNKNOWN_ERROR',
       details: [],
     },
   })
