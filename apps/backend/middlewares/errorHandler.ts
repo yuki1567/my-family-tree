@@ -1,17 +1,10 @@
 import { AppError } from '@/errors/AppError.js'
-import { Prisma } from '@prisma/client'
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js'
 import { NextFunction, Request, Response } from 'express'
 import { ZodError } from 'zod'
 
-function isPrismaError(
-  error: unknown
-): error is Prisma.PrismaClientKnownRequestError {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    typeof (error as { code: unknown }).code === 'string'
-  )
+function isPrismaError(error: unknown): error is PrismaClientKnownRequestError {
+  return error instanceof PrismaClientKnownRequestError
 }
 
 export function globalErrorHandler(
