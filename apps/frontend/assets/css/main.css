@@ -27,6 +27,16 @@
   --color-border: #e5e7eb;
   --color-text: #1f2937;
   --color-text-secondary: #9ca3af;
+
+  /* セカンダリボタン用カラー */
+  --color-text-tertiary: #6b7280;
+  --color-background-tertiary: #f9fafb;
+  --color-background-hover: #eceff1;
+  --color-border-secondary: #d1d5db;
+  --color-text-hover: #505966;
+
+  /* デンジャーカラー */
+  --color-danger: #ef4444;
 }
 
 /* ルートフォントサイズ設定（1rem = 10px） */
