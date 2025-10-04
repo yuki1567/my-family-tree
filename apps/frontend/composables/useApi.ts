@@ -10,7 +10,7 @@ export type UseApiOptions = {
 
 export const useApi = async <T = unknown>(
   url: string,
-  options: UseApiOptions = {}
+  options: UseApiOptions = {},
 ): Promise<ApiResponse<T>> => {
   const { method = 'GET', body, headers = {} } = options
 
@@ -26,16 +26,17 @@ export const useApi = async <T = unknown>(
     }
 
     if (
-      body &&
-      (method === 'POST' || method === 'PUT' || method === 'DELETE')
+      body
+      && (method === 'POST' || method === 'PUT' || method === 'DELETE')
     ) {
-      requestOptions.body =
-        typeof body === 'string' ? body : JSON.stringify(body)
+      requestOptions.body
+        = typeof body === 'string' ? body : JSON.stringify(body)
     }
 
     const response = await fetch(url, requestOptions)
     return await response.json()
-  } catch (err) {
+  }
+  catch (err) {
     return {
       error: {
         statusCode: 500,

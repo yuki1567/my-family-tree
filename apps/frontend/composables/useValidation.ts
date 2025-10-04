@@ -116,7 +116,6 @@ export function usePersonValidation(form: PersonForm) {
     }
   }
 
-
   /**
    * 生年月日と没年月日の関係をバリデーション
    */
@@ -190,7 +189,6 @@ export function usePersonValidation(form: PersonForm) {
       validateField('birthPlace', newValue)
     }
   })
-
 
   return {
     errors,
