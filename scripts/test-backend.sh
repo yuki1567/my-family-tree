@@ -1,14 +1,40 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-COMPOSE_CMD=(docker compose)
+source .env
+APP_CONTAINER_NAME="${COMPOSE_PROJECT_NAME}"
+TEST_DB_CONTAINER="test-db"
+TEST_NETWORK="test-network"
 
-"${COMPOSE_CMD[@]}" exec apps npm run test:unit --workspace=apps/backend
+# クリーンアップ関数
+cleanup() {
+  local exit_code=$?
 
-"${COMPOSE_CMD[@]}" --profile test up --wait -d test-db
+  docker network disconnect "${TEST_NETWORK}" "${APP_CONTAINER_NAME}" || true
+  docker rm -f "${TEST_DB_CONTAINER}" || true
+  docker network rm "${TEST_NETWORK}" || true
 
-"${COMPOSE_CMD[@]}" run --rm --env-from-file .env.test apps npm run test:integration --workspace=apps/backend
+  exit $exit_code
+}
 
-"${COMPOSE_CMD[@]}" stop test-db
+trap cleanup EXIT TERM
 
-"${COMPOSE_CMD[@]}" rm -f test-db
+docker exec -t "${APP_CONTAINER_NAME}" npm run test:unit --workspace=apps/backend
+
+docker network create "${TEST_NETWORK}"
+
+docker run -d \
+  --name "${TEST_DB_CONTAINER}" \
+  --network "${TEST_NETWORK}" \
+  --memory="256m" \
+  --memory-swap="256m" \
+  --env-file .env.test \
+  mysql:8.4.6 \
+  --performance-schema=OFF \
+  --innodb-buffer-pool-size=64M \
+  --innodb-log-file-size=32M \
+  --max-connections=50
+
+docker network connect "${TEST_NETWORK}" "${APP_CONTAINER_NAME}"
+
+docker exec -t --env-file .env.test "${APP_CONTAINER_NAME}" npm run test:integration --workspace=apps/backend
