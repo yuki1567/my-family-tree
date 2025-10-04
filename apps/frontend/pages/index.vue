@@ -1,15 +1,5 @@
 <template>
   <div class="page-container">
-    <!-- ヘッダー -->
-    <header class="app-header">
-      <h1 class="app-title">
-        Family Tree App
-      </h1>
-      <button class="settings-btn">
-        設定
-      </button>
-    </header>
-
     <!-- メインコンテンツエリア -->
     <div class="content-area">
       <!-- 家系図表示エリア -->
@@ -92,39 +82,6 @@ const handleStartGuide = () => {
   background-color: var(--color-background);
 }
 
-/* ヘッダー */
-.app-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.6rem 1.6rem;
-  background-color: var(--color-background);
-  border-top: 3px solid var(--color-primary);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.app-title {
-  margin: 0;
-  color: var(--color-primary);
-  font-size: 1.9rem;
-  font-weight: 600;
-}
-
-.settings-btn {
-  padding: 0.5rem 1.6rem;
-  background-color: var(--color-background);
-  color: var(--color-primary);
-  border: 1px solid var(--color-primary);
-  border-radius: 0.6rem;
-  cursor: pointer;
-  font-size: 1.6rem;
-}
-
-.settings-btn:hover {
-  background-color: var(--color-primary);
-  color: var(--color-background);
-}
-
 /* メインコンテンツエリア */
 .content-area {
   display: flex;
@@ -139,7 +96,7 @@ const handleStartGuide = () => {
   padding: 1.6rem;
   overflow: auto;
   /* 背景を画面の一番下まで拡張 */
-  min-height: calc(100vh - 95px); /* ヘッダー高さ分を引く */
+  min-height: 100vh;
 }
 
 .tree-container {
@@ -230,10 +187,6 @@ const handleStartGuide = () => {
 
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
-  .app-header {
-    padding: 1rem;
-  }
-
   .content-area {
     flex-direction: column;
   }
