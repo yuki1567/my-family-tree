@@ -9,7 +9,7 @@
           <PersonCard v-if="hasPersonData" :person="defaultPerson" />
 
           <!-- 人物データがない場合：空状態プレースホルダー -->
-          <EmptyState v-else @start-guide="handleStartGuide" />
+          <EmptyState v-else @start-guide="openAddPersonModal" />
         </div>
       </main>
     </div>
@@ -18,26 +18,28 @@
     <button
       class="floating-add-btn"
       title="人物を追加"
-      @click="handleStartGuide"
+      @click="openAddPersonModal"
     >
       +
     </button>
+
+    <PersonAddModal
+      v-if="showAddPersonModal"
+      @close="showAddPersonModal = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import EmptyState from '@/components/molecules/EmptyState.vue'
 import PersonCard from '@/components/molecules/PersonCard.vue'
+import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
 import type { Person } from '@shared/types/person'
 import { computed, ref } from 'vue'
 
-// 人物データの状態管理
 const personData = ref<Person[]>([])
-
-// 人物データの有無判定
 const hasPersonData = computed(() => personData.value.length > 0)
 
-// デフォルト人物データ（テスト用 - 将来的にAPIから取得）
 const defaultPerson = computed(
   (): Person => ({
     id: 'default-person-1',
@@ -50,20 +52,10 @@ const defaultPerson = computed(
   })
 )
 
-// 人物追加の処理（EmptyStateとフローティングボタン共通）
-const handleStartGuide = () => {
-  // 将来的には人物追加モーダルを開く
-  // 暫定的にアラートでユーザーフィードバック提供
-  alert(
-    '人物追加機能は今後実装予定です。\n現在は空状態デザインの確認ができます。'
-  )
+const showAddPersonModal = ref(false)
 
-  // 将来の実装イメージ:
-  // - モーダルコンポーネントの表示
-  // - 人物情報入力フォーム
-  // - APIへのデータ送信
-  // - personData.value.push(newPerson)
-  console.log('人物追加処理を実行 - 将来的にモーダルを開きます')
+const openAddPersonModal = () => {
+  showAddPersonModal.value = true
 }
 </script>
 

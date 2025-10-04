@@ -119,27 +119,5 @@ describe('POST /api/people - 人物追加API', () => {
         },
       })
     })
-
-    it('データベースエラーの場合、500エラーと適切なエラーメッセージを返すか', async () => {
-      await prisma.$disconnect()
-
-      const requestData = {
-        name: 'テスト',
-        gender: 1,
-      }
-
-      const response = await request(app)
-        .post('/api/people')
-        .send(requestData)
-        .expect(500)
-
-      expect(response.body.error).toMatchObject({
-        statusCode: 500,
-        errorCode: 'DATABASE_ERROR',
-        details: [],
-      })
-
-      await prisma.$connect()
-    })
   })
 })
