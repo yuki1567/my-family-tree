@@ -86,7 +86,7 @@ const handleStartGuide = () => {
 /* 家系図表示エリア */
 .family-tree-area {
   flex: 1;
-  background-color: #f1f5f9;
+  background-color: var(--color-surface);
   padding: 1.6rem;
   overflow: auto;
   /* 背景を画面の一番下まで拡張 */
