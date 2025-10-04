@@ -1,10 +1,7 @@
 <template>
   <Teleport to="body">
     <div class="modal-overlay">
-      <div
-        ref="modalTarget"
-        class="modal-container"
-      >
+      <div ref="modalTarget" class="modal-container">
         <div class="modal-body">
           <slot />
         </div>

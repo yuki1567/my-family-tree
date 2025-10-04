@@ -1,5 +1,5 @@
-import { ref, reactive, watch } from 'vue'
 import type { PersonForm, ValidationErrors } from '@/types/person'
+import { reactive, ref, watch } from 'vue'
 
 /**
  * PersonFormバリデーション用Composable
@@ -11,7 +11,10 @@ export function usePersonValidation(form: PersonForm) {
   /**
    * 特定フィールドのバリデーション実行
    */
-  const validateField = (field: keyof PersonForm, value: string | undefined): void => {
+  const validateField = (
+    field: keyof PersonForm,
+    value: string | undefined
+  ): void => {
     // エラーをクリア
     errors[field] = undefined
 
@@ -156,39 +159,51 @@ export function usePersonValidation(form: PersonForm) {
   }
 
   // リアルタイムバリデーション用ウォッチャー
-  watch(() => form.name, (newValue) => {
-    if (newValue !== undefined) {
-      validateField('name', newValue)
-    }
-  })
-
-  watch(() => form.birthDate, (newValue) => {
-    if (newValue !== undefined) {
-      validateField('birthDate', newValue)
-      // 生年月日変更時は没年月日との関係もチェック
-      if (form.deathDate) {
-        validateDateRelation()
-        updateValidationState()
+  watch(
+    () => form.name,
+    (newValue) => {
+      if (newValue !== undefined) {
+        validateField('name', newValue)
       }
     }
-  })
+  )
 
-  watch(() => form.deathDate, (newValue) => {
-    if (newValue !== undefined) {
-      validateField('deathDate', newValue)
-      // 没年月日変更時は生年月日との関係もチェック
-      if (form.birthDate) {
-        validateDateRelation()
-        updateValidationState()
+  watch(
+    () => form.birthDate,
+    (newValue) => {
+      if (newValue !== undefined) {
+        validateField('birthDate', newValue)
+        // 生年月日変更時は没年月日との関係もチェック
+        if (form.deathDate) {
+          validateDateRelation()
+          updateValidationState()
+        }
       }
     }
-  })
+  )
 
-  watch(() => form.birthPlace, (newValue) => {
-    if (newValue !== undefined) {
-      validateField('birthPlace', newValue)
+  watch(
+    () => form.deathDate,
+    (newValue) => {
+      if (newValue !== undefined) {
+        validateField('deathDate', newValue)
+        // 没年月日変更時は生年月日との関係もチェック
+        if (form.birthDate) {
+          validateDateRelation()
+          updateValidationState()
+        }
+      }
     }
-  })
+  )
+
+  watch(
+    () => form.birthPlace,
+    (newValue) => {
+      if (newValue !== undefined) {
+        validateField('birthPlace', newValue)
+      }
+    }
+  )
 
   return {
     errors,

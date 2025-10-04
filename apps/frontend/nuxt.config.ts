@@ -7,7 +7,7 @@ export default defineNuxtConfig({
       '@nuxt/eslint',
       {
         config: {
-          stylistic: true,
+          stylistic: false,
         },
       },
     ],

@@ -1,9 +1,6 @@
 <template>
   <AppModal @close="closeModal">
-    <form
-      class="person-form"
-      @submit.prevent="submitForm"
-    >
+    <form class="person-form" @submit.prevent="submitForm">
       <div class="field-row">
         <FormField
           v-model="form.name"
@@ -56,10 +53,7 @@
     </form>
 
     <template #footer>
-      <AppButton
-        variant="secondary"
-        @click="closeModal"
-      >
+      <AppButton variant="secondary" @click="closeModal">
         キャンセル
       </AppButton>
       <AppButton
@@ -144,8 +138,7 @@ const submitForm = async (): Promise<void> => {
 
     // 親コンポーネントにデータを渡す
     emit('save', cleanedForm)
-  }
-  finally {
+  } finally {
     isLoading.value = false
   }
 }

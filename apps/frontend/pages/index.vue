@@ -6,16 +6,10 @@
       <main class="family-tree-area">
         <div class="tree-container">
           <!-- 人物データがある場合：人物カード表示 -->
-          <PersonCard
-            v-if="hasPersonData"
-            :person="defaultPerson"
-          />
+          <PersonCard v-if="hasPersonData" :person="defaultPerson" />
 
           <!-- 人物データがない場合：空状態プレースホルダー -->
-          <EmptyState
-            v-else
-            @start-guide="handleStartGuide"
-          />
+          <EmptyState v-else @start-guide="handleStartGuide" />
         </div>
       </main>
     </div>
@@ -53,7 +47,7 @@ const defaultPerson = computed(
     birthPlace: '東京都',
     createdAt: new Date(),
     updatedAt: new Date(),
-  }),
+  })
 )
 
 // 人物追加の処理（EmptyStateとフローティングボタン共通）
@@ -61,7 +55,7 @@ const handleStartGuide = () => {
   // 将来的には人物追加モーダルを開く
   // 暫定的にアラートでユーザーフィードバック提供
   alert(
-    '人物追加機能は今後実装予定です。\n現在は空状態デザインの確認ができます。',
+    '人物追加機能は今後実装予定です。\n現在は空状態デザインの確認ができます。'
   )
 
   // 将来の実装イメージ:
