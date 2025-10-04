@@ -1,49 +1,7 @@
-import { envConfig } from '@/config/env.js'
-import { AppError, DatabaseError } from '@/errors/AppError.js'
+import { AppError } from '@/errors/AppError.js'
 import { Prisma } from '@prisma/client'
 import { NextFunction, Request, Response } from 'express'
 import { ZodError } from 'zod'
-
-type ErrorLogData = {
-  timestamp: string
-  errorType: string
-  statusCode: number
-  errorCode: string
-  message: string
-  stack?: string
-  details?: unknown
-  requestPath?: string
-  requestMethod?: string
-}
-
-function logError(
-  error: Error,
-  req: Request,
-  statusCode: number,
-  errorCode: string
-): void {
-  const logData: ErrorLogData = {
-    timestamp: new Date().toISOString(),
-    errorType: error.constructor.name,
-    statusCode,
-    errorCode,
-    message: error.message,
-    requestPath: req.path,
-    requestMethod: req.method,
-  }
-
-  // 本番環境以外ではスタックトレースを含める
-  if (envConfig.NODE_ENV !== 'production') {
-    logData.stack = error.stack
-  }
-
-  // DatabaseErrorの場合は元のエラー情報も含める
-  if (error instanceof DatabaseError && error.originalError) {
-    logData.details = error.originalError
-  }
-
-  console.error(JSON.stringify(logData, null, 2))
-}
 
 function isPrismaError(
   error: unknown
@@ -71,14 +29,11 @@ export function globalErrorHandler(
     return
   }
 
-  // ZodErrorのハンドリング
   if (error instanceof ZodError) {
     const details = error.errors.map((e) => ({
       field: e.path.join('.'),
       code: e.message,
     }))
-
-    logError(error, req, 400, 'VALIDATION_ERROR')
 
     res.status(400).json({
       error: {
@@ -90,59 +45,39 @@ export function globalErrorHandler(
     return
   }
 
-  // Prismaエラーのハンドリング
   if (isPrismaError(error)) {
-    const dbError = new DatabaseError(
-      'データベース操作エラーが発生しました',
-      error
-    )
-    logError(dbError, req, 500, 'DATABASE_ERROR')
+    console.error('Database error:', error)
 
     res.status(500).json({
       error: {
         statusCode: 500,
         errorCode: 'DATABASE_ERROR',
         details: [],
-        // 本番環境では詳細なエラーメッセージを隠す
-        message:
-          envConfig.NODE_ENV === 'production'
-            ? 'データベースエラーが発生しました'
-            : error.message,
       },
     })
     return
   }
 
-  // AppErrorのハンドリング
   if (error instanceof AppError) {
-    logError(error, req, error.statusCode, error.errorCode)
+    console.error('Application error:', error)
 
     res.status(error.statusCode).json({
       error: {
         statusCode: error.statusCode,
         errorCode: error.errorCode,
         details: [],
-        message:
-          envConfig.NODE_ENV === 'production'
-            ? 'エラーが発生しました'
-            : error.message,
       },
     })
     return
   }
 
-  // その他の予期しないエラー
-  logError(error, req, 500, 'UNEXPECTED_ERROR')
+  console.error('Unexpected error:', error)
 
   res.status(500).json({
     error: {
       statusCode: 500,
-      errorCode: 'UNEXPECTED_ERROR',
+      errorCode: 'UNKNOWN_ERROR',
       details: [],
-      message:
-        envConfig.NODE_ENV === 'production'
-          ? 'サーバーエラーが発生しました'
-          : error.message,
     },
   })
 }
