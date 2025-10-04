@@ -11,7 +11,10 @@ export class AppError extends Error {
 }
 
 export class DatabaseError extends AppError {
-  constructor(message: string, public originalError?: unknown) {
+  constructor(
+    message: string,
+    public originalError?: unknown
+  ) {
     super(message, 500, 'DATABASE_ERROR')
   }
 }

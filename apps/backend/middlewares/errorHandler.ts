@@ -16,7 +16,12 @@ type ErrorLogData = {
   requestMethod?: string
 }
 
-function logError(error: Error, req: Request, statusCode: number, errorCode: string): void {
+function logError(
+  error: Error,
+  req: Request,
+  statusCode: number,
+  errorCode: string
+): void {
   const logData: ErrorLogData = {
     timestamp: new Date().toISOString(),
     errorType: error.constructor.name,
@@ -40,7 +45,9 @@ function logError(error: Error, req: Request, statusCode: number, errorCode: str
   console.error(JSON.stringify(logData, null, 2))
 }
 
-function isPrismaError(error: unknown): error is Prisma.PrismaClientKnownRequestError {
+function isPrismaError(
+  error: unknown
+): error is Prisma.PrismaClientKnownRequestError {
   return (
     typeof error === 'object' &&
     error !== null &&
@@ -85,7 +92,10 @@ export function globalErrorHandler(
 
   // Prismaエラーのハンドリング
   if (isPrismaError(error)) {
-    const dbError = new DatabaseError('データベース操作エラーが発生しました', error)
+    const dbError = new DatabaseError(
+      'データベース操作エラーが発生しました',
+      error
+    )
     logError(dbError, req, 500, 'DATABASE_ERROR')
 
     res.status(500).json({
@@ -94,9 +104,10 @@ export function globalErrorHandler(
         errorCode: 'DATABASE_ERROR',
         details: [],
         // 本番環境では詳細なエラーメッセージを隠す
-        message: envConfig.NODE_ENV === 'production'
-          ? 'データベースエラーが発生しました'
-          : error.message,
+        message:
+          envConfig.NODE_ENV === 'production'
+            ? 'データベースエラーが発生しました'
+            : error.message,
       },
     })
     return
@@ -111,9 +122,10 @@ export function globalErrorHandler(
         statusCode: error.statusCode,
         errorCode: error.errorCode,
         details: [],
-        message: envConfig.NODE_ENV === 'production'
-          ? 'エラーが発生しました'
-          : error.message,
+        message:
+          envConfig.NODE_ENV === 'production'
+            ? 'エラーが発生しました'
+            : error.message,
       },
     })
     return
@@ -127,9 +139,10 @@ export function globalErrorHandler(
       statusCode: 500,
       errorCode: 'UNEXPECTED_ERROR',
       details: [],
-      message: envConfig.NODE_ENV === 'production'
-        ? 'サーバーエラーが発生しました'
-        : error.message,
+      message:
+        envConfig.NODE_ENV === 'production'
+          ? 'サーバーエラーが発生しました'
+          : error.message,
     },
   })
 }
