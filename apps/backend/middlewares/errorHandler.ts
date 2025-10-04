@@ -16,18 +16,11 @@ function isPrismaError(
 
 export function globalErrorHandler(
   error: Error,
-  req: Request,
+  _req: Request,
   res: Response,
   _next: NextFunction
 ): void {
   if (res.headersSent) return
-
-  if (!error) {
-    res.status(404).json({
-      error: { statusCode: 404, errorCode: 'NOT_FOUND', details: [] },
-    })
-    return
-  }
 
   if (error instanceof ZodError) {
     const details = error.errors.map((e) => ({
