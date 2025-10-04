@@ -94,11 +94,7 @@ export function generateEnvFile(ctx: Ctx): Ctx {
   writeFileSync(dstEnv, envContent)
   log(`📝 環境ファイルを作成しました: ${dstEnv}`)
 
-  const envTestContent = readFileSync(srcEnvTest, 'utf-8').replace(
-    /^ROOT_PATH=.*/m,
-    `ROOT_PATH=${ctx.environment.worktreePath}`
-  )
-  writeFileSync(dstEnvTest, envTestContent)
+  copyFileSync(srcEnvTest, dstEnvTest)
   log(`📝 テスト環境ファイルをコピーしました: ${dstEnvTest}`)
 
   copyFileSync(srcClaudeLocalSettings, dstClaudeLocalSettings)
