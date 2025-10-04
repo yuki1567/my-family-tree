@@ -98,25 +98,25 @@ const handleClick = (event: MouseEvent): void => {
 }
 
 .app-button-secondary {
-  background-color: #f9fafb;
-  color: #6b7280;
-  border: 1px solid #e5e7eb;
+  background-color: var(--color-background-tertiary);
+  color: var(--color-text-tertiary);
+  border: 1px solid var(--color-border);
 }
 
 .app-button-secondary:hover:not(:disabled) {
-  background-color: #eceff1;
-  border-color: #d1d5db;
-  color: #505966;
+  background-color: var(--color-background-hover);
+  border-color: var(--color-border-secondary);
+  color: var(--color-text-hover);
 }
 
 .app-button-danger {
   background-color: var(--color-background);
-  color: #ef4444;
-  border: 1px solid #ef4444;
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
 }
 
 .app-button-danger:hover:not(:disabled) {
-  background-color: #ef4444;
+  background-color: var(--color-danger);
   color: var(--color-background);
 }
 
