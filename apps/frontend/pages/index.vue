@@ -18,16 +18,14 @@
     <button
       class="floating-add-btn"
       title="人物を追加"
-      @click="handleAddPerson"
+      @click="openPersonAddModal"
     >
       +
     </button>
 
-    <!-- 人物追加モーダル -->
     <PersonAddModal
       v-if="showPersonAddModal"
       @close="showPersonAddModal = false"
-      @save="handlePersonSave"
     />
   </div>
 </template>
@@ -36,17 +34,12 @@
 import EmptyState from '@/components/molecules/EmptyState.vue'
 import PersonCard from '@/components/molecules/PersonCard.vue'
 import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
-import type { PersonForm } from '@/types/person'
 import type { Person } from '@shared/types/person'
 import { computed, ref } from 'vue'
 
-// 人物データの状態管理
 const personData = ref<Person[]>([])
-
-// 人物データの有無判定
 const hasPersonData = computed(() => personData.value.length > 0)
 
-// デフォルト人物データ（テスト用 - 将来的にAPIから取得）
 const defaultPerson = computed(
   (): Person => ({
     id: 'default-person-1',
@@ -59,11 +52,9 @@ const defaultPerson = computed(
   })
 )
 
-// モーダル表示状態
 const showPersonAddModal = ref(false)
 
-// フローティングボタンから人物追加モーダルを開く
-const handleAddPerson = () => {
+const openPersonAddModal = () => {
   showPersonAddModal.value = true
 }
 
@@ -83,12 +74,6 @@ const handleStartGuide = () => {
   console.log('人物追加処理を実行 - 将来的にモーダルを開きます')
 }
 
-// PersonAddModalからの保存イベント処理
-const handlePersonSave = (personForm: PersonForm) => {
-  // 将来的にはAPIに送信してpersonDataに追加
-  console.log('人物データを保存:', personForm)
-  showPersonAddModal.value = false
-}
 </script>
 
 <style scoped>
