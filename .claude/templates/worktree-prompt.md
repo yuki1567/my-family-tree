@@ -28,6 +28,7 @@ TodoWrite必須タスク:
 - [ ] 品質チェック実行（4つのコマンド）
 - [ ] コミット戦略実行（必須タイミング準拠）
 - [ ] PR作成（ラベル付与必須）
+- [ ] IssueステータスをIn reviewに移動
 - [ ] 受け入れ基準検証
 ```
 
@@ -181,6 +182,27 @@ EOF
 )"
 ```
 
+#### 4.3 IssueステータスをIn reviewに移動（必須）
+
+```bash
+# Project情報を取得
+PROJECT_NUMBER=$(gh project list --owner @me --format json | jq -r '.[0].number')
+
+# Project item IDを取得
+ITEM_ID=$(gh project item-list "$PROJECT_NUMBER" --owner @me --format json --limit 100 | jq -r ".items[] | select(.content.number == {{ISSUE_NUMBER}}) | .id")
+
+# StatusフィールドのIDとIn reviewオプションIDを取得
+FIELD_INFO=$(gh project field-list "$PROJECT_NUMBER" --owner @me --format json | jq -r '.fields[] | select(.name == "Status")')
+FIELD_ID=$(echo "$FIELD_INFO" | jq -r '.id')
+OPTION_ID=$(echo "$FIELD_INFO" | jq -r '.options[] | select(.name == "In review") | .id')
+
+# ProjectのIDを取得
+PROJECT_ID=$(gh project list --owner @me --format json | jq -r '.[0].id')
+
+# Statusを"In review"に変更
+gh project item-edit --id "$ITEM_ID" --project-id "$PROJECT_ID" --field-id "$FIELD_ID" --single-select-option-id "$OPTION_ID"
+```
+
 ---
 
 ### ステップ5: 受け入れ基準検証（必須プロセス）
@@ -268,6 +290,7 @@ npm run docker:test:integration
 - [ ] 段階的コミット戦略に従って適切にコミットした
 - [ ] 4つの品質チェックコマンドすべてが成功した
 - [ ] PRを正しいテンプレートで作成し、ラベルを付与した
+- [ ] IssueステータスをIn reviewに移動した
 - [ ] 受け入れ基準を詳細に検証し、結果を記録した
 - [ ] issue・PRのチェックリストを更新した
 
