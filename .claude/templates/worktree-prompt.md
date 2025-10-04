@@ -185,8 +185,8 @@ EOF
 #### 4.3 IssueステータスをIn reviewに移動（必須）
 
 ```bash
-# Project情報を取得
-PROJECT_NUMBER=$(gh project list --owner @me --format json | jq -r '.[0].number')
+# Project番号を取得
+PROJECT_NUMBER=$(gh project list --owner @me --format json | jq -r '.projects[0].number')
 
 # Project item IDを取得
 ITEM_ID=$(gh project item-list "$PROJECT_NUMBER" --owner @me --format json --limit 100 | jq -r ".items[] | select(.content.number == {{ISSUE_NUMBER}}) | .id")
@@ -197,7 +197,7 @@ FIELD_ID=$(echo "$FIELD_INFO" | jq -r '.id')
 OPTION_ID=$(echo "$FIELD_INFO" | jq -r '.options[] | select(.name == "In review") | .id')
 
 # ProjectのIDを取得
-PROJECT_ID=$(gh project list --owner @me --format json | jq -r '.[0].id')
+PROJECT_ID=$(gh project list --owner @me --format json | jq -r '.projects[0].id')
 
 # Statusを"In review"に変更
 gh project item-edit --id "$ITEM_ID" --project-id "$PROJECT_ID" --field-id "$FIELD_ID" --single-select-option-id "$OPTION_ID"
