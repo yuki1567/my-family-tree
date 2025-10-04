@@ -9,7 +9,7 @@
           <PersonCard v-if="hasPersonData" :person="defaultPerson" />
 
           <!-- 人物データがない場合：空状態プレースホルダー -->
-          <EmptyState v-else @start-guide="handleStartGuide" />
+          <EmptyState v-else @start-guide="openAddPersonModal" />
         </div>
       </main>
     </div>
@@ -18,14 +18,14 @@
     <button
       class="floating-add-btn"
       title="人物を追加"
-      @click="openPersonAddModal"
+      @click="openAddPersonModal"
     >
       +
     </button>
 
     <PersonAddModal
-      v-if="showPersonAddModal"
-      @close="showPersonAddModal = false"
+      v-if="showAddPersonModal"
+      @close="showAddPersonModal = false"
     />
   </div>
 </template>
@@ -52,28 +52,11 @@ const defaultPerson = computed(
   })
 )
 
-const showPersonAddModal = ref(false)
+const showAddPersonModal = ref(false)
 
-const openPersonAddModal = () => {
-  showPersonAddModal.value = true
+const openAddPersonModal = () => {
+  showAddPersonModal.value = true
 }
-
-// 人物追加の処理（EmptyState用）
-const handleStartGuide = () => {
-  // 将来的には人物追加モーダルを開く
-  // 暫定的にアラートでユーザーフィードバック提供
-  alert(
-    '人物追加機能は今後実装予定です。\n現在は空状態デザインの確認ができます。'
-  )
-
-  // 将来の実装イメージ:
-  // - モーダルコンポーネントの表示
-  // - 人物情報入力フォーム
-  // - APIへのデータ送信
-  // - personData.value.push(newPerson)
-  console.log('人物追加処理を実行 - 将来的にモーダルを開きます')
-}
-
 </script>
 
 <style scoped>
