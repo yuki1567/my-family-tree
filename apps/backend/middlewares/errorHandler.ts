@@ -16,7 +16,7 @@ export function globalErrorHandler(
   if (res.headersSent) return
 
   if (error instanceof ZodError) {
-    const details = error.errors.map((e) => ({
+    const details = error.issues.map((e) => ({
       field: e.path.join('.'),
       code: e.message,
     }))
