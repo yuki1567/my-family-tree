@@ -5,6 +5,21 @@ export const GenderSchema = z.enum(['male', 'female', 'unknown'])
 
 export type Gender = z.infer<typeof GenderSchema>
 
+const dateValidationRefine = (data: {
+  birthDate?: string
+  deathDate?: string
+}) => {
+  if (data.birthDate && data.deathDate) {
+    return new Date(data.deathDate) >= new Date(data.birthDate)
+  }
+  return true
+}
+
+const dateValidationRefineConfig = {
+  message: 'Death date must be after or equal to birth date',
+  path: ['deathDate'] as const,
+}
+
 export const PersonSchema = z
   .object({
     id: z.string().uuid(),
@@ -16,26 +31,19 @@ export const PersonSchema = z
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
   })
-  .refine(
-    (data) => {
-      if (data.birthDate && data.deathDate) {
-        return new Date(data.deathDate) >= new Date(data.birthDate)
-      }
-      return true
-    },
-    {
-      message: 'Death date must be after or equal to birth date',
-      path: ['deathDate'],
-    }
-  )
+  .refine(dateValidationRefine, dateValidationRefineConfig)
 
 export type Person = z.infer<typeof PersonSchema>
 
-export const CreatePersonRequestSchema = PersonSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-})
+export const CreatePersonRequestSchema = z
+  .object({
+    name: z.string().max(100).optional(),
+    gender: GenderSchema.optional(),
+    birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    deathDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+    birthPlace: z.string().max(200).optional(),
+  })
+  .refine(dateValidationRefine, dateValidationRefineConfig)
 
 export type CreatePersonRequest = z.infer<typeof CreatePersonRequestSchema>
 
