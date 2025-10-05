@@ -423,18 +423,34 @@ family-tree-app/
 - **バージョン統一**: prismaとclientの同期必須
 - **データベース設計書整合性**: docs/02_technical/02_database_design.mdとの一貫性
 
-**環境変数・バリデーション**
+**Webフレームワーク（段階的移行）**
 
 ```json
-"dotenv": "16.4.5",
-"zod": "3.23.8"
+"hono": "4.9.9",
+"@hono/zod-validator": "0.7.3"
 ```
 
-- **dotenv**: .envファイル読み込み（Docker環境での設定管理）
+- **Hono導入理由**:
+  - **型安全性**: 完全なTypeScript型推論（エンドツーエンド）
+  - **パフォーマンス**: 軽量で高速な実装
+  - **開発体験**: モダンなAPI設計、Web標準準拠
+  - **段階的移行**: 既存Express環境と並行運用可能
+- **@hono/zod-validator**: HonoとZodの統合ライブラリ（バリデーション処理の型安全化）
+- **移行戦略**: Express 5.xから段階的にHonoへ移行予定
+
+**バリデーション**
+
+```json
+"zod": "4.1.11"
+```
+
 - **zod選定理由**:
   - **vs Joi**: TypeScript統合、型推論優位
   - **vs Yup**: パフォーマンス、軽量性
   - **用途**: APIリクエスト検証、環境変数検証
+- **v4.1.11採用理由**:
+  - @hono/zod-validator 0.7.3の要件（zod ^3.25.0 || ^4.0.0）を満たす
+  - 最新の型安全性改善と機能追加
 
 #### **開発依存関係（devDependencies）**
 
