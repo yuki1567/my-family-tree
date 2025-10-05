@@ -399,6 +399,82 @@
       </AppModal>
     </section>
 
+    <!-- ボタンバリエーション確認 -->
+    <section class="demo-section">
+      <h2>🎨 AppButton CSS変数統一確認（Issue #76）</h2>
+      <p>
+        セカンダリボタンとデンジャーボタンのCSS変数統一を確認できます。
+        全てのボタンがCSS変数（var(--color-*)）で定義されており、デザインシステムとの一貫性を保っています。
+      </p>
+
+      <div class="button-variants-demo">
+        <div class="variant-group">
+          <h3>Primary ボタン</h3>
+          <div class="button-row">
+            <AppButton variant="primary"> 通常状態 </AppButton>
+            <AppButton variant="primary" :is-disabled="true">
+              無効状態
+            </AppButton>
+            <AppButton variant="primary" :is-loading="true">
+              ローディング
+            </AppButton>
+          </div>
+        </div>
+
+        <div class="variant-group">
+          <h3>Secondary ボタン（CSS変数統一済み）</h3>
+          <div class="button-row">
+            <AppButton variant="secondary"> 通常状態 </AppButton>
+            <AppButton variant="secondary" :is-disabled="true">
+              無効状態
+            </AppButton>
+            <AppButton variant="secondary" :is-loading="true">
+              ローディング
+            </AppButton>
+          </div>
+          <div class="css-variables-info">
+            <p><strong>使用中のCSS変数:</strong></p>
+            <ul>
+              <li>背景色: <code>var(--color-background-tertiary)</code></li>
+              <li>テキスト色: <code>var(--color-text-tertiary)</code></li>
+              <li>
+                ボーダー色: <code>var(--color-border)</code>
+              </li>
+              <li>
+                ホバー背景色: <code>var(--color-background-hover)</code>
+              </li>
+              <li>
+                ホバーボーダー色:
+                <code>var(--color-border-secondary)</code>
+              </li>
+              <li>ホバーテキスト色: <code>var(--color-text-hover)</code></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="variant-group">
+          <h3>Danger ボタン（CSS変数統一済み）</h3>
+          <div class="button-row">
+            <AppButton variant="danger"> 通常状態 </AppButton>
+            <AppButton variant="danger" :is-disabled="true">
+              無効状態
+            </AppButton>
+            <AppButton variant="danger" :is-loading="true">
+              ローディング
+            </AppButton>
+          </div>
+          <div class="css-variables-info">
+            <p><strong>使用中のCSS変数:</strong></p>
+            <ul>
+              <li>テキスト色: <code>var(--color-danger)</code></li>
+              <li>ボーダー色: <code>var(--color-danger)</code></li>
+              <li>ホバー背景色: <code>var(--color-danger)</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- アイコン比較セクション -->
     <section class="demo-section">
       <h2>👶 子供アイコン比較</h2>
@@ -1010,6 +1086,70 @@ const handlePersonSave = (personData: PersonForm): void => {
   margin: 0;
 }
 
+/* ボタンバリエーションデモのスタイル */
+.button-variants-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.variant-group {
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.variant-group h3 {
+  margin: 0 0 15px 0;
+  color: #374151;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.button-row {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.css-variables-info {
+  margin-top: 15px;
+  padding: 15px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.css-variables-info p {
+  margin: 0 0 10px 0;
+  color: #374151;
+  font-weight: 600;
+  font-size: 1.4rem;
+}
+
+.css-variables-info ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.css-variables-info li {
+  margin-bottom: 6px;
+  color: #6b7280;
+  font-size: 1.3rem;
+}
+
+.css-variables-info code {
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'SF Mono', Monaco, 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 1.2rem;
+  color: #059669;
+}
+
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
   .demo-page {
@@ -1043,6 +1183,10 @@ const handlePersonSave = (personData: PersonForm): void => {
 
   .saved-data-display pre {
     font-size: 1.2rem;
+  }
+
+  .button-row {
+    flex-direction: column;
   }
 }
 </style>
