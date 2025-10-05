@@ -164,7 +164,7 @@ const getOptionColor = (value: string | number) => {
 }
 
 .form-field-required {
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 .form-field-input {
@@ -189,17 +189,17 @@ const getOptionColor = (value: string | number) => {
 
 /* States */
 .form-field-input-error {
-  border-color: #ef4444;
+  border-color: var(--color-danger);
 }
 
 .form-field-input-error:focus {
-  border-color: #ef4444;
+  border-color: var(--color-danger);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
 .form-field-error {
   font-size: 1.2rem;
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 /* Radio buttons */
@@ -234,6 +234,6 @@ const getOptionColor = (value: string | number) => {
 .form-field-radio-icon {
   width: 1.5rem;
   height: 1.5rem;
-  color: #6b7280;
+  color: var(--color-text-tertiary);
 }
 </style>
