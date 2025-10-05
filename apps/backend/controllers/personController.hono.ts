@@ -1,13 +1,10 @@
 import { PersonService } from '@/services/personService.js'
-import { CreatePersonRequest } from '@/validations/personValidation.js'
-import { Context } from 'hono'
+import { Handler } from 'hono'
 
-export class PersonControllerHono {
-  constructor(private personService: PersonService) {}
-
-  async create(c: Context) {
-    const validatedData = c.req.valid('json') as CreatePersonRequest
-    const result = await this.personService.create(validatedData)
+export function createPersonControllerHono(personService: PersonService) {
+  const create: Handler = async (c) => {
+    const validatedData = await c.req.json()
+    const result = await personService.create(validatedData)
 
     return c.json(
       {
@@ -15,5 +12,9 @@ export class PersonControllerHono {
       },
       201
     )
+  }
+
+  return {
+    create,
   }
 }
