@@ -2,17 +2,11 @@
   <div class="form-field-label">
     <div class="form-field-label-text">
       {{ label }}
-      <span
-        v-if="required"
-        class="form-field-required"
-      >*</span>
+      <span v-if="required" class="form-field-required">*</span>
     </div>
 
     <!-- Radio buttons -->
-    <div
-      v-if="type === 'radio'"
-      class="form-field-radio-group"
-    >
+    <div v-if="type === 'radio'" class="form-field-radio-group">
       <label
         v-for="option in options"
         :key="option.value"
@@ -20,9 +14,9 @@
         :style="
           inputValue === option.value
             ? {
-              borderColor: getOptionColor(option.value).border,
-              backgroundColor: getOptionColor(option.value).background,
-            }
+                borderColor: getOptionColor(option.value).border,
+                backgroundColor: getOptionColor(option.value).background,
+              }
             : {}
         "
       >
@@ -33,15 +27,15 @@
           :value="option.value"
           :required="required"
           class="form-field-radio-input-button"
-        >
+        />
         <component
           :is="option.icon"
           class="form-field-radio-icon"
           :style="
             inputValue === option.value
               ? {
-                color: getOptionColor(option.value).text,
-              }
+                  color: getOptionColor(option.value).text,
+                }
               : {}
           "
         />
@@ -50,11 +44,12 @@
           :style="
             inputValue === option.value
               ? {
-                color: getOptionColor(option.value).text,
-              }
+                  color: getOptionColor(option.value).text,
+                }
               : {}
           "
-        >{{ option.label }}</span>
+          >{{ option.label }}</span
+        >
       </label>
     </div>
 
@@ -67,12 +62,9 @@
       :placeholder="placeholder"
       :required="required"
       :class="inputClasses"
-    >
+    />
 
-    <div
-      v-if="errorMessage"
-      class="form-field-error"
-    >
+    <div v-if="errorMessage" class="form-field-error">
       {{ errorMessage }}
     </div>
   </div>
@@ -134,26 +126,23 @@ const getCSSVariable = (variableName: string): string => {
     .trim()
 }
 
-const getOptionColor = (value: string | number) => {
-  const valueStr = String(value)
-
-  // 値からCSS変数のキーへのマッピング
+const getOptionColor = (optionValue: string) => {
   const colorKeyMapping: Record<string, string> = {
-    male: 'male',
-    female: 'female',
-    unknown: 'unknown',
-    father: 'male',
-    mother: 'female',
+    male: 'gender-male',
+    female: 'gender-female',
+    unknown: 'gender-unknown',
+    father: 'relation-father',
+    mother: 'relation-mother',
     spouse: 'relation-spouse',
     child: 'relation-child',
   }
 
-  const colorKey = colorKeyMapping[valueStr] || 'male'
+  const colorKey = colorKeyMapping[optionValue] || 'gender-male'
 
   return {
     border: getCSSVariable(`--color-${colorKey}-border`),
     background: getCSSVariable(`--color-${colorKey}-background`),
-    text: getCSSVariable(`--color-${colorKey.startsWith('relation-') ? colorKey : colorKey}`),
+    text: getCSSVariable(`--color-${colorKey}`),
   }
 }
 </script>
