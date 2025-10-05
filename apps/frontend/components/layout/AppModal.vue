@@ -59,7 +59,7 @@ onUnmounted(() => {
 }
 
 .modal-container {
-  background-color: var(--color-background);
+  background-color: var(--color-bg-primary);
   border-radius: 0.8rem;
   max-width: 50rem;
   width: 100%;

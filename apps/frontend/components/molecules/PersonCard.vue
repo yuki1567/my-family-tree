@@ -64,8 +64,8 @@ const formatDate = (dateString: string) => {
   flex-direction: column;
   align-items: center;
   padding: 2.4rem;
-  background-color: var(--color-background);
-  border: 2px solid var(--color-border);
+  background-color: var(--color-bg-primary);
+  border: 2px solid var(--color-border-primary);
   border-radius: 1.2rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   max-width: 280px;
@@ -112,7 +112,7 @@ const formatDate = (dateString: string) => {
 .person-name {
   font-size: 2rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--color-text-primary);
   margin: 0 0 1.2rem 0;
   text-align: center;
 }
@@ -140,8 +140,8 @@ const formatDate = (dateString: string) => {
 .person-memo {
   margin-top: 0.8rem;
   padding-top: 0.8rem;
-  border-top: 1px solid var(--color-border);
-  color: var(--color-text);
+  border-top: 1px solid var(--color-border-primary);
+  color: var(--color-text-primary);
 }
 
 /* レスポンシブ対応 */

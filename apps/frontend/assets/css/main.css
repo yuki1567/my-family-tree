@@ -3,14 +3,81 @@
 
 /* CSS変数定義 */
 :root {
-  /* メインカラー */
-  --color-primary: #f97316; /* メインカラー：オレンジ（メニュー枠・フォーカス用） */
-  --color-blue: #3b82f6; /* 補助色：青系 */
+  /* ============================================
+     カラーパレット
+     ============================================ */
+
+  /* プライマリカラー */
+  --color-primary: #f97316;
+  --color-danger: #ef4444;
 
   /* 性別色分け */
   --color-male: #56b4f5; /* 男性：青系 */
   --color-female: #f1878c; /* 女性：ピンク系 */
   --color-unknown: #9ca3af; /* 性別不明：グレー */
+
+  --color-white: #ffffff;
+  --color-black: #1f2937;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f1f5f9;
+  --color-gray-150: #eceff1;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #505966;
+
+  /* ============================================
+     セマンティックカラー
+     ============================================ */
+
+  /* テキストカラー */
+  --color-text-primary: var(--color-black);
+  --color-text-secondary: var(--color-gray-400);
+  --color-text-tertiary: var(--color-gray-500);
+
+  /* 背景カラー */
+  --color-bg-primary: var(--color-white);
+  --color-bg-secondary: var(--color-gray-100);
+  --color-bg-tertiary: var(--color-gray-50);
+
+  /* ボーダーカラー */
+  --color-border-primary: var(--color-gray-200);
+  --color-border-secondary: var(--color-gray-300);
+
+  /* ============================================
+     ボタン専用変数
+     ============================================ */
+
+  /* Primary Button */
+  --button-primary-bg: var(--color-white);
+  --button-primary-bg-hover: var(--color-primary);
+  --button-primary-text: var(--color-primary);
+  --button-primary-text-hover: var(--color-white);
+  --button-primary-border: var(--color-primary);
+
+  /* Secondary Button */
+  --button-secondary-bg: var(--color-gray-50);
+  --button-secondary-bg-hover: var(--color-gray-150);
+  --button-secondary-text: var(--color-gray-500);
+  --button-secondary-text-hover: var(--color-gray-600);
+  --button-secondary-border: var(--color-gray-200);
+  --button-secondary-border-hover: var(--color-gray-300);
+
+  /* Danger Button */
+  --button-danger-bg: var(--color-white);
+  --button-danger-bg-hover: var(--color-danger);
+  --button-danger-text: var(--color-danger);
+  --button-danger-text-hover: var(--color-white);
+  --button-danger-border: var(--color-danger);
+
+  /* Button Loading State */
+  --button-loading-bg: var(--color-primary);
+  --button-loading-text: var(--color-white);
+
+  /* ============================================
+     レイアウト
+     ============================================ */
 
   /* 家系図ノードサイズ（ドキュメント仕様準拠） */
   --node-width: 120px;
@@ -20,13 +87,6 @@
 
   /* レスポンシブブレイクポイント */
   --breakpoint-desktop: 768px;
-
-  /* 基本カラー */
-  --color-background: #ffffff;
-  --color-surface: #f1f5f9;
-  --color-border: #e5e7eb;
-  --color-text: #1f2937;
-  --color-text-secondary: #9ca3af;
 }
 
 /* ルートフォントサイズ設定（1rem = 10px） */

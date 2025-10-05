@@ -38,8 +38,8 @@ const handleStartGuide = () => {
 
 /* 人物カード */
 .person-card {
-  background: var(--color-background);
-  border: 2px dashed var(--color-border);
+  background: var(--color-bg-primary);
+  border: 2px dashed var(--color-border-primary);
   border-radius: 0.8rem;
   padding: 1.6rem 0rem;
   text-align: center;
@@ -59,7 +59,7 @@ const handleStartGuide = () => {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  border: 2px solid var(--color-border);
+  border: 2px solid var(--color-border-primary);
   display: flex;
   align-items: center;
   justify-content: center;
