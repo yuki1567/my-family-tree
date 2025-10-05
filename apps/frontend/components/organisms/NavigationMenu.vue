@@ -48,7 +48,6 @@ import {
   QuestionMarkCircleIcon,
 } from '@heroicons/vue/24/outline'
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
 
 interface MenuItem {
   label: string
