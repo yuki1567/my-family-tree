@@ -1,16 +1,19 @@
 import {
   ApiErrorResponse,
+  ApiErrorResponseSchema,
   ApiResponse,
   ApiSuccessResponse,
+  ApiSuccessResponseSchema,
   ErrorCode,
   ErrorCodeSchema,
   ErrorDetail,
   ErrorDetailSchema,
   ErrorResponse,
   ErrorResponseSchema,
+  HttpStatusCode,
+  HttpStatusCodeSchema,
   ValidationErrorCode,
   ValidationErrorCodeSchema,
-  makeApiResponseSchema,
 } from '@shared/api/common.js'
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
@@ -70,9 +73,31 @@ describe('common API schemas', () => {
 
     describe('異常系', () => {
       it('無効なバリデーションエラーコードの場合、パースに失敗する', () => {
-        const result = ValidationErrorCodeSchema.safeParse(
-          'INVALID_VALIDATION_CODE'
-        )
+        const result =
+          ValidationErrorCodeSchema.safeParse('INVALID_VALIDATION_CODE')
+        expect(result.success).toBe(false)
+      })
+    })
+  })
+
+  describe('HttpStatusCodeSchema', () => {
+    describe('正常系', () => {
+      it('有効なHTTPステータスコードをパースできる', () => {
+        const validCodes: HttpStatusCode[] = [200, 201, 400, 401, 403, 404, 500]
+
+        validCodes.forEach((code) => {
+          const result = HttpStatusCodeSchema.safeParse(code)
+          expect(result.success).toBe(true)
+          if (result.success) {
+            expect(result.data).toBe(code)
+          }
+        })
+      })
+    })
+
+    describe('異常系', () => {
+      it('無効なHTTPステータスコードの場合、パースに失敗する', () => {
+        const result = HttpStatusCodeSchema.safeParse(999)
         expect(result.success).toBe(false)
       })
     })
@@ -143,6 +168,15 @@ describe('common API schemas', () => {
     })
 
     describe('異常系', () => {
+      it('statusCodeが無効な値の場合、パースに失敗する', () => {
+        const invalidResponse = {
+          statusCode: 999,
+          errorCode: 'NOT_FOUND',
+        }
+        const result = ErrorResponseSchema.safeParse(invalidResponse)
+        expect(result.success).toBe(false)
+      })
+
       it('statusCodeが欠けている場合、パースに失敗する', () => {
         const invalidResponse = { errorCode: 'NOT_FOUND' }
         const result = ErrorResponseSchema.safeParse(invalidResponse)
@@ -157,165 +191,95 @@ describe('common API schemas', () => {
     })
   })
 
-  describe('makeApiResponseSchema', () => {
-    describe('正常系', () => {
-      it('成功レスポンスをパースできる', () => {
-        const UserSchema = z.object({
-          id: z.string(),
-          name: z.string(),
-        })
-        const UserResponseSchema = makeApiResponseSchema(UserSchema)
-
-        const successResponse: ApiSuccessResponse<{
-          id: string
-          name: string
-        }> = {
-          success: true,
-          data: { id: '1', name: 'John' },
-        }
-
-        const result = UserResponseSchema.safeParse(successResponse)
-        expect(result.success).toBe(true)
-        if (result.success) {
-          expect(result.data).toEqual(successResponse)
-        }
+  describe('ApiSuccessResponseSchema', () => {
+    it('成功レスポンスをパースできる', () => {
+      const UserSchema = z.object({
+        id: z.string(),
+        name: z.string(),
       })
+      const UserSuccessResponseSchema = ApiSuccessResponseSchema(UserSchema)
 
-      it('エラーレスポンスをパースできる', () => {
-        const UserSchema = z.object({
-          id: z.string(),
-          name: z.string(),
-        })
-        const UserResponseSchema = makeApiResponseSchema(UserSchema)
+      const successResponse: ApiSuccessResponse<{
+        id: string
+        name: string
+      }> = {
+        data: { id: '1', name: 'John' },
+      }
 
-        const errorResponse: ApiErrorResponse = {
-          success: false,
-          error: {
-            statusCode: 404,
-            errorCode: 'NOT_FOUND',
-          },
-        }
-
-        const result = UserResponseSchema.safeParse(errorResponse)
-        expect(result.success).toBe(true)
-        if (result.success) {
-          expect(result.data).toEqual(errorResponse)
-        }
-      })
-
-      it('discriminated unionにより型を判別できる', () => {
-        const UserSchema = z.object({
-          id: z.string(),
-          name: z.string(),
-        })
-        const UserResponseSchema = makeApiResponseSchema(UserSchema)
-
-        const successResponse: ApiResponse<{ id: string; name: string }> = {
-          success: true,
-          data: { id: '1', name: 'John' },
-        }
-
-        const result = UserResponseSchema.safeParse(successResponse)
-        expect(result.success).toBe(true)
-        if (result.success && result.data.success) {
-          // TypeScript型推論により、dataプロパティにアクセス可能
-          expect(result.data.data.id).toBe('1')
-          expect(result.data.data.name).toBe('John')
-        }
-      })
+      const result = UserSuccessResponseSchema.safeParse(successResponse)
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data).toEqual(successResponse)
+      }
     })
 
-    describe('異常系', () => {
-      it('successプロパティが欠けている場合、パースに失敗する', () => {
-        const UserSchema = z.object({
-          id: z.string(),
-          name: z.string(),
-        })
-        const UserResponseSchema = makeApiResponseSchema(UserSchema)
-
-        const invalidResponse = { data: { id: '1', name: 'John' } }
-        const result = UserResponseSchema.safeParse(invalidResponse)
-        expect(result.success).toBe(false)
+    it('dataが欠けている場合、パースに失敗する', () => {
+      const UserSchema = z.object({
+        id: z.string(),
+        name: z.string(),
       })
+      const UserSuccessResponseSchema = ApiSuccessResponseSchema(UserSchema)
 
-      it('success=trueだがdataが欠けている場合、パースに失敗する', () => {
-        const UserSchema = z.object({
-          id: z.string(),
-          name: z.string(),
-        })
-        const UserResponseSchema = makeApiResponseSchema(UserSchema)
+      const invalidResponse = {}
+      const result = UserSuccessResponseSchema.safeParse(invalidResponse)
+      expect(result.success).toBe(false)
+    })
+  })
 
-        const invalidResponse = { success: true }
-        const result = UserResponseSchema.safeParse(invalidResponse)
-        expect(result.success).toBe(false)
-      })
+  describe('ApiErrorResponseSchema', () => {
+    it('エラーレスポンスをパースできる', () => {
+      const errorResponse: ApiErrorResponse = {
+        error: {
+          statusCode: 404,
+          errorCode: 'NOT_FOUND',
+        },
+      }
 
-      it('success=falseだがerrorが欠けている場合、パースに失敗する', () => {
-        const UserSchema = z.object({
-          id: z.string(),
-          name: z.string(),
-        })
-        const UserResponseSchema = makeApiResponseSchema(UserSchema)
+      const result = ApiErrorResponseSchema.safeParse(errorResponse)
+      expect(result.success).toBe(true)
+      if (result.success) {
+        expect(result.data).toEqual(errorResponse)
+      }
+    })
 
-        const invalidResponse = { success: false }
-        const result = UserResponseSchema.safeParse(invalidResponse)
-        expect(result.success).toBe(false)
-      })
-
-      it('dataスキーマに合わないデータの場合、パースに失敗する', () => {
-        const UserSchema = z.object({
-          id: z.string(),
-          name: z.string(),
-        })
-        const UserResponseSchema = makeApiResponseSchema(UserSchema)
-
-        const invalidResponse = {
-          success: true,
-          data: { id: 123, name: 'John' }, // idがnumberなので不正
-        }
-        const result = UserResponseSchema.safeParse(invalidResponse)
-        expect(result.success).toBe(false)
-      })
+    it('errorが欠けている場合、パースに失敗する', () => {
+      const invalidResponse = {}
+      const result = ApiErrorResponseSchema.safeParse(invalidResponse)
+      expect(result.success).toBe(false)
     })
   })
 
   describe('型の互換性確認', () => {
     it('既存のApiSuccessResponse型と互換性がある', () => {
       const response: ApiSuccessResponse<{ id: string }> = {
-        success: true,
         data: { id: '1' },
       }
-      expect(response.success).toBe(true)
       expect(response.data.id).toBe('1')
     })
 
     it('既存のApiErrorResponse型と互換性がある', () => {
       const response: ApiErrorResponse = {
-        success: false,
         error: {
           statusCode: 404,
           errorCode: 'NOT_FOUND',
         },
       }
-      expect(response.success).toBe(false)
       expect(response.error.statusCode).toBe(404)
     })
 
     it('既存のApiResponse型と互換性がある', () => {
       const successResponse: ApiResponse<{ id: string }> = {
-        success: true,
         data: { id: '1' },
       }
       const errorResponse: ApiResponse<{ id: string }> = {
-        success: false,
         error: {
           statusCode: 404,
           errorCode: 'NOT_FOUND',
         },
       }
 
-      expect(successResponse.success).toBe(true)
-      expect(errorResponse.success).toBe(false)
+      expect('data' in successResponse).toBe(true)
+      expect('error' in errorResponse).toBe(true)
     })
   })
 })

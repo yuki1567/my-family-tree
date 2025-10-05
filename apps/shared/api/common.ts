@@ -1,9 +1,5 @@
 import { z } from 'zod'
 
-/**
- * エラーコードのZod enum定義
- * 既存のErrorCode型と互換性を保つ
- */
 export const ErrorCodeSchema = z.enum([
   'VALIDATION_ERROR',
   'UNAUTHORIZED',
@@ -16,10 +12,6 @@ export const ErrorCodeSchema = z.enum([
 
 export type ErrorCode = z.infer<typeof ErrorCodeSchema>
 
-/**
- * バリデーションエラーコードのZod enum定義
- * 既存のValidationErrorCode型と互換性を保つ
- */
 export const ValidationErrorCodeSchema = z.enum([
   'NAME_TOO_LONG',
   'INVALID_GENDER',
@@ -30,10 +22,18 @@ export const ValidationErrorCodeSchema = z.enum([
 
 export type ValidationErrorCode = z.infer<typeof ValidationErrorCodeSchema>
 
-/**
- * エラー詳細のZodスキーマ
- * 既存のErrorDetail型と互換性を保つ
- */
+export const HttpStatusCodeSchema = z.union([
+  z.literal(200),
+  z.literal(201),
+  z.literal(400),
+  z.literal(401),
+  z.literal(403),
+  z.literal(404),
+  z.literal(500),
+])
+
+export type HttpStatusCode = z.infer<typeof HttpStatusCodeSchema>
+
 export const ErrorDetailSchema = z.object({
   field: z.string(),
   code: z.string(),
@@ -41,66 +41,29 @@ export const ErrorDetailSchema = z.object({
 
 export type ErrorDetail = z.infer<typeof ErrorDetailSchema>
 
-/**
- * エラーレスポンスのZodスキーマ
- * 既存のErrorResponse型と互換性を保つ
- */
 export const ErrorResponseSchema = z.object({
-  statusCode: z.number(),
+  statusCode: HttpStatusCodeSchema,
   errorCode: z.string(),
   details: z.array(ErrorDetailSchema).optional(),
 })
 
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>
 
-/**
- * APIレスポンスのZodスキーマファクトリ関数
- * discriminated unionパターンにより、成功・失敗レスポンスを型安全に扱う
- *
- * @param dataSchema - 成功時のデータスキーマ
- * @returns 判別可能Union型のAPIレスポンススキーマ
- *
- * @example
- * ```typescript
- * const UserSchema = z.object({ id: z.string(), name: z.string() })
- * const UserResponseSchema = makeApiResponseSchema(UserSchema)
- *
- * // 成功レスポンス
- * const success = { success: true, data: { id: '1', name: 'John' } }
- * // エラーレスポンス
- * const error = { success: false, error: { statusCode: 404, errorCode: 'NOT_FOUND' } }
- * ```
- */
-export function makeApiResponseSchema<T extends z.ZodTypeAny>(dataSchema: T) {
-  return z.discriminatedUnion('success', [
-    z.object({
-      success: z.literal(true),
-      data: dataSchema,
-    }),
-    z.object({
-      success: z.literal(false),
-      error: ErrorResponseSchema,
-    }),
-  ])
-}
+export const ApiSuccessResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+  z.object({
+    data: dataSchema,
+  })
 
-/**
- * 成功レスポンスの型定義
- */
 export type ApiSuccessResponse<T> = {
-  success: true
   data: T
 }
 
-/**
- * エラーレスポンスの型定義
- */
+export const ApiErrorResponseSchema = z.object({
+  error: ErrorResponseSchema,
+})
+
 export type ApiErrorResponse = {
-  success: false
   error: ErrorResponse
 }
 
-/**
- * APIレスポンスの型定義（discriminated union）
- */
 export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse
