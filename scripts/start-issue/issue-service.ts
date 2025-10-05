@@ -22,15 +22,21 @@ export function loadEnv(): Ctx {
   const mysqlUser = getRequiredEnv('MYSQL_USER')
   const googleTranslateApiKey = getRequiredEnv('GOOGLE_TRANSLATE_API_KEY')
   const githubProjectId = getRequiredEnv('GITHUB_PROJECT_ID')
+  const githubProjectNumber = getRequiredEnv('GITHUB_PROJECT_NUMBER')
+  const githubStatusFieldId = getRequiredEnv('GITHUB_STATUS_FIELD_ID')
   const todoStatusId = getRequiredEnv('GITHUB_TODO_STATUS_ID')
   const inProgressStatusId = getRequiredEnv('GITHUB_INPROGRESS_STATUS_ID')
+  const inReviewStatusId = getRequiredEnv('GITHUB_INREVIEW_STATUS_ID')
 
   log('環境変数を読み込みました')
   return {
     githubProjects: {
       projectId: githubProjectId,
+      projectNumber: Number(githubProjectNumber),
+      statusFieldId: githubStatusFieldId,
       todoStatusId,
       inProgressStatusId,
+      inReviewStatusId,
     },
     cloudTranslation: googleTranslateApiKey,
     environment: {

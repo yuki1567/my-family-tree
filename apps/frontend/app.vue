@@ -1,14 +1,5 @@
 <template>
-  <div id="app">
+  <NuxtLayout>
     <NuxtPage />
-  </div>
+  </NuxtLayout>
 </template>
-
-<script setup lang="ts"></script>
-
-<style>
-#app {
-  height: 100vh;
-  width: 100vw;
-}
-</style>

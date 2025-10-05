@@ -184,24 +184,32 @@ EOF
 
 #### 4.3 IssueステータスをIn reviewに移動（必須）
 
+**固定値**（プロジェクトで共通）:
+
+- Project番号: `{{PROJECT_NUMBER}}`
+- Project ID: `{{PROJECT_ID}}`
+- StatusフィールドID: `{{STATUS_FIELD_ID}}`
+- "In review"オプションID: `{{IN_REVIEW_OPTION_ID}}`
+
+**実行手順**:
+
 ```bash
-# Project番号を取得
-PROJECT_NUMBER=$(gh project list --owner @me --format json | jq -r '.projects[0].number')
+# STEP1: Project item IDを取得（issue番号{{ISSUE_NUMBER}}のアイテムID）
+gh project item-list {{PROJECT_NUMBER}} --owner @me --format json --limit 100 | jq -r '.items[] | select(.content.number == {{ISSUE_NUMBER}}) | .id'
+# → 出力されたIDをコピー（例: PVTI_****************）
 
-# Project item IDを取得
-ITEM_ID=$(gh project item-list "$PROJECT_NUMBER" --owner @me --format json --limit 100 | jq -r ".items[] | select(.content.number == {{ISSUE_NUMBER}}) | .id")
-
-# StatusフィールドのIDとIn reviewオプションIDを取得
-FIELD_INFO=$(gh project field-list "$PROJECT_NUMBER" --owner @me --format json | jq -r '.fields[] | select(.name == "Status")')
-FIELD_ID=$(echo "$FIELD_INFO" | jq -r '.id')
-OPTION_ID=$(echo "$FIELD_INFO" | jq -r '.options[] | select(.name == "In review") | .id')
-
-# ProjectのIDを取得
-PROJECT_ID=$(gh project list --owner @me --format json | jq -r '.projects[0].id')
-
-# Statusを"In review"に変更
-gh project item-edit --id "$ITEM_ID" --project-id "$PROJECT_ID" --field-id "$FIELD_ID" --single-select-option-id "$OPTION_ID"
+# STEP2: Statusを"In review"に変更（STEP1で取得したIDを使用）
+gh project item-edit \
+  --id "<STEP1で取得したID>" \
+  --project-id "{{PROJECT_ID}}" \
+  --field-id "{{STATUS_FIELD_ID}}" \
+  --single-select-option-id "{{IN_REVIEW_OPTION_ID}}"
 ```
+
+**実行時の注意**:
+
+- STEP1で取得したIDを、STEP2の`--id`パラメータに使用すること
+- エラーが発生した場合は、STEP1から再実行すること
 
 ---
 
