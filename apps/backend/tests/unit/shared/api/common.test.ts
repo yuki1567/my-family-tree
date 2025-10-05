@@ -70,7 +70,9 @@ describe('common API schemas', () => {
 
     describe('異常系', () => {
       it('無効なバリデーションエラーコードの場合、パースに失敗する', () => {
-        const result = ValidationErrorCodeSchema.safeParse('INVALID_VALIDATION_CODE')
+        const result = ValidationErrorCodeSchema.safeParse(
+          'INVALID_VALIDATION_CODE'
+        )
         expect(result.success).toBe(false)
       })
     })
@@ -164,7 +166,10 @@ describe('common API schemas', () => {
         })
         const UserResponseSchema = makeApiResponseSchema(UserSchema)
 
-        const successResponse: ApiSuccessResponse<{ id: string; name: string }> = {
+        const successResponse: ApiSuccessResponse<{
+          id: string
+          name: string
+        }> = {
           success: true,
           data: { id: '1', name: 'John' },
         }
