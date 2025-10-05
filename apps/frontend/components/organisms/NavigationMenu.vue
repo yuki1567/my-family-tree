@@ -1,126 +1,128 @@
 <template>
-  <div>
-    <!-- PC/タブレット用スライドメニュー -->
-    <nav :class="['nav-sidebar', { expanded: isExpanded }]" class="desktop-up">
-      <button class="nav-toggle" @click="toggleMenu" aria-label="メニュー切替">
-        <component :is="Bars3Icon" class="icon" />
-      </button>
+  <!-- PC/タブレット用スライドメニュー -->
+  <nav class="nav-sidebar desktop-up" :class="{ expanded: isExpanded }">
+    <button class="nav-toggle" @click="toggleMenu">
+      <Bars3Icon class="icon" />
+    </button>
 
-      <ul class="nav-list">
-        <li v-for="item in desktopMenuItems" :key="item.path">
-          <NuxtLink
-            :to="item.path"
-            :class="['nav-item', { active: isActive(item.path) }]"
-            @click="closeMenuOnMobile"
-          >
-            <component :is="item.icon" class="nav-icon" />
-            <span v-if="isExpanded" class="nav-label">{{ item.label }}</span>
-          </NuxtLink>
-        </li>
-      </ul>
-    </nav>
+    <ul class="nav-list">
+      <li v-for="item in desktopMenuItems" :key="item.label">
+        <a
+          v-if="item.action"
+          class="nav-item"
+          @click="handleItemClick(item.action)"
+        >
+          <component :is="item.icon" class="nav-icon" />
+          <span v-if="isExpanded" class="nav-label">{{ item.label }}</span>
+        </a>
+        <NuxtLink v-else :to="item.path" class="nav-item" active-class="active">
+          <component :is="item.icon" class="nav-icon" />
+          <span v-if="isExpanded" class="nav-label">{{ item.label }}</span>
+        </NuxtLink>
+      </li>
+    </ul>
+  </nav>
 
-    <!-- モバイル用ボトムナビゲーション -->
-    <nav class="nav-bottom mobile-only">
-      <ul class="nav-list">
-        <li v-for="item in mobileMenuItems" :key="item.path">
-          <NuxtLink
-            :to="item.path"
-            :class="['nav-item', { active: isActive(item.path) }]"
-          >
-            <component :is="item.icon" class="nav-icon" />
-            <span class="nav-label">{{ item.label }}</span>
-          </NuxtLink>
-        </li>
-      </ul>
-    </nav>
-  </div>
+  <!-- モバイル用ボトムナビゲーション -->
+  <nav class="nav-bottom mobile-only">
+    <ul class="nav-list">
+      <li v-for="item in mobileMenuItems" :key="item.label">
+        <a
+          v-if="item.action"
+          class="nav-item"
+          @click="handleItemClick(item.action)"
+        >
+          <component :is="item.icon" class="nav-icon" />
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+        <NuxtLink v-else :to="item.path" class="nav-item" active-class="active">
+          <component :is="item.icon" class="nav-icon" />
+          <span class="nav-label">{{ item.label }}</span>
+        </NuxtLink>
+      </li>
+    </ul>
+  </nav>
+
+  <PersonAddModal
+    v-if="showAddPersonModal"
+    @close="showAddPersonModal = false"
+  />
 </template>
 
 <script setup lang="ts">
+import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
 import {
   Bars3Icon,
+  Cog6ToothIcon,
   HomeIcon,
   MagnifyingGlassIcon,
+  QuestionMarkCircleIcon,
   UserPlusIcon,
   UsersIcon,
-  Cog6ToothIcon,
-  QuestionMarkCircleIcon,
 } from '@heroicons/vue/24/outline'
 import { ref } from 'vue'
 
-interface MenuItem {
-  label: string
-  path: string
-  icon: typeof HomeIcon
-}
-
-const route = useRoute()
 const isExpanded = ref(false)
+const showAddPersonModal = ref(false)
 
-// PC/タブレット用メニュー項目
-const desktopMenuItems: MenuItem[] = [
+const desktopMenuItems = [
   { label: 'ホーム', path: '/', icon: HomeIcon },
-  { label: '人物追加', path: '/persons/add', icon: UserPlusIcon },
-  { label: '人物一覧', path: '/persons', icon: UsersIcon },
-  { label: '検索', path: '/search', icon: MagnifyingGlassIcon },
-  { label: '設定', path: '/settings', icon: Cog6ToothIcon },
-  { label: 'ヘルプ', path: '/help', icon: QuestionMarkCircleIcon },
+  {
+    label: '人物追加',
+    path: '#',
+    icon: UserPlusIcon,
+    action: 'openAddModal' as const,
+  },
+  { label: '人物一覧', path: '#', icon: UsersIcon },
+  { label: '検索', path: '#', icon: MagnifyingGlassIcon },
+  { label: '設定', path: '#', icon: Cog6ToothIcon },
+  { label: 'ヘルプ', path: '#', icon: QuestionMarkCircleIcon },
 ]
 
-// モバイル用メニュー項目
-const mobileMenuItems: MenuItem[] = [
+const mobileMenuItems = [
   { label: 'ホーム', path: '/', icon: HomeIcon },
-  { label: '人物一覧', path: '/persons', icon: UsersIcon },
-  { label: '人物追加', path: '/persons/add', icon: UserPlusIcon },
-  { label: '検索', path: '/search', icon: MagnifyingGlassIcon },
-  { label: '設定', path: '/settings', icon: Cog6ToothIcon },
+  { label: '人物一覧', path: '#', icon: UsersIcon },
+  {
+    label: '人物追加',
+    path: '#',
+    icon: UserPlusIcon,
+    action: 'openAddModal' as const,
+  },
+  { label: '検索', path: '#', icon: MagnifyingGlassIcon },
+  { label: '設定', path: '#', icon: Cog6ToothIcon },
 ]
 
-/**
- * メニューの展開/折りたたみを切り替え
- */
 const toggleMenu = (): void => {
   isExpanded.value = !isExpanded.value
 }
 
-/**
- * モバイル表示時にメニューをクローズ
- */
-const closeMenuOnMobile = (): void => {
-  if (window.innerWidth <= 768) {
-    isExpanded.value = false
+const handleItemClick = (action: string): void => {
+  if (action === 'openAddModal') {
+    showAddPersonModal.value = true
   }
-}
-
-/**
- * 現在のパスがアクティブかどうかを判定
- */
-const isActive = (path: string): boolean => {
-  if (path === '/') {
-    return route.path === path
-  }
-  return route.path.startsWith(path)
 }
 </script>
 
 <style scoped>
-/* ============================================
-   PC/タブレット用スライドメニュー
-   ============================================ */
 .nav-sidebar {
   position: fixed;
   top: 0;
   left: 0;
   height: 100vh;
-  width: 4.8rem;
+  width: 6.4rem;
   background-color: var(--color-bg-primary);
   border-right: 1px solid var(--color-border-primary);
-  transition: width 0.3s ease;
+  transition: width 0.2s ease;
   z-index: 100;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+@media (max-width: 767px) {
+  .nav-sidebar {
+    display: none;
+  }
 }
 
 .nav-sidebar.expanded {
@@ -131,14 +133,15 @@ const isActive = (path: string): boolean => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: 4.8rem;
   height: 4.8rem;
   background: none;
   border: none;
   cursor: pointer;
-  border-bottom: 1px solid var(--color-border-primary);
   color: var(--color-text-primary);
   transition: background-color 0.2s ease;
+  border-radius: 0.8rem;
+  margin: 0.8rem;
 }
 
 .nav-toggle:hover {
@@ -155,6 +158,7 @@ const isActive = (path: string): boolean => {
   margin: 0;
   padding: 0;
   flex: 1;
+  margin-top: 1.6rem;
 }
 
 .nav-sidebar .nav-item {
@@ -166,6 +170,9 @@ const isActive = (path: string): boolean => {
   text-decoration: none;
   transition: background-color 0.2s ease;
   white-space: nowrap;
+  cursor: pointer;
+  border-radius: 0.8rem;
+  margin: 0 0.8rem;
 }
 
 .nav-sidebar .nav-item:hover {
@@ -173,8 +180,7 @@ const isActive = (path: string): boolean => {
 }
 
 .nav-sidebar .nav-item.active {
-  background-color: var(--color-primary);
-  color: var(--color-white);
+  color: var(--color-primary);
 }
 
 .nav-sidebar .nav-icon {
@@ -186,16 +192,13 @@ const isActive = (path: string): boolean => {
 .nav-sidebar .nav-label {
   font-size: 1.4rem;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease;
 }
 
 .nav-sidebar.expanded .nav-label {
   opacity: 1;
 }
 
-/* ============================================
-   モバイル用ボトムナビゲーション
-   ============================================ */
 .nav-bottom {
   position: fixed;
   bottom: 0;
@@ -205,6 +208,12 @@ const isActive = (path: string): boolean => {
   background-color: var(--color-bg-primary);
   border-top: 1px solid var(--color-border-primary);
   z-index: 100;
+}
+
+@media (min-width: 768px) {
+  .nav-bottom {
+    display: none;
+  }
 }
 
 .nav-bottom .nav-list {
@@ -228,6 +237,7 @@ const isActive = (path: string): boolean => {
   text-decoration: none;
   transition: color 0.2s ease;
   flex: 1;
+  cursor: pointer;
 }
 
 .nav-bottom .nav-item:hover {
@@ -245,6 +255,5 @@ const isActive = (path: string): boolean => {
 
 .nav-bottom .nav-label {
   font-size: 1rem;
-  font-weight: 500;
 }
 </style>

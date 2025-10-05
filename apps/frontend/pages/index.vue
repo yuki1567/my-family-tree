@@ -14,15 +14,6 @@
       </main>
     </div>
 
-    <!-- フローティング追加ボタン -->
-    <button
-      class="floating-add-btn"
-      title="人物を追加"
-      @click="openAddPersonModal"
-    >
-      +
-    </button>
-
     <PersonAddModal
       v-if="showAddPersonModal"
       @close="showAddPersonModal = false"
@@ -148,29 +139,6 @@ const openAddPersonModal = () => {
   background-color: var(--color-border-primary);
 }
 
-/* フローティング追加ボタン */
-.floating-add-btn {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  width: 56px;
-  height: 56px;
-  background-color: var(--color-primary);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  font-size: 1.5rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-}
-
-.floating-add-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-}
-
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
   .content-area {
@@ -196,14 +164,6 @@ const openAddPersonModal = () => {
     margin-right: 0.5rem;
     margin-bottom: 0.25rem;
     padding: 0.375rem 0.75rem;
-  }
-
-  .floating-add-btn {
-    bottom: 1rem;
-    right: 1rem;
-    width: 48px;
-    height: 48px;
-    font-size: 1.25rem;
   }
 }
 </style>
