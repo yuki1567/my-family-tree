@@ -11,8 +11,11 @@ export type GitHub = {
 
 export type GithubProjects = {
   projectId?: string
+  projectNumber?: number
+  statusFieldId?: string
   todoStatusId?: string
   inProgressStatusId?: string
+  inReviewStatusId?: string
   projectItemId?: string
 }
 
@@ -63,6 +66,27 @@ export function assertInProgressStatusId(ctx: Ctx): asserts ctx is Ctx & {
   assertField(
     isValidInProgressStatusId(ctx),
     'Github ProjectのIn ProgressステータスID'
+  )
+}
+
+export function assertProjectNumber(ctx: Ctx): asserts ctx is Ctx & {
+  githubProjects: GithubProjects & { projectNumber: number }
+} {
+  assertField(isValidProjectNumber(ctx), 'Github Projectの番号')
+}
+
+export function assertStatusFieldId(ctx: Ctx): asserts ctx is Ctx & {
+  githubProjects: GithubProjects & { statusFieldId: string }
+} {
+  assertField(isValidStatusFieldId(ctx), 'Github ProjectのStatusフィールドID')
+}
+
+export function assertInReviewStatusId(ctx: Ctx): asserts ctx is Ctx & {
+  githubProjects: GithubProjects & { inReviewStatusId: string }
+} {
+  assertField(
+    isValidInReviewStatusId(ctx),
+    'Github ProjectのIn ReviewステータスID'
   )
 }
 
@@ -154,6 +178,24 @@ export function isValidInProgressStatusId(ctx: Ctx): ctx is Ctx & {
   githubProjects: GithubProjects & { inProgressStatusId: string }
 } {
   return typeof ctx.githubProjects?.inProgressStatusId === 'string'
+}
+
+export function isValidProjectNumber(ctx: Ctx): ctx is Ctx & {
+  githubProjects: GithubProjects & { projectNumber: number }
+} {
+  return typeof ctx.githubProjects?.projectNumber === 'number'
+}
+
+export function isValidStatusFieldId(ctx: Ctx): ctx is Ctx & {
+  githubProjects: GithubProjects & { statusFieldId: string }
+} {
+  return typeof ctx.githubProjects?.statusFieldId === 'string'
+}
+
+export function isValidInReviewStatusId(ctx: Ctx): ctx is Ctx & {
+  githubProjects: GithubProjects & { inReviewStatusId: string }
+} {
+  return typeof ctx.githubProjects?.inReviewStatusId === 'string'
 }
 
 export function isValidProjectItemId(ctx: Ctx): ctx is Ctx & {
