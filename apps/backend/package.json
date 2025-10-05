@@ -17,7 +17,7 @@
     "test:setup": "docker compose --profile test up --wait -d test-db",
     "test:teardown": "docker-compose rm -sf test-db",
     "test:db:migrate": "dotenv -e .env.test prisma db push --force-reset --schema=./database/schema.prisma",
-    "quality": "npm-run-all --sequential test:unit type-check lint",
+    "quality": "npm-run-all --parallel test:unit type-check lint",
     "db:generate": "prisma generate --schema=./database/schema.prisma",
     "db:migrate": "prisma migrate dev --schema=./database/schema.prisma",
     "db:seed": "tsx ./database/seeds/development.ts",

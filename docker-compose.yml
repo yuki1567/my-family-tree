@@ -13,13 +13,8 @@ services:
       - ./apps:/usr/src/apps
     environment:
       - TZ=Asia/Tokyo
-      - NODE_OPTIONS=--max-old-space-size=4096
     env_file:
       - .env
-    deploy:
-      resources:
-        limits:
-          memory: 6G
 
   db:
     build:
