@@ -149,7 +149,7 @@ describe('persons API schemas', () => {
         const result = PersonSchema.safeParse(person)
         expect(result.success).toBe(false)
         if (!result.success) {
-          expect(result.error.issues[0].path).toContain('deathDate')
+          expect(result.error.issues[0]?.path).toContain('deathDate')
         }
       })
 

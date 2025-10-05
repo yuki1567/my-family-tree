@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ApiSuccessResponseSchema } from './common'
+import { ApiSuccessResponseSchema } from './common.js'
 
 export const GenderSchema = z.enum(['male', 'female', 'unknown'])
 
@@ -17,7 +17,7 @@ const dateValidationRefine = (data: {
 
 const dateValidationRefineConfig = {
   message: 'Death date must be after or equal to birth date',
-  path: ['deathDate'] as const,
+  path: ['deathDate'],
 }
 
 export const PersonSchema = z
