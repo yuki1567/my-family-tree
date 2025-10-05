@@ -12,9 +12,23 @@
   --color-danger: #ef4444;
 
   /* 性別色分け */
-  --color-male: #56b4f5; /* 男性：青系 */
-  --color-female: #f1878c; /* 女性：ピンク系 */
-  --color-unknown: #9ca3af; /* 性別不明：グレー */
+  --color-male: #3b82f6; /* 男性：青系 */
+  --color-male-border: #3b82f6;
+  --color-male-background: #eff6ff;
+  --color-female: #ec4899; /* 女性：ピンク系 */
+  --color-female-border: #ec4899;
+  --color-female-background: #fdf2f8;
+  --color-unknown: #707a89; /* 性別不明：グレー */
+  --color-unknown-border: #d1d5db;
+  --color-unknown-background: #e9eaec;
+
+  /* 関係性色分け */
+  --color-relation-spouse: #ef4444; /* 配偶者：赤系 */
+  --color-relation-spouse-border: #ef4444;
+  --color-relation-spouse-background: #fef2f2;
+  --color-relation-child: #10b981; /* 子供：緑系 */
+  --color-relation-child-border: #10b981;
+  --color-relation-child-background: #f0fdf4;
 
   --color-white: #ffffff;
   --color-black: #1f2937;
