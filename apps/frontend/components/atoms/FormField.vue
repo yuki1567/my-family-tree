@@ -125,26 +125,36 @@ const inputClasses = computed(() => [
   },
 ])
 
-const getOptionColor = (value: string | number) => {
-  const colorMap: Record<
-    string,
-    { border: string, background: string, text: string }
-  > = {
-    male: { border: '#3b82f6', background: '#eff6ff', text: '#3b82f6' },
-    female: { border: '#ec4899', background: '#fdf2f8', text: '#ec4899' },
-    unknown: { border: '#d1d5db', background: '#e9eaec', text: '#707a89' },
-    father: { border: '#3b82f6', background: '#eff6ff', text: '#3b82f6' },
-    mother: { border: '#ec4899', background: '#fdf2f8', text: '#ec4899' },
-    spouse: { border: '#ef4444', background: '#fef2f2', text: '#ef4444' },
-    child: { border: '#10b981', background: '#f0fdf4', text: '#10b981' },
+const getCSSVariable = (variableName: string): string => {
+  if (typeof window === 'undefined' || !document.documentElement) {
+    return ''
   }
-  return (
-    colorMap[String(value)] || {
-      border: '#3b82f6',
-      background: '#eff6ff',
-      text: '#3b82f6',
-    }
-  )
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(variableName)
+    .trim()
+}
+
+const getOptionColor = (value: string | number) => {
+  const valueStr = String(value)
+
+  // 値からCSS変数のキーへのマッピング
+  const colorKeyMapping: Record<string, string> = {
+    male: 'male',
+    female: 'female',
+    unknown: 'unknown',
+    father: 'male',
+    mother: 'female',
+    spouse: 'relation-spouse',
+    child: 'relation-child',
+  }
+
+  const colorKey = colorKeyMapping[valueStr] || 'male'
+
+  return {
+    border: getCSSVariable(`--color-${colorKey}-border`),
+    background: getCSSVariable(`--color-${colorKey}-background`),
+    text: getCSSVariable(`--color-${colorKey.startsWith('relation-') ? colorKey : colorKey}`),
+  }
 }
 </script>
 
