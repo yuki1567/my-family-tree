@@ -1,10 +1,12 @@
 import { PersonService } from '@/services/personService.js'
-import { Handler } from 'hono'
+import type { Context } from 'hono'
 
-export function createPersonControllerHono(personService: PersonService) {
-  const create: Handler = async (c) => {
+export class PersonControllerHono {
+  constructor(private personService: PersonService) {}
+
+  async create(c: Context): Promise<globalThis.Response> {
     const validatedData = await c.req.json()
-    const result = await personService.create(validatedData)
+    const result = await this.personService.create(validatedData)
 
     return c.json(
       {
@@ -12,9 +14,5 @@ export function createPersonControllerHono(personService: PersonService) {
       },
       201
     )
-  }
-
-  return {
-    create,
   }
 }
