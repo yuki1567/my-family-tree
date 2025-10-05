@@ -1,6 +1,7 @@
 import { AppError } from '@/errors/AppError.js'
-import { Hono } from 'hono'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js'
+import { Hono } from 'hono'
+import type { Context } from 'hono'
 import { ZodError } from 'zod'
 
 type Env = {
@@ -65,7 +66,7 @@ export function createHonoApp(): Hono<Env> {
             details: [],
           },
         },
-        error.statusCode
+        error.statusCode as Parameters<Context['json']>[1]
       )
     }
 
