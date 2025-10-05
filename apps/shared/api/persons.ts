@@ -15,11 +15,6 @@ const dateValidationRefine = (data: {
   return true
 }
 
-const dateValidationRefineConfig = {
-  message: 'Death date must be after or equal to birth date',
-  path: ['deathDate'],
-}
-
 export const PersonSchema = z
   .object({
     id: z.string().uuid(),
@@ -31,7 +26,7 @@ export const PersonSchema = z
     createdAt: z.coerce.date(),
     updatedAt: z.coerce.date(),
   })
-  .refine(dateValidationRefine, dateValidationRefineConfig)
+  .refine(dateValidationRefine, { path: ['deathDate'] })
 
 export type Person = z.infer<typeof PersonSchema>
 
@@ -43,7 +38,7 @@ export const CreatePersonRequestSchema = z
     deathDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
     birthPlace: z.string().max(200).optional(),
   })
-  .refine(dateValidationRefine, dateValidationRefineConfig)
+  .refine(dateValidationRefine, { path: ['deathDate'] })
 
 export type CreatePersonRequest = z.infer<typeof CreatePersonRequestSchema>
 
@@ -51,30 +46,3 @@ export const CreatePersonResponseSchema =
   ApiSuccessResponseSchema(PersonSchema)
 
 export type CreatePersonResponse = z.infer<typeof CreatePersonResponseSchema>
-
-export const UpdatePersonRequestSchema = CreatePersonRequestSchema.partial()
-
-export type UpdatePersonRequest = z.infer<typeof UpdatePersonRequestSchema>
-
-export const UpdatePersonResponseSchema =
-  ApiSuccessResponseSchema(PersonSchema)
-
-export type UpdatePersonResponse = z.infer<typeof UpdatePersonResponseSchema>
-
-export const PaginationMetaSchema = z.object({
-  total: z.number().int().nonnegative(),
-  page: z.number().int().positive(),
-  perPage: z.number().int().positive(),
-  totalPages: z.number().int().nonnegative(),
-})
-
-export type PaginationMeta = z.infer<typeof PaginationMetaSchema>
-
-export const ListPersonsResponseSchema = ApiSuccessResponseSchema(
-  z.object({
-    items: z.array(PersonSchema),
-    meta: PaginationMetaSchema,
-  })
-)
-
-export type ListPersonsResponse = z.infer<typeof ListPersonsResponseSchema>
