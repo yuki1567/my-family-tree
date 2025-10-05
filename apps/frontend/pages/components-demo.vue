@@ -409,7 +409,7 @@
 
       <div class="button-variants-demo">
         <div class="variant-group">
-          <h3>Primary ボタン</h3>
+          <h3>Primary ボタン（CSS変数統一済み）</h3>
           <div class="button-row">
             <AppButton variant="primary"> 通常状態 </AppButton>
             <AppButton variant="primary" :is-disabled="true">
@@ -418,6 +418,18 @@
             <AppButton variant="primary" :is-loading="true">
               ローディング
             </AppButton>
+          </div>
+          <div class="css-variables-info">
+            <p><strong>使用中のCSS変数:</strong></p>
+            <ul>
+              <li>背景色: <code>var(--button-primary-bg)</code></li>
+              <li>テキスト色: <code>var(--button-primary-text)</code></li>
+              <li>ボーダー色: <code>var(--button-primary-border)</code></li>
+              <li>ホバー背景色: <code>var(--button-primary-bg-hover)</code></li>
+              <li>ホバーテキスト色: <code>var(--button-primary-text-hover)</code></li>
+              <li>ローディング背景色: <code>var(--button-loading-bg)</code></li>
+              <li>ローディングテキスト色: <code>var(--button-loading-text)</code></li>
+            </ul>
           </div>
         </div>
 
@@ -435,19 +447,19 @@
           <div class="css-variables-info">
             <p><strong>使用中のCSS変数:</strong></p>
             <ul>
-              <li>背景色: <code>var(--color-background-tertiary)</code></li>
-              <li>テキスト色: <code>var(--color-text-tertiary)</code></li>
+              <li>背景色: <code>var(--button-secondary-bg)</code></li>
+              <li>テキスト色: <code>var(--button-secondary-text)</code></li>
               <li>
-                ボーダー色: <code>var(--color-border)</code>
+                ボーダー色: <code>var(--button-secondary-border)</code>
               </li>
               <li>
-                ホバー背景色: <code>var(--color-background-hover)</code>
+                ホバー背景色: <code>var(--button-secondary-bg-hover)</code>
               </li>
               <li>
                 ホバーボーダー色:
-                <code>var(--color-border-secondary)</code>
+                <code>var(--button-secondary-border-hover)</code>
               </li>
-              <li>ホバーテキスト色: <code>var(--color-text-hover)</code></li>
+              <li>ホバーテキスト色: <code>var(--button-secondary-text-hover)</code></li>
             </ul>
           </div>
         </div>
@@ -466,9 +478,11 @@
           <div class="css-variables-info">
             <p><strong>使用中のCSS変数:</strong></p>
             <ul>
-              <li>テキスト色: <code>var(--color-danger)</code></li>
-              <li>ボーダー色: <code>var(--color-danger)</code></li>
-              <li>ホバー背景色: <code>var(--color-danger)</code></li>
+              <li>背景色: <code>var(--button-danger-bg)</code></li>
+              <li>テキスト色: <code>var(--button-danger-text)</code></li>
+              <li>ボーダー色: <code>var(--button-danger-border)</code></li>
+              <li>ホバー背景色: <code>var(--button-danger-bg-hover)</code></li>
+              <li>ホバーテキスト色: <code>var(--button-danger-text-hover)</code></li>
             </ul>
           </div>
         </div>

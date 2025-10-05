@@ -65,7 +65,7 @@ const openAddPersonModal = () => {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--color-background);
+  background-color: var(--color-bg-primary);
 }
 
 /* メインコンテンツエリア */
@@ -78,7 +78,7 @@ const openAddPersonModal = () => {
 /* 家系図表示エリア */
 .family-tree-area {
   flex: 1;
-  background-color: var(--color-surface);
+  background-color: var(--color-bg-secondary);
   padding: 1.6rem;
   overflow: auto;
   /* 背景を画面の一番下まで拡張 */
@@ -97,14 +97,14 @@ const openAddPersonModal = () => {
 .tree-placeholder {
   text-align: center;
   padding: 3.2rem;
-  border: 2px dashed var(--color-border);
+  border: 2px dashed var(--color-border-primary);
   border-radius: 0.6rem;
-  background-color: var(--color-surface);
+  background-color: var(--color-bg-secondary);
 }
 
 .tree-placeholder h2 {
   margin: 0 0 0.8rem 0;
-  color: var(--color-text);
+  color: var(--color-text-primary);
 }
 
 .tree-placeholder p {
@@ -115,8 +115,8 @@ const openAddPersonModal = () => {
 /* コントロールパネル */
 .control-panel {
   flex: 0 0 200px;
-  background-color: var(--color-surface);
-  border-left: 1px solid var(--color-border);
+  background-color: var(--color-bg-secondary);
+  border-left: 1px solid var(--color-border-primary);
   padding: 1.6rem;
   overflow-y: auto;
 }
@@ -128,7 +128,7 @@ const openAddPersonModal = () => {
 .control-group h3 {
   margin: 0 0 0.8rem 0;
   font-size: 1.6rem;
-  color: var(--color-text);
+  color: var(--color-text-primary);
   font-weight: 600;
 }
 
@@ -137,15 +137,15 @@ const openAddPersonModal = () => {
   width: 100%;
   margin-bottom: 0.8rem;
   padding: 0.8rem;
-  background-color: var(--color-background);
-  border: 1px solid var(--color-border);
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border-primary);
   border-radius: 0.4rem;
   cursor: pointer;
   font-size: 1.6rem;
 }
 
 .control-btn:hover {
-  background-color: var(--color-border);
+  background-color: var(--color-border-primary);
 }
 
 /* フローティング追加ボタン */
@@ -180,7 +180,7 @@ const openAddPersonModal = () => {
   .control-panel {
     flex: 0 0 auto;
     border-left: none;
-    border-top: 1px solid var(--color-border);
+    border-top: 1px solid var(--color-border-primary);
     padding: 0.75rem;
   }
 

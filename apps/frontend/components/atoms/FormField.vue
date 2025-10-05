@@ -151,7 +151,7 @@ const getOptionColor = (value: string | number) => {
 <style scoped>
 .form-field-label {
   font-size: 1.4rem;
-  color: var(--color-text);
+  color: var(--color-text-primary);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -169,9 +169,9 @@ const getOptionColor = (value: string | number) => {
 
 .form-field-input {
   width: 100%;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-primary);
   border-radius: 0.6rem;
-  background-color: var(--color-background);
+  background-color: var(--color-bg-primary);
   font-size: 1.4rem;
   padding: 0.6rem 1.2rem;
   transition: all 0.2s ease-in-out;
@@ -215,16 +215,16 @@ const getOptionColor = (value: string | number) => {
   gap: 0.8rem;
   cursor: pointer;
   padding: 0.8rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border-primary);
   border-radius: 0.6rem;
-  background-color: white;
+  background-color: var(--color-white);
   font-size: 1.4rem;
-  color: var(--color-text);
+  color: var(--color-text-primary);
 }
 
 .form-field-radio-label-button:hover {
-  border-color: #d1d5db;
-  background-color: #f8f8f8;
+  border-color: var(--color-border-secondary);
+  background-color: var(--color-bg-tertiary);
 }
 
 .form-field-radio-input-button {

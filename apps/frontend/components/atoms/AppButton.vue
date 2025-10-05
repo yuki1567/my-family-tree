@@ -6,16 +6,10 @@
     :style="buttonStyles"
     @click="handleClick"
   >
-    <span
-      v-if="!isLoading"
-      class="button-contents"
-    >
+    <span v-if="!isLoading" class="button-contents">
       <slot />
     </span>
-    <ArrowPathIcon
-      v-else
-      class="loading-icon"
-    />
+    <ArrowPathIcon v-else class="loading-icon" />
   </button>
 </template>
 
@@ -87,37 +81,37 @@ const handleClick = (event: MouseEvent): void => {
 
 /* Variants */
 .app-button-primary {
-  background-color: var(--color-background);
-  color: var(--color-primary);
-  border: 1px solid var(--color-primary);
+  background-color: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  border: 1px solid var(--button-primary-border);
 }
 
 .app-button-primary:hover:not(:disabled) {
-  background-color: var(--color-primary);
-  color: var(--color-background);
+  background-color: var(--button-primary-bg-hover);
+  color: var(--button-primary-text-hover);
 }
 
 .app-button-secondary {
-  background-color: var(--color-background-tertiary);
-  color: var(--color-text-tertiary);
-  border: 1px solid var(--color-border);
+  background-color: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  border: 1px solid var(--button-secondary-border);
 }
 
 .app-button-secondary:hover:not(:disabled) {
-  background-color: var(--color-background-hover);
-  border-color: var(--color-border-secondary);
-  color: var(--color-text-hover);
+  background-color: var(--button-secondary-bg-hover);
+  border-color: var(--button-secondary-border-hover);
+  color: var(--button-secondary-text-hover);
 }
 
 .app-button-danger {
-  background-color: var(--color-background);
-  color: var(--color-danger);
-  border: 1px solid var(--color-danger);
+  background-color: var(--button-danger-bg);
+  color: var(--button-danger-text);
+  border: 1px solid var(--button-danger-border);
 }
 
 .app-button-danger:hover:not(:disabled) {
-  background-color: var(--color-danger);
-  color: var(--color-background);
+  background-color: var(--button-danger-bg-hover);
+  color: var(--button-danger-text-hover);
 }
 
 /* States */
@@ -127,9 +121,9 @@ const handleClick = (event: MouseEvent): void => {
 }
 
 .app-button-loading {
-  background-color: var(--color-primary);
-  color: var(--color-background);
-  cursor: wait;
+  background-color: var(--button-loading-bg);
+  color: var(--button-loading-text);
+  cursor: not-allowed;
 }
 
 .loading-icon {
