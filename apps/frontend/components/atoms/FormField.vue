@@ -2,17 +2,11 @@
   <div class="form-field-label">
     <div class="form-field-label-text">
       {{ label }}
-      <span
-        v-if="required"
-        class="form-field-required"
-      >*</span>
+      <span v-if="required" class="form-field-required">*</span>
     </div>
 
     <!-- Radio buttons -->
-    <div
-      v-if="type === 'radio'"
-      class="form-field-radio-group"
-    >
+    <div v-if="type === 'radio'" class="form-field-radio-group">
       <label
         v-for="option in options"
         :key="option.value"
@@ -20,9 +14,9 @@
         :style="
           inputValue === option.value
             ? {
-              borderColor: getOptionColor(option.value).border,
-              backgroundColor: getOptionColor(option.value).background,
-            }
+                borderColor: getOptionColor(option.value).border,
+                backgroundColor: getOptionColor(option.value).background,
+              }
             : {}
         "
       >
@@ -33,15 +27,15 @@
           :value="option.value"
           :required="required"
           class="form-field-radio-input-button"
-        >
+        />
         <component
           :is="option.icon"
           class="form-field-radio-icon"
           :style="
             inputValue === option.value
               ? {
-                color: getOptionColor(option.value).text,
-              }
+                  color: getOptionColor(option.value).text,
+                }
               : {}
           "
         />
@@ -50,11 +44,12 @@
           :style="
             inputValue === option.value
               ? {
-                color: getOptionColor(option.value).text,
-              }
+                  color: getOptionColor(option.value).text,
+                }
               : {}
           "
-        >{{ option.label }}</span>
+          >{{ option.label }}</span
+        >
       </label>
     </div>
 
@@ -67,12 +62,9 @@
       :placeholder="placeholder"
       :required="required"
       :class="inputClasses"
-    >
+    />
 
-    <div
-      v-if="errorMessage"
-      class="form-field-error"
-    >
+    <div v-if="errorMessage" class="form-field-error">
       {{ errorMessage }}
     </div>
   </div>
@@ -125,26 +117,33 @@ const inputClasses = computed(() => [
   },
 ])
 
-const getOptionColor = (value: string | number) => {
-  const colorMap: Record<
-    string,
-    { border: string, background: string, text: string }
-  > = {
-    male: { border: '#3b82f6', background: '#eff6ff', text: '#3b82f6' },
-    female: { border: '#ec4899', background: '#fdf2f8', text: '#ec4899' },
-    unknown: { border: '#d1d5db', background: '#e9eaec', text: '#707a89' },
-    father: { border: '#3b82f6', background: '#eff6ff', text: '#3b82f6' },
-    mother: { border: '#ec4899', background: '#fdf2f8', text: '#ec4899' },
-    spouse: { border: '#ef4444', background: '#fef2f2', text: '#ef4444' },
-    child: { border: '#10b981', background: '#f0fdf4', text: '#10b981' },
+const getCSSVariable = (variableName: string): string => {
+  if (typeof window === 'undefined' || !document.documentElement) {
+    return ''
   }
-  return (
-    colorMap[String(value)] || {
-      border: '#3b82f6',
-      background: '#eff6ff',
-      text: '#3b82f6',
-    }
-  )
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(variableName)
+    .trim()
+}
+
+const getOptionColor = (optionValue: string) => {
+  const colorKeyMapping: Record<string, string> = {
+    male: 'gender-male',
+    female: 'gender-female',
+    unknown: 'gender-unknown',
+    father: 'relation-father',
+    mother: 'relation-mother',
+    spouse: 'relation-spouse',
+    child: 'relation-child',
+  }
+
+  const colorKey = colorKeyMapping[optionValue] || 'gender-male'
+
+  return {
+    border: getCSSVariable(`--color-${colorKey}-border`),
+    background: getCSSVariable(`--color-${colorKey}-background`),
+    text: getCSSVariable(`--color-${colorKey}`),
+  }
 }
 </script>
 
@@ -164,7 +163,7 @@ const getOptionColor = (value: string | number) => {
 }
 
 .form-field-required {
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 .form-field-input {
@@ -189,17 +188,17 @@ const getOptionColor = (value: string | number) => {
 
 /* States */
 .form-field-input-error {
-  border-color: #ef4444;
+  border-color: var(--color-danger);
 }
 
 .form-field-input-error:focus {
-  border-color: #ef4444;
+  border-color: var(--color-danger);
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
 .form-field-error {
   font-size: 1.2rem;
-  color: #ef4444;
+  color: var(--color-danger);
 }
 
 /* Radio buttons */
@@ -234,6 +233,6 @@ const getOptionColor = (value: string | number) => {
 .form-field-radio-icon {
   width: 1.5rem;
   height: 1.5rem;
-  color: #6b7280;
+  color: var(--color-text-tertiary);
 }
 </style>

@@ -64,7 +64,7 @@ const handleStartGuide = () => {
   align-items: center;
   justify-content: center;
   margin: 0 auto 10px auto;
-  border-color: var(--color-unknown);
+  border-color: var(--color-gender-unknown);
   background: rgba(156, 163, 175, 0.1);
 }
 

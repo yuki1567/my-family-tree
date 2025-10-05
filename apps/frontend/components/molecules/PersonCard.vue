@@ -90,17 +90,17 @@ const formatDate = (dateString: string) => {
 }
 
 .person-avatar--male {
-  background-color: var(--color-male);
+  background-color: var(--color-gender-male);
   color: white;
 }
 
 .person-avatar--female {
-  background-color: var(--color-female);
+  background-color: var(--color-gender-female);
   color: white;
 }
 
 .person-avatar--unknown {
-  background-color: var(--color-unknown);
+  background-color: var(--color-gender-unknown);
   color: white;
 }
 

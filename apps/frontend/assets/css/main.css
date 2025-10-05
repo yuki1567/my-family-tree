@@ -4,18 +4,26 @@
 /* CSS変数定義 */
 :root {
   /* ============================================
-     カラーパレット
+     カラーパレット（基本色定義）
      ============================================ */
 
   /* プライマリカラー */
   --color-primary: #f97316;
   --color-danger: #ef4444;
 
-  /* 性別色分け */
-  --color-male: #56b4f5; /* 男性：青系 */
-  --color-female: #f1878c; /* 女性：ピンク系 */
-  --color-unknown: #9ca3af; /* 性別不明：グレー */
+  /* 基本色パレット */
+  --color-blue: #3b82f6;
+  --color-blue-light: #eff6ff;
+  --color-pink: #ec4899;
+  --color-pink-light: #fdf2f8;
+  --color-red: #ef4444;
+  --color-red-light: #fef2f2;
+  --color-green: #10b981;
+  --color-green-light: #f0fdf4;
+  --color-gray: #707a89;
+  --color-gray-light: #e9eaec;
 
+  /* グレースケール */
   --color-white: #ffffff;
   --color-black: #1f2937;
   --color-gray-50: #f9fafb;
@@ -44,6 +52,31 @@
   /* ボーダーカラー */
   --color-border-primary: var(--color-gray-200);
   --color-border-secondary: var(--color-gray-300);
+
+  /* 性別色 */
+  --color-gender-male: var(--color-blue);
+  --color-gender-male-border: var(--color-blue);
+  --color-gender-male-background: var(--color-blue-light);
+  --color-gender-female: var(--color-pink);
+  --color-gender-female-border: var(--color-pink);
+  --color-gender-female-background: var(--color-pink-light);
+  --color-gender-unknown: var(--color-gray);
+  --color-gender-unknown-border: var(--color-gray-300);
+  --color-gender-unknown-background: var(--color-gray-light);
+
+  /* 関係性色 */
+  --color-relation-father: var(--color-blue);
+  --color-relation-father-border: var(--color-blue);
+  --color-relation-father-background: var(--color-blue-light);
+  --color-relation-mother: var(--color-pink);
+  --color-relation-mother-border: var(--color-pink);
+  --color-relation-mother-background: var(--color-pink-light);
+  --color-relation-spouse: var(--color-red);
+  --color-relation-spouse-border: var(--color-red);
+  --color-relation-spouse-background: var(--color-red-light);
+  --color-relation-child: var(--color-green);
+  --color-relation-child-border: var(--color-green);
+  --color-relation-child-background: var(--color-green-light);
 
   /* ============================================
      ボタン専用変数
