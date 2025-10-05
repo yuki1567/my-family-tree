@@ -1,6 +1,5 @@
 import type {
   ApiErrorResponse,
-  ErrorResponse,
   HttpStatusCode,
 } from '../../shared/types/response'
 

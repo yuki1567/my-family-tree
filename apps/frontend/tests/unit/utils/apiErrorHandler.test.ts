@@ -1,5 +1,4 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
-import type { HttpStatusCode } from '../../../../shared/types/response'
 import type { ApiError } from '../../../utils/apiErrorHandler'
 import {
   formatErrorMessage,
