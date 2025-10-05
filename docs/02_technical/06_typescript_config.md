@@ -27,17 +27,18 @@ family-tree-app/
 
 #### **基本設定**
 
-**"target": "ES2022"**
+**"target": "es2024"**
 
-- **理由**: Node.js 22.18完全サポート、フロント・バック共通使用可能
-- **利点**: Top-level await、private fields等のモダン機能利用
+- **理由**: Node.js 22.18完全サポート、最新のECMAScript機能を利用可能
+- **利点**: Top-level await、private fields、Decorators等の最新機能利用
 - **影響範囲**: 全アプリ共通
+- **ES2024新機能**: Object grouping、Promise.withResolvers等
 
-**"lib": ["ES2022"]**
+**"lib": ["es2024", "DOM"]**
 
-- **理由**: DOM関連はフロントエンド専用、共通部分のみ定義
-- **除外**: DOM、DOM.Iterableはapps/frontend/tsconfig.jsonで設定
-- **利点**: バックエンドでのDOM型誤用防止
+- **理由**: ES2024標準ライブラリ + DOM型を共通設定に含める
+- **DOM含有理由**: Nuxt.js環境ではフロントエンド・バックエンド両方でDOM型が必要となる場合があるため（SSR/SSG時のwindow参照等）
+- **注意**: バックエンドでDOM型を使用する場合は、実行環境チェック（`typeof window !== 'undefined'`）を必ず実施
 
 #### **厳格性設定**
 
@@ -52,11 +53,12 @@ family-tree-app/
 - **効果**: リファクタリング時の取り残し防止
 - **運用**: \_接頭辞で意図的な未使用を表現
 
-**"exactOptionalPropertyTypes": true**
+**"exactOptionalPropertyTypes": false**
 
-- **理由**: API型定義の厳密性確保（shared/types使用時）
-- **効果**: undefined vs 未定義プロパティの明確区別
-- **用途**: フロント・バック間のデータ型整合性
+- **設定理由**: Prismaクライアント生成型との互換性確保のため無効化
+- **背景**: exactOptionalPropertyTypes: trueの場合、Prisma生成型で`{ field?: T | undefined }`と`{ field?: T }`の区別が厳密になり、実用上の問題が発生
+- **トレードオフ**: 型安全性は若干低下するが、実装の柔軟性とライブラリ互換性を優先
+- **代替策**: optional chainning（`?.`）やnullish coalescing（`??`）で明示的なundefinedハンドリングを実施
 
 **"noImplicitReturns": true**
 
@@ -110,10 +112,20 @@ family-tree-app/
 
 #### **モジュールシステム設定**
 
+**"module": "nodenext" / "moduleResolution": "nodenext"**
+
+- **理由**: Node.js 22のネイティブESMサポートに対応
+- **効果**: package.jsonの"type": "module"設定と連携し、純粋なESMプロジェクトとして動作
+- **利点**:
+  - `.js`拡張子で明示的なimport（`import { foo } from './bar.js'`）
+  - 条件付きエクスポート（package.json "exports"フィールド）の完全サポート
+  - Node.jsランタイムとの完全な一貫性
+- **注意**: CommonJSとの混在環境では、相互運用性に注意が必要
+
 **"esModuleInterop": true / "allowSyntheticDefaultImports": true**
 
 - **理由**: CommonJSモジュールとの互換性確保
-- **効果**: import文の統一的使用
+- **効果**: import文の統一的使用（`import express from 'express'`形式）
 - **実用性**: Node.jsライブラリの混在環境対応
 
 #### **パス解決設定**
@@ -134,19 +146,27 @@ family-tree-app/
 - **効果**: `import { Type } from "@shared/types"`, `import { service } from "@/services/person"`
 - **保守性**: 深い相対パス（`../../../`）の回避
 
+#### **デバッグ設定**
+
+**"sourceMap": true**
+
+- **理由**: デバッグ効率化のため、全環境でソースマップを生成
+- **効果**: TypeScriptソースコードと出力JavaScriptの対応付けが可能
+- **利点**:
+  - エラースタックトレースが元のTypeScriptファイル位置を表示
+  - ブラウザDevToolsでTypeScriptコードを直接デバッグ可能
+  - Node.jsデバッガーでのステップ実行が容易
+- **注意**: 本番環境では`.map`ファイルを除外することでセキュリティ向上可能
+
 ### 2.3 除外した設定と理由
 
 #### **フロントエンド専用設定**
 
 **"module": "ESNext", "moduleResolution": "Bundler"**
 
-- **除外理由**: バンドラー依存、バックエンドでは不要
-- **設定場所**: apps/frontend/tsconfig.json
-
-**"lib": ["DOM", "DOM.Iterable"]**
-
-- **除外理由**: ブラウザ環境専用
-- **設定場所**: apps/frontend/tsconfig.json
+- **除外理由**: ルート設定では`module: "nodenext"`を採用（Node.js環境に最適化）
+- **設定場所**: apps/frontend/tsconfig.json（Nuxtバンドラー環境に応じて設定）
+- **補足**: フロントエンドではVite/Nuxtバンドラーが`moduleResolution: "Bundler"`を適切に処理
 
 **"allowImportingTsExtensions": true**
 
@@ -164,11 +184,13 @@ family-tree-app/
 
 - **除外理由**: フロント（true）・バック（false）・共有（true）で異なる
 - **設定場所**: 各アプリのtsconfig.json
+- **補足**: フロントエンドはViteがビルドを担当、バックエンドはTypeScriptコンパイラが出力
 
-**"declaration": true, "declarationMap": true, "sourceMap": true**
+**"declaration": true, "declarationMap": true**
 
-- **除外理由**: 出力ファイル生成設定、アプリ依存
+- **除外理由**: 型定義ファイル生成設定、バックエンド専用
 - **設定場所**: apps/backend/tsconfig.json（必要に応じて）
+- **補足**: `sourceMap`はルート設定に含まれるが、declaration系はバックエンドのみで使用
 
 #### **使用しない機能**
 

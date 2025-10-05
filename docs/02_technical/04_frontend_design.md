@@ -24,30 +24,67 @@
 #### nuxt.config.ts設定内容と設定理由
 
 ```typescript
+import { defineNuxtConfig } from 'nuxt/config'
+
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  modules: [
+    '@pinia/nuxt',
+    [
+      '@nuxt/eslint',
+      {
+        config: {
+          stylistic: false,
+        },
+      },
+    ],
+  ],
+
+  // SPAモード
   ssr: false,
+
+  // 開発設定
+  devtools: { enabled: true },
+
+  // CSS設定
   css: ['~/assets/css/main.css'],
-  modules: ['@pinia/nuxt'],
+
+  compatibilityDate: '2025-08-15',
+
+  vite: {
+    resolve: {
+      preserveSymlinks: true,
+    },
+  },
 })
 ```
 
 **各設定の理由**:
 
-- **`devtools: { enabled: true }`**
-  - **目的**: Vue DevToolsによる開発効率向上
-  - **効果**: コンポーネント状態の可視化、Pinia状態管理の監視
+- **`modules: ['@pinia/nuxt', '@nuxt/eslint']`**
+  - **@pinia/nuxt**: 状態管理ライブラリの統合
+  - **@nuxt/eslint**: Nuxt専用ESLint設定（Flat Config形式対応）
+  - **stylistic: false**: スタイル関連ルールを無効化（Prettierに委譲）
 
 - **`ssr: false`**
   - **目的**: SPAモードでの動作
+  - **理由**: 家系図アプリは完全なクライアントサイドアプリケーションとして設計
+
+- **`devtools: { enabled: true }`**
+  - **目的**: Vue DevToolsによる開発効率向上
+  - **効果**: コンポーネント状態の可視化、Pinia状態管理の監視
 
 - **`css: ['~/assets/css/main.css']`**
   - **目的**: グローバルCSS定義
   - **内容**: CSS Reset、カラーパレット、レスポンシブ変数
   - **理由**: コンポーネント個別の`<style scoped>`では共有変数が使用不可
 
-- **`modules: ['@pinia/nuxt']`**
-  - **目的**: 状態管理ライブラリ設定
+- **`compatibilityDate: '2025-08-15'`**
+  - **目的**: Nuxt 3の互換性日付設定
+  - **効果**: 将来の破壊的変更からの保護、安定性向上
+
+- **`vite.resolve.preserveSymlinks: true`**
+  - **目的**: シンボリックリンクの保持
+  - **理由**: モノレポ構成での共有モジュール（@shared）の適切な解決
 
 #### 設定除外項目と除外理由
 

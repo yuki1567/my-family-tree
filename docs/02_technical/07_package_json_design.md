@@ -112,12 +112,26 @@ family-tree-app/
 **Prettier設定**
 
 ```json
-"prettier": "3.6.2"
+"prettier": "3.6.2",
+"@trivago/prettier-plugin-sort-imports": "4.3.0"
 ```
 
-- **理由**: コードフォーマット統一
+- **prettier**: コードフォーマット統一
+- **@trivago/prettier-plugin-sort-imports**: import文の自動並び替え
 - **対象ファイル**: `"**/*.{js,ts,vue,json,md}"`
-- **効果**: コードレビュー効率化
+- **効果**: コードレビュー効率化、import順序の統一
+
+**共通ユーティリティ**
+
+```json
+"npm-run-all": "4.1.5",
+"tsx": "4.20.5",
+"dotenv": "17.2.2"
+```
+
+- **npm-run-all**: 複数スクリプトの並列・直列実行
+- **tsx**: TypeScriptスクリプトの直接実行（スクリプト用）
+- **dotenv**: 環境変数管理（スクリプト用）
 
 ## 3. フロントエンドpackage.json設計
 
@@ -176,13 +190,14 @@ family-tree-app/
 
 #### **本番依存関係（dependencies）**
 
-**"nuxt": "3.13.2"**
+**"nuxt": "3.19.2"**
 
 - **選定理由**:
   - Vue 3ベースの最新安定版
   - TypeScript標準サポート
   - ファイルベースルーティング
   - 自動import機能
+  - パフォーマンス改善とバグ修正
 - **バージョン固定理由**: ビルド再現性確保
 
 **"vue": "3.5.10"**
@@ -207,22 +222,21 @@ family-tree-app/
   - **開発体験**: DevTools統合、HMR対応
 - **@pinia/nuxt**: Nuxt統合用プラグイン
 
-**"@nuxt/eslint": "0.5.7"**
+**"@nuxt/eslint": "1.9.0"**
 
 - **理由**: Nuxt専用ESLint設定
 - **提供機能**:
   - Nuxtの自動import認識
   - ファイルベースルーティング対応
   - Vue SFC内でのlint
+  - ESLint Flat Config形式への対応
 
 #### **開発依存関係（devDependencies）**
 
 **テストフレームワーク**
 
 ```json
-"vitest": "2.1.2",
-"@vitest/ui": "2.1.2",
-"@vitest/coverage-v8": "2.1.2"
+"vitest": "3.2.4"
 ```
 
 - **Vitest選定理由**:
@@ -230,7 +244,8 @@ family-tree-app/
   - **ESModules対応**: 設定不要でimport/export
   - **TypeScript**: 追加設定不要
   - **Watch Mode**: ファイル変更での自動再実行
-- **Coverage-v8**: V8エンジンのネイティブカバレッジ使用
+  - **フロント・バック共通化**: 同一テストフレームワークによる学習コスト削減
+- **注**: v3.2.4では`@vitest/ui`と`@vitest/coverage-v8`が本体に統合されており、個別インストール不要
 
 **Vue テストユーティリティ**
 
@@ -245,7 +260,7 @@ family-tree-app/
 **DOM環境**
 
 ```json
-"happy-dom": "15.7.4"
+"happy-dom": "15.11.7"
 ```
 
 - **happy-dom選定理由**:
@@ -284,11 +299,25 @@ family-tree-app/
 "@vueuse/core": "必要に応じて後で追加検討"
 ```
 
+**フロントエンド追加依存関係**
+
+```json
+"@heroicons/vue": "2.2.0",
+"@vueuse/integrations": "13.9.0",
+"focus-trap": "7.6.5",
+"modern-normalize": "3.0.1"
+```
+
+- **@heroicons/vue**: Vue 3用のHeroiconsアイコンライブラリ（Tailwind開発元提供）
+- **@vueuse/integrations**: VueUseの統合ライブラリ（外部ライブラリとの連携）
+- **focus-trap**: アクセシビリティ対応のフォーカストラップ実装
+- **modern-normalize**: CSSリセット（Normalize.cssの後継、モダンブラウザ対応）
+
 **テスト系**
 
 ```json
 // 使用しない理由
-"jest": "ESModules設定複雑、Vitestが高速",
+"jest": "Vitestに統一（フロント・バック共通化）",
 "cypress": "E2Eテスト用、Phase 0では不要",
 "playwright": "E2Eテスト用、Phase 0では不要"
 ```
@@ -333,14 +362,18 @@ family-tree-app/
 **テスト**
 
 ```json
-"test": "jest",
-"test:coverage": "jest --coverage"
+"test": "vitest --run --config vitest.config.ts",
+"test:unit": "vitest --run --config vitest.config.ts --project unit",
+"test:integration": "vitest --run --config vitest.config.ts --project integration",
+"test:watch": "vitest --watch --config vitest.config.ts --project unit"
 ```
 
-- **Jest選定理由**:
-  - **vs Vitest**: バックエンド特化、豊富なモック機能
-  - **Node.js実績**: サーバーサイドテストでの実績
-  - **supertest親和性**: APIテスト時の連携
+- **Vitest選定理由**:
+  - **フロントエンドとの統一**: 同一テストフレームワークによる学習コスト削減
+  - **vs Jest**: ESModules対応が容易、高速起動
+  - **Node.js対応**: サーバーサイドテストも問題なく実行可能
+  - **supertest統合**: APIテスト時の連携も良好
+  - **プロジェクト分離**: unit/integration別々に実行可能
 
 **データベース操作**
 
@@ -361,14 +394,19 @@ family-tree-app/
 **Express.js + TypeScript**
 
 ```json
-"express": "4.21.1",
-"@types/express": "5.0.0"
+"express": "5.1.0",
+"@types/express": "5.0.3"
 ```
 
-- **Express選定理由**:
+- **Express 5.x選定理由**:
+  - **vs Express 4.x**: パフォーマンス改善、非推奨APIの削除
   - **vs Fastify**: 豊富なエコシステム、学習コスト低
   - **vs Koa**: ミドルウェア豊富、安定性重視
   - **vs NestJS**: プロジェクト規模に適している軽量性
+- **Express 5.x主要変更点**:
+  - Promiseベースの非同期エラーハンドリング
+  - 不要な機能の削除による軽量化
+  - より厳格な型定義サポート
 - **型定義配置理由**: ランタイム・開発時両方で必要
 
 **Prisma ORM**

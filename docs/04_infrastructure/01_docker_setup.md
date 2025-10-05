@@ -6,15 +6,15 @@
 
 ```
 family-tree-app/
-├── app (Node.js + PM2) # PM2管理による統合アプリケーション
-│   ├── frontend        # Nuxt.js (PM2プロセス)
-│   └── backend         # Express.js (PM2プロセス)
-└── db (MySQL 8.4.6)    # データベース
+├── apps (Node.js + PM2) # PM2管理による統合アプリケーション
+│   ├── frontend         # Nuxt.js (PM2プロセス)
+│   └── backend          # Express.js (PM2プロセス)
+└── db (MySQL 8.4.6)     # データベース
 ```
 
 ### 1.2 ネットワーク・ポート構成
 
-- **app**: 3000（Nuxt.js）, 4000（Express.js API）- PM2による単一コンテナ管理
+- **apps**: 3000（Nuxt.js）, 4000（Express.js API）- PM2による単一コンテナ管理
 - **db**: ${MYSQL_PORT}（MySQL、環境変数で設定可能）
 
 ### 1.3 PM2統合運用の利点
@@ -40,7 +40,7 @@ family-tree-app/
 ├── .env                        # 環境変数
 ├── .dockerignore              # Docker除外ファイル
 └── docker/                    # Docker関連ファイル
-    ├── app/
+    ├── apps/
     │   ├── Dockerfile         # Node.js アプリ用
     │   └── entrypoint.sh      # 起動スクリプト
     └── db/
@@ -82,7 +82,7 @@ family-tree-app/
 
 ### 3.1 アプリケーション用 Dockerfile
 
-**docker/app/Dockerfile** の設計方針と構成：
+**docker/apps/Dockerfile** の設計方針と構成：
 
 #### 基本構成
 
@@ -153,7 +153,7 @@ family-tree-app/
 
 ### 3.4 起動スクリプト（PM2統合運用）
 
-**docker/app/entrypoint.sh** の役割：
+**docker/apps/entrypoint.sh** の役割：
 
 - データベース接続待機（mysqladmin ping）
 - Prisma クライアント生成・マイグレーション実行
@@ -250,26 +250,26 @@ family-tree-app/
 
 ```bash
 # フルスタック開発環境起動
-docker-compose up app db
+docker-compose up apps db
 
 # バックグラウンド起動
-docker-compose up -d app db
+docker-compose up -d apps db
 
 # アプリケーションのみ起動（データベース既起動時）
-docker-compose up app
+docker-compose up apps
 ```
 
 #### ログ確認・操作
 
 ```bash
 # 統合ログ確認
-docker-compose logs -f app
+docker-compose logs -f apps
 
 # データベースログ確認
 docker-compose logs -f db
 
 # PM2プロセス状態確認（コンテナ内）
-docker-compose exec app pm2 list
+docker-compose exec apps pm2 list
 
 # 環境停止
 docker-compose down
@@ -288,7 +288,7 @@ docker-compose down -v
 
 ```bash
 # アプリケーションコンテナに入る
-docker-compose exec app bash
+docker-compose exec appsbash
 
 # データベースコンテナに入る
 docker-compose exec db bash
@@ -297,9 +297,9 @@ docker-compose exec db bash
 docker-compose exec db mysql -u family_tree_user -p family_tree
 
 # PM2プロセス管理（コンテナ内）
-docker-compose exec app pm2 list        # プロセス一覧
-docker-compose exec app pm2 restart all # 全プロセス再起動
-docker-compose exec app pm2 logs        # ログ確認
+docker-compose exec apps pm2 list        # プロセス一覧
+docker-compose exec appspm2 restart all # 全プロセス再起動
+docker-compose exec appspm2 logs        # ログ確認
 ```
 
 ### 5.3 開発コマンド（PM2統合運用）
@@ -309,24 +309,24 @@ docker-compose exec app pm2 logs        # ログ確認
 # entrypoint.shにより自動実行されるため手動起動は不要
 
 # ビルド（コンテナ内で実行）
-docker-compose exec app npm run build:frontend              # フロントエンドビルド
-docker-compose exec app npm run build:backend               # バックエンドビルド
+docker-compose exec appsnpm run build:frontend              # フロントエンドビルド
+docker-compose exec appsnpm run build:backend               # バックエンドビルド
 
 # テスト実行
-docker-compose exec app npm run test                        # 全体テスト
+docker-compose exec appsnpm run test                        # 全体テスト
 
 # Prisma操作（アプリケーションコンテナで実行）
-docker-compose exec app npx prisma studio
-docker-compose exec app npx prisma migrate dev
-docker-compose exec app npx prisma generate
+docker-compose exec appsnpx prisma studio
+docker-compose exec appsnpx prisma migrate dev
+docker-compose exec appsnpx prisma generate
 
 # ワークスペース全体操作
-docker-compose exec app npm install                         # 依存関係更新時
+docker-compose exec appsnpm install                         # 依存関係更新時
 
 # PM2プロセス制御
-docker-compose exec app pm2 restart frontend               # フロントエンド再起動
-docker-compose exec app pm2 restart backend                # バックエンド再起動
-docker-compose exec app pm2 reload all                     # 全プロセス reload
+docker-compose exec appspm2 restart frontend               # フロントエンド再起動
+docker-compose exec appspm2 restart backend                # バックエンド再起動
+docker-compose exec appspm2 reload all                     # 全プロセス reload
 ```
 
 **PM2統合開発のポイント:**
@@ -388,29 +388,29 @@ docker-compose up -d
 
 ```bash
 # PM2プロセス状態確認
-docker-compose exec app pm2 list
+docker-compose exec apps pm2 list
 
 # 異常プロセスの再起動
-docker-compose exec app pm2 restart <プロセス名>
+docker-compose exec appspm2 restart <プロセス名>
 
 # 全プロセス再起動
-docker-compose exec app pm2 restart all
+docker-compose exec appspm2 restart all
 
 # PM2ログ確認
-docker-compose exec app pm2 logs --lines 100
+docker-compose exec appspm2 logs --lines 100
 ```
 
 #### entrypoint.sh実行エラー
 
 ```bash
 # コンテナ起動ログ確認
-docker-compose logs app
+docker-compose logs apps
 
 # 手動でentrypoint.sh実行
-docker-compose exec app bash -c "./entrypoint.sh"
+docker-compose exec appsbash -c "./entrypoint.sh"
 
 # データベース接続確認
-docker-compose exec app mysqladmin ping -h"db"
+docker-compose exec appsmysqladmin ping -h"db"
 ```
 
 ### 6.3 環境リセット

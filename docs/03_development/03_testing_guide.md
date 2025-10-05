@@ -75,30 +75,39 @@
 
 ### 使用ツール
 
-#### バックエンド
+#### 統一テストフレームワーク: Vitest
 
-**Jest** + **ts-jest**
+**本プロジェクトではフロントエンド・バックエンド共にVitestを採用**
 
-- **選定理由**: Node.jsエコシステムで最も成熟したテストフレームワーク
-- **利点**: 豊富なアサーション、強力なモック機能、スナップショットテスト対応
-- **用途**: 単体テスト・統合テスト両方で使用
+**Vitest選定理由**:
+
+- **フロント・バック統一**: 同一テストフレームワークによる学習コスト削減
+- **ESM完全サポート**: package.json `"type": "module"` との完全な互換性
+- **高速実行**: Viteベースによる高速起動・実行
+- **TypeScript統合**: 追加設定不要でTypeScriptをネイティブサポート
+- **Jest互換API**: 既存のJest知識をそのまま活用可能
+
+**Vitest vs Jest比較**:
+
+| 項目 | Vitest | Jest |
+|------|--------|------|
+| ESM対応 | ネイティブサポート | 追加設定必要 |
+| 起動速度 | 高速（Vite） | 遅い |
+| TypeScript | 追加設定不要 | ts-jest必要 |
+| Vue SFC | ネイティブサポート | 追加設定必要 |
+| Node.js API | 完全サポート | 完全サポート |
+
+**バックエンドでのVitest採用理由**:
+
+- **Node.js対応**: サーバーサイドテストも問題なく実行可能
+- **supertest統合**: Express APIテストとの連携も良好
+- **モック機能**: `vi.fn()`, `vi.mock()`でJestと同等の機能を提供
+- **統合テスト**: 実際のDB（test-db）との統合テストも安定動作
 
 **モック戦略**
 
 - **選定理由**: Repository層の実際のDB操作はテスト環境の複雑化を避けるため
-- **実装**: `jest.fn()`を使用したService層テストでのRepository層モック化
-
-#### フロントエンド
-
-**Vitest**
-
-- **選定理由**: Vue3・Nuxt3エコシステムに最適化された次世代テストフレームワーク
-- **利点**:
-  - Viteベースで高速実行（HMR対応）
-  - Vue SFC（Single File Component）のネイティブサポート
-  - ESM（ES Modules）完全サポート
-  - Jestとの互換APIで学習コストが低い
-- **Jest比較**: フロントエンドモダン環境における実行速度と開発体験が大幅改善
+- **実装**: `vi.fn()`を使用したService層テストでのRepository層モック化
 
 **Vue Test Utils**
 
@@ -129,12 +138,18 @@
 
 ```typescript
 // __tests__/unit/services/personService.test.ts
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 describe('PersonService', () => {
   const createMockRepository = () =>
     ({
-      create: jest.fn(),
-      findById: jest.fn(),
-    }) as jest.Mocked<PersonRepository>
+      create: vi.fn(),
+      findById: vi.fn(),
+    }) as MockedObject<PersonRepository>
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
   describe('create', () => {
     it('有効なデータの場合、人物を作成できるか', async () => {

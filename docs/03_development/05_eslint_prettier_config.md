@@ -18,30 +18,115 @@
 
 ## 2. ESLint設定詳細
 
-### 2.1 基本設定構成
+### 2.1 ESLint Flat Config形式について
+
+**本プロジェクトはESLint v9以降のFlat Config形式を採用しています**
+
+- **従来形式**: `.eslintrc.js`, `.eslintrc.json`（非推奨）
+- **新形式**: `eslint.config.js`（推奨）
+- **利点**:
+  - TypeScript ESMモジュールとして記述可能
+  - 設定の合成（複数設定の配列化）が明確
+  - グローバル変数定義の柔軟性向上
+  - `extends`を使わず、設定オブジェクトの配列で構成
+
+### 2.2 ルート設定構成（eslint.config.js）
+
+**モノレポ共通設定として、バックエンドで使用**
 
 ```javascript
 // eslint.config.js
-module.exports = {
-  root: true,
-  env: {
-    browser: true,
-    node: true,
+import js from '@eslint/js'
+import typescript from '@typescript-eslint/eslint-plugin'
+import typescriptParser from '@typescript-eslint/parser'
+import prettier from 'eslint-plugin-prettier'
+
+export const baseIgnores = [
+  'node_modules',
+  'dist',
+  'coverage',
+  'public',
+  '.vscode',
+  '.git',
+  '**/node_modules/**',
+  '**/dist/**',
+  '**/coverage/**',
+  '**/public/**',
+  '**/.vscode/**',
+  '**/.git/**',
+]
+
+export const baseConfig = [
+  {
+    ignores: baseIgnores,
   },
-  extends: [
-    '@nuxtjs/eslint-config-typescript',
-    'plugin:nuxt/recommended',
-    'plugin:prettier/recommended',
-  ],
-  plugins: [],
-  parser: '@typescript-eslint/parser',
-  rules: {
-    // カスタムルール設定
+  js.configs.recommended,
+  {
+    files: ['**/*.{js,mjs,cjs,ts}'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module',
+      },
+      globals: {
+        browser: true,
+        node: true,
+        console: true,
+        process: true,
+        setTimeout: 'readonly',
+        fetch: 'readonly',
+        NodeJS: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': typescript,
+      prettier,
+    },
+    rules: {
+      // カスタムルール設定（後述）
+    },
   },
-}
+  {
+    files: ['scripts/**/*.{js,ts,sh}'],
+    rules: {
+      'no-console': 'off', // スクリプトではconsole使用許可
+    },
+  },
+]
+
+export default baseConfig
 ```
 
-### 2.2 追加されたルール詳細
+### 2.3 フロントエンド設定構成（apps/frontend/eslint.config.js）
+
+**Nuxt.js専用設定として、`@nuxt/eslint`モジュールを使用**
+
+```javascript
+// apps/frontend/eslint.config.js
+import withNuxt from './.nuxt/eslint.config.mjs'
+
+export default withNuxt([
+  {
+    ignores: ['.nuxt/**', '.output/**'],
+  },
+  {
+    files: ['**/*.vue'],
+    rules: {
+      // Vue 3では複数のルート要素が許可されているため無効化
+      'vue/no-multiple-template-root': 'off',
+    },
+  },
+])
+```
+
+**特徴**:
+- **`@nuxt/eslint`**: Nuxtが推奨する設定を自動的に適用
+- **`.nuxt/eslint.config.mjs`**: Nuxt起動時に自動生成される設定ファイル
+- **Vue専用ルール**: `withNuxt()`が自動的にVue関連のルールを追加
+- **TypeScript統合**: Nuxt環境に最適化されたTypeScriptルールを自動適用
+
+### 2.4 追加されたルール詳細
 
 #### **コンソール出力制御**
 
@@ -313,6 +398,7 @@ const config = {
 {
   "plugins": ["@trivago/prettier-plugin-sort-imports"],
   "importOrder": [
+    "^(path|fs|url|os|crypto|http|https|stream|util|events)$",
     "^[^./]",
     "^@shared/(.*)$",
     "^@/(.*)$",
@@ -325,6 +411,12 @@ const config = {
 ```
 
 #### **並び替えルール詳細**
+
+**`"^(path|fs|url|os|crypto|http|https|stream|util|events)$"`**: Node.js標準モジュール
+
+- **対象**: `path`, `fs`, `url`, `os`, `crypto`, `http`, `https`, `stream`, `util`, `events`
+- **理由**: Node.js標準ライブラリを最優先で配置し、外部依存と明確に区別
+- **効果**: ランタイム依存関係の可視化、package.jsonの依存関係管理が容易
 
 **`"^[^./]"`**: 外部ライブラリ
 
@@ -367,14 +459,15 @@ import fs from 'fs'
 import { familyTreeStore } from '../stores/familyTree'
 
 // ✅ 整形後（自動並び替え結果）
-import express from 'express'
-import fs from 'fs'
+import fs from 'fs' // Node.js標準モジュール（最優先）
 
-import { FamilyMember } from '@shared/types/familyMember'
+import express from 'express' // 外部ライブラリ
 
-import { familyTreeStore } from '../stores/familyTree'
+import { FamilyMember } from '@shared/types/familyMember' // 共有モジュール
 
-import { validatePerson } from './validators/personValidator'
+import { familyTreeStore } from '../stores/familyTree' // 親ディレクトリ
+
+import { validatePerson } from './validators/personValidator' // 同階層
 ```
 
 ## 4. 実行方法

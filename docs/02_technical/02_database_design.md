@@ -4,7 +4,7 @@
 
 ### 1.1 データベース基本情報
 
-- **RDBMS**: MySQL 8.4.0
+- **RDBMS**: MySQL 8.4.6
 - **文字セット**: utf8mb4
 - **照合順序**: utf8mb4_unicode_ci
 - **タイムゾーン**: Asia/Tokyo（JST）
