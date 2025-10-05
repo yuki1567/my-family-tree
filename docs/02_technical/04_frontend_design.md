@@ -136,3 +136,178 @@ apps/frontend/
 ### 3.2 コンポーネント責務
 
 ### 3.3 状態管理設計
+
+## 4. ユーティリティ設計
+
+### 4.1 API エラーハンドリング
+
+#### 概要
+
+フロントエンドのAPI通信エラーを統一的に処理するユーティリティ機能です。エラーハンドリングの一貫性を確保し、ユーザーへの適切なフィードバックを提供します。
+
+#### 実装場所
+
+- `apps/frontend/utils/apiErrorHandler.ts`
+
+#### 提供機能
+
+##### 4.1.1 handleApiError
+
+API エラーをハンドリングし、統一的な形式で返します。
+
+```typescript
+export function handleApiError(error: ApiError): ApiErrorHandlingResult
+```
+
+**返り値**:
+- `message`: ユーザー向けのエラーメッセージ（日本語）
+- `shouldShowToUser`: ユーザーに表示すべきかどうか
+- `severity`: エラーの深刻度（`low` | `medium` | `high`）
+
+**使用例**:
+```typescript
+const { message, shouldShowToUser } = handleApiError(error)
+if (shouldShowToUser) {
+  // ユーザーにエラーメッセージを表示
+}
+```
+
+##### 4.1.2 formatErrorMessage
+
+HTTPステータスコードとエラーコードから日本語エラーメッセージを生成します。
+
+```typescript
+export function formatErrorMessage(
+  status: HttpStatusCode,
+  errorCode?: string,
+): string
+```
+
+**使用例**:
+```typescript
+const message = formatErrorMessage(404, 'NOT_FOUND')
+// => 'データが見つかりません'
+```
+
+##### 4.1.3 logApiError
+
+API エラーをコンソールにログ出力します。エラーの深刻度に応じて適切なログレベルで出力されます。
+
+```typescript
+export function logApiError(
+  error: ApiError,
+  context: string,
+  endpoint: string,
+): void
+```
+
+**ログレベル**:
+- `high`: `console.error()`
+- `medium`: `console.warn()`
+- `low`: `console.log()`
+
+**使用例**:
+```typescript
+logApiError(error, 'PersonAPI', 'GET /api/people')
+// => [HIGH] API Error in PersonAPI - GET /api/people: サーバーエラーが発生しました
+```
+
+##### 4.1.4 ネットワークエラー処理
+
+ネットワークエラーの検出とハンドリングを提供します。
+
+```typescript
+export function isNetworkError(error: unknown): boolean
+export function handleNetworkError(): ApiErrorHandlingResult
+```
+
+**使用例**:
+```typescript
+if (isNetworkError(error)) {
+  const result = handleNetworkError()
+  // => { message: 'ネットワークエラーが発生しました...', ... }
+}
+```
+
+#### エラー分類
+
+##### HTTPステータスコード別の分類
+
+| ステータス | 深刻度 | デフォルトメッセージ | 説明 |
+|-----------|--------|---------------------|------|
+| 400 | medium | 入力内容に誤りがあります | バリデーションエラー |
+| 401 | high | 認証が必要です | 認証エラー |
+| 403 | high | アクセス権限がありません | 権限エラー |
+| 404 | medium | 要求されたデータが見つかりません | データ不見当 |
+| 500 | high | サーバーエラーが発生しました | サーバーエラー |
+
+##### エラーコード別のメッセージ
+
+**共通エラーコード**:
+- `VALIDATION_ERROR`: 入力内容に誤りがあります
+- `UNAUTHORIZED`: 認証が必要です
+- `FORBIDDEN`: アクセス権限がありません
+- `NOT_FOUND`: データが見つかりません
+- `INTERNAL_ERROR`: サーバーエラーが発生しました
+- `DATABASE_ERROR`: データベースエラーが発生しました
+- `UNEXPECTED_ERROR`: 予期しないエラーが発生しました
+
+**バリデーションエラーコード**:
+- `NAME_TOO_LONG`: 名前が長すぎます
+- `INVALID_GENDER`: 性別の指定が不正です
+- `INVALID_DATE_FORMAT`: 日付の形式が不正です
+- `DEATH_BEFORE_BIRTH`: 死亡日が生年月日より前になっています
+- `BIRTH_PLACE_TOO_LONG`: 出生地が長すぎます
+
+#### 型定義
+
+##### ApiError型
+
+```typescript
+export type ApiError = {
+  status: HttpStatusCode
+  message?: string
+  response?: ApiErrorResponse
+}
+```
+
+##### ApiErrorHandlingResult型
+
+```typescript
+export type ApiErrorHandlingResult = {
+  message: string
+  shouldShowToUser: boolean
+  severity: 'low' | 'medium' | 'high'
+}
+```
+
+#### apps/shared/typesとの連携
+
+`apps/shared/types/response.ts`で定義されている以下の型を使用します：
+
+- `ApiErrorResponse`: APIエラーレスポンスの型
+- `ErrorResponse`: エラーレスポンスの詳細型
+- `HttpStatusCode`: HTTPステータスコードのリテラル型
+- `ErrorCode`: エラーコードのリテラル型
+- `ValidationErrorCode`: バリデーションエラーコードのリテラル型
+
+これにより、バックエンドとフロントエンドで一貫したエラー処理が実現されます。
+
+#### 設計原則
+
+- **TypeScript strict mode準拠**: 型安全性を確保
+- **シンプルなAPIインターフェース**: 使いやすく、理解しやすい関数群
+- **一貫性**: 全てのAPI通信で同じエラーハンドリング方法を使用
+- **ユーザビリティ**: 日本語の分かりやすいエラーメッセージ
+- **保守性**: エラーメッセージの一元管理により、変更が容易
+
+#### テスト
+
+各関数の単体テストを`apps/frontend/tests/unit/utils/apiErrorHandler.test.ts`に実装しています。
+
+**テストカバレッジ**:
+- HTTPステータスコード別のエラーハンドリング
+- エラーコード別のメッセージ変換
+- バリデーションエラー詳細の処理
+- ネットワークエラーの検出
+- ログ出力機能
