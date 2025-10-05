@@ -49,7 +49,9 @@ export const ErrorResponseSchema = z.object({
 
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>
 
-export const ApiSuccessResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+export const ApiSuccessResponseSchema = <T extends z.ZodTypeAny>(
+  dataSchema: T
+) =>
   z.object({
     data: dataSchema,
   })

@@ -73,8 +73,9 @@ describe('common API schemas', () => {
 
     describe('異常系', () => {
       it('無効なバリデーションエラーコードの場合、パースに失敗する', () => {
-        const result =
-          ValidationErrorCodeSchema.safeParse('INVALID_VALIDATION_CODE')
+        const result = ValidationErrorCodeSchema.safeParse(
+          'INVALID_VALIDATION_CODE'
+        )
         expect(result.success).toBe(false)
       })
     })
