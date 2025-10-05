@@ -42,7 +42,18 @@ export const CreatePersonRequestSchema = z
 
 export type CreatePersonRequest = z.infer<typeof CreatePersonRequestSchema>
 
+export const PersonResponseSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().max(100).optional(),
+  gender: GenderSchema.optional(),
+  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  deathDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  birthPlace: z.string().max(200).optional(),
+})
+
+export type PersonResponse = z.infer<typeof PersonResponseSchema>
+
 export const CreatePersonResponseSchema =
-  ApiSuccessResponseSchema(PersonSchema)
+  ApiSuccessResponseSchema(PersonResponseSchema)
 
 export type CreatePersonResponse = z.infer<typeof CreatePersonResponseSchema>
