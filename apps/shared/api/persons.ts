@@ -23,35 +23,41 @@ const dateValidationRefine = (data: {
   return true
 }
 
-export const PersonSchema = z
-  .object({
-    id: z.string().uuid(),
-    name: z.string().max(100).optional(),
-    gender: z.number().int().min(0).max(2).optional(),
-    birthDate: z.string().refine(isValidDateString).optional(),
-    deathDate: z.string().refine(isValidDateString).optional(),
-    birthPlace: z.string().max(200).optional(),
-    createdAt: z.coerce.date(),
-    updatedAt: z.coerce.date(),
-  })
-  .refine(dateValidationRefine, { path: ['deathDate'] })
-
-export type Person = z.infer<typeof PersonSchema>
-
 export const CreatePersonRequestSchema = z
   .object({
-    name: z.string().max(100).optional(),
-    gender: z.number().int().min(0).max(2).default(0),
-    birthDate: z.string().refine(isValidDateString).optional(),
-    deathDate: z.string().refine(isValidDateString).optional(),
-    birthPlace: z.string().max(200).optional(),
+    name: z.string().max(100, { message: 'NAME_TOO_LONG' }).optional(),
+    gender: z
+      .number()
+      .int()
+      .min(0, { message: 'INVALID_GENDER' })
+      .max(2, { message: 'INVALID_GENDER' })
+      .default(0),
+    birthDate: z
+      .string()
+      .refine(isValidDateString, {
+        message: 'INVALID_DATE_FORMAT',
+      })
+      .optional(),
+    deathDate: z
+      .string()
+      .refine(isValidDateString, {
+        message: 'INVALID_DATE_FORMAT',
+      })
+      .optional(),
+    birthPlace: z
+      .string()
+      .max(200, { message: 'BIRTH_PLACE_TOO_LONG' })
+      .optional(),
   })
-  .refine(dateValidationRefine, { path: ['deathDate'] })
+  .refine(dateValidationRefine, {
+    message: 'DEATH_BEFORE_BIRTH',
+    path: ['deathDate'],
+  })
 
 export type CreatePersonRequest = z.infer<typeof CreatePersonRequestSchema>
 
 export const PersonResponseSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   name: z.string().max(100).optional(),
   gender: z.number().int().min(0).max(2).optional(),
   birthDate: z.string().refine(isValidDateString).optional(),
