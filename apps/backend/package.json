@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch --clear-screen=false server.ts",
+    "dev:hono": "tsx watch --clear-screen=false server.hono.ts",
     "build": "tsc",
     "start": "node dist/server.js",
     "type-check": "tsc --noEmit",
@@ -28,6 +29,7 @@
     "schema": "./database/schema.prisma"
   },
   "dependencies": {
+    "@hono/node-server": "1.19.5",
     "@hono/zod-validator": "0.7.3",
     "@prisma/client": "5.22.0",
     "express": "5.1.0",
