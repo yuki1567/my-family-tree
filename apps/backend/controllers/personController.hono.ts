@@ -4,7 +4,7 @@ import type { Context } from 'hono'
 export class PersonControllerHono {
   constructor(private personService: PersonService) {}
 
-  async create(c: Context): Promise<globalThis.Response> {
+  async create(c: Context): Promise<Response> {
     const validatedData = await c.req.json()
     const result = await this.personService.create(validatedData)
 
