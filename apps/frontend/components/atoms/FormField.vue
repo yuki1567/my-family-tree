@@ -73,6 +73,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Component } from 'vue'
+import {
+  GENDER_CSS_KEYS,
+  RELATIONSHIP_CSS_KEYS,
+  type Gender,
+  type Relationship,
+} from '@shared/types/person'
 
 type RadioOption = {
   label: string
@@ -127,17 +133,10 @@ const getCSSVariable = (variableName: string): string => {
 }
 
 const getOptionColor = (optionValue: string) => {
-  const colorKeyMapping: Record<string, string> = {
-    male: 'gender-male',
-    female: 'gender-female',
-    unknown: 'gender-unknown',
-    father: 'relation-father',
-    mother: 'relation-mother',
-    spouse: 'relation-spouse',
-    child: 'relation-child',
-  }
-
-  const colorKey = colorKeyMapping[optionValue] || 'gender-male'
+  const colorKey =
+    GENDER_CSS_KEYS[optionValue as Gender] ||
+    RELATIONSHIP_CSS_KEYS[optionValue as Relationship] ||
+    'gender-male'
 
   return {
     border: getCSSVariable(`--color-${colorKey}-border`),
