@@ -8,6 +8,7 @@ import {
   assertApiPort,
   assertBranchName,
   assertDbName,
+  assertDbRootPassword,
   assertDbUser,
   assertInReviewStatusId,
   assertIssueLabel,
@@ -121,18 +122,31 @@ export function generateEnvFile(ctx: Ctx): Ctx {
 export function createDbSchema(ctx: Ctx): void {
   assertDbName(ctx)
   assertDbUser(ctx)
+  assertDbRootPassword(ctx)
 
   const dbName = ctx.environment.dbName
   const dbUser = ctx.environment.dbUser
+  const rootPassword = ctx.environment.dbRootPassword
   const statements = [
     `CREATE DATABASE IF NOT EXISTS \`${dbName}\`;`,
     `GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON \`${dbName}\`.* TO '${dbUser}'@'%';`,
   ]
 
-  log('🔐 MySQLのルートパスワード入力が求められます...')
+  log('🗄 データベーススキーマを作成中...')
   const result = spawnSync(
     'docker-compose',
-    ['exec', 'db', 'mysql', '-u', 'root', '-p', '-e', statements.join(' ')],
+    [
+      'exec',
+      '-T',
+      '-e',
+      `MYSQL_PWD=${rootPassword}`,
+      'db',
+      'mysql',
+      '-u',
+      'root',
+      '-e',
+      statements.join(' '),
+    ],
     {
       cwd: PROJECT_ROOT,
       stdio: 'inherit',

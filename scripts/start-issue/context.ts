@@ -150,6 +150,12 @@ export function assertDbUser(
   assertField(isValidDbUser(ctx), 'DBユーザ名')
 }
 
+export function assertDbRootPassword(ctx: Ctx): asserts ctx is Ctx & {
+  environment: Environment & { dbRootPassword: string }
+} {
+  assertField(isValidDbRootPassword(ctx), 'DBルートパスワード')
+}
+
 export function assertApiPort(
   ctx: Ctx
 ): asserts ctx is Ctx & { environment: Environment & { apiPort: number } } {
@@ -250,6 +256,12 @@ export function isValidDbUser(
   ctx: Ctx
 ): ctx is Ctx & { environment: Environment & { dbUser: string } } {
   return typeof ctx.environment?.dbUser === 'string'
+}
+
+export function isValidDbRootPassword(
+  ctx: Ctx
+): ctx is Ctx & { environment: Environment & { dbRootPassword: string } } {
+  return typeof ctx.environment?.dbRootPassword === 'string'
 }
 
 export function isValidBranchName(
