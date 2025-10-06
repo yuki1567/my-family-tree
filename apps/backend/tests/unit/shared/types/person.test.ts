@@ -4,7 +4,7 @@ import {
   RELATIONSHIP_CSS_KEYS,
   dbToGender,
   genderToDb,
-} from '@shared/types/person'
+} from '@shared/types/person.js'
 import { describe, expect, it } from 'vitest'
 
 describe('person types', () => {
