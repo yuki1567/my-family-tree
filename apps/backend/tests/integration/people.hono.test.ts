@@ -1,4 +1,4 @@
-import { createHonoApp } from '@/app.hono.js'
+import { createHonoApp } from '@/app.js'
 import { personRoutesHono } from '@/routes/personRoutes.hono.js'
 import { TestPrismaManager } from '@/tests/helpers/prismaHelpers.js'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
