@@ -9,7 +9,7 @@ export function startHonoServer(): void {
   app.route('/api', personRoutesHono)
 
   // ポート設定（環境変数 HONO_PORT または デフォルト 3001）
-  const port = Number(process.env.HONO_PORT) || 3001
+  const port = Number(process.env['HONO_PORT']) || 3001
 
   // サーバー起動
   const server = serve({
