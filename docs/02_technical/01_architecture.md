@@ -126,6 +126,48 @@ export const create = async (data: CreatePersonData) => {
 }
 ```
 
+### 4.3 Honoフレームワーク移行戦略
+
+#### 段階的移行アプローチ
+
+Express.jsからHonoへの段階的移行を実施中です。
+
+**移行戦略の理由**
+
+- **型安全性の向上**: Honoはエンドツーエンドの型推論を提供
+- **パフォーマンス**: 軽量で高速な実装
+- **開発体験**: モダンなAPI設計、Web標準準拠
+- **並行運用**: 既存Express環境と共存可能
+
+#### Hono版app.ts（app.hono.ts）
+
+```typescript
+// apps/backend/app.hono.ts
+export function createHonoApp(): Hono<Env> {
+  const app = new Hono<Env>()
+
+  // グローバルエラーハンドラー
+  app.onError((error, c) => {
+    // ZodError、PrismaError、AppError、予期しないエラーを処理
+    // Express版と同じエラーレスポンス形式を維持
+  })
+
+  return app
+}
+```
+
+**主要機能**
+
+- **エラーハンドリング**: ZodError、PrismaClientKnownRequestError、AppError、予期しないエラーの統一処理
+- **レスポンス形式**: Express版との互換性維持
+- **型安全性**: TypeScript型推論によるコンパイル時エラー検出
+
+**並行運用の利点**
+
+- 既存Express版（`app.ts`）は影響を受けない
+- ルートごとに段階的に移行可能
+- ロールバックが容易
+
 ## 5. Docker 構成
 
 ### 5.1 マルチコンテナ戦略
@@ -133,7 +175,7 @@ export const create = async (data: CreatePersonData) => {
 ```yaml
 # docker-compose.yml
 services:
-  apps: # Node.js（Nuxt + Express）統合コンテナ
+  apps: # Node.js（Nuxt + Express + Hono）統合コンテナ
   db: # MySQL
 ```
 
