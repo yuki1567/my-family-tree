@@ -8,7 +8,7 @@
 family-tree-app/
 ├── package.json              # ワークスペース管理・共通ツール
 ├── apps/frontend/package.json # Nuxt.js v3 + TypeScript環境
-├── apps/backend/package.json  # Express + Prisma + TypeScript環境
+├── apps/backend/package.json  # Hono + Prisma + TypeScript環境
 └── apps/shared/              # package.json不要（ルート依存関係参照）
 ```
 
@@ -391,23 +391,26 @@ family-tree-app/
 
 #### **本番依存関係（dependencies）**
 
-**Express.js + TypeScript**
+**Hono + TypeScript**
 
 ```json
-"express": "5.1.0",
-"@types/express": "5.0.3"
+"hono": "4.9.9",
+"@hono/node-server": "1.19.5",
+"@hono/zod-validator": "0.7.3"
 ```
 
-- **Express 5.x選定理由**:
-  - **vs Express 4.x**: パフォーマンス改善、非推奨APIの削除
-  - **vs Fastify**: 豊富なエコシステム、学習コスト低
-  - **vs Koa**: ミドルウェア豊富、安定性重視
+- **Hono選定理由**:
+  - **vs Express**: 完全な型安全性、モダンなAPI設計、高速なパフォーマンス
+  - **vs Fastify**: より優れたTypeScript統合、シンプルなAPI
+  - **vs Koa**: Web標準準拠、エッジランタイム対応
   - **vs NestJS**: プロジェクト規模に適している軽量性
-- **Express 5.x主要変更点**:
-  - Promiseベースの非同期エラーハンドリング
-  - 不要な機能の削除による軽量化
-  - より厳格な型定義サポート
-- **型定義配置理由**: ランタイム・開発時両方で必要
+- **Honoの主要特徴**:
+  - エンドツーエンドの型推論
+  - Web標準準拠（Fetch API）
+  - マルチランタイム対応（Node.js、Cloudflare Workers等）
+  - 軽量で高速な実装
+- **@hono/node-server**: Node.js環境でのHono実行用アダプター
+- **@hono/zod-validator**: HonoとZodの統合ライブラリ（バリデーション処理の型安全化）
 
 **Prisma ORM**
 
@@ -423,20 +426,6 @@ family-tree-app/
 - **バージョン統一**: prismaとclientの同期必須
 - **データベース設計書整合性**: docs/02_technical/02_database_design.mdとの一貫性
 
-**Webフレームワーク（段階的移行）**
-
-```json
-"hono": "4.9.9",
-"@hono/zod-validator": "0.7.3"
-```
-
-- **Hono導入理由**:
-  - **型安全性**: 完全なTypeScript型推論（エンドツーエンド）
-  - **パフォーマンス**: 軽量で高速な実装
-  - **開発体験**: モダンなAPI設計、Web標準準拠
-  - **段階的移行**: 既存Express環境と並行運用可能
-- **@hono/zod-validator**: HonoとZodの統合ライブラリ（バリデーション処理の型安全化）
-- **移行戦略**: Express 5.xから段階的にHonoへ移行予定
 
 **バリデーション**
 
@@ -480,18 +469,18 @@ family-tree-app/
 **APIテスト**
 
 ```json
-"supertest": "7.0.0",
-"@types/supertest": "6.0.2"
+"supertest": "7.1.4",
+"@types/supertest": "6.0.3"
 ```
 
 - **supertest選定理由**:
-  - **Express統合**: 専用設計、簡潔なAPIテスト
+  - **Hono統合**: Honoアプリケーションのテストにも対応
   - **vs axios**: HTTPサーバーテスト特化、ポート管理不要
   - **用途**: APIエンドポイントの統合テスト
 - **具体例**:
   ```javascript
   test('GET /api/people', async () => {
-    const response = await request(app)
+    const response = await request(app.fetch)
       .get('/api/people')
       .expect(200)
       .expect('Content-Type', /json/)
