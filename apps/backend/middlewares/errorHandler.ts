@@ -1,4 +1,5 @@
 import { AppError } from '@/errors/AppError.js'
+import { mapZodErrorToResponse } from '@/utils/zodErrorMapper.js'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js'
 import { NextFunction, Request, Response } from 'express'
 import { ZodError } from 'zod'
@@ -16,18 +17,8 @@ export function globalErrorHandler(
   if (res.headersSent) return
 
   if (error instanceof ZodError) {
-    const details = error.issues.map((e) => ({
-      field: e.path.join('.'),
-      code: e.message,
-    }))
-
-    res.status(400).json({
-      error: {
-        statusCode: 400,
-        errorCode: 'VALIDATION_ERROR',
-        details,
-      },
-    })
+    const errorResponse = mapZodErrorToResponse(error)
+    res.status(errorResponse.error.statusCode).json(errorResponse)
     return
   }
 
