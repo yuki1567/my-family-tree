@@ -27,6 +27,9 @@ export default defineNuxtConfig({
   vite: {
     resolve: {
       preserveSymlinks: true,
+      alias: {
+        '@shared': '/usr/src/apps/shared',
+      },
     },
   },
 })
