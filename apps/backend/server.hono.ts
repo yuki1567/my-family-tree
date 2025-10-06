@@ -18,14 +18,19 @@ export function startHonoServer(): void {
 
   console.log(`Hono server is running on port ${port}`)
 
-  // PM2からのシグナルを受け取ってグレースフルシャットダウン
-  process.on('SIGINT', () => {
-    console.log('SIGINT received, shutting down gracefully...')
+  // グレースフルシャットダウン
+  const gracefulShutdown = (signal: string) => {
+    console.log(`${signal} received, shutting down gracefully...`)
     server.close(() => {
       console.log('Hono server closed')
       process.exit(0)
     })
-  })
+  }
+
+  // SIGTERM: Docker/Kubernetes等のコンテナ環境からの終了シグナル
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+  // SIGINT: PM2やCtrl+Cからの終了シグナル
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'))
 }
 
 startHonoServer()
