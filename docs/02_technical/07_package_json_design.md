@@ -468,23 +468,20 @@ family-tree-app/
 
 **APIテスト**
 
-```json
-"supertest": "7.1.4",
-"@types/supertest": "6.0.3"
-```
-
-- **supertest選定理由**:
-  - **Hono統合**: Honoアプリケーションのテストにも対応
-  - **vs axios**: HTTPサーバーテスト特化、ポート管理不要
-  - **用途**: APIエンドポイントの統合テスト
+- **Hono組み込みテスト機能使用**:
+  - HonoはWeb標準の`Request`/`Response`を使用するため、`app.request()`メソッドで直接テスト可能
+  - supertestなどの外部ライブラリは不要
+  - **利点**: 追加依存関係なし、シンプルなテストコード、型安全性
 - **具体例**:
-  ```javascript
+  ```typescript
   test('GET /api/people', async () => {
-    const response = await request(app.fetch)
-      .get('/api/people')
-      .expect(200)
-      .expect('Content-Type', /json/)
-    expect(response.body).toHaveProperty('data')
+    const response = await app.request('/api/people', {
+      method: 'GET',
+    })
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body).toHaveProperty('data')
   })
   ```
 

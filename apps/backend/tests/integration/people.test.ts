@@ -1,11 +1,11 @@
 import { createHonoApp } from '@/app.js'
-import { personRoutesHono } from '@/routes/personRoutes.hono.js'
+import { personRoutes } from '@/routes/personRoutes.js'
 import { TestPrismaManager } from '@/tests/helpers/prismaHelpers.js'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
-describe('POST /api/people - 人物追加API (Hono版)', () => {
+describe('POST /api/people - 人物追加API', () => {
   const app = createHonoApp()
-  app.route('/api', personRoutesHono)
+  app.route('/api', personRoutes)
 
   const prisma = TestPrismaManager.getTestDbConnection()
 

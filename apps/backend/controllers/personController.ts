@@ -1,7 +1,7 @@
 import { PersonService } from '@/services/personService.js'
 import type { Context } from 'hono'
 
-export class PersonControllerHono {
+export class PersonController {
   constructor(private personService: PersonService) {}
 
   async create(c: Context): Promise<Response> {
