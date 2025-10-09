@@ -28,6 +28,24 @@
 - **Environment**: Docker + Docker Compose (for development commands)
 - **TypeScript**: Strict mode required
 
+### Code Comment Guidelines
+
+- **Comment Philosophy**: Comments must explain "WHY", never "WHAT"
+- **Prohibited Comments**:
+  - ❌ Self-explanatory comments that describe what code does
+  - ❌ Comments redundant with code reading (e.g., "// Increment counter")
+  - ❌ Paraphrasing code in natural language
+- **Required Comments Only When**:
+  - Implementation intent is non-obvious from reading the code
+  - Explaining reasoning behind non-obvious technical decisions
+  - Documenting why specific approach was chosen over alternatives
+  - Warning about gotchas or non-intuitive behavior
+- **Examples**:
+  - ✅ Good: `// Use setTimeout to prevent race condition with DOM rendering lifecycle`
+  - ✅ Good: `// Bypass cache here because upstream API returns stale data for 30s`
+  - ❌ Bad: `// Loop through users array`
+  - ❌ Bad: `// Set loading to true`
+
 ### Priority Order for Implementation
 
 1. **Error Resolution Protocol** (highest priority) - MANDATORY root cause analysis - See `docs/03_development/05_error_resolution.md`
