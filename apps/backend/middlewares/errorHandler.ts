@@ -1,70 +1,46 @@
 import { AppError } from '@/errors/AppError.js'
-import { mapZodErrorToResponse } from '@/utils/zodErrorMapper.js'
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js'
-import { NextFunction, Request, Response } from 'express'
+import type { ApiErrorResponse, ErrorDetail } from '@shared/api/common.js'
+import type { Context } from 'hono'
 import { ZodError } from 'zod'
 
-function isPrismaError(error: unknown): error is PrismaClientKnownRequestError {
-  return error instanceof PrismaClientKnownRequestError
-}
+export function errorHandler(err: Error, c: Context): Response {
+  if (err instanceof ZodError) {
+    const details = err.issues.map(
+      (issue) =>
+        ({
+          field: issue.path.join('.'),
+          code: issue.message,
+        }) satisfies ErrorDetail
+    )
 
-export function globalErrorHandler(
-  error: Error,
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-): void {
-  if (res.headersSent) return
-
-  if (error instanceof ZodError) {
-    const errorResponse = mapZodErrorToResponse(error)
-    res.status(errorResponse.error.statusCode).json(errorResponse)
-    return
+    return c.json({
+      error: {
+        statusCode: 400,
+        errorCode: 'VALIDATION_ERROR',
+        details,
+      },
+    } satisfies ApiErrorResponse)
   }
 
-  if (isPrismaError(error)) {
-    console.error('Database error:', error)
+  if (err instanceof AppError) {
+    console.error('Application error:', err)
 
-    res.status(500).json({
+    return c.json({
       error: {
-        statusCode: 500,
-        errorCode: 'DATABASE_ERROR',
+        statusCode: err.statusCode,
+        errorCode: err.errorCode,
         details: [],
       },
-    })
-    return
+    } satisfies ApiErrorResponse)
   }
 
-  if (error instanceof AppError) {
-    console.error('Application error:', error)
+  console.error('UNKNOWN_ERROR:', err)
 
-    res.status(error.statusCode).json({
-      error: {
-        statusCode: error.statusCode,
-        errorCode: error.errorCode,
-        details: [],
-      },
-    })
-    return
-  }
-
-  console.error('Unexpected error:', error)
-
-  res.status(500).json({
+  return c.json({
     error: {
       statusCode: 500,
       errorCode: 'UNKNOWN_ERROR',
       details: [],
     },
-  })
-}
-
-export function notFoundHandler(_req: Request, res: Response): void {
-  res.status(404).json({
-    error: {
-      statusCode: 404,
-      errorCode: 'NOT_FOUND',
-      details: [],
-    },
-  })
+  } satisfies ApiErrorResponse)
 }

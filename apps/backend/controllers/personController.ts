@@ -1,16 +1,18 @@
 import { PersonService } from '@/services/personService.js'
-import { CreatePersonRequest } from '@/validations/personValidation.js'
-import { Request, Response } from 'express'
+import type { Context } from 'hono'
 
 export class PersonController {
   constructor(private personService: PersonService) {}
 
-  async create(req: Request, res: Response): Promise<void> {
-    const validatedData = req.body as CreatePersonRequest
+  async create(c: Context): Promise<Response> {
+    const validatedData = await c.req.json()
     const result = await this.personService.create(validatedData)
 
-    res.status(201).json({
-      data: result,
-    })
+    return c.json(
+      {
+        data: result,
+      },
+      201
+    )
   }
 }

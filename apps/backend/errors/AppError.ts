@@ -1,8 +1,10 @@
+import type { ErrorCode, HttpStatusCode } from '@shared/api/common.js'
+
 export class AppError extends Error {
   constructor(
     message: string,
-    public statusCode = 500,
-    public errorCode = 'UNKNOWN_ERROR'
+    public statusCode: HttpStatusCode,
+    public errorCode: ErrorCode
   ) {
     super(message)
   }

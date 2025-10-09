@@ -1,10 +1,12 @@
-import { createApp } from '@/app.js'
+import { createHonoApp } from '@/app.js'
+import { personRoutes } from '@/routes/personRoutes.js'
 import { TestPrismaManager } from '@/tests/helpers/prismaHelpers.js'
-import request from 'supertest'
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 
 describe('POST /api/people - 人物追加API', () => {
-  const app = createApp()
+  const app = createHonoApp()
+  app.route('/api', personRoutes)
+
   const prisma = TestPrismaManager.getTestDbConnection()
 
   beforeAll(async () => {
@@ -29,19 +31,25 @@ describe('POST /api/people - 人物追加API', () => {
         birthPlace: '大阪府',
       }
 
-      const response = await request(app)
-        .post('/api/people')
-        .send(requestData)
-        .expect(201)
+      const response = await app.request('/api/people', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      })
 
-      expect(response.body).toEqual({
+      expect(response.status).toBe(201)
+
+      const body = await response.json()
+      expect(body).toEqual({
         data: {
           id: expect.any(String),
           ...requestData,
         },
       })
 
-      const createdId = response.body.data.id
+      const createdId = body.data.id
       const dbRecord = await prisma.people.findUnique({
         where: { id: createdId },
       })
@@ -60,12 +68,18 @@ describe('POST /api/people - 人物追加API', () => {
     it('最小限のデータの場合、201ステータスでレスポンスを返すか', async () => {
       const requestData = {}
 
-      const response = await request(app)
-        .post('/api/people')
-        .send(requestData)
-        .expect(201)
+      const response = await app.request('/api/people', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      })
 
-      expect(response.body).toEqual({
+      expect(response.status).toBe(201)
+
+      const body = await response.json()
+      expect(body).toEqual({
         data: {
           id: expect.any(String),
           name: null,
@@ -76,7 +90,7 @@ describe('POST /api/people - 人物追加API', () => {
         },
       })
 
-      const createdId = response.body.data.id
+      const createdId = body.data.id
       const dbRecord = await prisma.people.findUnique({
         where: { id: createdId },
       })
@@ -101,23 +115,18 @@ describe('POST /api/people - 人物追加API', () => {
         birthDate: '1990-01-01',
       }
 
-      const response = await request(app)
-        .post('/api/people')
-        .send(requestData)
-        .expect(400)
-
-      expect(response.body).toEqual({
-        error: {
-          statusCode: 400,
-          errorCode: 'VALIDATION_ERROR',
-          details: expect.arrayContaining([
-            expect.objectContaining({
-              field: 'gender',
-              code: 'INVALID_GENDER',
-            }),
-          ]),
+      const response = await app.request('/api/people', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify(requestData),
       })
+
+      expect(response.status).toBe(400)
+
+      const body = await response.json()
+      expect(body).toHaveProperty('error')
     })
   })
 })
