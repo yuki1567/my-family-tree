@@ -6,7 +6,6 @@ import { serve } from '@hono/node-server'
 export function startServer(): void {
   const app = createHonoApp()
 
-  // ルーティング設定
   app.route('/api', personRoutes)
 
   const port = envConfig.API_PORT
@@ -18,7 +17,6 @@ export function startServer(): void {
 
   console.log(`Hono server is running on port ${port}`)
 
-  // PM2からのSIGINTシグナルでグレースフルシャットダウン
   process.on('SIGINT', () => {
     console.log('SIGINT received, shutting down gracefully...')
     server.close(() => {
