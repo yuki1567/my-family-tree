@@ -1,9 +1,12 @@
 import { prisma } from '@/database/connection.js'
 import { convertStringToDate, formatDateToYYYYMMDD } from '@/utils/dateUtils.js'
-import { CreatePersonRequest } from '@/validations/personValidation.js'
+import type {
+  CreatePersonRequest,
+  PersonResponse,
+} from '@shared/api/persons.js'
 
 export class PersonRepository {
-  async create(data: CreatePersonRequest) {
+  async create(data: CreatePersonRequest): Promise<PersonResponse> {
     const personData = {
       name: data.name ?? null,
       gender: data.gender,
@@ -18,11 +21,11 @@ export class PersonRepository {
 
     return {
       id: person.id,
-      name: person.name,
+      name: person.name ?? undefined,
       gender: person.gender,
-      birthDate: formatDateToYYYYMMDD(person.birthDate),
-      deathDate: formatDateToYYYYMMDD(person.deathDate),
-      birthPlace: person.birthPlace,
+      birthDate: formatDateToYYYYMMDD(person.birthDate) ?? undefined,
+      deathDate: formatDateToYYYYMMDD(person.deathDate) ?? undefined,
+      birthPlace: person.birthPlace ?? undefined,
     }
   }
 }

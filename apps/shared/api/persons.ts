@@ -27,11 +27,10 @@ export const CreatePersonRequestSchema = z
   .object({
     name: z.string().max(100, { message: 'NAME_TOO_LONG' }).optional(),
     gender: z
-      .number()
-      .int()
-      .min(0, { message: 'INVALID_GENDER' })
-      .max(2, { message: 'INVALID_GENDER' })
-      .default(0),
+      .union([z.literal(0), z.literal(1), z.literal(2)], {
+        message: 'INVALID_GENDER',
+      })
+      .optional(),
     birthDate: z
       .string()
       .refine(isValidDateString, {
@@ -59,7 +58,7 @@ export type CreatePersonRequest = z.infer<typeof CreatePersonRequestSchema>
 export const PersonResponseSchema = z.object({
   id: z.uuid(),
   name: z.string().max(100).optional(),
-  gender: z.number().int().min(0).max(2).optional(),
+  gender: z.union([z.literal(0), z.literal(1), z.literal(2)]).optional(),
   birthDate: z.string().refine(isValidDateString).optional(),
   deathDate: z.string().refine(isValidDateString).optional(),
   birthPlace: z.string().max(200).optional(),

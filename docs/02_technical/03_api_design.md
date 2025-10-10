@@ -64,6 +64,40 @@ export type PersonWithRelationsApiResponse =
 - データベース設計との完全な整合性
 - ミドルウェア層でのバリデーション実施
 
+#### バリデーション戦略
+
+**Zodスキーマによる統一バリデーション**
+
+- `safeParse()`による明示的なエラーハンドリング
+- 統一エラーレスポンス形式への自動マッピング
+- 型安全性とランタイムバリデーションの両立
+
+**実装パターン**
+
+```typescript
+// ミドルウェアでのバリデーション
+import { validateBody } from '@/middlewares/validate.js'
+import { createPersonSchema } from '@/validations/personValidation.js'
+
+router.post('/people', validateBody(createPersonSchema), controller.create)
+
+// validateBodyミドルウェア内部
+const result = schema.safeParse(req.body)
+if (!result.success) {
+  const errorResponse = mapZodErrorToResponse(result.error)
+  res.status(400).json(errorResponse)
+  return
+}
+req.body = result.data
+next()
+```
+
+**エラーマッピング**
+
+- `mapZodErrorToResponse()`ヘルパー関数を使用
+- ZodErrorを統一エラーレスポンス形式に変換
+- フィールドパスとエラーコードの自動抽出
+
 ## 2. 共通仕様
 
 ### 2.1 ベースURL
