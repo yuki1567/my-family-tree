@@ -1,12 +1,12 @@
 import { createHonoApp } from '@/app.js'
 import { envConfig } from '@/config/env.js'
-import { personRoutes } from '@/routes/personRoutes.js'
+import { peopleRoutes } from '@/routes/peopleRoute.js'
 import { serve } from '@hono/node-server'
 
 export function startServer(): void {
   const app = createHonoApp()
 
-  app.route('/api', personRoutes)
+  app.route('/api', peopleRoutes)
 
   const port = envConfig.API_PORT
 
