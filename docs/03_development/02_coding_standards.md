@@ -31,6 +31,7 @@
 - **enum 使用禁止**: Union Types を使用する
 - **明示的な戻り値型**: 関数の戻り値型を明記
 - **null 安全**: nullable な値には適切なガード句を実装
+- **型アサーション（as）使用禁止**: `as const`のみ許可。型安全性を保つため代替手段を使用
 
 ### 2.2 型定義
 
@@ -53,6 +54,12 @@ type RelationshipType = 'biological' | 'adopted'
 type CreatePersonData = Omit<Person, 'id' | 'createdAt' | 'updatedAt'>
 type UpdatePersonData = Partial<CreatePersonData>
 
+// as constの正しい使用例（リテラル型の固定）
+const GENDER_OPTIONS = [
+  { label: '男性', value: 'male' },
+  { label: '女性', value: 'female' },
+] as const
+
 // ❌ 悪い例
 interface Person {
   // interfaceよりtypeを推奨
@@ -68,7 +75,56 @@ enum Gender {
 }
 ```
 
-### 2.3 関数定義
+### 2.3 型アサーション禁止と代替手段
+
+型アサーション（`as`）は型安全性を損なうため使用禁止。`as const`のみ例外的に許可。
+
+```typescript
+// ❌ 悪い例 - 型アサーション使用
+const value = unknownValue as string
+const data = apiResponse as UserData
+const element = document.getElementById('foo') as HTMLDivElement
+
+// ✅ 良い例 1: 型ガード関数
+function isString(value: unknown): value is string {
+  return typeof value === 'string'
+}
+
+if (isString(unknownValue)) {
+  console.log(unknownValue.toUpperCase()) // 型安全
+}
+
+// ✅ 良い例 2: Zodによるランタイムバリデーション
+import { z } from 'zod'
+
+const UserDataSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+})
+
+const result = UserDataSchema.safeParse(apiResponse)
+if (result.success) {
+  const data = result.data // 型が保証されている
+}
+
+// ✅ 良い例 3: 型の絞り込み（Type Narrowing）
+if (typeof value === 'number') {
+  console.log(value.toFixed(2)) // 型安全
+}
+
+if (element instanceof HTMLDivElement) {
+  element.style.display = 'none' // 型安全
+}
+
+// ✅ 良い例 4: as const（リテラル型固定）
+const CONFIG = {
+  apiUrl: 'https://api.example.com',
+  timeout: 5000,
+} as const
+// 型: { readonly apiUrl: "https://api.example.com"; readonly timeout: 5000 }
+```
+
+### 2.4 関数定義
 
 #### フロントエンド（アロー関数推奨）
 
@@ -160,7 +216,7 @@ function calculateAge(birthDate) {
 }
 ```
 
-### 2.4 エラーハンドリング
+### 2.5 エラーハンドリング
 
 ```typescript
 // ✅ 良い例
