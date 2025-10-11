@@ -128,5 +128,32 @@ describe('POST /api/people - 人物追加API', () => {
       const body = await response.json()
       expect(body).toHaveProperty('error')
     })
+
+    it('データベース接続エラーの場合、500エラーを返すか', async () => {
+      await prisma.$disconnect()
+
+      const requestData = {
+        name: '田中太郎',
+        gender: 1,
+        birthDate: '1990-01-01',
+      }
+
+      const response = await app.request('/api/people', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      })
+
+      expect(response.status).toBe(500)
+
+      const body = await response.json()
+      expect(body).toHaveProperty('error')
+      expect(body.error).toHaveProperty('statusCode', 500)
+      expect(body.error).toHaveProperty('errorCode', 'DATABASE_ERROR')
+
+      await prisma.$connect()
+    })
   })
 })
