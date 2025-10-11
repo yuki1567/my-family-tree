@@ -6,7 +6,7 @@
       <main class="family-tree-area">
         <div class="tree-container">
           <!-- 人物データがある場合：人物カード表示 -->
-          <PersonCard v-if="hasPersonData" :person="defaultPerson" />
+          <PersonCard v-if="hasPersonData" :person="personData" />
 
           <!-- 人物データがない場合：空状態プレースホルダー -->
           <EmptyState v-else @start-guide="openAddPersonModal" />
@@ -16,7 +16,9 @@
 
     <PersonAddModal
       v-if="showAddPersonModal"
-      @close="showAddPersonModal = false"
+      :error="error"
+      @close="closeAddPersonModal"
+      @save="savePerson"
     />
   </div>
 </template>
@@ -25,28 +27,40 @@
 import EmptyState from '@/components/molecules/EmptyState.vue'
 import PersonCard from '@/components/molecules/PersonCard.vue'
 import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
-import type { Person } from '@shared/types/person'
+import { usePersonApi } from '@/composables/usePersonApi'
+import type { Person, PersonForm } from '@/types/person'
+import type { ErrorResponse } from '@shared/api/common'
 import { computed, ref } from 'vue'
 
-const personData = ref<Person[]>([])
-const hasPersonData = computed(() => personData.value.length > 0)
+const personData = ref<Person>()
+const hasPersonData = computed(() => personData.value)
 
-const defaultPerson = computed(
-  (): Person => ({
-    id: 'default-person-1',
-    name: '田中 太郎',
-    gender: 'male',
-    birthDate: '1990-04-15',
-    birthPlace: '東京都',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  })
-)
+const { createPerson } = usePersonApi()
 
 const showAddPersonModal = ref(false)
+const error = ref<ErrorResponse | undefined>(undefined)
 
 const openAddPersonModal = () => {
+  error.value = undefined
   showAddPersonModal.value = true
+}
+
+const closeAddPersonModal = () => {
+  error.value = undefined
+  showAddPersonModal.value = false
+}
+
+const savePerson = async (formData: PersonForm): Promise<void> => {
+  error.value = undefined
+
+  const result = await createPerson(formData)
+
+  if ('data' in result) {
+    personData.value = result.data
+    showAddPersonModal.value = false
+  } else {
+    error.value = result.error
+  }
 }
 </script>
 
@@ -72,8 +86,7 @@ const openAddPersonModal = () => {
   background-color: var(--color-bg-secondary);
   padding: 1.6rem;
   overflow: auto;
-  /* 背景を画面の一番下まで拡張 */
-  min-height: 100vh;
+  height: 100vh;
 }
 
 .tree-container {

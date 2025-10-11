@@ -137,7 +137,7 @@ export function usePersonValidation(form: PersonForm) {
    * バリデーション状態の更新
    */
   const updateValidationState = (): void => {
-    isValid.value = Object.keys(errors).length === 0
+    isValid.value = Object.values(errors).every((error) => error === undefined)
   }
 
   /**

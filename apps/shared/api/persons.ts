@@ -58,7 +58,7 @@ export type CreatePersonRequest = z.infer<typeof CreatePersonRequestSchema>
 export const PersonResponseSchema = z.object({
   id: z.uuid(),
   name: z.string().max(100).optional(),
-  gender: z.union([z.literal(0), z.literal(1), z.literal(2)]).optional(),
+  gender: z.union([z.literal(0), z.literal(1), z.literal(2)]),
   birthDate: z.string().refine(isValidDateString).optional(),
   deathDate: z.string().refine(isValidDateString).optional(),
   birthPlace: z.string().max(200).optional(),

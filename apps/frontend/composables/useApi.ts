@@ -1,4 +1,4 @@
-import type { ApiResponse } from '@shared/types/response'
+import type { ApiResponse } from '@shared/api/common'
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
@@ -8,7 +8,7 @@ export type UseApiOptions = {
   headers?: Record<string, string>
 }
 
-export const useApi = async <T = unknown>(
+export const useApi = async <T>(
   url: string,
   options: UseApiOptions = {}
 ): Promise<ApiResponse<T>> => {
@@ -39,7 +39,7 @@ export const useApi = async <T = unknown>(
     return {
       error: {
         statusCode: 500,
-        errorCode: err instanceof Error ? err.message : 'UNKNOWN_ERROR',
+        errorCode: 'UNKNOWN_ERROR',
       },
     }
   }
