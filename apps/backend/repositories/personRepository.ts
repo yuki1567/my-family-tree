@@ -6,12 +6,8 @@ import type {
   PersonResponse,
 } from '@shared/api/persons.js'
 
-function isValidGender(value: number): value is 0 | 1 | 2 {
-  return value === 0 || value === 1 || value === 2
-}
-
 export class PersonRepository {
-  async create(data: CreatePersonRequest): Promise<PersonResponse> {
+  public async create(data: CreatePersonRequest): Promise<PersonResponse> {
     const person = await prisma.people.create({
       data: {
         name: data.name ?? null,
@@ -22,7 +18,7 @@ export class PersonRepository {
       },
     })
 
-    if (!isValidGender(person.gender)) {
+    if (!this.isValidGender(person.gender)) {
       throw new DatabaseError(
         `Invalid gender value from database: ${person.gender}. Expected 0, 1, 2.`
       )
@@ -38,5 +34,9 @@ export class PersonRepository {
     } satisfies PersonResponse
 
     return result
+  }
+
+  private isValidGender(value: number): value is 0 | 1 | 2 {
+    return value === 0 || value === 1 || value === 2
   }
 }
