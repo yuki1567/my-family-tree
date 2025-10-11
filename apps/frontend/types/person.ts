@@ -15,15 +15,10 @@ export const RELATIONSHIP_CSS_KEYS = {
 } as const
 
 export type PersonForm = {
-  /** 氏名（任意） */
   name?: string
-  /** 性別（任意） */
-  gender?: 'male' | 'female' | 'unknown'
-  /** 生年月日（任意） */
+  gender: 'male' | 'female' | 'unknown'
   birthDate?: string
-  /** 没年月日（任意） */
   deathDate?: string
-  /** 出生地（任意） */
   birthPlace?: string
 }
 
@@ -42,8 +37,17 @@ export const GENDER_OPTIONS = [
 
 export const INITIAL_PERSON_FORM: PersonForm = {
   name: '',
-  gender: undefined,
+  gender: 'unknown',
   birthDate: '',
   deathDate: '',
   birthPlace: '',
+}
+
+export type Person = {
+  id: string
+  name: string
+  gender: string
+  birthDate: string
+  deathDate: string
+  birthPlace: string
 }
