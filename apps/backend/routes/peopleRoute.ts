@@ -2,14 +2,14 @@ import { DatabaseError } from '@/errors/AppError.js'
 import { PersonRepository } from '@/repositories/personRepository.js'
 import { PersonService } from '@/services/personService.js'
 import { zValidator } from '@hono/zod-validator'
+import {
+  PrismaClientInitializationError,
+  PrismaClientKnownRequestError,
+  PrismaClientUnknownRequestError,
+} from '@prisma/client/runtime/library'
 import type { CreatePersonResponse } from '@shared/api/persons.js'
 import { CreatePersonRequestSchema } from '@shared/api/persons.js'
 import { Hono } from 'hono'
-import {
-  PrismaClientKnownRequestError,
-  PrismaClientUnknownRequestError,
-  PrismaClientInitializationError,
-} from '@prisma/client/runtime/library'
 
 const personRepository = new PersonRepository()
 const personService = new PersonService(personRepository)
