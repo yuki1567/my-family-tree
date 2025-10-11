@@ -1,11 +1,9 @@
 import { envConfig } from '@/config/env.js'
 import { PrismaClient } from '@prisma/client'
 
-const client = new PrismaClient({
+export const prisma = new PrismaClient({
   datasources: {
     db: { url: envConfig.DATABASE_URL },
   },
-  log: [...envConfig.LOG_LEVEL] as ('query' | 'info' | 'warn' | 'error')[],
+  log: envConfig.LOG_LEVEL,
 })
-
-export const prisma = client
