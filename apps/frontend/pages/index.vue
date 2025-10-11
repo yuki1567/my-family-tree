@@ -17,6 +17,7 @@
     <PersonAddModal
       v-if="showAddPersonModal"
       @close="showAddPersonModal = false"
+      @save="handlePersonSave"
     />
   </div>
 </template>
@@ -25,6 +26,9 @@
 import EmptyState from '@/components/molecules/EmptyState.vue'
 import PersonCard from '@/components/molecules/PersonCard.vue'
 import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
+import { useApi } from '@/composables/useApi'
+import type { PersonForm } from '@/types/person'
+import type { CreatePersonResponse } from '@shared/api/persons'
 import type { Person } from '@shared/types/person'
 import { computed, ref } from 'vue'
 
@@ -47,6 +51,60 @@ const showAddPersonModal = ref(false)
 
 const openAddPersonModal = () => {
   showAddPersonModal.value = true
+}
+
+const convertGenderToNumber = (
+  gender: 'male' | 'female' | 'unknown' | undefined
+): 0 | 1 | 2 | undefined => {
+  if (gender === 'male') return 1
+  if (gender === 'female') return 2
+  if (gender === 'unknown') return 0
+  return undefined
+}
+
+const handlePersonSave = async (formData: PersonForm): Promise<void> => {
+  try {
+    const requestBody = {
+      ...formData,
+      gender: convertGenderToNumber(formData.gender),
+    }
+
+    const response = await useApi<CreatePersonResponse['data']>(
+      '/api/people',
+      {
+        method: 'POST',
+        body: requestBody,
+      }
+    )
+
+    if ('error' in response) {
+      console.error('API Error:', response.error)
+      return
+    }
+
+    if ('data' in response) {
+      const newPerson: Person = {
+        id: response.data.id,
+        name: response.data.name,
+        gender:
+          response.data.gender === 1
+            ? 'male'
+            : response.data.gender === 2
+              ? 'female'
+              : 'unknown',
+        birthDate: response.data.birthDate,
+        deathDate: response.data.deathDate,
+        birthPlace: response.data.birthPlace,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+
+      personData.value.push(newPerson)
+      showAddPersonModal.value = false
+    }
+  } catch (error) {
+    console.error('Unexpected error:', error)
+  }
 }
 </script>
 
