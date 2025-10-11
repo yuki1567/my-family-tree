@@ -6,7 +6,7 @@
       <main class="family-tree-area">
         <div class="tree-container">
           <!-- 人物データがある場合：人物カード表示 -->
-          <PersonCard v-if="hasPersonData" :person="defaultPerson" />
+          <PersonCard v-if="hasPersonData" :person="personData" />
 
           <!-- 人物データがない場合：空状態プレースホルダー -->
           <EmptyState v-else @start-guide="openAddPersonModal" />
@@ -16,8 +16,9 @@
 
     <PersonAddModal
       v-if="showAddPersonModal"
-      @close="showAddPersonModal = false"
-      @save="handlePersonSave"
+      :server-error="serverError"
+      @close="closeAddPersonModal"
+      @save="savePerson"
     />
   </div>
 </template>
@@ -26,84 +27,39 @@
 import EmptyState from '@/components/molecules/EmptyState.vue'
 import PersonCard from '@/components/molecules/PersonCard.vue'
 import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
-import { useApi } from '@/composables/useApi'
-import type { PersonForm } from '@/types/person'
-import type { CreatePersonResponse } from '@shared/api/persons'
-import type { Person } from '@shared/types/person'
+import { usePersonApi } from '@/composables/usePersonApi'
+import type { Person, PersonForm } from '@/types/person'
+import type { ErrorResponse } from '@shared/api/common'
 import { computed, ref } from 'vue'
 
-const personData = ref<Person[]>([])
-const hasPersonData = computed(() => personData.value.length > 0)
+const personData = ref<Person>()
+const hasPersonData = computed(() => personData.value)
 
-const defaultPerson = computed(
-  (): Person => ({
-    id: 'default-person-1',
-    name: '田中 太郎',
-    gender: 'male',
-    birthDate: '1990-04-15',
-    birthPlace: '東京都',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  })
-)
+const { createPerson } = usePersonApi()
 
 const showAddPersonModal = ref(false)
+const serverError = ref<ErrorResponse | null>(null)
 
 const openAddPersonModal = () => {
+  serverError.value = null
   showAddPersonModal.value = true
 }
 
-const convertGenderToNumber = (
-  gender: 'male' | 'female' | 'unknown' | undefined
-): 0 | 1 | 2 | undefined => {
-  if (gender === 'male') return 1
-  if (gender === 'female') return 2
-  if (gender === 'unknown') return 0
-  return undefined
+const closeAddPersonModal = () => {
+  serverError.value = null
+  showAddPersonModal.value = false
 }
 
-const handlePersonSave = async (formData: PersonForm): Promise<void> => {
-  try {
-    const requestBody = {
-      ...formData,
-      gender: convertGenderToNumber(formData.gender),
-    }
+const savePerson = async (formData: PersonForm): Promise<void> => {
+  serverError.value = null
 
-    const response = await useApi<CreatePersonResponse['data']>(
-      '/api/people',
-      {
-        method: 'POST',
-        body: requestBody,
-      }
-    )
+  const result = await createPerson(formData)
 
-    if ('error' in response) {
-      console.error('API Error:', response.error)
-      return
-    }
-
-    if ('data' in response) {
-      const newPerson: Person = {
-        id: response.data.id,
-        name: response.data.name,
-        gender:
-          response.data.gender === 1
-            ? 'male'
-            : response.data.gender === 2
-              ? 'female'
-              : 'unknown',
-        birthDate: response.data.birthDate,
-        deathDate: response.data.deathDate,
-        birthPlace: response.data.birthPlace,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
-
-      personData.value.push(newPerson)
-      showAddPersonModal.value = false
-    }
-  } catch (error) {
-    console.error('Unexpected error:', error)
+  if ('data' in result) {
+    personData.value = result.data
+    showAddPersonModal.value = false
+  } else {
+    serverError.value = result.error
   }
 }
 </script>
