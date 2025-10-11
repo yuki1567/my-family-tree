@@ -1,7 +1,7 @@
 import { db } from '@/database/client.js'
 import { people } from '@/database/schema/index.js'
 import { DatabaseError } from '@/errors/AppError.js'
-import { convertStringToDate, formatDateToYYYYMMDD } from '@/utils/dateUtils.js'
+import { convertStringToDate } from '@/utils/dateUtils.js'
 import type {
   CreatePersonRequest,
   PersonResponse,

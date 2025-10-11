@@ -24,7 +24,7 @@ async function waitForDatabaseConnection(): Promise<void> {
 
   for (let i = 1; i <= maxRetries; i++) {
     try {
-      const db = TestDrizzleManager.getTestDbConnection()
+      TestDrizzleManager.getTestDbConnection()
       await TestDrizzleManager.closeTestDbConnection()
       return
     } catch {
