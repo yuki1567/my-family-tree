@@ -16,27 +16,27 @@
     "test:watch": "vitest --watch --config vitest.config.ts --project unit",
     "test:setup": "docker compose --profile test up --wait -d test-db",
     "test:teardown": "docker-compose rm -sf test-db",
-    "test:db:migrate": "dotenv -e .env.test prisma db push --force-reset --schema=./database/schema.prisma",
+    "test:db:migrate": "drizzle-kit push",
     "quality": "npm-run-all --parallel test:unit type-check lint",
-    "db:generate": "prisma generate --schema=./database/schema.prisma",
-    "db:migrate": "prisma migrate dev --schema=./database/schema.prisma",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
     "db:seed": "tsx ./database/seeds/development.ts",
-    "db:studio": "prisma studio --schema=./database/schema.prisma",
-    "db:reset": "prisma migrate reset --schema=./database/schema.prisma"
-  },
-  "prisma": {
-    "schema": "./database/schema.prisma"
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@hono/node-server": "1.19.5",
     "@hono/zod-validator": "0.7.3",
     "@prisma/client": "5.22.0",
+    "drizzle-orm": "^0.44.6",
     "hono": "4.9.9",
+    "postgres": "^3.4.7",
     "zod": "4.1.11"
   },
   "devDependencies": {
     "@types/supertest": "6.0.3",
     "dotenv-cli": "10.0.0",
+    "drizzle-kit": "^0.31.5",
     "npm-run-all": "4.1.5",
     "prisma": "5.22.0",
     "supertest": "7.1.4",
