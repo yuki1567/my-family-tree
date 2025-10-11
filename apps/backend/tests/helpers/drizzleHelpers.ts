@@ -1,6 +1,7 @@
+import * as schema from '@/database/schema/index.js'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import * as schema from '@/database/schema/index.js'
+
 import { envConfig } from '../setup/env.js'
 
 export class TestDrizzleManager {

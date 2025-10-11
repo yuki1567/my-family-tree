@@ -1,10 +1,10 @@
 import { DatabaseError } from '@/errors/AppError.js'
 import { PersonRepository } from '@/repositories/personRepository.js'
-import { PostgresError } from 'postgres'
 import type {
   CreatePersonRequest,
   PersonResponse,
 } from '@shared/api/persons.js'
+import { PostgresError } from 'postgres'
 
 export class PersonService {
   constructor(private personRepository: PersonRepository) {}

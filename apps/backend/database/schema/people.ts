@@ -1,4 +1,11 @@
-import { pgTable, uuid, varchar, smallint, date, timestamp } from 'drizzle-orm/pg-core'
+import {
+  date,
+  pgTable,
+  smallint,
+  timestamp,
+  uuid,
+  varchar,
+} from 'drizzle-orm/pg-core'
 
 export const people = pgTable('people', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -13,7 +20,9 @@ export const people = pgTable('people', {
 
   birthPlace: varchar('birth_place', { length: 200 }),
 
-  createdAt: timestamp('created_at', { precision: 3, mode: 'date' }).notNull().defaultNow(),
+  createdAt: timestamp('created_at', { precision: 3, mode: 'date' })
+    .notNull()
+    .defaultNow(),
 
   updatedAt: timestamp('updated_at', { precision: 3, mode: 'date' })
     .notNull()

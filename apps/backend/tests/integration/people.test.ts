@@ -1,7 +1,7 @@
 import { createHonoApp } from '@/app.js'
+import { people } from '@/database/schema/index.js'
 import { peopleRoutes } from '@/routes/peopleRoute.js'
 import { TestDrizzleManager } from '@/tests/helpers/drizzleHelpers.js'
-import { people } from '@/database/schema/index.js'
 import { eq } from 'drizzle-orm'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 
@@ -48,7 +48,10 @@ describe('POST /api/people - 人物追加API', () => {
       })
 
       const createdId = body.data.id
-      const [dbRecord] = await db.select().from(people).where(eq(people.id, createdId))
+      const [dbRecord] = await db
+        .select()
+        .from(people)
+        .where(eq(people.id, createdId))
 
       expect(dbRecord).toBeTruthy()
       expect(dbRecord!.id).toBe(createdId)
@@ -83,7 +86,10 @@ describe('POST /api/people - 人物追加API', () => {
       })
 
       const createdId = body.data.id
-      const [dbRecord] = await db.select().from(people).where(eq(people.id, createdId))
+      const [dbRecord] = await db
+        .select()
+        .from(people)
+        .where(eq(people.id, createdId))
 
       expect(dbRecord).toBeTruthy()
       expect(dbRecord!.id).toBe(createdId)
