@@ -6,7 +6,7 @@
 
 - **Docker 必須**: ローカル Node.js 環境での実行は禁止
 - **コンテナ内開発**: 全ての開発作業は Docker コンテナ内で実行
-- **ポート使用**: 3000（フロントエンド）、4000（API）、3306（MySQL）
+- **ポート使用**: 3000（フロントエンド）、4000（API）、5432（PostgreSQL）
 
 ## 2. プロジェクトセットアップ
 
@@ -41,18 +41,21 @@ docker-compose logs -f
 # アプリケーションコンテナに入る
 docker-compose exec apps bash
 
-# Prisma マイグレーション実行
-npx prisma migrate dev --name init
+# Drizzleマイグレーション生成
+npm run db:generate
 
-# Prisma クライアント生成
-npx prisma generate
+# マイグレーション実行（本番環境では慎重に）
+npm run db:migrate
+
+# または開発環境では直接スキーマを反映
+npm run db:push
 
 # シードデータ投入（任意）
 npm run db:seed
 
 # 動作確認用データベース確認
-npx prisma studio
-# ブラウザで http://localhost:5555 にアクセス
+npm run db:studio
+# ブラウザで https://local.drizzle.studio にアクセス
 ```
 
 ## 3. 開発環境の起動・操作
@@ -86,7 +89,7 @@ npm run dev
 
 - **フロントエンド**: http://localhost:3000
 - **API エンドポイント**: http://localhost:4000
-- **Prisma Studio**: http://localhost:5555
+- **Drizzle Studio**: https://local.drizzle.studio（`npm run db:studio`実行時）
 
 ### 3.4 基本的な開発コマンド
 
@@ -112,23 +115,23 @@ npm run test
 
 ## 4. データベース操作
 
-### 4.1 Prisma 操作
+### 4.1 Drizzle Kit 操作
 
 ```bash
-# マイグレーション作成
-npx prisma migrate dev --name <migration-name>
+# マイグレーション生成（スキーマから自動生成）
+npm run db:generate
 
-# マイグレーション状態確認
-npx prisma migrate status
+# マイグレーション実行
+npm run db:migrate
 
-# データベースリセット
-npx prisma migrate reset
+# スキーマを直接DBに反映（開発環境のみ）
+npm run db:push
 
-# Prisma Studio起動
-npx prisma studio
+# Drizzle Studio起動（データ閲覧・編集）
+npm run db:studio
 
-# データベーススキーマ確認
-npx prisma db pull
+# データベース接続確認
+docker-compose exec apps npm run db:push --help
 ```
 
 ### 4.2 シードデータ管理
@@ -138,7 +141,7 @@ npx prisma db pull
 npm run db:seed
 
 # シードデータ内容確認
-cat apps/backend/prisma/seed.ts
+cat apps/backend/database/seeds/development.ts
 ```
 
 ## 5. トラブルシューティング
@@ -167,9 +170,9 @@ docker-compose up -d
 # 使用中のポートを確認
 lsof -i :3000
 lsof -i :4000
-lsof -i :3306
+lsof -i :5432
 
-# プロセス停止または.envでMYSQL_PORT変更
+# プロセス停止または.envでPOSTGRES_PORT変更
 ```
 
 #### データベース関連
@@ -184,20 +187,24 @@ docker-compose logs db
 docker-compose restart db
 
 # 接続テスト
-docker-compose exec apps npx prisma db pull
+docker-compose exec apps npm run db:push
 ```
 
 **問題**: マイグレーションエラー
 
 ```bash
-# マイグレーション状態確認
-npx prisma migrate status
+# マイグレーション生成の確認
+npm run db:generate
 
-# 強制リセット（開発環境のみ）
-npx prisma migrate reset --force
+# スキーマを直接DBに反映（開発環境のみ）
+npm run db:push
 
-# 手動マイグレーション
-npx prisma db push
+# マイグレーション実行
+npm run db:migrate
+
+# データベース再起動が必要な場合
+docker-compose down -v
+docker-compose up -d
 ```
 
 #### アプリケーション関連
@@ -214,11 +221,11 @@ docker-compose exec apps npm install
 **問題**: TypeScript エラー
 
 ```bash
-# 型定義再生成
-docker-compose exec apps npx prisma generate
+# Drizzleスキーマの型チェック
+docker-compose exec apps npm run type-check
 
 # TypeScript設定確認
-docker-compose exec apps npm run type-check
+docker-compose exec apps npx tsc --noEmit
 ```
 
 #### PM2関連
