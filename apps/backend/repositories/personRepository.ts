@@ -22,7 +22,7 @@ export class PersonRepository {
     return {
       id: person.id,
       name: person.name ?? undefined,
-      gender: person.gender,
+      gender: person.gender as 0 | 1 | 2,
       birthDate: formatDateToYYYYMMDD(person.birthDate) ?? undefined,
       deathDate: formatDateToYYYYMMDD(person.deathDate) ?? undefined,
       birthPlace: person.birthPlace ?? undefined,
