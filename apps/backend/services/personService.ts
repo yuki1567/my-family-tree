@@ -1,10 +1,6 @@
 import { DatabaseError } from '@/errors/AppError.js'
 import { PersonRepository } from '@/repositories/personRepository.js'
-import {
-  PrismaClientInitializationError,
-  PrismaClientKnownRequestError,
-  PrismaClientUnknownRequestError,
-} from '@prisma/client/runtime/library'
+import { PostgresError } from 'postgres'
 import type {
   CreatePersonRequest,
   PersonResponse,
@@ -17,11 +13,7 @@ export class PersonService {
     try {
       return await this.personRepository.create(data)
     } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError ||
-        error instanceof PrismaClientUnknownRequestError ||
-        error instanceof PrismaClientInitializationError
-      ) {
+      if (error instanceof PostgresError) {
         throw new DatabaseError('データベース操作中にエラーが発生しました')
       }
 

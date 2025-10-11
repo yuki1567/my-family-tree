@@ -1,4 +1,5 @@
-import { prisma } from '@/database/connection.js'
+import { db } from '@/database/client.js'
+import { people } from '@/database/schema/index.js'
 import { DatabaseError } from '@/errors/AppError.js'
 import { convertStringToDate, formatDateToYYYYMMDD } from '@/utils/dateUtils.js'
 import type {
@@ -8,15 +9,16 @@ import type {
 
 export class PersonRepository {
   public async create(data: CreatePersonRequest): Promise<PersonResponse> {
-    const person = await prisma.people.create({
-      data: {
+    const [person] = await db
+      .insert(people)
+      .values({
         name: data.name ?? null,
         gender: data.gender ?? 0,
         birthDate: convertStringToDate(data.birthDate),
         deathDate: convertStringToDate(data.deathDate),
         birthPlace: data.birthPlace ?? null,
-      },
-    })
+      })
+      .returning()
 
     if (!this.isValidGender(person.gender)) {
       throw new DatabaseError(
