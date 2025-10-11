@@ -12,10 +12,12 @@
         :key="option.value"
         class="form-field-radio-label-button"
         :style="
-          inputValue === option.value
+          inputValue === option.value && option.colorType
             ? {
-                borderColor: getOptionColor(option.value).border,
-                backgroundColor: getOptionColor(option.value).background,
+                borderColor: getColorByType(option.value, option.colorType)
+                  .border,
+                backgroundColor: getColorByType(option.value, option.colorType)
+                  .background,
               }
             : {}
         "
@@ -32,9 +34,9 @@
           :is="option.icon"
           class="form-field-radio-icon"
           :style="
-            inputValue === option.value
+            inputValue === option.value && option.colorType
               ? {
-                  color: getOptionColor(option.value).text,
+                  color: getColorByType(option.value, option.colorType).text,
                 }
               : {}
           "
@@ -42,9 +44,9 @@
         <span
           class="form-field-radio-text"
           :style="
-            inputValue === option.value
+            inputValue === option.value && option.colorType
               ? {
-                  color: getOptionColor(option.value).text,
+                  color: getColorByType(option.value, option.colorType).text,
                 }
               : {}
           "
@@ -71,19 +73,15 @@
 </template>
 
 <script setup lang="ts">
+import { GENDER_CSS_KEYS, RELATIONSHIP_CSS_KEYS } from '@/types/person'
 import { computed } from 'vue'
 import type { Component } from 'vue'
-import {
-  GENDER_CSS_KEYS,
-  RELATIONSHIP_CSS_KEYS,
-  type Gender,
-  type Relationship,
-} from '@shared/types/person'
 
 type RadioOption = {
   label: string
   value: string
   icon?: Component
+  colorType: 'gender' | 'relationship'
 }
 
 type Props = {
@@ -132,16 +130,31 @@ const getCSSVariable = (variableName: string): string => {
     .trim()
 }
 
-const getOptionColor = (optionValue: string) => {
-  const colorKey =
-    GENDER_CSS_KEYS[optionValue as Gender] ||
-    RELATIONSHIP_CSS_KEYS[optionValue as Relationship] ||
-    'gender-male'
+const COLOR_TYPE_MAPS = {
+  gender: GENDER_CSS_KEYS,
+  relationship: RELATIONSHIP_CSS_KEYS,
+} as const
+
+type colorType = keyof typeof COLOR_TYPE_MAPS
+
+type ColorSet = {
+  border: string
+  background: string
+  text: string
+}
+
+const getColorByType = (value: string, colorType: colorType): ColorSet => {
+  const cssKeyMap: Record<string, string> = COLOR_TYPE_MAPS[colorType]
+  const cssKey = cssKeyMap[value]
+
+  if (!cssKey) {
+    return { border: '', background: '', text: '' }
+  }
 
   return {
-    border: getCSSVariable(`--color-${colorKey}-border`),
-    background: getCSSVariable(`--color-${colorKey}-background`),
-    text: getCSSVariable(`--color-${colorKey}`),
+    border: getCSSVariable(`--color-${cssKey}-border`),
+    background: getCSSVariable(`--color-${cssKey}-background`),
+    text: getCSSVariable(`--color-${cssKey}`),
   }
 }
 </script>

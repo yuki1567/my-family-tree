@@ -100,16 +100,19 @@ const genderOptions = [
     label: '男性',
     value: 'male',
     icon: UserIcon,
+    colorType: 'gender' as const,
   },
   {
     label: '女性',
     value: 'female',
     icon: UsersIcon,
+    colorType: 'gender' as const,
   },
   {
     label: '不明',
     value: 'unknown',
     icon: UserIcon,
+    colorType: 'gender' as const,
   },
 ]
 
