@@ -16,7 +16,7 @@
 
     <PersonAddModal
       v-if="showAddPersonModal"
-      :server-error="serverError"
+      :error="error"
       @close="closeAddPersonModal"
       @save="savePerson"
     />
@@ -38,20 +38,20 @@ const hasPersonData = computed(() => personData.value)
 const { createPerson } = usePersonApi()
 
 const showAddPersonModal = ref(false)
-const serverError = ref<ErrorResponse | null>(null)
+const error = ref<ErrorResponse | undefined>(undefined)
 
 const openAddPersonModal = () => {
-  serverError.value = null
+  error.value = undefined
   showAddPersonModal.value = true
 }
 
 const closeAddPersonModal = () => {
-  serverError.value = null
+  error.value = undefined
   showAddPersonModal.value = false
 }
 
 const savePerson = async (formData: PersonForm): Promise<void> => {
-  serverError.value = null
+  error.value = undefined
 
   const result = await createPerson(formData)
 
@@ -59,7 +59,7 @@ const savePerson = async (formData: PersonForm): Promise<void> => {
     personData.value = result.data
     showAddPersonModal.value = false
   } else {
-    serverError.value = result.error
+    error.value = result.error
   }
 }
 </script>
@@ -86,8 +86,7 @@ const savePerson = async (formData: PersonForm): Promise<void> => {
   background-color: var(--color-bg-secondary);
   padding: 1.6rem;
   overflow: auto;
-  /* 背景を画面の一番下まで拡張 */
-  min-height: 100vh;
+  height: 100vh;
 }
 
 .tree-container {
