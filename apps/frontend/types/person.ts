@@ -1,6 +1,19 @@
-/**
- * 人物追加フォーム用の型定義
- */
+export type Gender = 'male' | 'female' | 'unknown'
+export type Relationship = 'father' | 'mother' | 'spouse' | 'child'
+
+export const GENDER_CSS_KEYS = {
+  unknown: 'gender-unknown',
+  male: 'gender-male',
+  female: 'gender-female',
+} as const
+
+export const RELATIONSHIP_CSS_KEYS = {
+  father: 'relation-father',
+  mother: 'relation-mother',
+  spouse: 'relation-spouse',
+  child: 'relation-child',
+} as const
+
 export type PersonForm = {
   /** 氏名（任意） */
   name?: string
@@ -14,9 +27,6 @@ export type PersonForm = {
   birthPlace?: string
 }
 
-/**
- * フォームバリデーション結果
- */
 export type ValidationErrors = {
   name?: string
   gender?: string
@@ -25,17 +35,11 @@ export type ValidationErrors = {
   birthPlace?: string
 }
 
-/**
- * 人物の性別オプション
- */
 export const GENDER_OPTIONS = [
   { label: '男性', value: 'male' },
   { label: '女性', value: 'female' },
 ] as const
 
-/**
- * PersonFormの初期値
- */
 export const INITIAL_PERSON_FORM: PersonForm = {
   name: '',
   gender: undefined,
