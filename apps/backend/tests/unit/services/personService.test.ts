@@ -1,6 +1,9 @@
 import { PersonRepository } from '@/repositories/personRepository.js'
 import { PersonService } from '@/services/personService.js'
-import { CreatePersonRequest } from '@/validations/personValidation.js'
+import type {
+  CreatePersonRequest,
+  PersonResponse,
+} from '@shared/api/persons.js'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('PersonService', () => {
@@ -29,7 +32,7 @@ describe('PersonService', () => {
         birthPlace: '東京都',
       }
 
-      const expectedResult = {
+      const expectedResult: PersonResponse = {
         id: 'test-uuid',
         name: '田中花子',
         gender: 2,
@@ -54,13 +57,13 @@ describe('PersonService', () => {
         gender: 0,
       }
 
-      const expectedResult = {
+      const expectedResult: PersonResponse = {
         id: 'test-uuid-2',
-        name: null,
+        name: undefined,
         gender: 0,
-        birthDate: null,
-        deathDate: null,
-        birthPlace: null,
+        birthDate: undefined,
+        deathDate: undefined,
+        birthPlace: undefined,
       }
 
       repository.create.mockResolvedValue(expectedResult)

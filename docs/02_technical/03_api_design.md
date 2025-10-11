@@ -225,5 +225,19 @@ Production: https://your-domain.com/api
 | 400                  | VALIDATION_ERROR   | deathDate  | INVALID_DATE_FORMAT  | 没年月日がYYYY-MM-DD形式でない |
 | 400                  | VALIDATION_ERROR   | deathDate  | DEATH_BEFORE_BIRTH   | 没年月日が生年月日より前       |
 | 400                  | VALIDATION_ERROR   | birthPlace | BIRTH_PLACE_TOO_LONG | 出生地が200文字を超過          |
+| 500                  | DATABASE_ERROR     | -          | -                    | データベース接続・操作エラー   |
+
+**エラーハンドリング実装**
+
+このAPIは以下の3層でエラーをハンドリングします：
+
+1. **バリデーションエラー**: `zValidator`ミドルウェアが自動的にZodErrorを検出し、400エラーとして返却
+2. **データベースエラー**: ルートハンドラーのtry-catch文でPrismaエラーをキャッチし、`DatabaseError`でラップして500エラーとして返却
+3. **予期しないエラー**: その他のエラーは`errorHandler`ミドルウェアが`UNKNOWN_ERROR`として500エラーで返却
+
+**実装場所**:
+- ルートハンドラー: [apps/backend/routes/peopleRoute.ts](../../apps/backend/routes/peopleRoute.ts)
+- エラーハンドラー: [apps/backend/middlewares/errorHandler.ts](../../apps/backend/middlewares/errorHandler.ts)
+- エラークラス: [apps/backend/errors/AppError.ts](../../apps/backend/errors/AppError.ts)
 
 **重要**: このAPI設計は**保守性**を最優先に設計されています。新機能追加やデータ構造変更時は、既存APIの互換性を維持することを最重要視してください。

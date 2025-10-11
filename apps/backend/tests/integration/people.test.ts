@@ -82,11 +82,7 @@ describe('POST /api/people - 人物追加API', () => {
       expect(body).toEqual({
         data: {
           id: expect.any(String),
-          name: null,
           gender: 0,
-          birthDate: null,
-          deathDate: null,
-          birthPlace: null,
         },
       })
 
