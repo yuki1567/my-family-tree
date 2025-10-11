@@ -1,4 +1,5 @@
 import { prisma } from '@/database/connection.js'
+import { DatabaseError } from '@/errors/AppError.js'
 import { convertStringToDate, formatDateToYYYYMMDD } from '@/utils/dateUtils.js'
 import type {
   CreatePersonRequest,
@@ -22,8 +23,8 @@ export class PersonRepository {
     })
 
     if (!isValidGender(person.gender)) {
-      throw new Error(
-        `Invalid gender value from database: ${person.gender}. Expected 0, 1, or 2.`
+      throw new DatabaseError(
+        `Invalid gender value from database: ${person.gender}. Expected 0, 1, 2.`
       )
     }
 
