@@ -68,12 +68,10 @@ export const usePersonApi = () => {
       gender: convertGenderToNumber(formData.gender),
     }
 
-    console.log('Sending request:', requestBody)
     const response = await useApi<CreatePersonResponse>('/api/people', {
       method: 'POST',
       body: requestBody,
     })
-    console.log('Received response:', response)
 
     if (isSuccessResponse(response)) {
       return { data: convertApiResponseToPerson(response.data) }
