@@ -19,7 +19,7 @@ export class PersonRepository {
       data: personData,
     })
 
-    return {
+    const result: PersonResponse = {
       id: person.id,
       name: person.name ?? undefined,
       gender: person.gender as 0 | 1 | 2,
@@ -27,5 +27,7 @@ export class PersonRepository {
       deathDate: formatDateToYYYYMMDD(person.deathDate) ?? undefined,
       birthPlace: person.birthPlace ?? undefined,
     }
+
+    return result
   }
 }

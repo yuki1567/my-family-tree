@@ -1,6 +1,9 @@
 import { PersonRepository } from '@/repositories/personRepository.js'
 import { PersonService } from '@/services/personService.js'
-import type { CreatePersonRequest } from '@shared/api/persons.js'
+import type {
+  CreatePersonRequest,
+  PersonResponse,
+} from '@shared/api/persons.js'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('PersonService', () => {
@@ -29,10 +32,10 @@ describe('PersonService', () => {
         birthPlace: '東京都',
       }
 
-      const expectedResult = {
+      const expectedResult: PersonResponse = {
         id: 'test-uuid',
         name: '田中花子',
-        gender: 2 as const,
+        gender: 2,
         birthDate: '1985-05-15',
         deathDate: '2020-12-31',
         birthPlace: '東京都',
@@ -54,10 +57,10 @@ describe('PersonService', () => {
         gender: 0,
       }
 
-      const expectedResult = {
+      const expectedResult: PersonResponse = {
         id: 'test-uuid-2',
         name: undefined,
-        gender: 0 as const,
+        gender: 0,
         birthDate: undefined,
         deathDate: undefined,
         birthPlace: undefined,
