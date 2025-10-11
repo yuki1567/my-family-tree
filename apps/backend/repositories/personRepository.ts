@@ -1,5 +1,6 @@
 import { prisma } from '@/database/connection.js'
 import { convertStringToDate, formatDateToYYYYMMDD } from '@/utils/dateUtils.js'
+import { toGender } from '@/utils/genderUtils.js'
 import type {
   CreatePersonRequest,
   PersonResponse,
@@ -22,7 +23,7 @@ export class PersonRepository {
     const result: PersonResponse = {
       id: person.id,
       name: person.name ?? undefined,
-      gender: person.gender as 0 | 1 | 2,
+      gender: toGender(person.gender),
       birthDate: formatDateToYYYYMMDD(person.birthDate) ?? undefined,
       deathDate: formatDateToYYYYMMDD(person.deathDate) ?? undefined,
       birthPlace: person.birthPlace ?? undefined,
