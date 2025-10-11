@@ -1,3 +1,24 @@
+import type { Gender, Relationship } from '@shared/types/person.js'
+
+/**
+ * CSS変数キーへのマッピング（性別）
+ */
+export const GENDER_CSS_KEYS: Record<Gender, string> = {
+  unknown: 'gender-unknown',
+  male: 'gender-male',
+  female: 'gender-female',
+}
+
+/**
+ * CSS変数キーへのマッピング（関係性）
+ */
+export const RELATIONSHIP_CSS_KEYS: Record<Relationship, string> = {
+  father: 'relation-father',
+  mother: 'relation-mother',
+  spouse: 'relation-spouse',
+  child: 'relation-child',
+}
+
 /**
  * 人物追加フォーム用の型定義
  */
