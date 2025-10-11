@@ -1,17 +1,12 @@
-import type { Gender, Relationship } from '@shared/types/person.js'
+export type Gender = 'male' | 'female' | 'unknown'
+export type Relationship = 'father' | 'mother' | 'spouse' | 'child'
 
-/**
- * CSS変数キーへのマッピング（性別）
- */
 export const GENDER_CSS_KEYS: Record<Gender, string> = {
   unknown: 'gender-unknown',
   male: 'gender-male',
   female: 'gender-female',
 }
 
-/**
- * CSS変数キーへのマッピング（関係性）
- */
 export const RELATIONSHIP_CSS_KEYS: Record<Relationship, string> = {
   father: 'relation-father',
   mother: 'relation-mother',
@@ -19,9 +14,6 @@ export const RELATIONSHIP_CSS_KEYS: Record<Relationship, string> = {
   child: 'relation-child',
 }
 
-/**
- * 人物追加フォーム用の型定義
- */
 export type PersonForm = {
   /** 氏名（任意） */
   name?: string
@@ -35,9 +27,6 @@ export type PersonForm = {
   birthPlace?: string
 }
 
-/**
- * フォームバリデーション結果
- */
 export type ValidationErrors = {
   name?: string
   gender?: string
@@ -46,17 +35,11 @@ export type ValidationErrors = {
   birthPlace?: string
 }
 
-/**
- * 人物の性別オプション
- */
 export const GENDER_OPTIONS = [
   { label: '男性', value: 'male' },
   { label: '女性', value: 'female' },
 ] as const
 
-/**
- * PersonFormの初期値
- */
 export const INITIAL_PERSON_FORM: PersonForm = {
   name: '',
   gender: undefined,
