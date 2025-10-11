@@ -1,7 +1,6 @@
 import { db } from '@/database/client.js'
 import { people } from '@/database/schema/index.js'
 import { DatabaseError } from '@/errors/AppError.js'
-import { convertStringToDate } from '@/utils/dateUtils.js'
 import type {
   CreatePersonRequest,
   PersonResponse,
@@ -14,8 +13,8 @@ export class PersonRepository {
       .values({
         name: data.name ?? null,
         gender: data.gender ?? 0,
-        birthDate: convertStringToDate(data.birthDate),
-        deathDate: convertStringToDate(data.deathDate),
+        birthDate: data.birthDate ?? null,
+        deathDate: data.deathDate ?? null,
         birthPlace: data.birthPlace ?? null,
       })
       .returning()
