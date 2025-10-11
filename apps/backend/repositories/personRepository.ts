@@ -20,6 +20,10 @@ export class PersonRepository {
       })
       .returning()
 
+    if (!person) {
+      throw new DatabaseError('Failed to create person record')
+    }
+
     if (!this.isValidGender(person.gender)) {
       throw new DatabaseError(
         `Invalid gender value from database: ${person.gender}. Expected 0, 1, 2.`
@@ -30,8 +34,8 @@ export class PersonRepository {
       id: person.id,
       name: person.name ?? undefined,
       gender: person.gender,
-      birthDate: formatDateToYYYYMMDD(person.birthDate) ?? undefined,
-      deathDate: formatDateToYYYYMMDD(person.deathDate) ?? undefined,
+      birthDate: person.birthDate ?? undefined,
+      deathDate: person.deathDate ?? undefined,
       birthPlace: person.birthPlace ?? undefined,
     } satisfies PersonResponse
 

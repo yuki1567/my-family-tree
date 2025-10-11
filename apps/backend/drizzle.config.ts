@@ -5,6 +5,6 @@ export default defineConfig({
   schema: './database/schema/people.ts',
   out: './database/migrations',
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    url: process.env['DATABASE_URL']!,
   },
 })
