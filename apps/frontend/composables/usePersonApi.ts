@@ -1,7 +1,6 @@
 import type { Person, PersonForm } from '@/types/person'
 import type { ErrorResponse } from '@shared/api/common'
 import { ApiErrorResponseSchema } from '@shared/api/common'
-import type { PersonResponse } from '@shared/api/persons'
 import { CreatePersonResponseSchema } from '@shared/api/persons'
 
 import { useApi } from './useApi'
@@ -22,17 +21,6 @@ const convertGenderToString = (
   return 'unknown'
 }
 
-const convertApiResponseToPerson = (response: PersonResponse): Person => {
-  return {
-    id: response.id,
-    name: response.name ?? '',
-    gender: convertGenderToString(response.gender),
-    birthDate: response.birthDate ?? '',
-    deathDate: response.deathDate ?? '',
-    birthPlace: response.birthPlace ?? '',
-  }
-}
-
 export const usePersonApi = () => {
   const createPerson = async (
     formData: PersonForm
@@ -50,7 +38,12 @@ export const usePersonApi = () => {
     const successResult = CreatePersonResponseSchema.safeParse(response)
     if (successResult.success) {
       const { data: personResponse } = successResult.data
-      return { data: convertApiResponseToPerson(personResponse) }
+      return {
+        data: {
+          ...personResponse,
+          gender: convertGenderToString(personResponse.gender),
+        },
+      }
     }
 
     const errorResult = ApiErrorResponseSchema.safeParse(response)
