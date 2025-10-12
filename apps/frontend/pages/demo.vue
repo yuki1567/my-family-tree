@@ -579,26 +579,81 @@ const personForm = ref({
 
 // radioボタンのオプション（PersonAddModal準拠）
 const genderOptions = [
-  { label: '男性', value: 'male', icon: UserIcon },
-  { label: '女性', value: 'female', icon: UsersIcon },
-  { label: '不明', value: 'unknown', icon: UserIcon },
+  { label: '男性', value: 'male', icon: UserIcon, colorType: 'gender' as const },
+  {
+    label: '女性',
+    value: 'female',
+    icon: UsersIcon,
+    colorType: 'gender' as const,
+  },
+  {
+    label: '不明',
+    value: 'unknown',
+    icon: UserIcon,
+    colorType: 'gender' as const,
+  },
 ]
 
 // 関係性のオプション
 const relationshipOptions = [
-  { label: '父親', value: 'father', icon: UserIcon },
-  { label: '母親', value: 'mother', icon: UsersIcon },
-  { label: '子供', value: 'child', icon: FaceSmileIcon },
-  { label: '配偶者', value: 'spouse', icon: HeartIcon },
+  {
+    label: '父親',
+    value: 'father',
+    icon: UserIcon,
+    colorType: 'relationship' as const,
+  },
+  {
+    label: '母親',
+    value: 'mother',
+    icon: UsersIcon,
+    colorType: 'relationship' as const,
+  },
+  {
+    label: '子供',
+    value: 'child',
+    icon: FaceSmileIcon,
+    colorType: 'relationship' as const,
+  },
+  {
+    label: '配偶者',
+    value: 'spouse',
+    icon: HeartIcon,
+    colorType: 'relationship' as const,
+  },
 ]
 
 // 子供アイコン比較用のオプション
 const childIconOptions = [
-  { label: '現在（UsersIcon）', value: 'current', icon: UsersIcon },
-  { label: '笑顔（FaceSmileIcon）', value: 'smile', icon: FaceSmileIcon },
-  { label: 'キラキラ（SparklesIcon）', value: 'sparkles', icon: SparklesIcon },
-  { label: '星（StarIcon）', value: 'star', icon: StarIcon },
-  { label: '太陽（SunIcon）', value: 'sun', icon: SunIcon },
+  {
+    label: '現在（UsersIcon）',
+    value: 'current',
+    icon: UsersIcon,
+    colorType: 'relationship' as const,
+  },
+  {
+    label: '笑顔（FaceSmileIcon）',
+    value: 'smile',
+    icon: FaceSmileIcon,
+    colorType: 'relationship' as const,
+  },
+  {
+    label: 'キラキラ（SparklesIcon）',
+    value: 'sparkles',
+    icon: SparklesIcon,
+    colorType: 'relationship' as const,
+  },
+  {
+    label: '星（StarIcon）',
+    value: 'star',
+    icon: StarIcon,
+    colorType: 'relationship' as const,
+  },
+  {
+    label: '太陽（SunIcon）',
+    value: 'sun',
+    icon: SunIcon,
+    colorType: 'relationship' as const,
+  },
 ]
 
 // アイコン比較用の値
