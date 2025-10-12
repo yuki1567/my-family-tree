@@ -18,8 +18,8 @@ import {
 
 export function loadEnv(): Ctx {
   dotenv.config({ path: path.join(PROJECT_ROOT, '.env') })
-  const mysqlRootPassword = getRequiredEnv('MYSQL_ROOT_PASSWORD')
-  const mysqlUser = getRequiredEnv('MYSQL_USER')
+  const dbAdminPassword = getRequiredEnv('DATABASE_ADMIN_PASSWORD')
+  const dbUser = getRequiredEnv('DATABASE_USER')
   const googleTranslateApiKey = getRequiredEnv('GOOGLE_TRANSLATE_API_KEY')
   const githubProjectId = getRequiredEnv('GITHUB_PROJECT_ID')
   const githubProjectNumber = getRequiredEnv('GITHUB_PROJECT_NUMBER')
@@ -40,8 +40,8 @@ export function loadEnv(): Ctx {
     },
     cloudTranslation: googleTranslateApiKey,
     environment: {
-      dbRootPassword: mysqlRootPassword,
-      dbUser: mysqlUser,
+      dbAdminPassword: dbAdminPassword,
+      dbUser: dbUser,
     },
   }
 }

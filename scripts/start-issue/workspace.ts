@@ -8,7 +8,7 @@ import {
   assertApiPort,
   assertBranchName,
   assertDbName,
-  assertDbRootPassword,
+  assertDbAdminPassword,
   assertDbUser,
   assertInReviewStatusId,
   assertIssueLabel,
@@ -122,15 +122,11 @@ export function generateEnvFile(ctx: Ctx): Ctx {
 export function createDbSchema(ctx: Ctx): void {
   assertDbName(ctx)
   assertDbUser(ctx)
-  assertDbRootPassword(ctx)
+  assertDbAdminPassword(ctx)
 
   const dbName = ctx.environment.dbName
   const dbUser = ctx.environment.dbUser
-  const rootPassword = ctx.environment.dbRootPassword
-  const statements = [
-    `CREATE DATABASE IF NOT EXISTS \`${dbName}\`;`,
-    `GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON \`${dbName}\`.* TO '${dbUser}'@'%';`,
-  ]
+  const adminPassword = ctx.environment.dbAdminPassword
 
   log('🗄 データベーススキーマを作成中...')
   const result = spawnSync(
@@ -139,13 +135,15 @@ export function createDbSchema(ctx: Ctx): void {
       'exec',
       '-T',
       '-e',
-      `MYSQL_PWD=${rootPassword}`,
+      `PGPASSWORD=${adminPassword}`,
       'db',
-      'mysql',
-      '-u',
-      'root',
-      '-e',
-      statements.join(' '),
+      'psql',
+      '-U',
+      'admin_user',
+      '-d',
+      'postgres',
+      '-c',
+      `CREATE DATABASE ${dbName};`,
     ],
     {
       cwd: PROJECT_ROOT,
@@ -154,7 +152,7 @@ export function createDbSchema(ctx: Ctx): void {
   )
 
   if (result.status !== 0) {
-    throw new Error('MySQLコマンドの実行に失敗しました')
+    throw new Error('PostgreSQLコマンドの実行に失敗しました')
   }
 
   log(`🗄 DBスキーマを作成しました: ${dbName}`)
@@ -168,7 +166,8 @@ export function openVscode(ctx: Ctx) {
   delete cleanEnv['API_PORT']
   delete cleanEnv['COMPOSE_PROJECT_NAME']
   delete cleanEnv['DATABASE_URL']
-  delete cleanEnv['MYSQL_DATABASE']
+  delete cleanEnv['DATABASE_ADMIN_URL']
+  delete cleanEnv['DATABASE_NAME']
   delete cleanEnv['JWT_SECRET']
 
   runCommand('code', [ctx.environment.worktreePath], cleanEnv)

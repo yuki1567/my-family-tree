@@ -23,7 +23,7 @@ export type Environment = {
   webPort?: number
   apiPort?: number
   dbName?: string
-  dbRootPassword?: string
+  dbAdminPassword?: string
   dbUser?: string
   appName?: string
   worktreePath?: string
@@ -150,10 +150,10 @@ export function assertDbUser(
   assertField(isValidDbUser(ctx), 'DBユーザ名')
 }
 
-export function assertDbRootPassword(ctx: Ctx): asserts ctx is Ctx & {
-  environment: Environment & { dbRootPassword: string }
+export function assertDbAdminPassword(ctx: Ctx): asserts ctx is Ctx & {
+  environment: Environment & { dbAdminPassword: string }
 } {
-  assertField(isValidDbRootPassword(ctx), 'DBルートパスワード')
+  assertField(isValidDbAdminPassword(ctx), 'DB管理者パスワード')
 }
 
 export function assertApiPort(
@@ -258,10 +258,10 @@ export function isValidDbUser(
   return typeof ctx.environment?.dbUser === 'string'
 }
 
-export function isValidDbRootPassword(
+export function isValidDbAdminPassword(
   ctx: Ctx
-): ctx is Ctx & { environment: Environment & { dbRootPassword: string } } {
-  return typeof ctx.environment?.dbRootPassword === 'string'
+): ctx is Ctx & { environment: Environment & { dbAdminPassword: string } } {
+  return typeof ctx.environment?.dbAdminPassword === 'string'
 }
 
 export function isValidBranchName(
