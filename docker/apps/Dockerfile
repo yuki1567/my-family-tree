@@ -6,7 +6,7 @@ WORKDIR /usr/src
 RUN npm install -g npm@10.9.3 pm2@6.0.8
 
 # 必要なシステムパッケージのインストール
-RUN apt-get update && apt-get install -y curl default-mysql-client vim procps
+RUN apt-get update && apt-get install -y curl postgresql-client vim procps
 
 # モノレポ対応：依存関係定義ファイルのコピー（レイヤーキャッシュ最適化）
 COPY package*.json ./

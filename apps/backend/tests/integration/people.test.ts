@@ -1,24 +1,22 @@
 import { createHonoApp } from '@/app.js'
+import { people } from '@/database/schema.js'
 import { peopleRoutes } from '@/routes/peopleRoute.js'
-import { TestPrismaManager } from '@/tests/helpers/prismaHelpers.js'
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { TestDrizzleManager } from '@/tests/helpers/drizzleHelpers.js'
+import { eq } from 'drizzle-orm'
+import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 
 describe('POST /api/people - 人物追加API', () => {
   const app = createHonoApp()
   app.route('/api', peopleRoutes)
 
-  const prisma = TestPrismaManager.getTestDbConnection()
-
-  beforeAll(async () => {
-    await prisma.$connect()
-  })
+  const db = TestDrizzleManager.getTestDbConnection()
 
   afterAll(async () => {
-    await prisma.$disconnect()
+    await TestDrizzleManager.closeTestDbConnection()
   })
 
   beforeEach(async () => {
-    await prisma.people.deleteMany()
+    await db.delete(people)
   })
 
   describe('正常系', () => {
@@ -50,16 +48,17 @@ describe('POST /api/people - 人物追加API', () => {
       })
 
       const createdId = body.data.id
-      const dbRecord = await prisma.people.findUnique({
-        where: { id: createdId },
-      })
+      const [dbRecord] = await db
+        .select()
+        .from(people)
+        .where(eq(people.id, createdId))
 
       expect(dbRecord).toBeTruthy()
       expect(dbRecord!.id).toBe(createdId)
       expect(dbRecord!.name).toBe(requestData.name)
       expect(dbRecord!.gender).toBe(requestData.gender)
-      expect(dbRecord!.birthDate).toEqual(new Date(requestData.birthDate))
-      expect(dbRecord!.deathDate).toEqual(new Date(requestData.deathDate))
+      expect(dbRecord!.birthDate).toBe(requestData.birthDate)
+      expect(dbRecord!.deathDate).toBe(requestData.deathDate)
       expect(dbRecord!.birthPlace).toBe(requestData.birthPlace)
       expect(dbRecord!.createdAt).toBeInstanceOf(Date)
       expect(dbRecord!.updatedAt).toBeInstanceOf(Date)
@@ -87,9 +86,10 @@ describe('POST /api/people - 人物追加API', () => {
       })
 
       const createdId = body.data.id
-      const dbRecord = await prisma.people.findUnique({
-        where: { id: createdId },
-      })
+      const [dbRecord] = await db
+        .select()
+        .from(people)
+        .where(eq(people.id, createdId))
 
       expect(dbRecord).toBeTruthy()
       expect(dbRecord!.id).toBe(createdId)

@@ -1,6 +1,7 @@
 import { AppError } from '@/errors/AppError.js'
 import type { ApiErrorResponse, ErrorDetail } from '@shared/api/common.js'
 import type { Context } from 'hono'
+import { PostgresError } from 'postgres'
 import { ZodError } from 'zod'
 
 export function errorHandler(err: Error, c: Context): Response {
@@ -18,6 +19,18 @@ export function errorHandler(err: Error, c: Context): Response {
         statusCode: 400,
         errorCode: 'VALIDATION_ERROR',
         details,
+      },
+    } satisfies ApiErrorResponse)
+  }
+
+  if (err instanceof PostgresError) {
+    console.error('Database error:', err)
+
+    return c.json({
+      error: {
+        statusCode: 500,
+        errorCode: 'DATABASE_ERROR',
+        details: [],
       },
     } satisfies ApiErrorResponse)
   }

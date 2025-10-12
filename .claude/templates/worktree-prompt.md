@@ -66,10 +66,13 @@ npm install
 # STEP2: appsコンテナ起動（必須）
 docker compose --profile development up -d --no-deps apps
 
-# STEP3: 起動確認（必須）
+# STEP3: マイグレーション実行（必須）
+docker-compose exec apps npm run db:migrate
+
+# STEP4: 起動確認（必須）
 docker compose ps
 
-# STEP4: アクセス確認（必須）
+# STEP5: アクセス確認（必須）
 echo "Frontend: http://localhost:{{WEB_PORT}}"
 echo "API: http://localhost:{{API_PORT}}"
 ```

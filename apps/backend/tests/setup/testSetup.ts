@@ -1,6 +1,6 @@
-import { TestPrismaManager } from '@/tests/helpers/prismaHelpers.js'
+import { TestDrizzleManager } from '@/tests/helpers/drizzleHelpers.js'
 import { afterAll } from 'vitest'
 
 afterAll(async () => {
-  await TestPrismaManager.closeTestDbConnection()
+  await TestDrizzleManager.closeTestDbConnection()
 })

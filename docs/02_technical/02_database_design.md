@@ -4,11 +4,12 @@
 
 ### 1.1 データベース基本情報
 
-- **RDBMS**: MySQL 8.4.6
-- **文字セット**: utf8mb4
-- **照合順序**: utf8mb4_unicode_ci
+- **RDBMS**: PostgreSQL 18-alpine
+- **文字セット**: UTF-8
+- **照合順序**: ja_JP.UTF-8
 - **タイムゾーン**: Asia/Tokyo（JST）
-- **ORM**: Prisma
+- **ORM**: Drizzle ORM 0.44.6
+- **ドライバー**: postgres 3.4.7
 - **配置場所**: `apps/backend/database/`
 
 ### 1.2 設計原則
@@ -24,27 +25,29 @@
 
 ### 1.3 モノレポ構成での位置づけ
 
-#### Prisma スキーマとの関係
+#### Drizzle スキーマとの関係
 
 ```typescript
-// apps/backend/database/schema.prisma
-// このデータベース設計書を基に作成されるPrismaスキーマ
-model Person {
-  id        String   @id @default(uuid())
-  name      String?
-  // ...その他フィールド
-}
+// apps/backend/database/schema/people.ts
+// このデータベース設計書を基に作成されるDrizzleスキーマ
+import { pgTable, uuid, varchar, smallint } from 'drizzle-orm/pg-core'
 
-// データベース型から共有型への変換
-// Prisma生成型 → shared/types/ での型定義活用
-// Repository層で型変換を実施し、上位層では共有型を使用
+export const people = pgTable('people', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 100 }),
+  // ...その他フィールド
+})
+
+export type Person = typeof people.$inferSelect
+export type NewPerson = typeof people.$inferInsert
 ```
 
 #### 保守性の担保
 
-- **スキーマ変更**: Prisma migrate による段階的更新
-- **型安全性**: Prisma クライアントから自動生成される型を利用
-- **一元管理**: データベース設計書 → Prisma スキーマ → 型定義の一方向フロー
+- **スキーマ変更**: Drizzle Kit による段階的更新
+- **型安全性**: Drizzle ORM から推論される型を利用
+- **一元管理**: データベース設計書 → Drizzle スキーマ → 型定義の一方向フロー
+- **ディレクトリ構造**: `apps/backend/database/schema/` 配下にスキーマファイルを配置
 
 ## 2. 命名規則
 
@@ -146,17 +149,17 @@ creation_date DATE          -- 名詞形
 
 #### フラグ・ステータス
 
-- **ENUM 型は使用しない**: tinyint を使用
+- **ENUM 型は使用しない**: smallint を使用（PostgreSQL）
 - **命名**: is_xxx, has_xxx の形式、または状態を表す名詞
 
 ```sql
--- ✅ 良い例
-is_active TINYINT(1) DEFAULT 1,        -- アクティブフラグ
-status TINYINT DEFAULT 0,               -- ステータス（0:無効, 1:有効, 2:削除済み）
-email_verified TINYINT(1) DEFAULT 0    -- メール認証済みフラグ
+-- ✅ 良い例（PostgreSQL）
+is_active SMALLINT DEFAULT 1,          -- アクティブフラグ
+status SMALLINT DEFAULT 0,             -- ステータス（0:無効, 1:有効, 2:削除済み）
+email_verified SMALLINT DEFAULT 0      -- メール認証済みフラグ
 
 -- ❌ 悪い例
-active_flg TINYINT(1),                 -- flgは略語
+active_flg SMALLINT,                   -- flgは略語
 gender ENUM('MALE', 'FEMALE')          -- ENUM型使用
 ```
 
@@ -197,18 +200,18 @@ country_code CHAR(2)  -- ISO国家コード等
 #### 数値型
 
 ```sql
--- フラグ・ステータス
-is_active TINYINT(1) DEFAULT 1,
-status TINYINT DEFAULT 0
+-- フラグ・ステータス（PostgreSQL）
+is_active SMALLINT DEFAULT 1,
+status SMALLINT DEFAULT 0
 
 -- 整数
-age TINYINT UNSIGNED,        -- 0-255
-count INT UNSIGNED,          -- 0-4,294,967,295
+age SMALLINT,                -- -32768〜32767
+count INTEGER,               -- -2147483648〜2147483647
 large_number BIGINT          -- 非常に大きな数値
 
 -- 小数
-price DECIMAL(10,2),         -- 金額（10桁、小数点以下2桁）
-rate FLOAT                   -- 割合・比率
+price NUMERIC(10,2),         -- 金額（10桁、小数点以下2桁）
+rate REAL                    -- 割合・比率
 ```
 
 #### 日時型
@@ -218,22 +221,23 @@ rate FLOAT                   -- 割合・比率
 birth_date DATE,
 published_on DATE
 
--- 日時（マイクロ秒まで）
-created_at DATETIME(3),
-updated_at DATETIME(3)
+-- 日時（ミリ秒まで、PostgreSQL）
+created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 
--- タイムスタンプ（自動更新）
-modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- タイムスタンプ（自動更新はアプリケーション層で制御）
+-- PostgreSQLではON UPDATE CURRENT_TIMESTAMPはサポートされていないため、
+-- Drizzle ORMの$onUpdate機能を使用
 ```
 
 #### フラグ・ステータスの定数定義
 
 ```sql
--- フラグの場合
-is_active TINYINT(1) DEFAULT 1  -- 0:無効, 1:有効
+-- フラグの場合（PostgreSQL）
+is_active SMALLINT DEFAULT 1  -- 0:無効, 1:有効
 
 -- ステータスの場合（複数状態）
-status TINYINT
+status SMALLINT
 -- 0:下書き, 1:公開, 2:削除済み, 3:非公開
 ```
 
@@ -303,92 +307,69 @@ CREATE INDEX idx_relationships_parent_type ON relationships(parent_id, type);
 
 ## 3. データマイグレーション戦略
 
-### 3.1 Prisma マイグレーション管理
+### 3.1 Drizzle Kit マイグレーション管理
 
 #### ファイル配置
 
 ```
 apps/backend/database/
-├── schema.prisma              # スキーマ定義
+├── schema/                    # スキーマ定義
+│   ├── index.ts              # 全スキーマのエクスポート
+│   └── people.ts             # 人物テーブル定義
+├── client.ts                  # Drizzle接続設定
+├── drizzle.config.ts          # Drizzle Kit設定
 ├── migrations/                # マイグレーション履歴
-│   ├── 20240101000000_init/   # 初期作成
-│   └── migration.sql
-├── seeds/                     # 初期データ投入
-│   ├── development.ts         # 開発環境用データ
-│   └── production.ts          # 本番環境用データ
-└── config/                    # DB接続設定
-    ├── database.ts            # 接続設定
-    └── constants.ts           # DB定数
+│   ├── 0000_initial.sql      # 初期マイグレーション
+│   └── meta/                 # メタデータ
+└── seeds/                     # 初期データ投入
+    ├── development.ts         # 開発環境用データ
+    └── production.ts          # 本番環境用データ
 ```
 
 #### マイグレーション命名規則
 
+Drizzle Kitは自動的にマイグレーション名を生成しますが、以下の命名規則に従うことを推奨します：
+
 ##### 基本形式
 
-`{アクション}_{対象}_{詳細説明}`
+`{連番}_{説明的な名前}.sql`
 
-##### アクション一覧
+##### 例
 
-- **CreateTable**  
-  テーブルの作成  
-  例: `CreateTable_Users`
+- `0000_initial.sql` - 初期スキーマ作成
+- `0001_add_nickname_to_people.sql` - peopleテーブルにnicknameカラム追加
+- `0002_create_relationships_table.sql` - relationshipsテーブル作成
 
-- **Add**  
-  カラムやインデックスの追加  
-  例: `Add_EmailToUsers`
+#### Drizzle Kitコマンド
 
-- **Remove / Drop**  
-  カラムやインデックスの削除  
-  例: `Drop_EmailFromUsers`
+```bash
+# マイグレーション生成（スキーマから自動生成）
+docker-compose exec apps npm run db:generate
 
-- **Rename**  
-  カラムやテーブル名の変更  
-  例: `Rename_UsersToCustomers`
+# マイグレーション実行
+docker-compose exec apps npm run db:migrate
 
-- **Alter**  
-  カラムのデータ型変更、制約の変更  
-  例: `Alter_EmailInUsers`
+# スキーマをDBに直接反映（開発環境のみ）
+docker-compose exec apps npm run db:push
 
-- **Insert**  
-  データの挿入（特定の初期データなど）  
-  例: `Insert_InitialRoles`
-
-- **Delete**  
-  データの削除  
-  例: `Delete_ObsoleteDataFromUsers`
-
-- **Update**  
-  データの更新  
-  例: `Update_StatusInOrders`
-
-- **CreateIndex**  
-  インデックスの作成  
-  例: `CreateIndex_Users_Email`
-
-- **DropIndex**  
-  インデックスの削除  
-  例: `DropIndex_Users_Email`
-
-##### 対象一覧
-
-- **Table 名**  
-  操作対象となるテーブル名  
-  例: `UsersTable`, `OrdersTable`
-
-- **Column 名**  
-  操作対象となるカラム名  
-  例: `Email`, `Status`
-
-- **Index 名**  
-  操作対象となるインデックス名  
-  例: `EmailIndex`, `UniqueKey`
+# Drizzle Studio起動（データ閲覧・編集）
+docker-compose exec apps npm run db:studio
+```
 
 #### 段階的スキーマ変更
 
 ```bash
-# 開発環境でのマイグレーション作成
-cd apps/backend
-npx prisma migrate dev --name Add_NicknameToUsers
+# 1. スキーマファイルを編集
+# apps/backend/database/schema/people.ts
+
+# 2. マイグレーション生成
+docker-compose exec apps npm run db:generate
+
+# 3. 生成されたマイグレーションを確認
+# apps/backend/database/migrations/
+
+# 4. マイグレーション実行
+docker-compose exec apps npm run db:migrate
 
 # 注意: 本番環境でのマイグレーション適用は慎重に検討すること
 # 自動適用ではなく、手動での段階的な変更を推奨
@@ -401,13 +382,13 @@ npx prisma migrate dev --name Add_NicknameToUsers
 **フィールド詳細**
 | フィールド | 型 | NULL | デフォルト | 説明 | 保守性への配慮 |
 |-----------|----|----|----------|------|---------------|
-| id | VARCHAR(36) | NO | UUID | 主キー | グローバル一意性 |
+| id | UUID | NO | gen_random_uuid() | 主キー | グローバル一意性 |
 | name | VARCHAR(100) | YES | NULL | 氏名 | 無名人物対応 |
-| gender | TINYINT | NO | 0 | 性別（0:不明, 1:男性, 2:女性） | 将来的な拡張可能性 |
+| gender | SMALLINT | NO | 0 | 性別（0:不明, 1:男性, 2:女性） | 将来的な拡張可能性 |
 | birth_date | DATE | YES | NULL | 生年月日 | 不明日付の許容 |
 | death_date | DATE | YES | NULL | 没年月日 | 生存者への配慮 |
 | birth_place | VARCHAR(200) | YES | NULL | 出生地 | 地名変更への対応 |
-| created_at | DATETIME(3) | NO | NOW() | 作成日時 | 監査ログ |
-| updated_at | DATETIME(3) | NO | NOW() | 更新日時 | 変更追跡 |
+| created_at | TIMESTAMP(3) | NO | CURRENT_TIMESTAMP | 作成日時 | 監査ログ |
+| updated_at | TIMESTAMP(3) | NO | CURRENT_TIMESTAMP | 更新日時 | 変更追跡（$onUpdateで自動更新） |
 
 **重要**: このデータベース設計は**保守性**を最優先に設計されています。スキーマ変更時は必ず既存データへの影響を評価し、段階的な移行戦略を策定してください。

@@ -9,7 +9,6 @@ const backendDir = getBackendDir()
 
 export default async function globalSetup() {
   try {
-    await ensurePrismaClient()
     await waitForDatabaseConnection()
     await ensureMigrations()
   } catch (error) {
@@ -18,22 +17,15 @@ export default async function globalSetup() {
   }
 }
 
-async function ensurePrismaClient(): Promise<void> {
-  await execAsync('npx prisma generate --schema=./database/schema.prisma', {
-    cwd: backendDir,
-  })
-}
-
 async function waitForDatabaseConnection(): Promise<void> {
   const maxRetries = 30
   const retryInterval = 1000
-  const { TestPrismaManager } = await import('../helpers/prismaHelpers.js')
+  const { TestDrizzleManager } = await import('../helpers/drizzleHelpers.js')
 
   for (let i = 1; i <= maxRetries; i++) {
     try {
-      const prisma = TestPrismaManager.getTestDbConnection()
-      await prisma.$connect()
-      await prisma.$disconnect()
+      TestDrizzleManager.getTestDbConnection()
+      await TestDrizzleManager.closeTestDbConnection()
       return
     } catch {
       if (i === maxRetries) {
