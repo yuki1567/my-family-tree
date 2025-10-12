@@ -16,13 +16,13 @@
     "test:watch": "vitest --watch --config vitest.config.ts --project unit",
     "test:setup": "docker compose --profile test up --wait -d test-db",
     "test:teardown": "docker-compose rm -sf test-db",
-    "test:db:migrate": "drizzle-kit push",
+    "test:db:migrate": "DATABASE_URL=$DATABASE_ADMIN_URL drizzle-kit push",
     "quality": "npm-run-all --parallel test:unit type-check lint",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
+    "db:migrate": "DATABASE_URL=$DATABASE_ADMIN_URL drizzle-kit migrate",
+    "db:push": "DATABASE_URL=$DATABASE_ADMIN_URL drizzle-kit push",
     "db:seed": "tsx ./database/seeds/development.ts",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "DATABASE_URL=$DATABASE_ADMIN_URL drizzle-kit studio"
   },
   "dependencies": {
     "@hono/node-server": "1.19.5",
