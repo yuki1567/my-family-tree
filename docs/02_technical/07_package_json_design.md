@@ -331,7 +331,7 @@ family-tree-app/
 **"type": "module"**
 
 - **理由**: フロントエンドとの統一、モダンJavaScript使用
-- **Prisma対応**: Prisma 5.x はESModules完全対応
+- **Drizzle ORM対応**: Drizzle ORMはESModules完全対応
 - **Node.js 22.18**: ネイティブESModulesサポート
 
 #### **スクリプト設計**
@@ -378,16 +378,18 @@ family-tree-app/
 **データベース操作**
 
 ```json
-"db:migrate": "prisma migrate dev",
-"db:seed": "tsx src/prisma/seed.ts",
-"db:studio": "prisma studio",
-"db:reset": "prisma migrate reset"
+"db:generate": "drizzle-kit generate",
+"db:migrate": "DATABASE_URL=$DATABASE_ADMIN_URL drizzle-kit migrate",
+"db:seed": "tsx ./database/seeds/development.ts",
+"db:studio": "DATABASE_URL=$DATABASE_ADMIN_URL drizzle-kit studio",
+"test:db:migrate": "DATABASE_URL=$DATABASE_ADMIN_URL drizzle-kit push"
 ```
 
-- **migrate**: スキーマ変更のデータベース反映
+- **generate**: スキーマからマイグレーションファイル生成
+- **migrate**: マイグレーションの実行（本番環境用）
 - **seed**: 初期データ投入（TypeScript直接実行）
-- **studio**: ブラウザベースのDB管理UI
-- **reset**: 開発時の完全リセット
+- **studio**: ブラウザベースのDB管理UI（Drizzle Studio）
+- **test:db:migrate**: テスト環境へのスキーマプッシュ
 
 #### **本番依存関係（dependencies）**
 
@@ -412,18 +414,23 @@ family-tree-app/
 - **@hono/node-server**: Node.js環境でのHono実行用アダプター
 - **@hono/zod-validator**: HonoとZodの統合ライブラリ（バリデーション処理の型安全化）
 
-**Prisma ORM**
+**Drizzle ORM**
 
 ```json
-"prisma": "5.22.0",
-"@prisma/client": "5.22.0"
+"drizzle-orm": "0.44.6",
+"postgres": "3.4.7"
 ```
 
-- **Prisma選定理由**:
-  - **vs TypeORM**: 型安全性、マイグレーション管理優位
-  - **vs Sequelize**: TypeScript統合、モダンAPI
-  - **vs Drizzle**: エコシステム成熟度、学習リソース豊富
-- **バージョン統一**: prismaとclientの同期必須
+- **Drizzle ORM選定理由**:
+  - **vs Prisma**: より軽量、SQL-likeなAPI、完全な型安全性
+  - **vs TypeORM**: 優れた型推論、モダンなAPI設計
+  - **vs Sequelize**: TypeScript統合の質、パフォーマンス
+- **Drizzle ORMの主要特徴**:
+  - SQL-likeな直感的なクエリAPI
+  - 完全な型安全性とTypeScript統合
+  - 軽量で高速なパフォーマンス
+  - PostgreSQL完全対応
+- **postgres**: PostgreSQL用のJavaScriptクライアント
 - **データベース設計書整合性**: docs/02_technical/02_database_design.mdとの一貫性
 
 
@@ -452,6 +459,19 @@ family-tree-app/
 - **用途**: 開発サーバー、シードスクリプト実行
 - **選定理由**: ESModules対応、高速起動、設定不要
 
+**Drizzle Kit**
+
+```json
+"drizzle-kit": "0.31.5"
+```
+
+- **用途**: Drizzle ORMのマイグレーション管理、スキーマ生成、Drizzle Studio
+- **主要機能**:
+  - **generate**: TypeScriptスキーマからSQLマイグレーション生成
+  - **migrate**: マイグレーション実行
+  - **push**: 開発環境向けのスキーマプッシュ（マイグレーションファイルなし）
+  - **studio**: ブラウザベースのDB管理UI
+
 **テストフレームワーク**
 
 ```json
@@ -460,11 +480,12 @@ family-tree-app/
 "ts-jest": "29.2.5"
 ```
 
-- **Jest選定理由**:
-  - **バックエンド特化**: サーバーサイドテストの豊富な実績
-  - **モック機能**: Express middleware、Prisma clientの詳細モック
+- **Vitest選定理由**:
+  - **フロントエンドとの統一**: 同一テストフレームワークによる学習コスト削減
+  - **vs Jest**: ESModules対応が容易、高速起動
+  - **モック機能**: Express middleware、Drizzle ORMの詳細モック
   - **設定の安定性**: TypeScript + ESModules設定が確立
-- **ts-jest**: TypeScriptファイル直接実行
+- **Node.js対応**: サーバーサイドテストも問題なく実行可能
 
 **APIテスト**
 

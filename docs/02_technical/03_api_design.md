@@ -8,7 +8,7 @@
 
 - **一貫性**: 統一されたレスポンス形式・エラーハンドリング
 - **拡張性**: バージョニング・新機能追加への対応
-- **型安全性**: Prisma生成型とのシームレスな連携
+- **型安全性**: Drizzle ORM型とのシームレスな連携
 - **可読性**: 明確なエンドポイント設計・ドキュメント
 
 ### 1.2 モノレポ構成での位置づけ
@@ -24,10 +24,10 @@ apps/backend/
 ├── middlewares/     # 横断的関心事（実行処理）
 ├── validations/     # 入力ルール定義
 └── database/        # データベース関連（ORM非依存）
-    ├── schema.prisma
+    ├── schema/      # Drizzle ORMスキーマ定義
     ├── migrations/
     ├── seeds/
-    └── config/
+    └── client.ts    # DB接続設定
 ```
 
 #### 型定義との連携
@@ -48,7 +48,7 @@ export type PersonWithRelationsApiResponse =
   ApiResponse<PersonWithRelationsResponse>
 
 // データベース層での変換
-// Prisma型 → 共有型への変換を Repository層で実施
+// Drizzle ORM型 → 共有型への変換を Repository層で実施
 ```
 
 ### 1.3 設計原則
@@ -232,7 +232,7 @@ Production: https://your-domain.com/api
 このAPIは以下の3層でエラーをハンドリングします：
 
 1. **バリデーションエラー**: `zValidator`ミドルウェアが自動的にZodErrorを検出し、400エラーとして返却
-2. **データベースエラー**: ルートハンドラーのtry-catch文でPrismaエラーをキャッチし、`DatabaseError`でラップして500エラーとして返却
+2. **データベースエラー**: ルートハンドラーのtry-catch文でDrizzle ORMエラーをキャッチし、`DatabaseError`でラップして500エラーとして返却
 3. **予期しないエラー**: その他のエラーは`errorHandler`ミドルウェアが`UNKNOWN_ERROR`として500エラーで返却
 
 **実装場所**:

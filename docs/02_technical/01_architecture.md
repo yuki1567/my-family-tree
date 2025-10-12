@@ -91,10 +91,10 @@ backend/
 ├── validations/               # バリデーションスキーマ
 ├── utils/                     # 共通ユーティリティ関数
 └── database/                  # データベース関連（ORM非依存）
-    ├── schema.prisma         # スキーマ定義
+    ├── schema/               # Drizzle ORMスキーマ定義
     ├── migrations/           # マイグレーションファイル
     ├── seeds/                # 初期データ
-    └── config/               # DB接続設定
+    └── client.ts             # DB接続設定
 ```
 
 ### 4.2 レイヤー分離の理由
@@ -120,9 +120,10 @@ export const create = async (data: CreatePersonData) => {
   return await personRepository.create(data)
 }
 
-// Repository: データアクセス
+// Repository: データアクセス（Drizzle ORM）
 export const create = async (data: CreatePersonData) => {
-  return await prisma.person.create({ data })
+  const [person] = await db.insert(people).values(data).returning()
+  return person
 }
 ```
 
@@ -148,7 +149,7 @@ export function createHonoApp(): Hono<Env> {
 
   // グローバルエラーハンドラー
   app.onError((error, c) => {
-    // ZodError、PrismaError、AppError、予期しないエラーを処理
+    // ZodError、Drizzleエラー、AppError、予期しないエラーを処理
     // Express版と同じエラーレスポンス形式を維持
   })
 
@@ -158,7 +159,7 @@ export function createHonoApp(): Hono<Env> {
 
 **主要機能**
 
-- **エラーハンドリング**: ZodError、PrismaClientKnownRequestError、AppError、予期しないエラーの統一処理
+- **エラーハンドリング**: ZodError、Drizzleエラー、AppError、予期しないエラーの統一処理
 - **レスポンス形式**: Express版との互換性維持
 - **型安全性**: TypeScript型推論によるコンパイル時エラー検出
 
