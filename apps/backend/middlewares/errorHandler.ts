@@ -1,7 +1,7 @@
 import { AppError } from '@/errors/AppError.js'
 import type { ApiErrorResponse, ErrorDetail } from '@shared/api/common.js'
 import type { Context } from 'hono'
-import { PostgresError } from 'postgres'
+import postgres from 'postgres'
 import { ZodError } from 'zod'
 
 export function errorHandler(err: Error, c: Context): Response {
@@ -23,7 +23,7 @@ export function errorHandler(err: Error, c: Context): Response {
     } satisfies ApiErrorResponse)
   }
 
-  if (err instanceof PostgresError) {
+  if (err instanceof postgres.PostgresError) {
     console.error('Database error:', err)
 
     return c.json({
