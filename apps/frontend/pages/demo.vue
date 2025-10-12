@@ -426,9 +426,13 @@
               <li>テキスト色: <code>var(--button-primary-text)</code></li>
               <li>ボーダー色: <code>var(--button-primary-border)</code></li>
               <li>ホバー背景色: <code>var(--button-primary-bg-hover)</code></li>
-              <li>ホバーテキスト色: <code>var(--button-primary-text-hover)</code></li>
+              <li>
+                ホバーテキスト色: <code>var(--button-primary-text-hover)</code>
+              </li>
               <li>ローディング背景色: <code>var(--button-loading-bg)</code></li>
-              <li>ローディングテキスト色: <code>var(--button-loading-text)</code></li>
+              <li>
+                ローディングテキスト色: <code>var(--button-loading-text)</code>
+              </li>
             </ul>
           </div>
         </div>
@@ -449,9 +453,7 @@
             <ul>
               <li>背景色: <code>var(--button-secondary-bg)</code></li>
               <li>テキスト色: <code>var(--button-secondary-text)</code></li>
-              <li>
-                ボーダー色: <code>var(--button-secondary-border)</code>
-              </li>
+              <li>ボーダー色: <code>var(--button-secondary-border)</code></li>
               <li>
                 ホバー背景色: <code>var(--button-secondary-bg-hover)</code>
               </li>
@@ -459,7 +461,10 @@
                 ホバーボーダー色:
                 <code>var(--button-secondary-border-hover)</code>
               </li>
-              <li>ホバーテキスト色: <code>var(--button-secondary-text-hover)</code></li>
+              <li>
+                ホバーテキスト色:
+                <code>var(--button-secondary-text-hover)</code>
+              </li>
             </ul>
           </div>
         </div>
@@ -482,7 +487,9 @@
               <li>テキスト色: <code>var(--button-danger-text)</code></li>
               <li>ボーダー色: <code>var(--button-danger-border)</code></li>
               <li>ホバー背景色: <code>var(--button-danger-bg-hover)</code></li>
-              <li>ホバーテキスト色: <code>var(--button-danger-text-hover)</code></li>
+              <li>
+                ホバーテキスト色: <code>var(--button-danger-text-hover)</code>
+              </li>
             </ul>
           </div>
         </div>
@@ -579,7 +586,12 @@ const personForm = ref({
 
 // radioボタンのオプション（PersonAddModal準拠）
 const genderOptions = [
-  { label: '男性', value: 'male', icon: UserIcon, colorType: 'gender' as const },
+  {
+    label: '男性',
+    value: 'male',
+    icon: UserIcon,
+    colorType: 'gender' as const,
+  },
   {
     label: '女性',
     value: 'female',

@@ -9,7 +9,6 @@ export default withNuxt([
   {
     files: ['**/*.vue'],
     rules: {
-      // Vue 3では複数のルート要素が許可されているため、このルールを無効化
       'vue/no-multiple-template-root': 'off',
     },
   },

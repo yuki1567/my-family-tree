@@ -1,25 +1,16 @@
 <template>
   <div class="person-card">
-    <div
-      class="person-avatar"
-      :class="genderClass"
-    >
+    <div class="person-avatar" :class="genderClass">
       <UserIcon class="person-icon" />
     </div>
     <h3 class="person-name">
       {{ person.name || '名前未設定' }}
     </h3>
     <div class="person-details">
-      <p
-        v-if="person.birthDate"
-        class="person-birth"
-      >
+      <p v-if="person.birthDate" class="person-birth">
         生年月日: {{ formatDate(person.birthDate) }}
       </p>
-      <p
-        v-if="person.birthPlace"
-        class="person-place"
-      >
+      <p v-if="person.birthPlace" class="person-place">
         出生地: {{ person.birthPlace }}
       </p>
     </div>
@@ -27,9 +18,9 @@
 </template>
 
 <script setup lang="ts">
+import type { Person } from '@/types/person'
 import { UserIcon } from '@heroicons/vue/24/outline'
 import { computed } from 'vue'
-import type { Person } from '@/types/person'
 
 interface Props {
   person: Person

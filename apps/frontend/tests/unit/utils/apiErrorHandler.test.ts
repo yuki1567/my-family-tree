@@ -1,28 +1,29 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
 import type { ApiError } from '../../../utils/apiErrorHandler'
 import {
   formatErrorMessage,
   handleApiError,
-  logApiError,
-  isNetworkError,
   handleNetworkError,
+  isNetworkError,
+  logApiError,
 } from '../../../utils/apiErrorHandler'
 
 describe('apiErrorHandler', () => {
   describe('formatErrorMessage', () => {
     it('エラーコードに対応する日本語メッセージを返す', () => {
       expect(formatErrorMessage(400, 'VALIDATION_ERROR')).toBe(
-        '入力内容に誤りがあります',
+        '入力内容に誤りがあります'
       )
       expect(formatErrorMessage(401, 'UNAUTHORIZED')).toBe('認証が必要です')
       expect(formatErrorMessage(403, 'FORBIDDEN')).toBe(
-        'アクセス権限がありません',
+        'アクセス権限がありません'
       )
       expect(formatErrorMessage(404, 'NOT_FOUND')).toBe(
-        'データが見つかりません',
+        'データが見つかりません'
       )
       expect(formatErrorMessage(500, 'INTERNAL_ERROR')).toBe(
-        'サーバーエラーが発生しました',
+        'サーバーエラーが発生しました'
       )
     })
 
@@ -32,22 +33,20 @@ describe('apiErrorHandler', () => {
       expect(formatErrorMessage(403)).toBe('アクセス権限がありません')
       expect(formatErrorMessage(404)).toBe('要求されたデータが見つかりません')
       expect(formatErrorMessage(500)).toBe(
-        'サーバーエラーが発生しました。しばらくしてから再度お試しください',
+        'サーバーエラーが発生しました。しばらくしてから再度お試しください'
       )
     })
 
     it('バリデーションエラーコードに対応するメッセージを返す', () => {
-      expect(formatErrorMessage(400, 'NAME_TOO_LONG')).toBe(
-        '名前が長すぎます',
-      )
+      expect(formatErrorMessage(400, 'NAME_TOO_LONG')).toBe('名前が長すぎます')
       expect(formatErrorMessage(400, 'INVALID_GENDER')).toBe(
-        '性別の指定が不正です',
+        '性別の指定が不正です'
       )
       expect(formatErrorMessage(400, 'INVALID_DATE_FORMAT')).toBe(
-        '日付の形式が不正です',
+        '日付の形式が不正です'
       )
       expect(formatErrorMessage(400, 'DEATH_BEFORE_BIRTH')).toBe(
-        '死亡日が生年月日より前になっています',
+        '死亡日が生年月日より前になっています'
       )
     })
   })
@@ -109,7 +108,7 @@ describe('apiErrorHandler', () => {
       const result = handleApiError(error)
 
       expect(result.message).toBe(
-        'サーバーエラーが発生しました。しばらくしてから再度お試しください',
+        'サーバーエラーが発生しました。しばらくしてから再度お試しください'
       )
       expect(result.shouldShowToUser).toBe(true)
       expect(result.severity).toBe('high')
@@ -196,8 +195,10 @@ describe('apiErrorHandler', () => {
       logApiError(error, 'PersonAPI', 'GET /api/people')
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[HIGH] API Error in PersonAPI - GET /api/people'),
-        error,
+        expect.stringContaining(
+          '[HIGH] API Error in PersonAPI - GET /api/people'
+        ),
+        error
       )
     })
 
@@ -209,8 +210,10 @@ describe('apiErrorHandler', () => {
       logApiError(error, 'PersonAPI', 'POST /api/people')
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[MEDIUM] API Error in PersonAPI - POST /api/people'),
-        error,
+        expect.stringContaining(
+          '[MEDIUM] API Error in PersonAPI - POST /api/people'
+        ),
+        error
       )
     })
 
@@ -222,8 +225,10 @@ describe('apiErrorHandler', () => {
       logApiError(error, 'PersonAPI', 'GET /api/people')
 
       expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[LOW] API Error in PersonAPI - GET /api/people'),
-        error,
+        expect.stringContaining(
+          '[LOW] API Error in PersonAPI - GET /api/people'
+        ),
+        error
       )
     })
 
@@ -242,7 +247,7 @@ describe('apiErrorHandler', () => {
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error details:',
-        error.response!.error,
+        error.response!.error
       )
     })
   })
@@ -281,7 +286,7 @@ describe('apiErrorHandler', () => {
       const result = handleNetworkError()
 
       expect(result.message).toBe(
-        'ネットワークエラーが発生しました。接続を確認してください',
+        'ネットワークエラーが発生しました。接続を確認してください'
       )
       expect(result.shouldShowToUser).toBe(true)
       expect(result.severity).toBe('high')
