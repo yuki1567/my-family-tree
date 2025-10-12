@@ -29,11 +29,7 @@ docker run -d \
   --memory="256m" \
   --memory-swap="256m" \
   --env-file .env.test \
-  mysql:8.4.6 \
-  --performance-schema=OFF \
-  --innodb-buffer-pool-size=64M \
-  --innodb-log-file-size=32M \
-  --max-connections=50
+  postgres:18-alpine
 
 docker network connect "${TEST_NETWORK}" "${APP_CONTAINER_NAME}"
 
