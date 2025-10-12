@@ -1,18 +1,18 @@
-import { createHonoApp } from '@/app.js'
+import { createApp } from '@/app.js'
 import { people } from '@/database/schema.js'
 import { peopleRoutes } from '@/routes/peopleRoute.js'
-import { TestDrizzleManager } from '@/tests/helpers/drizzleHelpers.js'
+import { TestDbManager } from '@/tests/helpers/dbManagerHelpers.js'
 import { eq } from 'drizzle-orm'
 import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 
 describe('POST /api/people - 人物追加API', () => {
-  const app = createHonoApp()
+  const app = createApp()
   app.route('/api', peopleRoutes)
 
-  const db = TestDrizzleManager.getTestDbConnection()
+  const db = TestDbManager.getTestDbConnection()
 
   afterAll(async () => {
-    await TestDrizzleManager.closeTestDbConnection()
+    await TestDbManager.closeTestDbConnection()
   })
 
   beforeEach(async () => {

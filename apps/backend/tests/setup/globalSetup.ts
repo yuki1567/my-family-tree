@@ -20,15 +20,16 @@ export default async function globalSetup() {
 async function waitForDatabaseConnection(): Promise<void> {
   const maxRetries = 30
   const retryInterval = 1000
-  const { TestDrizzleManager } = await import('../helpers/drizzleHelpers.js')
+  const { TestDbManager } = await import('../helpers/dbManagerHelpers.js')
 
   for (let i = 1; i <= maxRetries; i++) {
     try {
-      TestDrizzleManager.getTestDbConnection()
-      await TestDrizzleManager.closeTestDbConnection()
+      TestDbManager.getTestDbConnection()
+      await TestDbManager.closeTestDbConnection()
       return
-    } catch {
+    } catch (error) {
       if (i === maxRetries) {
+        console.error('最終エラー:', error)
         throw new Error(
           `DB接続失敗: ${maxRetries}回リトライしましたが接続できませんでした`
         )

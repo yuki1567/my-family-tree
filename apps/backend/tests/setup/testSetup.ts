@@ -1,6 +1,6 @@
-import { TestDrizzleManager } from '@/tests/helpers/drizzleHelpers.js'
+import { TestDbManager } from '@/tests/helpers/dbManagerHelpers.js'
 import { afterAll } from 'vitest'
 
 afterAll(async () => {
-  await TestDrizzleManager.closeTestDbConnection()
+  await TestDbManager.closeTestDbConnection()
 })

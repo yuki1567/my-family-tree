@@ -4,7 +4,7 @@ import postgres from 'postgres'
 
 import { envConfig } from '../setup/env.js'
 
-export class TestDrizzleManager {
+export class TestDbManager {
   private static instance: ReturnType<typeof drizzle> | undefined
   private static client: ReturnType<typeof postgres> | undefined
 
