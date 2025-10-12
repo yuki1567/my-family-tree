@@ -7,9 +7,8 @@ import {
   PROJECT_ROOT,
   assertApiPort,
   assertBranchName,
-  assertDbName,
   assertDbAdminPassword,
-  assertDbUser,
+  assertDbName,
   assertInReviewStatusId,
   assertIssueLabel,
   assertIssueNumber,
@@ -121,11 +120,9 @@ export function generateEnvFile(ctx: Ctx): Ctx {
 
 export function createDbSchema(ctx: Ctx): void {
   assertDbName(ctx)
-  assertDbUser(ctx)
   assertDbAdminPassword(ctx)
 
   const dbName = ctx.environment.dbName
-  const dbUser = ctx.environment.dbUser
   const adminPassword = ctx.environment.dbAdminPassword
 
   log('🗄 データベーススキーマを作成中...')
@@ -164,6 +161,7 @@ export function openVscode(ctx: Ctx) {
   const cleanEnv = { ...process.env }
   delete cleanEnv['WEB_PORT']
   delete cleanEnv['API_PORT']
+  delete cleanEnv['APP_NAME']
   delete cleanEnv['COMPOSE_PROJECT_NAME']
   delete cleanEnv['DATABASE_URL']
   delete cleanEnv['DATABASE_ADMIN_URL']
