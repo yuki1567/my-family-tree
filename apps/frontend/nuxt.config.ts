@@ -13,39 +13,39 @@ export default defineNuxtConfig({
     ],
   ],
 
-  // SPAモード
   ssr: false,
 
-  // 開発設定
   devtools: { enabled: true },
 
-  // CSS設定
   css: ['~/assets/css/main.css'],
 
   compatibilityDate: '2025-08-15',
 
-  // TypeScript設定
   typescript: {
     strict: true,
     typeCheck: true,
     shim: false,
   },
 
-  // ビルド最適化
   build: {
     transpile: [],
   },
 
-  // Vite設定
   vite: {
     resolve: {
       preserveSymlinks: true,
     },
     server: {
-      // Docker環境でのHMR最適化
       watch: {
         usePolling: true,
         interval: 1000,
+        ignored: [
+          '**/node_modules/**',
+          '**/.nuxt/**',
+          '**/.output/**',
+          '**/dist/**',
+          '**/coverage/**',
+        ],
       },
       proxy: {
         '/api': {
@@ -55,7 +55,6 @@ export default defineNuxtConfig({
       },
     },
     build: {
-      // バンドル最適化
       rollupOptions: {
         output: {
           manualChunks: {
@@ -66,7 +65,6 @@ export default defineNuxtConfig({
     },
   },
 
-  // 実験的機能
   experimental: {
     payloadExtraction: false,
     renderJsonPayloads: true,
