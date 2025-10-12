@@ -1,8 +1,7 @@
 import type { Person, PersonForm } from '@/types/person'
 import type { ErrorResponse } from '@shared/api/common'
-import type { PersonResponse } from '@shared/api/persons'
-
 import { ApiErrorResponseSchema } from '@shared/api/common'
+import type { PersonResponse } from '@shared/api/persons'
 import { CreatePersonResponseSchema } from '@shared/api/persons'
 
 import { useApi } from './useApi'
