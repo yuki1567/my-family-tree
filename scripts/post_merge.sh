@@ -82,10 +82,15 @@ remove_worktree_db() {
     exit 1
   fi
 
-  log "🗄 データベース削除: $DB_NAME"
-  log "デバッグ: 実行コマンド = docker exec -e MYSQL_PWD=\"${MYSQL_ROOT_PASSWORD}\" db mysql -u root -e \"DROP DATABASE IF EXISTS \\\`${DB_NAME}\\\`;\""
+  if [ -z "${DATABASE_ADMIN_PASSWORD:-}" ]; then
+    log_error "DATABASE_ADMIN_PASSWORD が設定されていません: $ENV_FILE"
+    exit 1
+  fi
 
-  if ! docker exec -e MYSQL_PWD="${MYSQL_ROOT_PASSWORD}" db mysql -u root -e "DROP DATABASE IF EXISTS \`${DB_NAME}\`;"; then
+  log "🗄 データベース削除: $DB_NAME"
+  log "デバッグ: 実行コマンド = docker exec -e PGPASSWORD=\"***\" db psql -U admin_user -d postgres -c \"DROP DATABASE IF EXISTS ${DB_NAME};\""
+
+  if ! docker exec -e PGPASSWORD="${DATABASE_ADMIN_PASSWORD}" db psql -U admin_user -d postgres -c "DROP DATABASE IF EXISTS ${DB_NAME};"; then
     log_error "データベース削除に失敗しました: $DB_NAME"
     exit 1
   fi
