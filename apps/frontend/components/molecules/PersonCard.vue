@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { UserIcon } from '@heroicons/vue/24/outline'
 import { computed } from 'vue'
-import type { Person } from '~/../../shared/types/person'
+import type { Person } from '@/types/person'
 
 interface Props {
   person: Person

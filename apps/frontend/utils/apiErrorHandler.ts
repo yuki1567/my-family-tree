@@ -1,7 +1,8 @@
 import type {
   ApiErrorResponse,
+  ErrorDetail,
   HttpStatusCode,
-} from '../../shared/types/response'
+} from '@shared/api/common'
 
 /**
  * API エラーハンドリングの結果型
@@ -36,10 +37,14 @@ const ERROR_CLASSIFICATIONS: Record<
   400: { severity: 'medium', defaultMessage: '入力内容に誤りがあります' },
   401: { severity: 'high', defaultMessage: '認証が必要です' },
   403: { severity: 'high', defaultMessage: 'アクセス権限がありません' },
-  404: { severity: 'medium', defaultMessage: '要求されたデータが見つかりません' },
+  404: {
+    severity: 'medium',
+    defaultMessage: '要求されたデータが見つかりません',
+  },
   500: {
     severity: 'high',
-    defaultMessage: 'サーバーエラーが発生しました。しばらくしてから再度お試しください',
+    defaultMessage:
+      'サーバーエラーが発生しました。しばらくしてから再度お試しください',
   },
 }
 
@@ -66,13 +71,16 @@ const ERROR_CODE_MESSAGES: Record<string, string> = {
  */
 export function formatErrorMessage(
   status: HttpStatusCode,
-  errorCode?: string,
+  errorCode?: string
 ): string {
   if (errorCode && ERROR_CODE_MESSAGES[errorCode]) {
     return ERROR_CODE_MESSAGES[errorCode]
   }
 
-  return ERROR_CLASSIFICATIONS[status]?.defaultMessage || '不明なエラーが発生しました'
+  return (
+    ERROR_CLASSIFICATIONS[status]?.defaultMessage ||
+    '不明なエラーが発生しました'
+  )
 }
 
 /**
@@ -95,7 +103,7 @@ export function handleApiError(error: ApiError): ApiErrorHandlingResult {
     // バリデーションエラーの場合、詳細を含める
     if (errorResponse.details && errorResponse.details.length > 0) {
       const detailMessages = errorResponse.details
-        .map((detail) => {
+        .map((detail: ErrorDetail) => {
           const fieldMessage = ERROR_CODE_MESSAGES[detail.code] || detail.code
           return `${detail.field}: ${fieldMessage}`
         })
@@ -119,7 +127,7 @@ export function handleApiError(error: ApiError): ApiErrorHandlingResult {
 export function logApiError(
   error: ApiError,
   context: string,
-  endpoint: string,
+  endpoint: string
 ): void {
   const { message, severity } = handleApiError(error)
 
