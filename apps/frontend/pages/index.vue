@@ -6,7 +6,7 @@
       <main class="family-tree-area">
         <div class="tree-container">
           <!-- 人物データがある場合：人物カード表示 -->
-          <PersonCard v-if="hasPersonData" :person="personData" />
+          <PersonCard v-if="personData" :person="personData" />
 
           <!-- 人物データがない場合：空状態プレースホルダー -->
           <EmptyState v-else @start-guide="openAddPersonModal" />
@@ -30,10 +30,9 @@ import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
 import { usePersonApi } from '@/composables/usePersonApi'
 import type { Person, PersonForm } from '@/types/person'
 import type { ErrorResponse } from '@shared/api/common'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
-const personData = ref<Person>()
-const hasPersonData = computed(() => personData.value)
+const personData = ref<Person | undefined>(undefined)
 
 const { createPerson } = usePersonApi()
 
