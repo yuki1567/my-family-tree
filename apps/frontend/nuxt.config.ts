@@ -24,11 +24,29 @@ export default defineNuxtConfig({
 
   compatibilityDate: '2025-08-15',
 
+  // TypeScript設定
+  typescript: {
+    strict: true,
+    typeCheck: true,
+    shim: false,
+  },
+
+  // ビルド最適化
+  build: {
+    transpile: [],
+  },
+
+  // Vite設定
   vite: {
     resolve: {
       preserveSymlinks: true,
     },
     server: {
+      // Docker環境でのHMR最適化
+      watch: {
+        usePolling: true,
+        interval: 1000,
+      },
       proxy: {
         '/api': {
           target: 'http://localhost:4084',
@@ -36,5 +54,21 @@ export default defineNuxtConfig({
         },
       },
     },
+    build: {
+      // バンドル最適化
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['vue', 'pinia'],
+          },
+        },
+      },
+    },
+  },
+
+  // 実験的機能
+  experimental: {
+    payloadExtraction: false,
+    renderJsonPayloads: true,
   },
 })
