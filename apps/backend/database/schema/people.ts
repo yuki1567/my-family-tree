@@ -12,7 +12,7 @@ export const people = pgTable('people', {
 
   name: varchar('name', { length: 100 }),
 
-  gender: smallint('gender').notNull().default(0),
+  gender: smallint('gender').notNull().default(0).$type<0 | 1 | 2>(),
 
   birthDate: date('birth_date'),
 

@@ -8,25 +8,10 @@ import type {
 
 export class PersonRepository {
   public async create(data: CreatePersonRequest): Promise<PersonResponse> {
-    const [person] = await db
-      .insert(people)
-      .values({
-        name: data.name ?? null,
-        gender: data.gender ?? 0,
-        birthDate: data.birthDate ?? null,
-        deathDate: data.deathDate ?? null,
-        birthPlace: data.birthPlace ?? null,
-      })
-      .returning()
+    const [person] = await db.insert(people).values(data).returning()
 
     if (!person) {
-      throw new DatabaseError('Failed to create person record')
-    }
-
-    if (!this.isValidGender(person.gender)) {
-      throw new DatabaseError(
-        `Invalid gender value from database: ${person.gender}. Expected 0, 1, 2.`
-      )
+      throw new DatabaseError('データベースに値が作成されていません')
     }
 
     const result = {
@@ -39,9 +24,5 @@ export class PersonRepository {
     } satisfies PersonResponse
 
     return result
-  }
-
-  private isValidGender(value: number): value is 0 | 1 | 2 {
-    return value === 0 || value === 1 || value === 2
   }
 }
