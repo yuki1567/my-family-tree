@@ -45,9 +45,9 @@ export const INITIAL_PERSON_FORM: PersonForm = {
 
 export type Person = {
   id: string
-  name: string
+  name?: string
   gender: string
-  birthDate: string
-  deathDate: string
-  birthPlace: string
+  birthDate?: string
+  deathDate?: string
+  birthPlace?: string
 }
