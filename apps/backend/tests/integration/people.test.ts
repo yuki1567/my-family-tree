@@ -1,5 +1,5 @@
 import { createHonoApp } from '@/app.js'
-import { people } from '@/database/schema/index.js'
+import { people } from '@/database/schema.js'
 import { peopleRoutes } from '@/routes/peopleRoute.js'
 import { TestDrizzleManager } from '@/tests/helpers/drizzleHelpers.js'
 import { eq } from 'drizzle-orm'

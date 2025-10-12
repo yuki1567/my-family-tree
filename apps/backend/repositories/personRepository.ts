@@ -1,5 +1,5 @@
 import { db } from '@/database/client.js'
-import { people } from '@/database/schema/index.js'
+import { people } from '@/database/schema.js'
 import { DatabaseError } from '@/errors/AppError.js'
 import type {
   CreatePersonRequest,
