@@ -35,7 +35,7 @@ export const useApi = async <T>(
 
     const response = await fetch(url, requestOptions)
     return await response.json()
-  } catch (err) {
+  } catch {
     return {
       error: {
         statusCode: 500,
