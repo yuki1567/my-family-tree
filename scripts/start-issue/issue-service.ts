@@ -40,8 +40,8 @@ export function loadEnv(): Ctx {
     },
     cloudTranslation: googleTranslateApiKey,
     environment: {
-      dbAdminPassword: dbAdminPassword,
-      dbUser: dbUser,
+      dbAdminPassword,
+      dbUser,
     },
   }
 }
