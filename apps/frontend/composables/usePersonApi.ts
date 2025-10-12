@@ -1,36 +1,11 @@
 import type { Person, PersonForm } from '@/types/person'
-import type { ApiSuccessResponse, ErrorResponse } from '@shared/api/common'
-import type { CreatePersonResponse, PersonResponse } from '@shared/api/persons'
+import type { ErrorResponse } from '@shared/api/common'
+import type { PersonResponse } from '@shared/api/persons'
+
+import { ApiErrorResponseSchema } from '@shared/api/common'
+import { CreatePersonResponseSchema } from '@shared/api/persons'
 
 import { useApi } from './useApi'
-
-const isSuccessResponse = (
-  response: unknown
-): response is ApiSuccessResponse<PersonResponse> => {
-  return (
-    response !== null &&
-    typeof response === 'object' &&
-    'data' in response &&
-    response.data !== null &&
-    typeof response.data === 'object' &&
-    'id' in response.data &&
-    'gender' in response.data
-  )
-}
-
-const isErrorResponse = (
-  response: unknown
-): response is { error: ErrorResponse } => {
-  return (
-    response !== null &&
-    typeof response === 'object' &&
-    'error' in response &&
-    response.error !== null &&
-    typeof response.error === 'object' &&
-    'statusCode' in response.error &&
-    'errorCode' in response.error
-  )
-}
 
 const convertGenderToNumber = (
   gender: 'male' | 'female' | 'unknown'
@@ -68,17 +43,21 @@ export const usePersonApi = () => {
       gender: convertGenderToNumber(formData.gender),
     }
 
-    const response = await useApi<CreatePersonResponse>('/api/people', {
+    const response = await useApi('/api/people', {
       method: 'POST',
       body: requestBody,
     })
 
-    if (isSuccessResponse(response)) {
-      return { data: convertApiResponseToPerson(response.data) }
+    const successResult = CreatePersonResponseSchema.safeParse(response)
+    if (successResult.success) {
+      const { data: personResponse } = successResult.data
+      return { data: convertApiResponseToPerson(personResponse) }
     }
 
-    if (isErrorResponse(response)) {
-      return { error: response.error }
+    const errorResult = ApiErrorResponseSchema.safeParse(response)
+    if (errorResult.success) {
+      const { error: errorResponse } = errorResult.data
+      return { error: errorResponse }
     }
 
     return {
