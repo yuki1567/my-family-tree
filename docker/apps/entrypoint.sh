@@ -22,18 +22,10 @@ wait_for_db() {
   log "Database ready"
 }
 
-# Drizzle設定（開発環境用）
-setup_drizzle() {
-  log "Setting up Drizzle..."
-  npm run db:push --workspace=apps/backend
-  log "Drizzle setup completed"
-}
-
 # メイン実行
 main() {
   log "Starting application..."
   wait_for_db
-  setup_drizzle
 
   # PM2でアプリケーション起動
   pm2 start ecosystem.config.cjs
