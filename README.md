@@ -5,7 +5,7 @@
 ## 技術スタック
 
 - **フロントエンド**: Nuxt.js 3 + TypeScript + 素のCSS
-- **バックエンド**: Express.js + Prisma + MySQL
+- **バックエンド**: Hono + Drizzle ORM + PostgreSQL
 - **コンテナ**: Docker + Docker Compose
 - **開発環境**: モノレポ構成
 
@@ -32,10 +32,9 @@ docker-compose up -d
 # 依存関係のインストール（コンテナ内）
 docker-compose exec app npm install
 
-# Prismaのセットアップ
-docker-compose exec app npx prisma generate
-docker-compose exec app npx prisma migrate dev --name init
-docker-compose exec app npx prisma db seed
+# Drizzle ORMのセットアップ
+docker-compose exec apps npm run db:migrate
+docker-compose exec apps npm run db:seed
 ```
 
 ### 3. アプリケーション起動
@@ -57,8 +56,8 @@ docker-compose exec app npm run dev
 # ログ確認
 docker-compose logs -f
 
-# データベースの状態確認
-docker-compose exec app npx prisma studio
+# データベースの状態確認（Drizzle Studio）
+docker-compose exec apps npm run db:studio
 
 # テスト実行
 docker-compose exec app npm run test
@@ -135,6 +134,6 @@ docker-compose up -d
 # データベースボリュームを削除して再作成
 docker-compose down -v
 docker-compose up -d
-docker-compose exec app npx prisma migrate dev
-docker-compose exec app npx prisma db seed
+docker-compose exec apps npm run db:migrate
+docker-compose exec apps npm run db:seed
 ```

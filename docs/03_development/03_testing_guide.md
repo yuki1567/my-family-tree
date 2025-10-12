@@ -6,9 +6,9 @@
 
 ### アプリケーション構成別テスト戦略
 
-#### バックエンド（Express.js + Prisma）
+#### バックエンド（Hono + Drizzle ORM）
 
-レイヤードアーキテクチャ（Controller/Service/Repository）に基づいたテスト戦略を採用。
+レイヤードアーキテクチャ（Route/Service/Repository）に基づいたテスト戦略を採用。
 
 #### フロントエンド（Nuxt3 + Vue3）
 
@@ -55,7 +55,7 @@
 - **Config**: 環境変数の読み込みのみでビジネスロジックがない
 - **Routes**: HTTPレイヤーのため統合テストで検証
 - **Controller**: Request/Responseに依存するため統合テストで検証
-- **Repository**: PrismaClientのモック化は実際のDB操作を検証できないため
+- **Repository**: Drizzle ORMクライアントのモック化は実際のDB操作を検証できないため
 
 ### フロントエンド単体テスト
 
@@ -100,9 +100,9 @@
 **バックエンドでのVitest採用理由**:
 
 - **Node.js対応**: サーバーサイドテストも問題なく実行可能
-- **supertest統合**: Express APIテストとの連携も良好
+- **Hono統合**: Honoアプリのテストとの連携も良好（app.request()メソッド使用）
 - **モック機能**: `vi.fn()`, `vi.mock()`でJestと同等の機能を提供
-- **統合テスト**: 実際のDB（test-db）との統合テストも安定動作
+- **統合テスト**: 実際のPostgreSQL DB（test-db）との統合テストも安定動作
 
 **モック戦略**
 
@@ -339,13 +339,13 @@ describe('異常系', () => {
 
 #### 問題
 
-Jestはデフォルトで並列実行されます。統合テストで各テスト前に `await prisma.people.deleteMany()` を実行すると、以下の問題が発生します：
+Vitestはデフォルトで並列実行されます。統合テストで各テスト前に `await db.delete(people)` を実行すると、以下の問題が発生します：
 
 ```typescript
 // ❌ 危険：並列実行時の問題例
 describe('Test A', () => {
   beforeEach(async () => {
-    await prisma.people.deleteMany() // すべてのデータを削除
+    await db.delete(people) // すべてのデータを削除
   })
 
   it('should create person', async () => {
@@ -355,7 +355,7 @@ describe('Test A', () => {
 
 describe('Test B', () => {
   beforeEach(async () => {
-    await prisma.people.deleteMany() // Test Aの実行中にデータを削除！
+    await db.delete(people) // Test Aの実行中にデータを削除！
   })
 
   it('should update person', async () => {
@@ -368,16 +368,20 @@ describe('Test B', () => {
 
 ```bash
 # ✅ 正しい実行方法
-npm run docker:test:integration  # --runInBand フラグで直列実行
+npm run test:integration  # poolOptions.threads.singleThread で直列実行
 ```
 
-```json
-// package.json
-{
-  "scripts": {
-    "test:integration": "jest --testPathPattern=integration --runInBand"
-  }
-}
+```typescript
+// vitest.config.ts
+export default defineConfig({
+  test: {
+    poolOptions: {
+      threads: {
+        singleThread: true, // 統合テストは直列実行
+      },
+    },
+  },
+})
 ```
 
 #### データ管理戦略
@@ -399,7 +403,7 @@ npm run docker:test:integration  # --runInBand フラグで直列実行
 describe('POST /api/people', () => {
   beforeAll(async () => {
     // テスト用DBマイグレーション実行 ← 不要
-    await prisma.$connect()
+    // Drizzle ORMは自動接続管理
   })
 })
 ```
@@ -420,7 +424,7 @@ npm run docker:test:integration
 ### なぜ毎回マイグレーションが不要か
 
 1. **スキーマは変わらない**: テスト実行中にテーブル構造は変更されない
-2. **データのみクリーンアップ**: `deleteMany()` でデータリセットで十分
+2. **データのみクリーンアップ**: `db.delete(people)` でデータリセットで十分
 3. **実行時間短縮**: マイグレーション実行時間を節約
 4. **コンテナ永続化**: テスト用DBコンテナは開発セッション中は起動したまま
 

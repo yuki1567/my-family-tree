@@ -155,50 +155,48 @@ family-tree-app/
 
 **docker/apps/entrypoint.sh** の役割：
 
-- データベース接続待機（mysqladmin ping）
-- Prisma クライアント生成・マイグレーション実行
+- データベース接続待機（PostgreSQL pg_isready）
+- Drizzle ORMマイグレーション実行
 - PM2による統合アプリケーション起動
 - プロセス状態の継続監視
 
-### 3.5 MySQL 用 Dockerfile
+### 3.5 PostgreSQL コンテナ設定
 
-**docker/db/Dockerfile** の設計方針：
+**docker-compose.yml の db サービス** の設計方針：
 
-- **ベースイメージ**: MySQL 8.4.6（最新LTS版）
-  - _選定理由_: 最新の安定版による機能・セキュリティ向上、本番環境（RDS）との一貫性確保
-- **文字エンコーディング**: utf8mb4 設定
-  - _選定理由_: 日本語対応と絵文字サポート、データベース設計との整合性
-- **ヘルスチェック削除**: 開発環境特化
-  - _選定理由_: 定期実行による開発効率低下を回避、本番はRDS管理のため不要
-- **設定ファイル**: カスタム my.cnf 適用
-  - _選定理由_: 開発環境に最適化されたMySQL設定
+- **ベースイメージ**: postgres:18-alpine
+  - _選定理由_: 最新の安定版による機能・セキュリティ向上、軽量なAlpineベース
+- **文字エンコーディング**: UTF-8（デフォルト）
+  - _選定理由_: 日本語対応と絵文字サポート、PostgreSQLの標準設定
+- **初期化スクリプト**: docker/db/init.sh
+  - _選定理由_: アプリケーション用ユーザー（family_tree_user）の自動作成と権限設定
 
-### 3.6 MySQL 設定
+### 3.6 PostgreSQL 初期化スクリプト
 
-**docker/db/my.cnf** の設計方針：
+**docker/db/init.sh** の設計方針：
 
-#### デフォルト設定優先のアプローチ
+#### アプリケーション用ユーザーの作成
 
-- **基本方針**: MySQL 8.4.6のデフォルト設定を最大活用
-  - _選定理由_: 公式が推奨する最適設定の活用、保守性向上、問題切り分けの容易性
-- **最小限設定**: 必須項目のみカスタマイズ
-  - _選定理由_: 設定管理コスト削減、MySQL自動最適化機能の活用
-- **問題駆動改善**: 実際の問題発生時に段階的設定追加
-  - _選定理由_: 過剰設定の回避、開発効率重視
+- **基本方針**: 最小権限の原則に基づくユーザー分離
+  - _選定理由_: セキュリティ向上、管理者権限と実行権限の分離
+- **権限設定**: SELECT, INSERT, UPDATE, DELETE のみ付与
+  - _選定理由_: アプリケーションに必要な最小限の権限のみ付与
 
-#### 設定内容
+#### 初期化スクリプトの内容
 
-- **文字セット**: utf8mb4_unicode_ci（日本語・絵文字対応）
-  - _設定理由_: 家系図アプリでの日本語データ要件
-- **その他設定**: MySQL 8.4.6 デフォルト値を使用
-  - _設定理由_: 公式推奨設定による安定性・パフォーマンス・セキュリティ確保
+- **ユーザー作成**: ロールの作成
+  - _実装理由_: アプリケーション専用のデータベースユーザー
+- **権限付与**: public スキーマへのアクセス権限
+  - _実装理由_: テーブル操作に必要な最小権限の付与
+- **デフォルト権限**: 将来作成されるテーブルへの権限も自動付与
+  - _実装理由_: マイグレーション時の権限設定の簡略化
 
-#### 設定しない項目と理由
+#### PostgreSQL のデフォルト設定
 
-- **パフォーマンス設定**: MySQL 8.4.6が環境に応じて自動最適化
-- **ログ設定**: 開発初期は不要、問題発生時に有効化
-- **接続・タイムアウト設定**: デフォルト値で開発環境には十分
-- **セキュリティ設定**: MySQL 8.4.6のデフォルトセキュリティレベルで十分
+- **文字エンコーディング**: UTF-8（PostgreSQLデフォルト）
+  - _選定理由_: 多言語対応、日本語・絵文字完全サポート
+- **その他設定**: PostgreSQL 18 デフォルト値を使用
+  - _選定理由_: 公式推奨設定による安定性・パフォーマンス・セキュリティ確保
 
 ## 4. 環境変数設定
 
@@ -315,10 +313,11 @@ docker-compose exec appsnpm run build:backend               # バックエンド
 # テスト実行
 docker-compose exec appsnpm run test                        # 全体テスト
 
-# Prisma操作（アプリケーションコンテナで実行）
-docker-compose exec appsnpx prisma studio
-docker-compose exec appsnpx prisma migrate dev
-docker-compose exec appsnpx prisma generate
+# Drizzle ORM操作（アプリケーションコンテナで実行）
+docker-compose exec apps npm run db:studio                     # Drizzle Studio起動
+docker-compose exec apps npm run db:generate                   # マイグレーションファイル生成
+docker-compose exec apps npm run db:migrate                    # マイグレーション実行
+docker-compose exec apps npm run db:seed                       # シードデータ投入
 
 # ワークスペース全体操作
 docker-compose exec appsnpm install                         # 依存関係更新時
