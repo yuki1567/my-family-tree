@@ -242,7 +242,7 @@ describe('apiErrorHandler', () => {
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error details:',
-        error.response.error,
+        error.response!.error,
       )
     })
   })
