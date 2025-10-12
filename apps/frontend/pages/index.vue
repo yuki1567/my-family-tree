@@ -84,7 +84,7 @@ const savePerson = async (formData: PersonForm): Promise<void> => {
 .family-tree-area {
   flex: 1;
   background-color: var(--color-bg-secondary);
-  padding: 1.6rem;
+  padding: 2rem;
   overflow: auto;
   height: 100vh;
 }
@@ -96,5 +96,15 @@ const savePerson = async (formData: PersonForm): Promise<void> => {
   align-items: center;
   justify-content: center;
   padding: 3.2rem;
+}
+
+@media (max-width: 767px) {
+  .family-tree-area {
+    padding: 1.2rem;
+  }
+
+  .tree-container {
+    padding: 1.6rem;
+  }
 }
 </style>
