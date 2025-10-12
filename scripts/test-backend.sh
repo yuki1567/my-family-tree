@@ -29,6 +29,7 @@ docker run -d \
   --memory="256m" \
   --memory-swap="256m" \
   --env-file .env.test \
+  -v "./docker/db/init.sh:/docker-entrypoint-initdb.d/init.sh:ro" \
   postgres:18-alpine
 
 docker network connect "${TEST_NETWORK}" "${APP_CONTAINER_NAME}"
