@@ -67,7 +67,7 @@ npm install
 docker compose --profile development up -d --no-deps apps
 
 # STEP3: マイグレーション実行（必須）
-docker-compose exec apps npm run db:migrate
+npm run db:generate
 
 # STEP4: 起動確認（必須）
 docker compose ps
