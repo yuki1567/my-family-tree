@@ -56,12 +56,7 @@
       <AppButton variant="secondary" @click="closeModal">
         キャンセル
       </AppButton>
-      <AppButton
-        variant="primary"
-        type="submit"
-        :is-loading="isLoading"
-        @click="submitForm"
-      >
+      <AppButton variant="primary" :is-loading="isLoading" @click="submitForm">
         追加
       </AppButton>
     </template>
@@ -73,16 +68,29 @@ import AppButton from '@/components/atoms/AppButton.vue'
 import FormField from '@/components/atoms/FormField.vue'
 import AppModal from '@/components/layout/AppModal.vue'
 import { usePersonValidation } from '@/composables/useValidation'
-import type { PersonForm } from '@/types/person'
+import type { PersonForm, ValidationErrors } from '@/types/person'
 import { INITIAL_PERSON_FORM } from '@/types/person'
 import { UserIcon, UsersIcon } from '@heroicons/vue/24/outline'
-import { reactive, ref } from 'vue'
+import type { ErrorResponse } from '@shared/api/common'
+import { type Component, reactive, ref, watch } from 'vue'
+
+type RadioOption = {
+  label: string
+  value: string
+  icon?: Component
+  colorType: 'gender' | 'relationship'
+}
+
+type Props = {
+  error?: ErrorResponse
+}
 
 type Emits = {
   close: []
   save: [data: PersonForm]
 }
 
+const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // フォームデータ
@@ -94,25 +102,46 @@ const { errors, validateForm } = usePersonValidation(form)
 // ローディング状態
 const isLoading = ref(false)
 
+const isValidationErrorField = (
+  field: string
+): field is keyof ValidationErrors => {
+  return field in errors
+}
+
+// サーバーエラーを監視してフォームのエラーに反映
+watch(
+  () => props.error,
+  (error) => {
+    if (error?.details) {
+      error.details.forEach((detail) => {
+        const field = detail.field
+        if (isValidationErrorField(field)) {
+          errors[field] = detail.code
+        }
+      })
+    }
+  }
+)
+
 // 性別オプション（アイコン付き）
-const genderOptions = [
+const genderOptions: RadioOption[] = [
   {
     label: '男性',
     value: 'male',
     icon: UserIcon,
-    colorType: 'gender' as const,
+    colorType: 'gender',
   },
   {
     label: '女性',
     value: 'female',
     icon: UsersIcon,
-    colorType: 'gender' as const,
+    colorType: 'gender',
   },
   {
     label: '不明',
     value: 'unknown',
     icon: UserIcon,
-    colorType: 'gender' as const,
+    colorType: 'gender',
   },
 ]
 
@@ -128,10 +157,11 @@ const submitForm = async (): Promise<void> => {
 
   try {
     // 空文字列をundefinedに変換してから送信
-    const cleanedForm: PersonForm = {}
+    const cleanedForm: PersonForm = {
+      gender: form.gender,
+    }
 
     if (form.name && form.name !== '') cleanedForm.name = form.name
-    if (form.gender) cleanedForm.gender = form.gender
     if (form.birthDate && form.birthDate !== '')
       cleanedForm.birthDate = form.birthDate
     if (form.deathDate && form.deathDate !== '')

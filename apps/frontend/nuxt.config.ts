@@ -28,5 +28,13 @@ export default defineNuxtConfig({
     resolve: {
       preserveSymlinks: true,
     },
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:4084',
+          changeOrigin: true,
+        },
+      },
+    },
   },
 })
