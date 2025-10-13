@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start Docker containers
+        run: docker compose --profile development up -d
+
+      - name: Wait for containers to be ready
+        run: sleep 10
+
+      - name: Run lint (Frontend)
+        run: docker compose exec -T apps npm run lint:frontend
+
+      - name: Run lint (Backend)
+        run: docker compose exec -T apps npm run lint:backend
+
+      - name: Run type check (Frontend)
+        run: docker compose exec -T apps npm run type-check:frontend
+
+      - name: Run type check (Backend)
+        run: docker compose exec -T apps npm run type-check:backend
+
+      - name: Build frontend
+        run: docker compose exec -T apps npm run build:frontend
+
+      - name: Build backend
+        run: docker compose exec -T apps npm run build:backend
+
+      - name: Run tests (Frontend)
+        run: docker compose exec -T apps npm run test:frontend
+
+      - name: Run tests (Backend)
+        run: docker compose exec -T apps npm run test:backend
+
+      - name: Stop Docker containers
+        if: always()
+        run: docker compose down
