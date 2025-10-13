@@ -99,6 +99,46 @@ remove_worktree_db() {
 }
 
 # --------------------------------------------
+# Parameter Store パラメータ削除
+# --------------------------------------------
+remove_worktree_parameters() {
+  local path_prefix="/family-tree/worktree/${ISSUE_NUMBER}"
+  local region="${AWS_REGION:-ap-northeast-1}"
+
+  log "🔐 Parameter Store クリーンアップ開始: $path_prefix"
+
+  local params
+  params=$(aws ssm get-parameters-by-path \
+    --path "$path_prefix" \
+    --region "$region" \
+    --query "Parameters[].Name" \
+    --output text 2>/dev/null || echo "")
+
+  if [ -z "$params" ]; then
+    log "ℹ️ 削除対象のParameter Storeパラメータは見つかりませんでした"
+    return
+  fi
+
+  local param_array=($params)
+  local param_count=${#param_array[@]}
+  log "🗑 Parameter Store パラメータ削除: $param_count 件"
+
+  local deleted_count=0
+  for param in "${param_array[@]}"; do
+    if aws ssm delete-parameter \
+      --name "$param" \
+      --region "$region" \
+      >/dev/null 2>&1; then
+      ((deleted_count++))
+    else
+      log_error "Parameter Store パラメータ削除に失敗しました: $param"
+    fi
+  done
+
+  log "✅ Parameter Store クリーンアップ完了: $deleted_count/$param_count 件削除"
+}
+
+# --------------------------------------------
 # コンテナ停止・削除・イメージ削除
 # --------------------------------------------
 remove_worktree_container() {
@@ -184,6 +224,7 @@ main() {
   load_env
   merge_into_main
   remove_worktree_db
+  remove_worktree_parameters
   remove_worktree_container
   remove_worktree
   remove_branch
