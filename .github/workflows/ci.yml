@@ -12,6 +12,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Start Docker containers
         run: docker compose --profile development up -d
 
@@ -19,28 +28,28 @@ jobs:
         run: sleep 10
 
       - name: Run lint (Frontend)
-        run: docker compose exec -T apps npm run lint:frontend
+        run: npm run lint:frontend
 
       - name: Run lint (Backend)
-        run: docker compose exec -T apps npm run lint:backend
+        run: npm run lint:backend
 
       - name: Run type check (Frontend)
-        run: docker compose exec -T apps npm run type-check:frontend
+        run: npm run type-check:frontend
 
       - name: Run type check (Backend)
-        run: docker compose exec -T apps npm run type-check:backend
+        run: npm run type-check:backend
 
       - name: Build frontend
-        run: docker compose exec -T apps npm run build:frontend
+        run: npm run build:frontend
 
       - name: Build backend
-        run: docker compose exec -T apps npm run build:backend
+        run: npm run build:backend
 
       - name: Run tests (Frontend)
-        run: docker compose exec -T apps npm run test:frontend
+        run: npm run test:frontend
 
       - name: Run tests (Backend)
-        run: docker compose exec -T apps npm run test:backend
+        run: npm run test:backend
 
       - name: Stop Docker containers
         if: always()
