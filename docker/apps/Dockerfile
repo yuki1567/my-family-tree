@@ -6,7 +6,13 @@ WORKDIR /usr/src
 RUN npm install -g npm@10.9.3 pm2@6.0.8
 
 # 必要なシステムパッケージのインストール
-RUN apt-get update && apt-get install -y curl postgresql-client vim procps
+RUN apt-get update && apt-get install -y curl postgresql-client vim procps unzip
+
+# AWS CLI v2のインストール
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip" \
+    && unzip awscliv2.zip \
+    && ./aws/install \
+    && rm -rf aws awscliv2.zip
 
 # モノレポ対応：依存関係定義ファイルのコピー（レイヤーキャッシュ最適化）
 COPY package*.json ./
