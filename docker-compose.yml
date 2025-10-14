@@ -11,20 +11,24 @@ services:
       - "${API_PORT}:4000"
     volumes:
       - ./apps:/usr/src/apps
-    env_file:
-      - .env
+      - ~/.aws:/root/.aws:ro
+    environment:
+      - APP_NAME=${APP_NAME}
+      - WEB_PORT=${WEB_PORT:-3000}
+      - API_PORT=${API_PORT:-4000}
+      - APP_ENV=${APP_ENV}
+      - ISSUE_NUMBER=${ISSUE_NUMBER:-}
+      - AWS_REGION=${AWS_REGION:-ap-northeast-1}
 
   db:
     image: postgres:18-alpine
     container_name: db
     environment:
-      - POSTGRES_USER=${DATABASE_ADMIN_USER}
+      - POSTGRES_USER=${DATABASE_ADMIN_USER:-admin_user}
       - POSTGRES_PASSWORD=${DATABASE_ADMIN_PASSWORD}
-      - POSTGRES_DB=${DATABASE_NAME}
-    env_file:
-      - .env
+      - POSTGRES_DB=${DATABASE_NAME:-postgres}
     ports:
-      - "${DATABASE_PORT}:5432"
+      - "${DATABASE_PORT:-5432}:5432"
     volumes:
       - ./docker/db/init.sh:/docker-entrypoint-initdb.d/init.sh
 
