@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div class="modal-overlay">
-      <div ref="modalTarget" class="modal-container">
+      <div id="modal-root" class="modal-container">
         <div class="modal-body">
           <slot />
         </div>
@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
-import { nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted } from 'vue'
 
 type Emits = {
   close: []
@@ -24,14 +24,14 @@ type Emits = {
 
 const emit = defineEmits<Emits>()
 
-const modalTarget = ref<HTMLElement>()
+const modalTarget = '#modal-root'
 
 const { activate, deactivate } = useFocusTrap(modalTarget, {
   escapeDeactivates: true,
   clickOutsideDeactivates: true,
   returnFocusOnDeactivate: true,
-  initialFocus: () => modalTarget.value!,
-  fallbackFocus: () => modalTarget.value!,
+  initialFocus: () => modalTarget,
+  fallbackFocus: () => modalTarget,
   onDeactivate: () => emit('close'),
 })
 

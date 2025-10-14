@@ -247,6 +247,8 @@ describe('apiErrorHandler', () => {
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error details:',
+        // テストデータで明示的にresponseを定義しているため、非null断言は安全
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         error.response!.error
       )
     })

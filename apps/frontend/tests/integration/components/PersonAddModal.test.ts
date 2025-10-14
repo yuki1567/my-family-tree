@@ -79,6 +79,8 @@ describe('PersonAddModal Integration Test', () => {
         btn.textContent?.includes('キャンセル')
       )
       expect(cancelButton).toBeTruthy()
+      // expectで存在確認済みのため、非null断言は安全
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       cancelButton!.click()
 
       await wrapper.vm.$nextTick()
@@ -86,6 +88,8 @@ describe('PersonAddModal Integration Test', () => {
       // closeイベントがemitされることを確認
       const closeEvents = wrapper.emitted('close')
       expect(closeEvents).toBeDefined()
+      // expectで存在確認済みのため、非null断言は安全
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       expect(closeEvents!.length).toBe(1)
     })
 
