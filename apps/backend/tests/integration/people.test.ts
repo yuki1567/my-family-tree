@@ -107,7 +107,7 @@ describe('POST /api/people - 人物追加API', () => {
     it('バリデーションエラーの場合、400エラーを返すか', async () => {
       const requestData = {
         name: 'テスト',
-        gender: 3, // 無効な性別
+        gender: 3,
         birthDate: '1990-01-01',
       }
 
