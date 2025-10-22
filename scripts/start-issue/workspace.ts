@@ -23,6 +23,70 @@ import {
   runCommand,
 } from './context.js'
 
+function registerWorktreeParameters(
+  issueNumber: number,
+  params: Record<string, string>
+): void {
+  const region = process.env['AWS_REGION'] || 'ap-northeast-1'
+  const pathPrefix = `/family-tree/worktree/${issueNumber}`
+
+  log(`🔐 Parameter Storeにパラメータを登録中... (Path: ${pathPrefix})`)
+
+  let successCount = 0
+  let errorCount = 0
+
+  for (const [key, value] of Object.entries(params)) {
+    const paramName = `${pathPrefix}/${key}`
+    const paramType = key.includes('secret') || key.includes('password') || key.includes('url')
+      ? 'SecureString'
+      : 'String'
+
+    try {
+      const result = spawnSync(
+        'aws',
+        [
+          'ssm',
+          'put-parameter',
+          '--name',
+          paramName,
+          '--value',
+          value,
+          '--type',
+          paramType,
+          '--overwrite',
+          '--region',
+          region,
+        ],
+        {
+          encoding: 'utf-8',
+          stdio: ['ignore', 'pipe', 'pipe'],
+        }
+      )
+
+      if (result.status === 0) {
+        log(`  ✓ ${key} を登録しました (Type: ${paramType})`)
+        successCount++
+      } else {
+        log(`  ✗ ${key} の登録に失敗しました: ${result.stderr}`)
+        errorCount++
+      }
+    } catch (error) {
+      log(`  ✗ ${key} の登録中にエラーが発生しました: ${error}`)
+      errorCount++
+    }
+  }
+
+  log(
+    `🔐 Parameter Store登録完了: 成功 ${successCount}件, エラー ${errorCount}件`
+  )
+
+  if (errorCount > 0) {
+    log(
+      '⚠️  一部のパラメータ登録に失敗しました。AWS認証情報を確認してください。'
+    )
+  }
+}
+
 export function createWorktree(ctx: Ctx): Ctx {
   assertIssueLabel(ctx)
   assertIssueNumber(ctx)
@@ -105,6 +169,16 @@ export function generateEnvFile(ctx: Ctx): Ctx {
   log(
     `📝 Claudeローカル設定ファイルをコピーしました: ${dstClaudeLocalSettings}`
   )
+
+  const databaseUrl = `postgresql://family_tree_user:${envContent.match(/DATABASE_PASSWORD=(.+)/)?.[1] || 'password'}@db:5432/${dbName}`
+  const databaseAdminUrl = `postgresql://admin_user:${envContent.match(/DATABASE_ADMIN_PASSWORD=(.+)/)?.[1] || 'admin_password'}@db:5432/postgres`
+
+  registerWorktreeParameters(ctx.gitHub.issueNumber, {
+    'database-url': databaseUrl,
+    'database-admin-url': databaseAdminUrl,
+    'jwt-secret': jwtSecret,
+    'node-env': 'development',
+  })
 
   return {
     ...ctx,
