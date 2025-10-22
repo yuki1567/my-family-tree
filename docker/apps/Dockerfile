@@ -6,7 +6,8 @@ WORKDIR /usr/src
 RUN npm install -g npm@10.9.3 pm2@6.0.8
 
 # 必要なシステムパッケージのインストール
-RUN apt-get update && apt-get install -y curl postgresql-client vim procps unzip
+RUN apt-get update && apt-get install -y curl postgresql-client vim procps unzip jq \
+    && rm -rf /var/lib/apt/lists/*
 
 # AWS CLI v2のインストール
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip" \

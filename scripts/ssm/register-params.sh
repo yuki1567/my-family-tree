@@ -10,12 +10,12 @@ set -euo pipefail
 #   パラメータ名は/family-tree/{environment}/{key-name}の形式で登録されます。
 #
 # 使用例:
-#   ./scripts/ssm/register-params.sh development .env
-#   ./scripts/ssm/register-params.sh production .env.production
+#   aws-vault exec family-tree-dev -- ./scripts/ssm/register-params.sh development .env
+#   aws-vault exec family-tree-prod -- ./scripts/ssm/register-params.sh production .env.production
 #
 # 前提条件:
 #   - AWS CLIがインストールされていること
-#   - AWS認証情報が設定されていること（aws configure実行済み）
+#   - aws-vault経由でAWS認証情報が設定されていること
 #   - Parameter Store書き込み権限を持つIAMロールへのアクセス権があること
 # ============================================================
 
