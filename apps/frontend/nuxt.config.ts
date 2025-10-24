@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
@@ -33,6 +34,9 @@ export default defineNuxtConfig({
 
   vite: {
     resolve: {
+      alias: {
+        '@shared': fileURLToPath(new URL('../shared', import.meta.url)),
+      },
       preserveSymlinks: true,
     },
     server: {
@@ -49,7 +53,7 @@ export default defineNuxtConfig({
       },
       proxy: {
         '/api': {
-          target: 'http://localhost:4084',
+          target: 'http://localhost:4000',
           changeOrigin: true,
         },
       },
