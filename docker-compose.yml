@@ -3,8 +3,8 @@ services:
     build:
       context: .
       dockerfile: docker/apps/Dockerfile
-    image: ${AWS_VAULT}
-    container_name: ${AWS_VAULT}
+    image: ${AWS_VAULT:-family-tree-app}
+    container_name: ${AWS_VAULT:-family-tree-app}
     working_dir: /usr/src
     ports:
       - "${WEB_PORT:-3000}:3000"
@@ -22,7 +22,7 @@ services:
     build:
       context: .
       dockerfile: docker/db/Dockerfile
-    image: ${AWS_VAULT:-family-tree-app}-db
+    image: db
     container_name: family-tree-shared-db
     environment:
       - AWS_VAULT
@@ -32,11 +32,6 @@ services:
       - AWS_REGION
     ports:
       - "5432:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-
-volumes:
-  postgres-data:
 
 networks:
   default:
