@@ -123,7 +123,7 @@ wait_for_db() {
   done
   log "Database ready"
 }
-ß
+
 main() {
   log "Starting application..."
 
