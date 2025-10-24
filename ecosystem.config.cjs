@@ -9,6 +9,7 @@ module.exports = {
       error_file: '/apps/logs/frontend-error.log',
       out_file: '/apps/logs/frontend-out.log',
       log_file: '/apps/logs/frontend-combined.log',
+      env: process.env,
     },
     {
       name: 'backend',
@@ -20,6 +21,7 @@ module.exports = {
       error_file: '/apps/logs/backend-error.log',
       out_file: '/apps/logs/backend-out.log',
       log_file: '/apps/logs/backend-combined.log',
+      env: process.env,
     },
   ],
 }
