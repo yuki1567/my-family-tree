@@ -31,7 +31,7 @@
     "clean": "rm -rf node_modules package-lock.json apps/*/node_modules apps/*/dist apps/*/.nuxt",
     "clean:install": "npm run clean && npm install",
     "db:generate": "docker compose exec apps npm run db:generate --workspace=apps/backend",
-    "db:migrate": "docker compose exec apps npm run db:migrate --workspace=apps/backend",
+    "db:migrate": "docker compose exec apps with-env npm run db:migrate --workspace=apps/backend",
     "db:seed": "docker compose exec apps npm run db:seed --workspace=apps/backend",
     "db:studio": "docker compose exec apps npm run db:studio --workspace=apps/backend",
     "quality": "npm-run-all --parallel docker:quality:frontend docker:quality:backend",

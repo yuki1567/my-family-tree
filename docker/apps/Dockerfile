@@ -41,6 +41,10 @@ COPY docker/apps/entrypoint.sh ./
 COPY ecosystem.config.cjs ./
 RUN chmod +x entrypoint.sh
 
+# with-env.shを/usr/local/binにコピー
+COPY docker/apps/with-env.sh /usr/local/bin/with-env
+RUN chmod +x /usr/local/bin/with-env
+
 # ポート公開
 EXPOSE 3000 4000
 
