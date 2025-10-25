@@ -1,25 +1,20 @@
 #!/bin/bash
 set -euo pipefail
 
-log() { printf '[%(%Y-%m-%d %H:%M:%S)T] %s\n' -1 "$*"; }
-fail() { log "ERROR: $*"; exit 1; }
-need() { command -v "$1" >/dev/null 2>&1 || fail "'$1' が見つかりません"; }
+log() { printf '[%(%Y-%m-%d %H:%M:%S)T] %s\n' -1 "$*" >&2; }
+die() { log "ERROR: $*"; exit 1; }
+need() { command -v "$1" >/dev/null 2>&1 || die "'$1' が見つかりません"; }
 
 check_required_commands() {
-  need aws 
-  need jq 
+  need aws
+  need jq
   need sed
   need tr
 }
 
 check_required_env() {
-  if [ -z "$AWS_VAULT" ]; then
-    fail "AWS_VAULTが設定されていません"
-  fi
-
-  if [ -z "$AWS_REGION" ]; then
-    fail "AWS_REGIONが設定されていません"
-  fi
+  [[ -n "${AWS_VAULT:-}"  ]] || die "AWS_VAULTが設定されていません"
+  [[ -n "${AWS_REGION:-}" ]] || die "AWS_REGIONが設定されていません"
 }
 
 judge_environment() {
@@ -37,33 +32,40 @@ judge_environment() {
     readonly PARAM_PATH="/family-tree/production"
     log "環境: production"
   else
-    fail "不明なAWS_VAULT形式: $AWS_VAULT"
+    die "不明なAWS_VAULT形式: $AWS_VAULT"
   fi
 }
 
-get_parameter() {
-  local params=$(aws ssm get-parameters-by-path \
-  --path "$PARAM_PATH" \
-  --with-decryption \
-  --region "$AWS_REGION" \
-  --output json 2>&1)
+get_parameters() {
+  local max_pages=10
+  local out='{"Parameters":[]}'
+  local next="" response token
 
-  local aws_exit_code=$?
+  for ((i=1; i<=max_pages; i++)); do
+    resp=$(aws ssm get-parameters-by-path \
+      --path "$PARAM_PATH" \
+      --with-decryption \
+      --region "$AWS_REGION" \
+      --output json ${next:+--next-token "$next"} 2>&1) \
+      || die "Parameter Store取得失敗: $resp"
 
-  if [ $aws_exit_code -ne 0 ]; then
-    fail "Parameter Store取得失敗(コマンド: $params)"
-  fi
+    out=$(jq -nc --argjson resp "$resp" --argjson out "$out" \
+      '{Parameters: ($out.Parameters + $resp.Parameters)}') \
+      || die "jq処理失敗"
 
-  local param_count=$(echo "$params" | jq '.Parameters | length')
-  if [ "$param_count" -eq 0 ]; then
-    fail "Parameter Store未定義(パス: $PARAM_PATH)"
-  fi
+    token=$(jq -r '.NextToken // empty' <<<"$resp" || true)
+    [[ -z "$token" ]] && break
+    next="$token"
+  done
 
-  log "$param_count 件のパラメータを取得"
-  echo "$params"
+  [[ -n "$next" ]] && die "ページ上限に達しました"
+  local count; count=$(jq '.Parameters | length' <<<"$out")
+  (( count > 0 )) || die "Parameter Store未定義(パス: $PARAM_PATH)"
+  log "${count} 件のパラメータを取得"
+  printf '%s' "$out"
 }
 
-set_parameter() {
+set_parameters() {
   local params=$1
   local count=0
   local env_name
@@ -76,29 +78,24 @@ set_parameter() {
     count=$((count + 1))
   done < <(echo "$params" | jq -r '.Parameters[] | "\(.Name)=\(.Value)"')
 
-  [ "$count" -gt 0 ] || fail "Parameter Storeから取得したデータが空です"
+  [ "$count" -gt 0 ] || die "Parameter Storeから取得したデータが空です"
 
   log "Parameter Storeから ${count} 件の環境変数をエクスポート完了"
 }
 
-exec_commands() {
-  log "コマンドを実行: $*"
-  exec "$@"
-}
-
 main() {
   if (( $# == 0 )); then
-    fail "実行コマンドが未指定です"
+    die "実行コマンドが未指定です"
   fi
   check_required_commands
   check_required_env
   judge_environment
 
   local params
-  params=$(get_parameter)
+  params=$(get_parameters)
 
-  set_parameter "$params"
-  exec_commands "$@"
+  set_parameters "$params"
+  exec "$@"
 }
 
 main "$@"
