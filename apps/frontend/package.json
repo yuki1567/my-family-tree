@@ -12,13 +12,13 @@
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --check . --ignore-path ../../.prettierignore",
+    "format:check": "prettier --check . --ignore-path ../../.prettierignore",
     "format:fix": "prettier --write . --ignore-path ../../.prettierignore",
     "test": "vitest run",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
-    "test:watch": "vitest tests/unit",
-    "quality": "npm-run-all --parallel test type-check lint format"
+    "test:watch": "vitest watch tests/unit",
+    "quality": "npm-run-all --parallel type-check lint format:check test:unit"
   },
   "dependencies": {
     "@heroicons/vue": "2.2.0",

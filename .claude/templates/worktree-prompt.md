@@ -116,13 +116,13 @@ git commit -m "docs(#{{ISSUE_NUMBER}}): Person型仕様をドキュメント追�
 **実行確認**: すべてのコマンドが**成功**することを確認
 
 ```bash
-# 1. Backend品質チェック（必須）
-npm run docker:quality:backend
+# 1. 品質チェック（必須）
+npm run quality
 
-# 2. Frontend品質チェック（必須）
-npm run docker:quality:frontend
+# 2. フロントエンドテスト（必須）
+npm run test:frontend
 
-# 3. テスト（必須）
+# 2. バックエンドテスト（必須）
 npm run test:backend
 ```
 
