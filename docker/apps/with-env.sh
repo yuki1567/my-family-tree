@@ -8,7 +8,6 @@ need() { command -v "$1" >/dev/null 2>&1 || die "'$1' が見つかりません";
 check_required_commands() {
   need aws
   need jq
-  need sed
   need tr
 }
 
@@ -19,9 +18,9 @@ check_required_env() {
 
 judge_environment() {
   if [[ "$AWS_VAULT" == *"-worktree-"* ]]; then
-    readonly ISSUE_NUMBER=$(echo "$AWS_VAULT" | sed 's/.*-worktree-//')
-    readonly PARAM_PATH="/family-tree/worktree/${ISSUE_NUMBER}"
-    log "環境: worktree (Issue #${ISSUE_NUMBER})"
+    local issue_number="${AWS_VAULT##*-worktree-}"
+    readonly PARAM_PATH="/family-tree/worktree/${issue_number}"
+    log "環境: worktree (Issue #${issue_number})"
   elif [[ "$AWS_VAULT" == *"-dev" ]]; then
     readonly PARAM_PATH="/family-tree/development"
     log "環境: development"
@@ -38,31 +37,31 @@ judge_environment() {
 
 get_parameters() {
   local max_pages=10
-  local out='{"Parameters":[]}'
+  local output='{"Parameters":[]}'
   local next="" response token
 
   for ((i=1; i<=max_pages; i++)); do
-    resp=$(aws ssm get-parameters-by-path \
+    response=$(aws ssm get-parameters-by-path \
       --path "$PARAM_PATH" \
       --with-decryption \
       --region "$AWS_REGION" \
       --output json ${next:+--next-token "$next"} 2>&1) \
-      || die "Parameter Store取得失敗: $resp"
+      || die "Parameter Store取得失敗"
 
-    out=$(jq -nc --argjson resp "$resp" --argjson out "$out" \
-      '{Parameters: ($out.Parameters + $resp.Parameters)}') \
+    output=$(jq -nc --argjson response "$response" --argjson output "$output" \
+      '{Parameters: ($output.Parameters + $response.Parameters)}') \
       || die "jq処理失敗"
 
-    token=$(jq -r '.NextToken // empty' <<<"$resp" || true)
+    token=$(jq -r '.NextToken // empty' <<<"$response" || true)
     [[ -z "$token" ]] && break
     next="$token"
   done
 
   [[ -n "$next" ]] && die "ページ上限に達しました"
-  local count; count=$(jq '.Parameters | length' <<<"$out")
+  local count; count=$(jq '.Parameters | length' <<<"$output")
   (( count > 0 )) || die "Parameter Store未定義(パス: $PARAM_PATH)"
   log "${count} 件のパラメータを取得"
-  printf '%s' "$out"
+  printf '%s' "$output"
 }
 
 set_parameters() {
@@ -73,7 +72,7 @@ set_parameters() {
   while IFS='=' read -r name value; do
     [ -n "$name" ] && [ -n "$value" ] || continue
 
-    env_name=$(echo "$name" | sed "s|${PARAM_PATH}/||" | tr '[:lower:]' '[:upper:]' | tr '-' '_')
+    env_name="$(printf '%s' "${name#${PARAM_PATH}/}" | tr '[:lower:]-' '[:upper:]_')"
     export "$env_name=$value"
     count=$((count + 1))
   done < <(echo "$params" | jq -r '.Parameters[] | "\(.Name)=\(.Value)"')
