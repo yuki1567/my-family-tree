@@ -171,9 +171,12 @@ describe('apiErrorHandler', () => {
   })
 
   describe('logApiError', () => {
-    let consoleErrorSpy: ReturnType<typeof vi.spyOn>
-    let consoleWarnSpy: ReturnType<typeof vi.spyOn>
-    let consoleLogSpy: ReturnType<typeof vi.spyOn>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let consoleErrorSpy: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let consoleWarnSpy: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let consoleLogSpy: any
 
     beforeEach(() => {
       consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
