@@ -73,20 +73,15 @@ set_db_parameters() {
 
     env_name="$(printf '%s' "${name#${PARAM_PATH}/}" | tr '[:lower:]-' '[:upper:]_')"
 
-    case "$env_name" in
-      DATABASE_ADMIN_USER)
-        export POSTGRES_USER="$value"
-        ;;
-      DATABASE_ADMIN_PASSWORD)
-        export POSTGRES_PASSWORD="$value"
-        ;;
-      DATABASE_NAME)
-        export POSTGRES_DB="$value"
-        ;;
-      DATABASE_USER_PASSWORD)
-        export DATABASE_USER_PASSWORD="$value"
-        ;;
-    esac
+    if [[ "$env_name" == "DATABASE_ADMIN_USER" ]]; then
+      export POSTGRES_USER="$value"
+    elif [[ "$env_name" == "DATABASE_ADMIN_PASSWORD" ]]; then
+      export POSTGRES_PASSWORD="$value"
+    elif [[ "$env_name" == "DATABASE_NAME" ]]; then
+      export POSTGRES_DB="$value"
+    elif [[ "$env_name" == "DATABASE_USER_PASSWORD" ]]; then
+      export DATABASE_USER_PASSWORD="$value"
+    fi
   done < <(echo "$params" | jq -r '.Parameters[] | "\(.Name)=\(.Value)"')
 
   [[ -n "${POSTGRES_USER:-}" ]] || die "POSTGRES_USER (database-admin-user) が見つかりません"
