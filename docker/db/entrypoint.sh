@@ -1,111 +1,104 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
-log() {
-  echo "[$(date +'%Y-%m-%d %H:%M:%S')] $1"
+log() { printf '[%(%Y-%m-%d %H:%M:%S)T] %s\n' -1 "$*" >&2; }
+die() { log "ERROR: $*"; exit 1; }
+need() { command -v "$1" >/dev/null 2>&1 || die "'$1' が見つかりません"; }
+
+check_required_commands() {
+  need aws
+  need jq
+  need tr
 }
 
-# AWS_VAULTから環境判定
-if [ -z "$AWS_VAULT" ]; then
-  log "ERROR: AWS_VAULTが設定されていません"
-  exit 1
-fi
+check_required_env() {
+  [[ -n "${AWS_VAULT:-}"  ]] || die "AWS_VAULTが設定されていません"
+  [[ -n "${AWS_REGION:-}" ]] || die "AWS_REGIONが設定されていません"
+}
 
-log "AWS_VAULT: $AWS_VAULT から環境情報を取得中..."
+judge_environment() {
+  if [[ "$AWS_VAULT" == *"-worktree-"* ]]; then
+    local issue_number="${AWS_VAULT##*-worktree-}"
+    readonly PARAM_PATH="/family-tree/worktree/${issue_number}"
+    log "環境: worktree (Issue #${issue_number})"
+  elif [[ "$AWS_VAULT" == *"-dev" ]]; then
+    readonly PARAM_PATH="/family-tree/development"
+    log "環境: development"
+  elif [[ "$AWS_VAULT" == *"-test" ]]; then
+    readonly PARAM_PATH="/family-tree/test"
+    log "環境: test"
+  elif [[ "$AWS_VAULT" == *"-prod" ]]; then
+    readonly PARAM_PATH="/family-tree/production"
+    log "環境: production"
+  else
+    die "不明なAWS_VAULT形式: $AWS_VAULT"
+  fi
+}
 
-# 環境パス決定
-if [[ "$AWS_VAULT" == *"-worktree-"* ]]; then
-  ISSUE_NUMBER=$(echo "$AWS_VAULT" | sed 's/.*-worktree-//')
-  PARAM_PATH="/family-tree/worktree/${ISSUE_NUMBER}"
-  log "環境: worktree (Issue #${ISSUE_NUMBER})"
-elif [[ "$AWS_VAULT" == *"-dev" ]]; then
-  PARAM_PATH="/family-tree/development"
-  log "環境: development"
-elif [[ "$AWS_VAULT" == *"-test" ]]; then
-  PARAM_PATH="/family-tree/test"
-  log "環境: test"
-elif [[ "$AWS_VAULT" == *"-prod" ]]; then
-  PARAM_PATH="/family-tree/production"
-  log "環境: production"
-else
-  log "ERROR: 不明なAWS_VAULT形式: $AWS_VAULT"
-  exit 1
-fi
+get_parameters() {
+  local max_pages=10
+  local output='{"Parameters":[]}'
+  local next="" response token
 
-log "Parameter Storeからデータベース設定を取得中... (Path: $PARAM_PATH)"
+  for ((i=1; i<=max_pages; i++)); do
+    response=$(aws ssm get-parameters-by-path \
+      --path "$PARAM_PATH" \
+      --with-decryption \
+      --region "$AWS_REGION" \
+      --output json ${next:+--next-token "$next"} 2>&1) \
+      || die "Parameter Store取得失敗"
 
-REGION="${AWS_REGION:-ap-northeast-1}"
+    output=$(jq -nc --argjson response "$response" --argjson output "$output" \
+      '{Parameters: ($output.Parameters + $response.Parameters)}') \
+      || die "jq処理失敗"
 
-# AWS CLIでParameter Storeから全パラメータを一括取得
-params=$(aws ssm get-parameters-by-path \
-  --path "$PARAM_PATH" \
-  --with-decryption \
-  --region "$REGION" \
-  --output json 2>&1)
+    token=$(jq -r '.NextToken // empty' <<<"$response" || true)
+    [[ -z "$token" ]] && break
+    next="$token"
+  done
 
-aws_exit_code=$?
+  [[ -n "$next" ]] && die "ページ上限に達しました"
+  local count; count=$(jq '.Parameters | length' <<<"$output")
+  (( count > 0 )) || die "Parameter Store未定義(パス: $PARAM_PATH)"
+  log "${count} 件のパラメータを取得"
+  printf '%s' "$output"
+}
 
-# AWS CLIのエラーチェック
-if [ $aws_exit_code -ne 0 ]; then
-  log "ERROR: Parameter Store取得に失敗しました"
-  log "$params"
-  exit 1
-fi
+set_db_parameters() {
+  local params=$1
+  local env_name
 
-# パラメータが見つからない場合
-param_count=$(echo "$params" | jq '.Parameters | length')
-if [ "$param_count" -eq 0 ]; then
-  log "ERROR: Parameter Storeにパラメータが見つかりませんでした (Path: $PARAM_PATH)"
-  exit 1
-fi
+  while IFS='=' read -r name value; do
+    [ -n "$name" ] && [ -n "$value" ] || continue
 
-log "Parameter Store から $param_count 件のパラメータを取得しました"
+    env_name="$(printf '%s' "${name#${PARAM_PATH}/}" | tr '[:lower:]-' '[:upper:]_')"
 
-# 一時ファイルを使用してパラメータを環境変数に変換
-temp_env_file="/tmp/db_ssm_params_$$.env"
-echo "$params" | jq -r '.Parameters[] | "\(.Name)=\(.Value)"' > "$temp_env_file"
+    case "$env_name" in
+      DATABASE_ADMIN_USER)
+        export POSTGRES_USER="$value"
+        ;;
+      DATABASE_ADMIN_PASSWORD)
+        export POSTGRES_PASSWORD="$value"
+        ;;
+      DATABASE_NAME)
+        export POSTGRES_DB="$value"
+        ;;
+      DATABASE_USER_PASSWORD)
+        export DATABASE_USER_PASSWORD="$value"
+        ;;
+    esac
+  done < <(echo "$params" | jq -r '.Parameters[] | "\(.Name)=\(.Value)"')
 
-# 必要な環境変数を抽出
-while IFS='=' read -r name value; do
-  # Parameter Store のパス形式から環境変数名に変換
-  env_name=$(echo "$name" | sed "s|${PARAM_PATH}/||" | tr '[:lower:]' '[:upper:]' | tr '-' '_')
+  [[ -n "${POSTGRES_USER:-}" ]] || die "POSTGRES_USER (database-admin-user) が見つかりません"
+  [[ -n "${POSTGRES_PASSWORD:-}" ]] || die "POSTGRES_PASSWORD (database-admin-password) が見つかりません"
+  [[ -n "${POSTGRES_DB:-}" ]] || die "POSTGRES_DB (database-name) が見つかりません"
+  [[ -n "${DATABASE_USER_PASSWORD:-}" ]] || die "DATABASE_USER_PASSWORD (database-user-password) が見つかりません"
 
-  case "$env_name" in
-    DATABASE_ADMIN_USER)
-      export POSTGRES_USER="$value"
-      log "  ✓ POSTGRES_USER を設定しました"
-      ;;
-    DATABASE_ADMIN_PASSWORD)
-      export POSTGRES_PASSWORD="$value"
-      log "  ✓ POSTGRES_PASSWORD を設定しました"
-      ;;
-    DATABASE_NAME)
-      export POSTGRES_DB="$value"
-      log "  ✓ POSTGRES_DB を設定しました"
-      ;;
-    DATABASE_USER_PASSWORD)
-      export DATABASE_USER_PASSWORD="$value"
-      log "  ✓ DATABASE_USER_PASSWORD を設定しました"
-      ;;
-  esac
-done < "$temp_env_file"
+  log "Parameter Storeから必須パラメータをエクスポート完了"
+}
 
-rm -f "$temp_env_file"
-
-# 必須パラメータチェック
-if [ -z "$POSTGRES_USER" ] || [ -z "$POSTGRES_PASSWORD" ] || [ -z "$POSTGRES_DB" ] || [ -z "$DATABASE_USER_PASSWORD" ]; then
-  log "ERROR: 必須パラメータが不足しています"
-  [ -z "$POSTGRES_USER" ] && log "  - POSTGRES_USER (database-admin-user) が見つかりません"
-  [ -z "$POSTGRES_PASSWORD" ] && log "  - POSTGRES_PASSWORD (database-admin-password) が見つかりません"
-  [ -z "$POSTGRES_DB" ] && log "  - POSTGRES_DB (database-name) が見つかりません"
-  [ -z "$DATABASE_USER_PASSWORD" ] && log "  - DATABASE_USER_PASSWORD (database-user-password) が見つかりません"
-  exit 1
-fi
-
-log "Parameter Store からの設定取得が完了しました"
-
-# 初期化スクリプトを動的に作成
-cat > /docker-entrypoint-initdb.d/create-user.sh <<'EOF'
+create_init_script() {
+  cat > /docker-entrypoint-initdb.d/create-user.sh <<'EOF'
 #!/bin/bash
 set -e
 
@@ -125,10 +118,25 @@ EOSQL
 
 echo "[$(date +'%Y-%m-%d %H:%M:%S')] データベースユーザー作成が完了しました"
 EOF
+  chmod +x /docker-entrypoint-initdb.d/create-user.sh
+  log "初期化スクリプトを作成しました"
+}
 
-chmod +x /docker-entrypoint-initdb.d/create-user.sh
+main() {
+  log "PostgreSQLコンテナを起動中..."
 
-log "PostgreSQL起動処理を開始します..."
+  check_required_commands
+  check_required_env
+  judge_environment
 
-# PostgreSQL公式のentrypointを実行
-exec docker-entrypoint.sh "$@"
+  local params
+  params=$(get_parameters)
+  set_db_parameters "$params"
+
+  create_init_script
+
+  log "PostgreSQL起動処理を開始します..."
+  exec docker-entrypoint.sh "$@"
+}
+
+main "$@"
