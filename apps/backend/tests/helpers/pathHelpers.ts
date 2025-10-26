@@ -1,11 +1,13 @@
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-import { envConfig } from '../setup/env.js'
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 /**
  * バックエンドディレクトリパスを取得
  * @returns バックエンドディレクトリパス
  */
 export function getBackendDir(): string {
-  return path.join(envConfig.ROOT_PATH, 'apps', 'backend')
+  return path.resolve(__dirname, '..', '..')
 }

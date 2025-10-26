@@ -9,32 +9,25 @@ type LogLevel = 'query' | 'info' | 'warn' | 'error'
 type Config = {
   TEST_DATABASE_URL: string
   TEST_LOG_LEVEL: LogLevel[]
-  ROOT_PATH: string
 }
 
 type SsmParameter = {
-  name: string
-  value: string
-}
-
-type ParameterStoreResult = {
-  parameters: SsmParameter[]
-  nextToken?: string
+  Name: string
+  Value: string
 }
 
 export const envConfig = await initEnvConfig()
 
 async function initEnvConfig(): Promise<Config> {
-  await loadParameterStoreIfNeeded()
+  await loadParameterStore()
 
   return {
     TEST_DATABASE_URL: requireEnv('DATABASE_URL'),
     TEST_LOG_LEVEL: parseLogLevels(requireEnv('LOG_LEVEL')),
-    ROOT_PATH: requireEnv('ROOT_PATH'),
   }
 }
 
-async function loadParameterStoreIfNeeded(): Promise<void> {
+async function loadParameterStore(): Promise<void> {
   const awsVault = process.env['AWS_VAULT']
   const awsRegion = process.env['AWS_REGION']
 
@@ -109,11 +102,11 @@ async function getParameters(
     ]
 
     const { stdout } = await exec('aws', args)
-    const { parameters = [], nextToken: nt }: ParameterStoreResult =
+    const { Parameters: parameters = [], NextToken: awsNextToken } =
       JSON.parse(stdout)
 
     const acc2 = parameters.length ? [...acc, ...parameters] : acc
-    return nt ? loop(nt, page + 1, acc2) : acc2
+    return awsNextToken ? loop(awsNextToken, page + 1, acc2) : acc2
   }
 
   return loop(undefined, 0, [])
@@ -123,7 +116,7 @@ function setParameters(
   parameters: ReadonlyArray<SsmParameter>,
   paramPath: string
 ): void {
-  for (const { name, value } of parameters) {
+  for (const { Name: name, Value: value } of parameters) {
     const paramKey = name.replace(`${paramPath}/`, '')
 
     const envKey = paramKey.toUpperCase().replace(/-/g, '_')
