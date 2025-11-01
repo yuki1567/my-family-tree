@@ -41,6 +41,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create Docker network
+        run: docker network create my-family-tree-shared
+
       - name: Start Docker containers
         run: docker compose --profile development up -d
 
