@@ -75,6 +75,20 @@ jobs:
       - name: Run tests (Frontend)
         run: npm run test:frontend
 
+      - name: Debug test-db container
+        run: |
+          docker compose --profile test up -d test-db
+          sleep 5
+          echo "=== Container status ==="
+          docker ps -a | grep test-db
+          echo "=== Container logs ==="
+          docker logs test-db
+          echo "=== Port mapping ==="
+          docker port test-db
+          echo "=== Network connectivity test ==="
+          nc -zv 127.0.0.1 5433 || echo "Port 5433 not reachable"
+          docker compose --profile test down
+
       - name: Run tests (Backend)
         run: npm run test:backend
 
