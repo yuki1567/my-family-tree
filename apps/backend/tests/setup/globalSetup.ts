@@ -22,10 +22,14 @@ async function waitForDatabaseConnection(): Promise<void> {
   const retryInterval = 1000
   const { TestDbManager } = await import('../helpers/dbManagerHelpers.js')
 
+  console.log('Waiting for database connection...')
+
   for (let i = 1; i <= maxRetries; i++) {
     try {
-      TestDbManager.getTestDbConnection()
+      const db = TestDbManager.getTestDbConnection()
+      await db.execute('SELECT 1')
       await TestDbManager.closeTestDbConnection()
+      console.log('Database connection established!')
       return
     } catch (error) {
       if (i === maxRetries) {
@@ -35,6 +39,7 @@ async function waitForDatabaseConnection(): Promise<void> {
         )
       }
 
+      console.log(`Connection attempt ${i}/${maxRetries} failed, retrying...`)
       await new Promise((resolve) => setTimeout(resolve, retryInterval))
     }
   }

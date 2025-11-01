@@ -1,15 +1,17 @@
 FROM postgres:18
 
 # 必要なパッケージのインストール
-RUN apt-get update && apt-get install -y curl jq unzip \
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    jq \
     && rm -rf /var/lib/apt/lists/*
 
-# AWS CLI v2のインストール
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "/tmp/awscliv2.zip" \
-    && cd /tmp \
-    && unzip awscliv2.zip \
-    && ./aws/install \
-    && rm -rf /tmp/aws /tmp/awscliv2.zip
+# AWS CLI v2のインストール（アーキテクチャ自動判定）
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -m)-2.31.27.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm -rf aws awscliv2.zip
 
 # entrypoint.shをコピー
 COPY docker/db/entrypoint.sh /usr/local/bin/entrypoint.sh
