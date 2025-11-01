@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# 環境変数のデバッグ出力（CI環境のみ）
+if [[ "${CI:-}" == "true" ]]; then
+  echo "[Test Script] AWS_VAULT: ${AWS_VAULT:-not set}"
+  echo "[Test Script] AWS_REGION: ${AWS_REGION:-not set}"
+  echo "[Test Script] AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:0:10}..."
+fi
+
 # クリーンアップ関数
 cleanup() {
   local exit_code=$?
