@@ -46,7 +46,7 @@ get_parameters() {
       --with-decryption \
       --region "$AWS_REGION" \
       --output json ${next:+--next-token "$next"} 2>&1) \
-      || die "Parameter Store取得失敗: $response"
+      || die "Parameter Store取得失敗"
 
     output=$(jq -nc --argjson response "$response" --argjson output "$output" \
       '{Parameters: ($output.Parameters + $response.Parameters)}') \
