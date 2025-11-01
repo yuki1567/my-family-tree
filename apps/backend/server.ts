@@ -1,5 +1,4 @@
 import { createApp } from '@/app.js'
-import { envConfig } from '@/config/env.js'
 import { peopleRoutes } from '@/routes/peopleRoute.js'
 import { serve } from '@hono/node-server'
 
@@ -8,7 +7,7 @@ export function startServer(): void {
 
   app.route('/api', peopleRoutes)
 
-  const port = envConfig.API_PORT
+  const port = 4000
 
   const server = serve({
     fetch: app.fetch,

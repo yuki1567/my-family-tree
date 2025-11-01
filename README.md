@@ -137,3 +137,39 @@ docker-compose up -d
 docker-compose exec apps npm run db:migrate
 docker-compose exec apps npm run db:seed
 ```
+
+### 起動コマンド
+
+- コンテナ起動
+
+```bash
+docker network create --driver bridge my-family-tree-shared
+
+docker network ls | grep my-family-tree-shared
+
+aws-vault exec family-tree-dev -- docker compose up -d --build
+
+docker compose ps
+
+npm run db:generate
+
+
+```
+
+- aws-vaultを一覧表示
+
+```bash
+aws-vault list
+```
+
+- aws-vaultの環境変数を確認
+
+```bash
+aws-vault exec family-tree-dev -- env | grep ^AWS_
+```
+
+-　WS CLI のプロファイル設定確認
+
+```bash
+cat ~/.aws/config
+```

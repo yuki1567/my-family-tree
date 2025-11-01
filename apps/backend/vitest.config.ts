@@ -16,6 +16,10 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    pool: 'threads',
+    sequence: {
+      concurrent: false,
+    },
     projects: [
       defineProject({
         resolve: {
@@ -40,11 +44,7 @@ export default defineConfig({
           sequence: {
             concurrent: false,
           },
-          poolOptions: {
-            threads: {
-              singleThread: true,
-            },
-          },
+          maxWorkers: 1,
         },
       }),
     ],

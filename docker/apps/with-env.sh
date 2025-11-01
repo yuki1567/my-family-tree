@@ -9,7 +9,6 @@ check_required_commands() {
   need aws
   need jq
   need tr
-  need pm2
 }
 
 check_required_env() {
@@ -84,18 +83,18 @@ set_parameters() {
 }
 
 main() {
-  log "Starting application..."
-
+  if (( $# == 0 )); then
+    die "実行コマンドが未指定です"
+  fi
   check_required_commands
   check_required_env
   judge_environment
 
   local params
   params=$(get_parameters)
-  set_parameters "$params"
 
-  pm2 start ecosystem.config.cjs
-  tail -f /dev/null
+  set_parameters "$params"
+  exec "$@"
 }
 
-main
+main "$@"

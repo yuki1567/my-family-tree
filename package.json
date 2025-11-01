@@ -27,7 +27,7 @@
     "test:frontend": "npm run test --workspace=apps/frontend",
     "test:backend": "./scripts/test-backend.sh",
     "db:generate": "docker compose exec apps npm run db:generate --workspace=apps/backend",
-    "db:migrate": "docker compose exec apps npm run db:migrate --workspace=apps/backend",
+    "db:migrate": "docker compose exec apps with-env npm run db:migrate --workspace=apps/backend",
     "db:seed": "docker compose exec apps npm run db:seed --workspace=apps/backend",
     "db:studio": "docker compose exec apps npm run db:studio --workspace=apps/backend",
     "quality": "npm-run-all --parallel quality:*",

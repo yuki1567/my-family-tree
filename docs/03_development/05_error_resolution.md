@@ -111,6 +111,44 @@ docker-compose ps
 - 環境変数の修正
 - データベースの再初期化
 
+### PM2関連エラー
+
+#### 環境変数が子プロセスに継承されないエラー
+**エラー例:**
+```
+環境変数NODE_ENVが設定されていません
+```
+
+**分析手順:**
+1. entrypoint.shで環境変数が設定されているか確認
+   ```bash
+   docker-compose logs apps | grep "NODE_ENV"
+   ```
+2. PM2設定ファイル（ecosystem.config.cjs）の`env`オプション確認
+3. PM2プロセスの環境変数確認
+
+**根本原因:**
+- entrypoint.shでParameter Storeから環境変数を取得・設定している
+- しかし、PM2設定に`env: process.env`が指定されていないため、PM2が起動する子プロセス（npm）に環境変数が継承されない
+
+**根本修正:**
+ecosystem.config.cjsの各アプリ設定に`env: process.env`を追加:
+```javascript
+{
+  name: 'backend',
+  script: 'npm',
+  args: 'run dev:backend',
+  env: process.env,  // 追加
+}
+```
+
+**検証:**
+```bash
+docker-compose restart apps
+docker-compose exec apps pm2 list
+# backend/frontendのstatusが"online"で、再起動回数が0であることを確認
+```
+
 ## 修正後の文書化
 
 ### 記録すべき内容

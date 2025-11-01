@@ -171,9 +171,12 @@ describe('apiErrorHandler', () => {
   })
 
   describe('logApiError', () => {
-    let consoleErrorSpy: ReturnType<typeof vi.spyOn>
-    let consoleWarnSpy: ReturnType<typeof vi.spyOn>
-    let consoleLogSpy: ReturnType<typeof vi.spyOn>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let consoleErrorSpy: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let consoleWarnSpy: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let consoleLogSpy: any
 
     beforeEach(() => {
       consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -247,6 +250,8 @@ describe('apiErrorHandler', () => {
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error details:',
+        // テストデータで明示的にresponseを定義しているため、非null断言は安全
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         error.response!.error
       )
     })

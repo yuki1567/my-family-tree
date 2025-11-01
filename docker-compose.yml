@@ -3,30 +3,56 @@ services:
     build:
       context: .
       dockerfile: docker/apps/Dockerfile
-    image: ${APP_NAME}
-    container_name: ${APP_NAME}
+    image: ${AWS_VAULT:-family-tree-app}
+    container_name: ${AWS_VAULT:-family-tree-app}
     working_dir: /usr/src
     ports:
-      - "${WEB_PORT}:3000"
-      - "${API_PORT}:4000"
+      - "${WEB_PORT:-3000}:3000"
+      - "${API_PORT:-4000}:4000"
     volumes:
       - ./apps:/usr/src/apps
-    env_file:
-      - .env
+    environment:
+      - AWS_VAULT
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - AWS_REGION
 
   db:
-    image: postgres:18-alpine
-    container_name: db
+    build:
+      context: .
+      dockerfile: docker/db/Dockerfile
+    image: db
+    container_name: family-tree-shared-db
     environment:
-      - POSTGRES_USER=${DATABASE_ADMIN_USER}
-      - POSTGRES_PASSWORD=${DATABASE_ADMIN_PASSWORD}
-      - POSTGRES_DB=${DATABASE_NAME}
-    env_file:
-      - .env
+      - AWS_VAULT
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - AWS_REGION
     ports:
-      - "${DATABASE_PORT}:5432"
-    volumes:
-      - ./docker/db/init.sh:/docker-entrypoint-initdb.d/init.sh
+      - "5432:5432"
+
+  test-db:
+    build:
+      context: .
+      dockerfile: docker/db/Dockerfile
+    image: db
+    container_name: test-db
+    environment:
+      - AWS_VAULT
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - AWS_REGION
+    ports:
+      - "5433:5432"
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+    profiles:
+      - test
 
 networks:
   default:

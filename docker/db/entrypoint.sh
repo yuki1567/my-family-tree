@@ -9,7 +9,6 @@ check_required_commands() {
   need aws
   need jq
   need tr
-  need pm2
 }
 
 check_required_env() {
@@ -65,26 +64,61 @@ get_parameters() {
   printf '%s' "$output"
 }
 
-set_parameters() {
+set_db_parameters() {
   local params=$1
-  local count=0
   local env_name
 
   while IFS='=' read -r name value; do
     [ -n "$name" ] && [ -n "$value" ] || continue
 
     env_name="$(printf '%s' "${name#${PARAM_PATH}/}" | tr '[:lower:]-' '[:upper:]_')"
-    export "$env_name=$value"
-    count=$((count + 1))
+
+    if [[ "$env_name" == "DATABASE_ADMIN_USER" ]]; then
+      export POSTGRES_USER="$value"
+    elif [[ "$env_name" == "DATABASE_ADMIN_PASSWORD" ]]; then
+      export POSTGRES_PASSWORD="$value"
+    elif [[ "$env_name" == "DATABASE_NAME" ]]; then
+      export POSTGRES_DB="$value"
+    elif [[ "$env_name" == "DATABASE_USER_PASSWORD" ]]; then
+      export DATABASE_USER_PASSWORD="$value"
+    fi
   done < <(echo "$params" | jq -r '.Parameters[] | "\(.Name)=\(.Value)"')
 
-  [ "$count" -gt 0 ] || die "Parameter Storeから取得したデータが空です"
+  [[ -n "${POSTGRES_USER:-}" ]] || die "POSTGRES_USER (database-admin-user) が見つかりません"
+  [[ -n "${POSTGRES_PASSWORD:-}" ]] || die "POSTGRES_PASSWORD (database-admin-password) が見つかりません"
+  [[ -n "${POSTGRES_DB:-}" ]] || die "POSTGRES_DB (database-name) が見つかりません"
+  [[ -n "${DATABASE_USER_PASSWORD:-}" ]] || die "DATABASE_USER_PASSWORD (database-user-password) が見つかりません"
 
-  log "Parameter Storeから ${count} 件の環境変数をエクスポート完了"
+  log "Parameter Storeから必須パラメータをエクスポート完了"
+}
+
+create_init_script() {
+  cat > /docker-entrypoint-initdb.d/create-user.sh <<'EOF'
+#!/bin/bash
+set -e
+
+echo "[$(date +'%Y-%m-%d %H:%M:%S')] データベースユーザーを作成中..."
+
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+  CREATE ROLE family_tree_user WITH LOGIN PASSWORD '$DATABASE_USER_PASSWORD';
+  GRANT CONNECT ON DATABASE $POSTGRES_DB TO family_tree_user;
+  GRANT USAGE ON SCHEMA public TO family_tree_user;
+  GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO family_tree_user;
+  GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO family_tree_user;
+  ALTER DEFAULT PRIVILEGES FOR ROLE $POSTGRES_USER IN SCHEMA public
+    GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO family_tree_user;
+  ALTER DEFAULT PRIVILEGES FOR ROLE $POSTGRES_USER IN SCHEMA public
+    GRANT USAGE, SELECT ON SEQUENCES TO family_tree_user;
+EOSQL
+
+echo "[$(date +'%Y-%m-%d %H:%M:%S')] データベースユーザー作成が完了しました"
+EOF
+  chmod +x /docker-entrypoint-initdb.d/create-user.sh
+  log "初期化スクリプトを作成しました"
 }
 
 main() {
-  log "Starting application..."
+  log "PostgreSQLコンテナを起動中..."
 
   check_required_commands
   check_required_env
@@ -92,10 +126,12 @@ main() {
 
   local params
   params=$(get_parameters)
-  set_parameters "$params"
+  set_db_parameters "$params"
 
-  pm2 start ecosystem.config.cjs
-  tail -f /dev/null
+  create_init_script
+
+  log "PostgreSQL起動処理を開始します..."
+  exec docker-entrypoint.sh "$@"
 }
 
-main
+main "$@"
