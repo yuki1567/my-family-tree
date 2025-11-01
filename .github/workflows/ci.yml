@@ -20,15 +20,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Debug GitHub context
-        run: |
-          echo "GitHub ref: ${{ github.ref }}"
-          echo "GitHub event_name: ${{ github.event_name }}"
-          echo "GitHub head_ref: ${{ github.head_ref }}"
-          echo "GitHub base_ref: ${{ github.base_ref }}"
-          echo "GitHub repository: ${{ github.repository }}"
-          echo "Expected sub claim: repo:${{ github.repository }}:ref:${{ github.ref }}"
-
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -74,28 +65,6 @@ jobs:
 
       - name: Run tests (Frontend)
         run: npm run test:frontend
-
-      - name: Debug test-db container
-        run: |
-          echo "=== Current AWS credentials (host) ==="
-          echo "AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:0:10}..."
-          echo "AWS_VAULT: $AWS_VAULT"
-          echo "AWS_REGION: $AWS_REGION"
-          echo "=== Docker Compose config for test-db ==="
-          docker compose --profile test config | grep -A 20 "test-db:"
-          docker compose --profile test up -d test-db
-          sleep 5
-          echo "=== Container status ==="
-          docker ps -a | grep test-db
-          echo "=== Container logs ==="
-          docker logs test-db
-          echo "=== Container inspect (env check) ==="
-          docker inspect test-db --format='{{range .Config.Env}}{{println .}}{{end}}' | grep -E "^AWS_|^POSTGRES_" || echo "No matching env vars"
-          echo "=== Port mapping ==="
-          docker port test-db || echo "No port mapping"
-          echo "=== Network connectivity test ==="
-          nc -zv 127.0.0.1 5433 || echo "Port 5433 not reachable"
-          docker compose --profile test down
 
       - name: Run tests (Backend)
         run: npm run test:backend
