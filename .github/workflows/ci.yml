@@ -12,6 +12,10 @@ jobs:
       id-token: write
       contents: read
 
+    env:
+      AWS_VAULT: family-tree-test
+      AWS_REGION: ap-northeast-1
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
