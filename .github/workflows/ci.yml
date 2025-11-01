@@ -22,6 +22,8 @@ jobs:
           echo "GitHub event_name: ${{ github.event_name }}"
           echo "GitHub head_ref: ${{ github.head_ref }}"
           echo "GitHub base_ref: ${{ github.base_ref }}"
+          echo "GitHub repository: ${{ github.repository }}"
+          echo "Expected sub claim: repo:${{ github.repository }}:ref:${{ github.ref }}"
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
