@@ -77,14 +77,20 @@ jobs:
 
       - name: Debug test-db container
         run: |
+          echo "=== Current AWS credentials (host) ==="
+          echo "AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:0:10}..."
+          echo "AWS_VAULT: $AWS_VAULT"
+          echo "AWS_REGION: $AWS_REGION"
           docker compose --profile test up -d test-db
           sleep 5
           echo "=== Container status ==="
           docker ps -a | grep test-db
           echo "=== Container logs ==="
           docker logs test-db
+          echo "=== Container environment check ==="
+          docker exec test-db env | grep -E "^AWS_|^POSTGRES_" || echo "Container not running"
           echo "=== Port mapping ==="
-          docker port test-db
+          docker port test-db || echo "No port mapping"
           echo "=== Network connectivity test ==="
           nc -zv 127.0.0.1 5433 || echo "Port 5433 not reachable"
           docker compose --profile test down
