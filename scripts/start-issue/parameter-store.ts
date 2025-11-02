@@ -32,52 +32,15 @@ export async function loadParametersFromStore(): Promise<
   }
 
   const parameterPath = '/family-tree/development'
-
   const client = new SSMClient({ region })
 
   try {
-    const fetchParameterPages = async (): Promise<
-      GetParametersByPathCommandOutput[]
-    > => {
-      const paginator = paginateGetParametersByPath(
-        { client },
-        { Path: parameterPath, Recursive: true, WithDecryption: true }
-      )
-
-      const pages: GetParametersByPathCommandOutput[] = []
-      for await (const page of paginator) {
-        pages.push(page)
-      }
-      return pages
-    }
-
-    const collectParameters = (
-      pages: GetParametersByPathCommandOutput[]
-    ): Parameter[] => pages.flatMap((page) => page.Parameters ?? [])
-
-    const ensureNotEmpty = (parameters: Parameter[]): Parameter[] => {
-      if (parameters.length) return parameters
-      throw new Error(
-        `Parameter Storeにパラメータが見つかりません。\n` +
-          `パス: ${parameterPath}\n` +
-          `scripts/ssm/register-params.sh でパラメータを登録してください。`
-      )
-    }
-
-    const toEntry = (parameter: Parameter): [string, string] => {
-      if (!parameter.Value) {
-        throw new Error(
-          `パラメータ ${parameter.Name} の値が空です。\n` +
-            `Parameter Storeの設定を確認してください。`
-        )
-      }
-      return [convertToEnvName(parameter, parameterPath), parameter.Value]
-    }
-
-    const pages = await fetchParameterPages()
+    const pages = await fetchParameterPages(client, parameterPath)
     const parameters = collectParameters(pages)
-    const validParameters = ensureNotEmpty(parameters)
-    const entries = validParameters.map(toEntry)
+    const validParameters = ensureNotEmpty(parameters, parameterPath)
+    const entries = validParameters.map((param) =>
+      toEntry(param, parameterPath)
+    )
     const parameterMap = Object.fromEntries(entries)
 
     log(
@@ -97,15 +60,6 @@ export async function loadParametersFromStore(): Promise<
 }
 
 /**
- * Parameter Store のパラメータ名を環境変数名に変換
- * 例: /family-tree/development/database-url → DATABASE_URL
- */
-function convertToEnvName(param: Parameter, basePath: string): string {
-  const paramName = param.Name!.replace(`${basePath}/`, '')
-  return paramName.toUpperCase().replace(/-/g, '_')
-}
-
-/**
  * パラメータマップから必須の値を取得
  * @throws 値が存在しない場合はエラー
  */
@@ -121,4 +75,77 @@ export function getRequiredParameter(
     )
   }
   return value
+}
+
+/**
+ * Parameter Storeから全ページのパラメータを取得
+ */
+async function fetchParameterPages(
+  client: SSMClient,
+  parameterPath: string
+): Promise<GetParametersByPathCommandOutput[]> {
+  const paginator = paginateGetParametersByPath(
+    { client },
+    { Path: parameterPath, Recursive: true, WithDecryption: true }
+  )
+
+  const pages: GetParametersByPathCommandOutput[] = []
+  for await (const page of paginator) {
+    pages.push(page)
+  }
+  return pages
+}
+
+/**
+ * ページからパラメータを収集
+ */
+function collectParameters(
+  pages: GetParametersByPathCommandOutput[]
+): Parameter[] {
+  return pages.flatMap((page) => page.Parameters ?? [])
+}
+
+/**
+ * パラメータが空でないことを確認
+ */
+function ensureNotEmpty(
+  parameters: Parameter[],
+  parameterPath: string
+): Parameter[] {
+  if (parameters.length) return parameters
+  throw new Error(
+    `Parameter Storeにパラメータが見つかりません。\n` +
+      `パス: ${parameterPath}\n` +
+      `scripts/ssm/register-params.sh でパラメータを登録してください。`
+  )
+}
+
+/**
+ * パラメータを環境変数形式のエントリに変換
+ */
+function toEntry(
+  parameter: Parameter,
+  parameterPath: string
+): [string, string] {
+  if (!parameter.Value) {
+    throw new Error(
+      `パラメータ ${parameter.Name} の値が空です。\n` +
+        `Parameter Storeの設定を確認してください。`
+    )
+  }
+  return [convertToEnvName(parameter, parameterPath), parameter.Value]
+}
+
+/**
+ * Parameter Store のパラメータ名を環境変数名に変換
+ * 例: /family-tree/development/database-url → DATABASE_URL
+ */
+function convertToEnvName(param: Parameter, basePath: string): string {
+  if (!param.Name) {
+    throw new Error(
+      `パラメータ名が未定義です。Parameter Storeのデータを確認してください。`
+    )
+  }
+  const paramName = param.Name.replace(`${basePath}/`, '')
+  return paramName.toUpperCase().replace(/-/g, '_')
 }
