@@ -18,11 +18,13 @@ import {
 export async function loadEnv(): Promise<Ctx> {
   const params = await loadParametersFromStore()
 
+  const dbAdminUser = getRequiredParameter(params, 'DATABASE_ADMIN_USER')
   const dbAdminPassword = getRequiredParameter(
     params,
     'DATABASE_ADMIN_PASSWORD'
   )
   const dbUser = getRequiredParameter(params, 'DATABASE_USER')
+  const dbUserPassword = getRequiredParameter(params, 'DATABASE_USER_PASSWORD')
   const googleTranslateApiKey = getRequiredParameter(
     params,
     'GOOGLE_TRANSLATE_API_KEY'
@@ -58,8 +60,10 @@ export async function loadEnv(): Promise<Ctx> {
     },
     cloudTranslation: googleTranslateApiKey,
     environment: {
+      dbAdminUser,
       dbAdminPassword,
       dbUser,
+      dbUserPassword,
     },
   }
 }

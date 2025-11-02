@@ -23,8 +23,10 @@ export type Environment = {
   webPort?: number
   apiPort?: number
   dbName?: string
+  dbAdminUser?: string
   dbAdminPassword?: string
   dbUser?: string
+  dbUserPassword?: string
   appName?: string
   worktreePath?: string
 }
@@ -150,10 +152,22 @@ export function assertDbUser(
   assertField(isValidDbUser(ctx), 'DBユーザ名')
 }
 
+export function assertDbAdminUser(ctx: Ctx): asserts ctx is Ctx & {
+  environment: Environment & { dbAdminUser: string }
+} {
+  assertField(isValidDbAdminUser(ctx), 'DB管理者ユーザ名')
+}
+
 export function assertDbAdminPassword(ctx: Ctx): asserts ctx is Ctx & {
   environment: Environment & { dbAdminPassword: string }
 } {
   assertField(isValidDbAdminPassword(ctx), 'DB管理者パスワード')
+}
+
+export function assertDbUserPassword(ctx: Ctx): asserts ctx is Ctx & {
+  environment: Environment & { dbUserPassword: string }
+} {
+  assertField(isValidDbUserPassword(ctx), 'DBユーザパスワード')
 }
 
 export function assertApiPort(
@@ -258,10 +272,22 @@ export function isValidDbUser(
   return typeof ctx.environment?.dbUser === 'string'
 }
 
+export function isValidDbAdminUser(
+  ctx: Ctx
+): ctx is Ctx & { environment: Environment & { dbAdminUser: string } } {
+  return typeof ctx.environment?.dbAdminUser === 'string'
+}
+
 export function isValidDbAdminPassword(
   ctx: Ctx
 ): ctx is Ctx & { environment: Environment & { dbAdminPassword: string } } {
   return typeof ctx.environment?.dbAdminPassword === 'string'
+}
+
+export function isValidDbUserPassword(
+  ctx: Ctx
+): ctx is Ctx & { environment: Environment & { dbUserPassword: string } } {
+  return typeof ctx.environment?.dbUserPassword === 'string'
 }
 
 export function isValidBranchName(

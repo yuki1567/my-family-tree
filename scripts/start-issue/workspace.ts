@@ -8,7 +8,10 @@ import {
   assertApiPort,
   assertBranchName,
   assertDbAdminPassword,
+  assertDbAdminUser,
   assertDbName,
+  assertDbUser,
+  assertDbUserPassword,
   assertInReviewStatusId,
   assertIssueLabel,
   assertIssueNumber,
@@ -37,9 +40,10 @@ function registerWorktreeParameters(
 
   for (const [key, value] of Object.entries(params)) {
     const paramName = `${pathPrefix}/${key}`
-    const paramType = key.includes('secret') || key.includes('password') || key.includes('url')
-      ? 'SecureString'
-      : 'String'
+    const paramType =
+      key.includes('secret') || key.includes('password') || key.includes('url')
+        ? 'SecureString'
+        : 'String'
 
     try {
       const result = spawnSync(
@@ -119,6 +123,10 @@ export function generateEnvFile(ctx: Ctx): Ctx {
   assertIssueSlugTitle(ctx)
   assertWorktreePath(ctx)
   assertBranchName(ctx)
+  assertDbAdminUser(ctx)
+  assertDbAdminPassword(ctx)
+  assertDbUser(ctx)
+  assertDbUserPassword(ctx)
 
   const webPort = 3000 + ctx.gitHub.issueNumber
   const apiPort = 4000 + ctx.gitHub.issueNumber
@@ -132,52 +140,39 @@ export function generateEnvFile(ctx: Ctx): Ctx {
       : ctx.gitHub.issueSlugTitle
   const dbName = `family_tree_${truncatedSlug.replace(/-/g, '_')}`
   const appName = `app-${ctx.gitHub.issueSlugTitle}`
-  const jwtSecret = `worktree_jwt_${ctx.gitHub.issueNumber}_${Date.now()}`
 
-  const srcEnvExample = path.join(PROJECT_ROOT, '.env.example')
-  const srcEnvTest = path.join(PROJECT_ROOT, '.env.test')
   const srcClaudeLocalSettings = path.join(
     PROJECT_ROOT,
     '.claude',
     'settings.local.json'
   )
-
-  const dstEnv = path.join(ctx.environment.worktreePath, '.env')
-  const dstEnvTest = path.join(ctx.environment.worktreePath, '.env.test')
   const dstClaudeLocalSettings = path.join(
     ctx.environment.worktreePath,
     '.claude',
     'settings.local.json'
   )
 
-  const envContent = readFileSync(srcEnvExample, 'utf-8')
-    .replaceAll('{{BRANCH_NAME}}', ctx.gitHub.branchName)
-    .replaceAll('{{ISSUE_NUMBER}}', String(ctx.gitHub.issueNumber))
-    .replaceAll('{{APP_NAME}}', appName)
-    .replaceAll('{{WEB_PORT}}', String(webPort))
-    .replaceAll('{{API_PORT}}', String(apiPort))
-    .replaceAll('{{DB_NAME}}', dbName)
-    .replaceAll('{{JWT_SECRET}}', jwtSecret)
-
-  writeFileSync(dstEnv, envContent)
-  log(`📝 環境ファイルを作成しました: ${dstEnv}`)
-
-  copyFileSync(srcEnvTest, dstEnvTest)
-  log(`📝 テスト環境ファイルをコピーしました: ${dstEnvTest}`)
-
   copyFileSync(srcClaudeLocalSettings, dstClaudeLocalSettings)
   log(
     `📝 Claudeローカル設定ファイルをコピーしました: ${dstClaudeLocalSettings}`
   )
 
-  const databaseUrl = `postgresql://family_tree_user:${envContent.match(/DATABASE_PASSWORD=(.+)/)?.[1] || 'password'}@db:5432/${dbName}`
-  const databaseAdminUrl = `postgresql://admin_user:${envContent.match(/DATABASE_ADMIN_PASSWORD=(.+)/)?.[1] || 'admin_password'}@db:5432/postgres`
+  const databaseUrl = `postgresql://${ctx.environment.dbUser}:${ctx.environment.dbUserPassword}@db:5432/${dbName}`
+  const databaseAdminUrl = `postgresql://${ctx.environment.dbAdminUser}:${ctx.environment.dbAdminPassword}@db:5432/postgres`
 
   registerWorktreeParameters(ctx.gitHub.issueNumber, {
+    'branch-name': ctx.gitHub.branchName,
+    'issue-number': String(ctx.gitHub.issueNumber),
+    'web-port': String(webPort),
+    'api-port': String(apiPort),
     'database-url': databaseUrl,
     'database-admin-url': databaseAdminUrl,
-    'jwt-secret': jwtSecret,
-    'node-env': 'development',
+    'log-level': 'query,info,warn,error',
+    'database-admin-user': ctx.environment.dbAdminUser,
+    'database-admin-password': ctx.environment.dbAdminPassword,
+    'database-name': dbName,
+    'database-user': ctx.environment.dbUser,
+    'database-user-password': ctx.environment.dbUserPassword,
   })
 
   return {
@@ -232,17 +227,7 @@ export function createDbSchema(ctx: Ctx): void {
 export function openVscode(ctx: Ctx) {
   assertWorktreePath(ctx)
 
-  const cleanEnv = { ...process.env }
-  delete cleanEnv['WEB_PORT']
-  delete cleanEnv['API_PORT']
-  delete cleanEnv['APP_NAME']
-  delete cleanEnv['COMPOSE_PROJECT_NAME']
-  delete cleanEnv['DATABASE_URL']
-  delete cleanEnv['DATABASE_ADMIN_URL']
-  delete cleanEnv['DATABASE_NAME']
-  delete cleanEnv['JWT_SECRET']
-
-  runCommand('code', [ctx.environment.worktreePath], cleanEnv)
+  runCommand('code', [ctx.environment.worktreePath])
   log('💻 VS Codeでworktreeを開きました')
 }
 
