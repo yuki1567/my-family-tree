@@ -1,8 +1,8 @@
 import {
-  GetParametersByPathCommand,
   type GetParametersByPathCommandOutput,
   type Parameter,
   SSMClient,
+  paginateGetParametersByPath,
 } from '@aws-sdk/client-ssm'
 
 import { log } from './context.js'
@@ -36,44 +36,55 @@ export async function loadParametersFromStore(): Promise<
   const client = new SSMClient({ region })
 
   try {
-    const parameters: Record<string, string> = {}
-    let nextToken: string | undefined = undefined
-    let totalCount = 0
+    const fetchParameterPages = async (): Promise<
+      GetParametersByPathCommandOutput[]
+    > => {
+      const paginator = paginateGetParametersByPath(
+        { client },
+        { Path: parameterPath, Recursive: true, WithDecryption: true }
+      )
 
-    do {
-      const command = new GetParametersByPathCommand({
-        Path: parameterPath,
-        Recursive: true,
-        WithDecryption: true,
-        NextToken: nextToken,
-      })
-
-      const response: GetParametersByPathCommandOutput =
-        await client.send(command)
-
-      if (!response.Parameters || response.Parameters.length === 0) {
-        if (totalCount === 0) {
-          throw new Error(
-            `Parameter Storeにパラメータが見つかりません。\n` +
-              `パス: ${parameterPath}\n` +
-              `scripts/ssm/register-params.sh でパラメータを登録してください。`
-          )
-        }
-        break
+      const pages: GetParametersByPathCommandOutput[] = []
+      for await (const page of paginator) {
+        pages.push(page)
       }
+      return pages
+    }
 
-      for (const param of response.Parameters) {
-        const envName = convertToEnvName(param, parameterPath)
-        parameters[envName] = param.Value!
+    const collectParameters = (
+      pages: GetParametersByPathCommandOutput[]
+    ): Parameter[] => pages.flatMap((page) => page.Parameters ?? [])
+
+    const ensureNotEmpty = (parameters: Parameter[]): Parameter[] => {
+      if (parameters.length) return parameters
+      throw new Error(
+        `Parameter Storeにパラメータが見つかりません。\n` +
+          `パス: ${parameterPath}\n` +
+          `scripts/ssm/register-params.sh でパラメータを登録してください。`
+      )
+    }
+
+    const toEntry = (parameter: Parameter): [string, string] => {
+      if (!parameter.Value) {
+        throw new Error(
+          `パラメータ ${parameter.Name} の値が空です。\n` +
+            `Parameter Storeの設定を確認してください。`
+        )
       }
+      return [convertToEnvName(parameter, parameterPath), parameter.Value]
+    }
 
-      totalCount += response.Parameters.length
-      nextToken = response.NextToken
-    } while (nextToken)
+    const pages = await fetchParameterPages()
+    const parameters = collectParameters(pages)
+    const validParameters = ensureNotEmpty(parameters)
+    const entries = validParameters.map(toEntry)
+    const parameterMap = Object.fromEntries(entries)
 
-    log(`✓ Parameter Storeから${totalCount}個のパラメータを読み込みました`)
+    log(
+      `✓ Parameter Storeから${validParameters.length}個のパラメータを読み込みました`
+    )
 
-    return parameters
+    return parameterMap
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(

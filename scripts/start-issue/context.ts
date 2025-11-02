@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 export type GitHub = {
   issueNumber?: number
@@ -38,7 +39,10 @@ export type Ctx = {
   environment?: Environment
 }
 
-export const PROJECT_ROOT = path.resolve(import.meta.dirname, '../..')
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+export const PROJECT_ROOT = path.resolve(__dirname, '../..')
 
 function createValidationError(fieldName: string): Error {
   return new Error(`${fieldName}が定義されていません`)
