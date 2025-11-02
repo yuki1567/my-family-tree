@@ -1,9 +1,5 @@
-import dotenv from 'dotenv'
-import path from 'node:path'
-
 import {
   type Ctx,
-  PROJECT_ROOT,
   assertCloudTranslation,
   assertInProgressStatusId,
   assertIssueNumber,
@@ -11,22 +7,44 @@ import {
   assertProjectId,
   assertProjectItemId,
   assertTodoStatusId,
-  getRequiredEnv,
   log,
   runCommand,
 } from './context.js'
+import {
+  getRequiredParameter,
+  loadParametersFromStore,
+} from './parameter-store.js'
 
-export function loadEnv(): Ctx {
-  dotenv.config({ path: path.join(PROJECT_ROOT, '.env') })
-  const dbAdminPassword = getRequiredEnv('DATABASE_ADMIN_PASSWORD')
-  const dbUser = getRequiredEnv('DATABASE_USER')
-  const googleTranslateApiKey = getRequiredEnv('GOOGLE_TRANSLATE_API_KEY')
-  const githubProjectId = getRequiredEnv('GITHUB_PROJECT_ID')
-  const githubProjectNumber = getRequiredEnv('GITHUB_PROJECT_NUMBER')
-  const githubStatusFieldId = getRequiredEnv('GITHUB_STATUS_FIELD_ID')
-  const todoStatusId = getRequiredEnv('GITHUB_TODO_STATUS_ID')
-  const inProgressStatusId = getRequiredEnv('GITHUB_INPROGRESS_STATUS_ID')
-  const inReviewStatusId = getRequiredEnv('GITHUB_INREVIEW_STATUS_ID')
+export async function loadEnv(): Promise<Ctx> {
+  const params = await loadParametersFromStore()
+
+  const dbAdminPassword = getRequiredParameter(
+    params,
+    'DATABASE_ADMIN_PASSWORD'
+  )
+  const dbUser = getRequiredParameter(params, 'DATABASE_USER')
+  const googleTranslateApiKey = getRequiredParameter(
+    params,
+    'GOOGLE_TRANSLATE_API_KEY'
+  )
+  const githubProjectId = getRequiredParameter(params, 'GITHUB_PROJECT_ID')
+  const githubProjectNumber = getRequiredParameter(
+    params,
+    'GITHUB_PROJECT_NUMBER'
+  )
+  const githubStatusFieldId = getRequiredParameter(
+    params,
+    'GITHUB_STATUS_FIELD_ID'
+  )
+  const todoStatusId = getRequiredParameter(params, 'GITHUB_TODO_STATUS_ID')
+  const inProgressStatusId = getRequiredParameter(
+    params,
+    'GITHUB_INPROGRESS_STATUS_ID'
+  )
+  const inReviewStatusId = getRequiredParameter(
+    params,
+    'GITHUB_INREVIEW_STATUS_ID'
+  )
 
   log('環境変数を読み込みました')
   return {

@@ -117,11 +117,7 @@ export AWS_KMS_KEY_ID="alias/family-tree-parameter-store"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "kms:Decrypt",
-        "kms:Encrypt",
-        "kms:DescribeKey"
-      ],
+      "Action": ["kms:Decrypt", "kms:Encrypt", "kms:DescribeKey"],
       "Resource": "arn:aws:kms:ap-northeast-1:*:key/*"
     }
   ]
@@ -196,16 +192,11 @@ export AWS_ROLE_ARN="arn:aws:iam::YOUR_ACCOUNT_ID:role/FamilyTreeDevelopmentRole
         "ssm:GetParameters",
         "ssm:GetParametersByPath"
       ],
-      "Resource": [
-        "arn:aws:ssm:ap-northeast-1:*:parameter/family-tree/test/*"
-      ]
+      "Resource": ["arn:aws:ssm:ap-northeast-1:*:parameter/family-tree/test/*"]
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "kms:Decrypt",
-        "kms:DescribeKey"
-      ],
+      "Action": ["kms:Decrypt", "kms:DescribeKey"],
       "Resource": "arn:aws:kms:ap-northeast-1:*:key/*"
     }
   ]
@@ -286,10 +277,7 @@ aws iam attach-role-policy \
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "kms:Decrypt",
-        "kms:DescribeKey"
-      ],
+      "Action": ["kms:Decrypt", "kms:DescribeKey"],
       "Resource": "arn:aws:kms:ap-northeast-1:*:key/*"
     }
   ]
@@ -434,6 +422,26 @@ docker logs app-XXXXX
 # [entrypoint] 環境変数設定完了
 ```
 
+### start-issueスクリプトでの動作確認
+
+start-issueスクリプトは、新しいIssueの開発を開始する際に実行されます。このスクリプトは、Parameter Storeの`/family-tree/development/*`から環境変数を読み込みます。
+
+```bash
+# aws-vault経由でstart-issueスクリプトを実行
+aws-vault exec family-tree-dev -- npm run start:issue
+
+# 期待される出力:
+# ✓ Parameter Storeから9個のパラメータを読み込みました
+# 環境変数を読み込みました
+# ...
+```
+
+**注意事項**:
+
+- start-issueスクリプトは、必ずaws-vault経由で実行する必要があります
+- Parameter Storeへのアクセス権限を持つIAMロールが必要です
+- スクリプトは、新しいworktree用のパラメータを`/family-tree/worktree/{issueNumber}/*`に自動登録します
+
 ---
 
 ## トラブルシューティング
@@ -443,6 +451,7 @@ docker logs app-XXXXX
 **原因**: IAMロールの権限不足、またはAssumeRoleの失敗
 
 **対処法**:
+
 1. IAMロールのポリシーを確認
 2. `AWS_ROLE_ARN`環境変数が正しく設定されているか確認
 3. IAMユーザーにAssumeRole権限があるか確認
@@ -461,7 +470,9 @@ aws sts assume-role \
 **原因**: パラメータが存在しない、またはパス指定が間違っている
 
 **対処法**:
+
 1. パラメータ一覧を確認
+
 ```bash
 aws ssm describe-parameters \
   --region ap-northeast-1 \
@@ -477,12 +488,15 @@ aws ssm describe-parameters \
 **原因**: KMSキーIDが間違っている、または権限不足
 
 **対処法**:
+
 1. KMSキー一覧を確認
+
 ```bash
 aws kms list-keys --region ap-northeast-1
 ```
 
 2. KMSキーの詳細確認
+
 ```bash
 aws kms describe-key \
   --key-id "$AWS_KMS_KEY_ID" \
@@ -496,8 +510,10 @@ aws kms describe-key \
 **原因**: AWS認証情報がDockerコンテナにマウントされていない
 
 **対処法**:
+
 1. `~/.aws`ディレクトリが存在するか確認
 2. `docker-compose.yml`でボリュームマウントが設定されているか確認
+
 ```yaml
 volumes:
   - ~/.aws:/root/.aws:ro

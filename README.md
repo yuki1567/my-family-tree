@@ -23,11 +23,8 @@
 git clone <repository-url>
 cd family-tree-app
 
-# 環境変数ファイルの確認
-cp .env.example .env
-
-# Docker環境の起動
-docker-compose up -d
+# Docker環境の起動（aws-vault経由で環境変数を設定）
+aws-vault exec family-tree-dev -- docker-compose up -d
 
 # 依存関係のインストール（コンテナ内）
 docker-compose exec app npm install
@@ -149,10 +146,9 @@ docker network ls | grep my-family-tree-shared
 
 aws-vault exec family-tree-dev -- docker compose up -d --build
 
-docker compose ps
+aws-vault exec family-tree-test -- docker-compose ps
 
 npm run db:generate
-
 
 ```
 
@@ -168,8 +164,14 @@ aws-vault list
 aws-vault exec family-tree-dev -- env | grep ^AWS_
 ```
 
--　WS CLI のプロファイル設定確認
+- WS CLI のプロファイル設定確認
 
 ```bash
 cat ~/.aws/config
+```
+
+- issueスタート
+
+```bash
+aws-vault exec family-tree-dev -- npm run start:issue
 ```

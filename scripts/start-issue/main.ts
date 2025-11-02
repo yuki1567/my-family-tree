@@ -14,7 +14,7 @@ import {
 } from './workspace.js'
 
 async function main() {
-  const loadEnvCtx = loadEnv()
+  const loadEnvCtx = await loadEnv()
   const fetchIssueCtx = await fetchIssue(loadEnvCtx)
   await moveIssueToInProgress(fetchIssueCtx)
   const generateSlugTitleCtx = await generateSlugTitle(fetchIssueCtx)
