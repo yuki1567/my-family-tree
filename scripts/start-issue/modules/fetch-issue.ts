@@ -52,8 +52,10 @@ function fetchProjectIssuesFromGitHub(projectId: string): unknown {
   return JSON.parse(result)
 }
 
-function validateGraphQLResponse(data: unknown): FetchProjectIssuesResponse {
-  if (
+function isFetchProjectIssuesResponse(
+  data: unknown
+): data is FetchProjectIssuesResponse {
+  return (
     typeof data === 'object' &&
     data !== null &&
     'data' in data &&
@@ -67,8 +69,12 @@ function validateGraphQLResponse(data: unknown): FetchProjectIssuesResponse {
     data.data.node.items !== null &&
     'nodes' in data.data.node.items &&
     Array.isArray(data.data.node.items.nodes)
-  ) {
-    return data as FetchProjectIssuesResponse
+  )
+}
+
+function validateGraphQLResponse(data: unknown): FetchProjectIssuesResponse {
+  if (isFetchProjectIssuesResponse(data)) {
+    return data
   }
 
   throw new GitHubGraphQLError('fetchProjectIssues', ['data.node.items.nodes'])

@@ -58,11 +58,10 @@ async function translateText(text: string, apiKey: string): Promise<string> {
   return firstTranslation.translatedText
 }
 
-function validateTranslationResponse(
-  data: unknown,
-  response: Response
-): GoogleTranslateResponse {
-  if (
+function isGoogleTranslateResponse(
+  data: unknown
+): data is GoogleTranslateResponse {
+  return (
     typeof data === 'object' &&
     data !== null &&
     'data' in data &&
@@ -75,8 +74,15 @@ function validateTranslationResponse(
     data.data.translations[0] !== null &&
     'translatedText' in data.data.translations[0] &&
     typeof data.data.translations[0].translatedText === 'string'
-  ) {
-    return data as GoogleTranslateResponse
+  )
+}
+
+function validateTranslationResponse(
+  data: unknown,
+  response: Response
+): GoogleTranslateResponse {
+  if (isGoogleTranslateResponse(data)) {
+    return data
   }
 
   throw new GoogleTranslateError(response.status, response.statusText)

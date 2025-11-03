@@ -51,10 +51,10 @@ function fetchStatusFieldId(projectId: string): string {
   return validatedData.data.node.field.id
 }
 
-function validateStatusFieldIdResponse(
+function isFetchStatusFieldIdResponse(
   data: unknown
-): FetchStatusFieldIdResponse {
-  if (
+): data is FetchStatusFieldIdResponse {
+  return (
     typeof data === 'object' &&
     data !== null &&
     'data' in data &&
@@ -68,8 +68,14 @@ function validateStatusFieldIdResponse(
     data.data.node.field !== null &&
     'id' in data.data.node.field &&
     typeof data.data.node.field.id === 'string'
-  ) {
-    return data as FetchStatusFieldIdResponse
+  )
+}
+
+function validateStatusFieldIdResponse(
+  data: unknown
+): FetchStatusFieldIdResponse {
+  if (isFetchStatusFieldIdResponse(data)) {
+    return data
   }
 
   throw new GitHubGraphQLError('fetchStatusFieldId', ['data.node.field.id'])
