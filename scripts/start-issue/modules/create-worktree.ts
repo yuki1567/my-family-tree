@@ -20,7 +20,7 @@ export function createWorktree(ctx: Ctx): Ctx {
   const worktreePath = path.resolve(PROJECT_ROOT, '..', branchName)
 
   runCommand('git', ['worktree', 'add', worktreePath, '-b', branchName, 'main'])
-  log(`🛠 Worktreeを作成しました: ${worktreePath}`)
+  log(`Worktreeを作成しました: ${worktreePath}`)
 
   return {
     ...ctx,

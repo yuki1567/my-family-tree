@@ -163,7 +163,7 @@ export async function registerWorktreeParameters(
   const pathPrefix = `${AWS.PARAMETER_PATH.WORKTREE}/${issueNumber}`
   const client = new SSMClient({ region })
 
-  log(`🔐 Parameter Storeにパラメータを登録中... (Path: ${pathPrefix})`)
+  log(`Parameter Storeにパラメータを登録中... (Path: ${pathPrefix})`)
 
   const classifyParameterType = (key: string): 'String' | 'SecureString' =>
     ['secret', 'password', 'url'].some((token) => key.includes(token))
@@ -232,6 +232,6 @@ export async function registerWorktreeParameters(
   )
 
   log(
-    `🔐 Parameter Store登録完了: 成功 ${successCount}件, エラー ${errorCount}件`
+    `Parameter Store登録完了: 成功 ${successCount}件, エラー ${errorCount}件`
   )
 }

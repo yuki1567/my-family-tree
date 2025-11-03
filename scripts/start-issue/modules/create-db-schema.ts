@@ -12,7 +12,7 @@ export function createDbSchema(ctx: Ctx): void {
   const dbName = ctx.environment.dbName
   const adminPassword = ctx.environment.dbAdminPassword
 
-  log('🗄 データベーススキーマを作成中...')
+  log('データベーススキーマを作成中...')
   const result = spawnSync(
     'docker-compose',
     [
@@ -39,5 +39,5 @@ export function createDbSchema(ctx: Ctx): void {
     throw new Error('PostgreSQLコマンドの実行に失敗しました')
   }
 
-  log(`🗄 DBスキーマを作成しました: ${dbName}`)
+  log(`DBスキーマを作成しました: ${dbName}`)
 }

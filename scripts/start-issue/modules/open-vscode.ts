@@ -6,5 +6,5 @@ export function openVscode(ctx: Ctx) {
   assertWorktreePath(ctx)
 
   runCommand('code', [ctx.environment.worktreePath])
-  log('💻 VS Codeでworktreeを開きました')
+  log('VS Codeでworktreeを開きました')
 }
