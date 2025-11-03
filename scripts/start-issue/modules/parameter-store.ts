@@ -9,7 +9,10 @@ import {
 import { AWS } from '../core/constants.js'
 import {
   AWSAuthenticationError,
+  ParameterNameUndefinedError,
   ParameterNotFoundError,
+  ParameterValueEmptyError,
+  ParametersEmptyError,
 } from '../core/errors.js'
 import { log } from '../core/utils.js'
 
@@ -33,29 +36,17 @@ export async function loadParametersFromStore(): Promise<
   const parameterPath = AWS.PARAMETER_PATH.DEVELOPMENT
   const client = new SSMClient({ region })
 
-  try {
-    const pages = await fetchParameterPages(client, parameterPath)
-    const parameters = collectParameters(pages)
-    const validParameters = ensureNotEmpty(parameters, parameterPath)
-    const entries = validParameters.map((param) =>
-      toEntry(param, parameterPath)
-    )
-    const parameterMap = Object.fromEntries(entries)
+  const pages = await fetchParameterPages(client, parameterPath)
+  const parameters = collectParameters(pages)
+  const validParameters = ensureNotEmpty(parameters, parameterPath)
+  const entries = validParameters.map((param) => toEntry(param, parameterPath))
+  const parameterMap = Object.fromEntries(entries)
 
-    log(
-      `✓ Parameter Storeから${validParameters.length}個のパラメータを読み込みました`
-    )
+  log(
+    `✓ Parameter Storeから${validParameters.length}個のパラメータを読み込みました`
+  )
 
-    return parameterMap
-  } catch (error) {
-    if (error instanceof Error) {
-      throw new Error(
-        `Parameter Storeからの読み込みに失敗しました: ${error.message}\n` +
-          `AWS認証情報とParameter Storeへのアクセス権限を確認してください。`
-      )
-    }
-    throw error
-  }
+  return parameterMap
 }
 
 /**
@@ -109,11 +100,7 @@ function ensureNotEmpty(
   parameterPath: string
 ): Parameter[] {
   if (parameters.length) return parameters
-  throw new Error(
-    `Parameter Storeにパラメータが見つかりません。\n` +
-      `パス: ${parameterPath}\n` +
-      `scripts/ssm/register-params.sh でパラメータを登録してください。`
-  )
+  throw new ParametersEmptyError(parameterPath)
 }
 
 /**
@@ -124,10 +111,7 @@ function toEntry(
   parameterPath: string
 ): [string, string] {
   if (!parameter.Value) {
-    throw new Error(
-      `パラメータ ${parameter.Name} の値が空です。\n` +
-        `Parameter Storeの設定を確認してください。`
-    )
+    throw new ParameterValueEmptyError(parameter.Name)
   }
   return [convertToEnvName(parameter, parameterPath), parameter.Value]
 }
@@ -138,9 +122,7 @@ function toEntry(
  */
 function convertToEnvName(param: Parameter, basePath: string): string {
   if (!param.Name) {
-    throw new Error(
-      `パラメータ名が未定義です。Parameter Storeのデータを確認してください。`
-    )
+    throw new ParameterNameUndefinedError()
   }
   const paramName = param.Name.replace(`${basePath}/`, '')
   return paramName.toUpperCase().replace(/-/g, '_')

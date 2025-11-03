@@ -73,3 +73,30 @@ export class DatabaseCommandError extends BaseError {
     )
   }
 }
+
+export class ParametersEmptyError extends BaseError {
+  constructor(parameterPath: string) {
+    super(
+      `Parameter Storeにパラメータが見つかりません。\n` +
+        `パス: ${parameterPath}\n` +
+        `scripts/ssm/register-params.sh でパラメータを登録してください。`
+    )
+  }
+}
+
+export class ParameterValueEmptyError extends BaseError {
+  constructor(parameterName: string | undefined) {
+    super(
+      `パラメータ ${parameterName} の値が空です。\n` +
+        `Parameter Storeの設定を確認してください。`
+    )
+  }
+}
+
+export class ParameterNameUndefinedError extends BaseError {
+  constructor() {
+    super(
+      `パラメータ名が未定義です。Parameter Storeのデータを確認してください。`
+    )
+  }
+}
