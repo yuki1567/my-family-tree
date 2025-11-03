@@ -44,3 +44,8 @@ export const GRAPHQL = {
     STATUS: 'Status',
   },
 } as const
+
+export const LABEL = {
+  PRIORITY_PREFIX: 'priority',
+  DEFAULT_LABEL: 'ラベルなし',
+} as const

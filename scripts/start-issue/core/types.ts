@@ -1,5 +1,35 @@
 import type { SSMClient } from '@aws-sdk/client-ssm'
 
+export type GitHubLabel = {
+  name: string
+}
+
+export type GitHubIssue = {
+  number: number
+  title: string
+  labels: {
+    nodes: GitHubLabel[]
+  }
+}
+
+export type ProjectItem = {
+  id: string
+  fieldValueByName: {
+    optionId: string
+  } | null
+  content: GitHubIssue | null
+}
+
+export type FetchProjectIssuesResponse = {
+  data: {
+    node: {
+      items: {
+        nodes: ProjectItem[]
+      }
+    }
+  }
+}
+
 export type GitHub = {
   issueNumber?: number
   issueTitle?: string
