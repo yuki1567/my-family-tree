@@ -1,3 +1,9 @@
+import { TRANSLATION } from '../core/constants.js'
+import {
+  FETCH_PROJECT_ISSUES_QUERY,
+  FETCH_STATUS_FIELD_ID_QUERY,
+  UPDATE_PROJECT_ITEM_STATUS_MUTATION,
+} from '../core/graphql-queries.js'
 import type { Ctx } from '../core/types.js'
 import { log, runCommand } from '../core/utils.js'
 import {
@@ -72,41 +78,11 @@ export async function fetchIssue(ctx: Ctx): Promise<Ctx> {
   assertProjectId(ctx)
   assertTodoStatusId(ctx)
 
-  const query = `
-    query($projectId: ID!) {
-      node(id: $projectId) {
-        ... on ProjectV2 {
-          items(first: 100) {
-            nodes {
-              id
-              fieldValueByName(name: "Status") {
-                ... on ProjectV2ItemFieldSingleSelectValue {
-                  optionId
-                }
-              }
-              content {
-                ... on Issue {
-                  number
-                  title
-                  labels(first: 10) {
-                    nodes {
-                      name
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  `
-
   const result = runCommand('gh', [
     'api',
     'graphql',
     '-f',
-    `query=${query}`,
+    `query=${FETCH_PROJECT_ISSUES_QUERY}`,
     '-f',
     `projectId=${ctx.githubProjects.projectId}`,
   ])
@@ -142,7 +118,7 @@ export async function fetchIssue(ctx: Ctx): Promise<Ctx> {
   )
   const labelName = nonPriorityLabel ? nonPriorityLabel.name : 'ラベルなし'
 
-  log(`👤 選択されたIssue: #${issue.number} - ${issue.title} (${labelName})`)
+  log(`選択されたIssue: #${issue.number} - ${issue.title} (${labelName})`)
 
   return {
     ...ctx,
@@ -173,47 +149,13 @@ export async function moveIssueToInProgress(ctx: Ctx): Promise<void> {
     currentUser,
   ])
 
-  log(
-    `👤 Issue #${ctx.gitHub.issueNumber} を ${currentUser} にアサインしました`
-  )
-
-  const mutation = `
-    mutation($projectId: ID!, $itemId: ID!, $statusFieldId: ID!, $statusValueId: String!) {
-      updateProjectV2ItemFieldValue(
-        input: {
-          projectId: $projectId
-          itemId: $itemId
-          fieldId: $statusFieldId
-          value: { singleSelectOptionId: $statusValueId }
-        }
-      ) {
-        projectV2Item {
-          id
-        }
-      }
-    }
-  `
-
-  // まずStatusフィールドのIDを取得
-  const fieldQuery = `
-    query($projectId: ID!) {
-      node(id: $projectId) {
-        ... on ProjectV2 {
-          field(name: "Status") {
-            ... on ProjectV2SingleSelectField {
-              id
-            }
-          }
-        }
-      }
-    }
-  `
+  log(`Issue #${ctx.gitHub.issueNumber} を ${currentUser} にアサインしました`)
 
   const fieldResult = runCommand('gh', [
     'api',
     'graphql',
     '-f',
-    `query=${fieldQuery}`,
+    `query=${FETCH_STATUS_FIELD_ID_QUERY}`,
     '-f',
     `projectId=${ctx.githubProjects.projectId}`,
   ])
@@ -229,7 +171,7 @@ export async function moveIssueToInProgress(ctx: Ctx): Promise<void> {
     'api',
     'graphql',
     '-f',
-    `query=${mutation}`,
+    `query=${UPDATE_PROJECT_ITEM_STATUS_MUTATION}`,
     '-f',
     `projectId=${ctx.githubProjects.projectId}`,
     '-f',
@@ -240,16 +182,14 @@ export async function moveIssueToInProgress(ctx: Ctx): Promise<void> {
     `statusValueId=${ctx.githubProjects.inProgressStatusId}`,
   ])
 
-  log(
-    `🚚 Issue #${ctx.gitHub.issueNumber} をIn Progressステータスへ移動しました`
-  )
+  log(`Issue #${ctx.gitHub.issueNumber} をIn Progressステータスへ移動しました`)
 }
 
 export async function generateSlugTitle(ctx: Ctx): Promise<Ctx> {
   assertIssueTitle(ctx)
   assertCloudTranslation(ctx)
 
-  const endPoint = `https://translation.googleapis.com/language/translate/v2?key=${ctx.cloudTranslation}`
+  const endPoint = `${TRANSLATION.API_ENDPOINT}?key=${ctx.cloudTranslation}`
 
   const response = await fetch(endPoint, {
     method: 'POST',
@@ -258,8 +198,8 @@ export async function generateSlugTitle(ctx: Ctx): Promise<Ctx> {
     },
     body: JSON.stringify({
       q: ctx.gitHub.issueTitle,
-      source: 'ja',
-      target: 'en',
+      source: TRANSLATION.SOURCE_LANG,
+      target: TRANSLATION.TARGET_LANG,
     }),
   })
 
@@ -283,7 +223,7 @@ export async function generateSlugTitle(ctx: Ctx): Promise<Ctx> {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
 
-  log(`📝 Issueタイトルを翻訳・スラグ化しました: ${issueSlugTitle}`)
+  log(`Issueタイトルを翻訳・スラグ化しました: ${issueSlugTitle}`)
 
   return {
     ...ctx,

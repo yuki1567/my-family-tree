@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process'
 
-import { CONFIG } from '../core/config.js'
+import { DOCKER } from '../core/constants.js'
 import type { Ctx } from '../core/types.js'
 import { PROJECT_ROOT, log } from '../core/utils.js'
 import { assertDbAdminPassword, assertDbName } from '../core/validators.js'
@@ -20,12 +20,12 @@ export function createDbSchema(ctx: Ctx): void {
       '-T',
       '-e',
       `PGPASSWORD=${adminPassword}`,
-      CONFIG.docker.dbService,
+      DOCKER.DB_SERVICE,
       'psql',
       '-U',
-      CONFIG.docker.dbAdminUser,
+      DOCKER.DB_ADMIN_USER,
       '-d',
-      CONFIG.docker.dbDefaultDatabase,
+      DOCKER.DB_DEFAULT_DATABASE,
       '-c',
       `CREATE DATABASE ${dbName};`,
     ],

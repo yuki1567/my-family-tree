@@ -1,7 +1,7 @@
 import { copyFileSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { CONFIG } from '../core/config.js'
+import { DATABASE, FILES, PORTS } from '../core/constants.js'
 import type { Ctx } from '../core/types.js'
 import { PROJECT_ROOT, log } from '../core/utils.js'
 import {
@@ -34,34 +34,29 @@ export async function generateEnvFile(ctx: Ctx): Promise<Ctx> {
   assertDbUser(ctx)
   assertDbUserPassword(ctx)
 
-  const webPort = CONFIG.ports.webBase + ctx.gitHub.issueNumber
-  const apiPort = CONFIG.ports.apiBase + ctx.gitHub.issueNumber
+  const webPort = PORTS.WEB_BASE + ctx.gitHub.issueNumber
+  const apiPort = PORTS.API_BASE + ctx.gitHub.issueNumber
   const truncatedSlug =
-    ctx.gitHub.issueSlugTitle.length > CONFIG.database.maxSlugLength
+    ctx.gitHub.issueSlugTitle.length > DATABASE.MAX_SLUG_LENGTH
       ? ctx.gitHub.issueSlugTitle.substring(
           0,
-          ctx.gitHub.issueSlugTitle.lastIndexOf(
-            '-',
-            CONFIG.database.maxSlugLength
-          )
+          ctx.gitHub.issueSlugTitle.lastIndexOf('-', DATABASE.MAX_SLUG_LENGTH)
         )
       : ctx.gitHub.issueSlugTitle
-  const dbName = `${CONFIG.database.namePrefix}${truncatedSlug.replace(/-/g, '_')}`
+  const dbName = `${DATABASE.NAME_PREFIX}${truncatedSlug.replace(/-/g, '_')}`
   const appName = `app-${ctx.gitHub.issueSlugTitle}`
 
   const srcClaudeLocalSettings = path.join(
     PROJECT_ROOT,
-    CONFIG.files.claudeLocalSettings.src
+    FILES.CLAUDE_LOCAL_SETTINGS
   )
   const dstClaudeLocalSettings = path.join(
     ctx.environment.worktreePath,
-    CONFIG.files.claudeLocalSettings.src
+    FILES.CLAUDE_LOCAL_SETTINGS
   )
 
   copyFileSync(srcClaudeLocalSettings, dstClaudeLocalSettings)
-  log(
-    `📝 Claudeローカル設定ファイルをコピーしました: ${dstClaudeLocalSettings}`
-  )
+  log(`Claudeローカル設定ファイルをコピーしました: ${dstClaudeLocalSettings}`)
 
   const databaseUrl = `postgresql://${ctx.environment.dbUser}:${ctx.environment.dbUserPassword}@db:5432/${dbName}`
   const databaseAdminUrl = `postgresql://${ctx.environment.dbAdminUser}:${ctx.environment.dbAdminPassword}@db:5432/postgres`
@@ -104,8 +99,8 @@ export function generatePrompt(ctx: Ctx) {
   assertStatusFieldId(ctx)
   assertInReviewStatusId(ctx)
 
-  const templatePath = path.join(PROJECT_ROOT, CONFIG.files.prompt.template)
-  const outputPath = path.join(PROJECT_ROOT, CONFIG.files.prompt.output)
+  const templatePath = path.join(PROJECT_ROOT, FILES.PROMPT.TEMPLATE)
+  const outputPath = path.join(PROJECT_ROOT, FILES.PROMPT.OUTPUT)
   const template = readFileSync(templatePath, 'utf-8')
   const replaced = template
     .replaceAll('{{ISSUE_NUMBER}}', String(ctx.gitHub.issueNumber))
@@ -119,5 +114,5 @@ export function generatePrompt(ctx: Ctx) {
     .replaceAll('{{IN_REVIEW_OPTION_ID}}', ctx.githubProjects.inReviewStatusId)
 
   writeFileSync(outputPath, replaced, 'utf-8')
-  log('📝 Claude Code用プロンプトを生成しました')
+  log('Claude Code用プロンプトを生成しました')
 }

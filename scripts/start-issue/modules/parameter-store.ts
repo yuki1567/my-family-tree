@@ -6,7 +6,7 @@ import {
   paginateGetParametersByPath,
 } from '@aws-sdk/client-ssm'
 
-import { CONFIG } from '../core/config.js'
+import { AWS } from '../core/constants.js'
 import { log } from '../core/utils.js'
 
 /**
@@ -33,7 +33,7 @@ export async function loadParametersFromStore(): Promise<
     )
   }
 
-  const parameterPath = CONFIG.aws.parameterPath.development
+  const parameterPath = AWS.PARAMETER_PATH.DEVELOPMENT
   const client = new SSMClient({ region })
 
   try {
@@ -160,7 +160,7 @@ export async function registerWorktreeParameters(
   params: Record<string, string>
 ): Promise<void> {
   const region = process.env['AWS_REGION']
-  const pathPrefix = `${CONFIG.aws.parameterPath.worktree}/${issueNumber}`
+  const pathPrefix = `${AWS.PARAMETER_PATH.WORKTREE}/${issueNumber}`
   const client = new SSMClient({ region })
 
   log(`🔐 Parameter Storeにパラメータを登録中... (Path: ${pathPrefix})`)
