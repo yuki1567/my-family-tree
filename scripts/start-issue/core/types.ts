@@ -138,3 +138,19 @@ export type SetupEnvironmentOutput = CreateWorktreeOutput & {
     appName: string
   }
 }
+
+export type WorktreeParameterKey =
+  | 'branch-name'
+  | 'issue-number'
+  | 'web-port'
+  | 'api-port'
+  | 'database-url'
+  | 'database-admin-url'
+  | 'log-level'
+  | 'database-admin-user'
+  | 'database-admin-password'
+  | 'database-name'
+  | 'database-user'
+  | 'database-user-password'
+
+export type WorktreeParameters = Record<WorktreeParameterKey, string>

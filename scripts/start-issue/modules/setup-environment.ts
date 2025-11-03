@@ -6,22 +6,15 @@ import { AWS, DATABASE, FILES, PORTS } from '../core/constants.js'
 import type {
   CreateWorktreeOutput,
   SetupEnvironmentOutput,
+  WorktreeParameters,
 } from '../core/types.js'
 import { PROJECT_ROOT, log } from '../core/utils.js'
 
 export async function setupEnvironment(
   ctx: CreateWorktreeOutput
 ): Promise<SetupEnvironmentOutput> {
-  const webPort = PORTS.WEB_BASE + ctx.gitHub.issueNumber
-  const apiPort = PORTS.API_BASE + ctx.gitHub.issueNumber
-  const truncatedSlug =
-    ctx.gitHub.issueSlugTitle.length > DATABASE.MAX_SLUG_LENGTH
-      ? ctx.gitHub.issueSlugTitle.substring(
-          0,
-          ctx.gitHub.issueSlugTitle.lastIndexOf('-', DATABASE.MAX_SLUG_LENGTH)
-        )
-      : ctx.gitHub.issueSlugTitle
-  const dbName = `${DATABASE.NAME_PREFIX}${truncatedSlug.replace(/-/g, '_')}`
+  const { webPort, apiPort } = calculateWorktreePorts(ctx.gitHub.issueNumber)
+  const dbName = generateDatabaseName(ctx.gitHub.issueSlugTitle)
   const appName = `app-${ctx.gitHub.issueSlugTitle}`
 
   const srcClaudeLocalSettings = path.join(
@@ -36,8 +29,10 @@ export async function setupEnvironment(
   copyFileSync(srcClaudeLocalSettings, dstClaudeLocalSettings)
   log(`Claudeローカル設定ファイルをコピーしました: ${dstClaudeLocalSettings}`)
 
-  const databaseUrl = `postgresql://${ctx.environment.dbUser}:${ctx.environment.dbUserPassword}@db:5432/${dbName}`
-  const databaseAdminUrl = `postgresql://${ctx.environment.dbAdminUser}:${ctx.environment.dbAdminPassword}@db:5432/postgres`
+  const { databaseUrl, databaseAdminUrl } = buildDatabaseUrls(
+    ctx.environment,
+    dbName
+  )
 
   await registerWorktreeParameters(ctx.ssmClient, ctx.gitHub.issueNumber, {
     'branch-name': ctx.gitHub.branchName,
@@ -66,13 +61,52 @@ export async function setupEnvironment(
   }
 }
 
+function truncateSlugForDatabase(slug: string): string {
+  if (slug.length <= DATABASE.MAX_SLUG_LENGTH) {
+    return slug
+  }
+
+  const lastHyphenIndex = slug.lastIndexOf('-', DATABASE.MAX_SLUG_LENGTH)
+  return lastHyphenIndex > 0
+    ? slug.substring(0, lastHyphenIndex)
+    : slug.substring(0, DATABASE.MAX_SLUG_LENGTH)
+}
+
+function calculateWorktreePorts(issueNumber: number): {
+  webPort: number
+  apiPort: number
+} {
+  return {
+    webPort: PORTS.WEB_BASE + issueNumber,
+    apiPort: PORTS.API_BASE + issueNumber,
+  }
+}
+
+function generateDatabaseName(slugTitle: string): string {
+  const truncatedSlug = truncateSlugForDatabase(slugTitle)
+  return `${DATABASE.NAME_PREFIX}${truncatedSlug.replace(/-/g, '_')}`
+}
+
+function buildDatabaseUrls(
+  env: CreateWorktreeOutput['environment'],
+  dbName: string
+): {
+  databaseUrl: string
+  databaseAdminUrl: string
+} {
+  return {
+    databaseUrl: `postgresql://${env.dbUser}:${env.dbUserPassword}@db:5432/${dbName}`,
+    databaseAdminUrl: `postgresql://${env.dbAdminUser}:${env.dbAdminPassword}@db:5432/postgres`,
+  }
+}
+
 /**
  * WorktreeのパラメータをParameter Storeに登録
  */
 async function registerWorktreeParameters(
   client: SSMClient,
   issueNumber: number,
-  params: Record<string, string>
+  params: WorktreeParameters
 ): Promise<void> {
   const pathPrefix = `${AWS.PARAMETER_PATH.WORKTREE}/${issueNumber}`
 
@@ -125,24 +159,13 @@ async function registerWorktreeParameters(
     }
   }
 
-  const results = await Object.entries(params)
-    .map(describeParameter)
-    .reduce<Promise<Array<'success' | 'error'>>>(
-      async (accPromise, descriptor) => {
-        const acc = await accPromise
-        const result = await registerParameter(descriptor)
-        return [...acc, result]
-      },
-      Promise.resolve([])
-    )
-
-  const { successCount, errorCount } = results.reduce(
-    (acc, result) => ({
-      successCount: acc.successCount + (result === 'success' ? 1 : 0),
-      errorCount: acc.errorCount + (result === 'error' ? 1 : 0),
-    }),
-    { successCount: 0, errorCount: 0 }
+  const descriptors = Object.entries(params).map(describeParameter)
+  const results = await Promise.all(
+    descriptors.map((descriptor) => registerParameter(descriptor))
   )
+
+  const successCount = results.filter((result) => result === 'success').length
+  const errorCount = results.filter((result) => result === 'error').length
 
   log(`Parameter Store登録完了: 成功 ${successCount}件, エラー ${errorCount}件`)
 }
