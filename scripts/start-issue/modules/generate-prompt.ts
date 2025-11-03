@@ -2,31 +2,10 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 import { FILES } from '../core/constants.js'
-import type { Ctx } from '../core/types.js'
+import type { GenerateEnvFileOutput } from '../core/types.js'
 import { PROJECT_ROOT, log } from '../core/utils.js'
-import {
-  assertApiPort,
-  assertBranchName,
-  assertInReviewStatusId,
-  assertIssueNumber,
-  assertIssueTitle,
-  assertProjectId,
-  assertProjectNumber,
-  assertStatusFieldId,
-  assertWebPort,
-} from '../core/validators.js'
 
-export function generatePrompt(ctx: Ctx) {
-  assertIssueNumber(ctx)
-  assertIssueTitle(ctx)
-  assertBranchName(ctx)
-  assertApiPort(ctx)
-  assertWebPort(ctx)
-  assertProjectId(ctx)
-  assertProjectNumber(ctx)
-  assertStatusFieldId(ctx)
-  assertInReviewStatusId(ctx)
-
+export function generatePrompt(ctx: GenerateEnvFileOutput): void {
   const templatePath = path.join(PROJECT_ROOT, FILES.PROMPT.TEMPLATE)
   const outputPath = path.join(PROJECT_ROOT, FILES.PROMPT.OUTPUT)
   const template = readFileSync(templatePath, 'utf-8')

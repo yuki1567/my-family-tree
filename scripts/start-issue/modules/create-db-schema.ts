@@ -1,14 +1,10 @@
 import { spawnSync } from 'node:child_process'
 
 import { DOCKER } from '../core/constants.js'
-import type { Ctx } from '../core/types.js'
+import type { GenerateEnvFileOutput } from '../core/types.js'
 import { PROJECT_ROOT, log } from '../core/utils.js'
-import { assertDbAdminPassword, assertDbName } from '../core/validators.js'
 
-export function createDbSchema(ctx: Ctx): void {
-  assertDbName(ctx)
-  assertDbAdminPassword(ctx)
-
+export function createDbSchema(ctx: GenerateEnvFileOutput): void {
   const dbName = ctx.environment.dbName
   const adminPassword = ctx.environment.dbAdminPassword
 

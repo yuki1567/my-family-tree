@@ -1,12 +1,13 @@
 import { TRANSLATION } from '../core/constants.js'
-import type { Ctx } from '../core/types.js'
+import type {
+  FetchIssueOutput,
+  GenerateSlugTitleOutput,
+} from '../core/types.js'
 import { log } from '../core/utils.js'
-import { assertCloudTranslation, assertIssueTitle } from '../core/validators.js'
 
-export async function generateSlugTitle(ctx: Ctx): Promise<Ctx> {
-  assertIssueTitle(ctx)
-  assertCloudTranslation(ctx)
-
+export async function generateSlugTitle(
+  ctx: FetchIssueOutput
+): Promise<GenerateSlugTitleOutput> {
   const endPoint = `${TRANSLATION.API_ENDPOINT}?key=${ctx.cloudTranslation}`
 
   const response = await fetch(endPoint, {

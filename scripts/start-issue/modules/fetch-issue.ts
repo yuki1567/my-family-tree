@@ -1,12 +1,10 @@
 import { FETCH_PROJECT_ISSUES_QUERY } from '../core/graphql-queries.js'
-import type { Ctx } from '../core/types.js'
+import type { FetchIssueOutput, LoadEnvOutput } from '../core/types.js'
 import { log, runCommand } from '../core/utils.js'
-import { assertProjectId, assertTodoStatusId } from '../core/validators.js'
 
-export async function fetchIssue(ctx: Ctx): Promise<Ctx> {
-  assertProjectId(ctx)
-  assertTodoStatusId(ctx)
-
+export async function fetchIssue(
+  ctx: LoadEnvOutput
+): Promise<FetchIssueOutput> {
   const result = runCommand('gh', [
     'api',
     'graphql',

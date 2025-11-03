@@ -1,4 +1,4 @@
-import type { Ctx } from '../core/types.js'
+import type { LoadEnvOutput } from '../core/types.js'
 import { log } from '../core/utils.js'
 
 import {
@@ -6,7 +6,7 @@ import {
   loadParametersFromStore,
 } from './parameter-store.js'
 
-export async function loadEnv(): Promise<Ctx> {
+export async function loadEnv(): Promise<LoadEnvOutput> {
   const params = await loadParametersFromStore()
 
   const dbAdminUser = getRequiredParameter(params, 'DATABASE_ADMIN_USER')

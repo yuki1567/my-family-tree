@@ -1,18 +1,14 @@
 import path from 'node:path'
 
-import type { Ctx } from '../core/types.js'
+import type {
+  CreateWorktreeOutput,
+  GenerateSlugTitleOutput,
+} from '../core/types.js'
 import { PROJECT_ROOT, log, runCommand } from '../core/utils.js'
-import {
-  assertIssueLabel,
-  assertIssueNumber,
-  assertIssueSlugTitle,
-} from '../core/validators.js'
 
-export function createWorktree(ctx: Ctx): Ctx {
-  assertIssueLabel(ctx)
-  assertIssueNumber(ctx)
-  assertIssueSlugTitle(ctx)
-
+export function createWorktree(
+  ctx: GenerateSlugTitleOutput
+): CreateWorktreeOutput {
   runCommand('git', ['fetch', 'origin'])
   runCommand('git', ['pull', 'origin', 'main'])
 

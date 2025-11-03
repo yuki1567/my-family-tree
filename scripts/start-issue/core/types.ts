@@ -34,3 +34,56 @@ export type Ctx = {
   cloudTranslation?: string
   environment?: Environment
 }
+
+export type LoadEnvOutput = {
+  githubProjects: {
+    projectId: string
+    projectNumber: number
+    statusFieldId: string
+    todoStatusId: string
+    inProgressStatusId: string
+    inReviewStatusId: string
+  }
+  cloudTranslation: string
+  environment: {
+    dbAdminUser: string
+    dbAdminPassword: string
+    dbUser: string
+    dbUserPassword: string
+  }
+}
+
+export type FetchIssueOutput = LoadEnvOutput & {
+  gitHub: {
+    issueNumber: number
+    issueTitle: string
+    issueLabel: string
+  }
+  githubProjects: LoadEnvOutput['githubProjects'] & {
+    projectItemId: string
+  }
+}
+
+export type GenerateSlugTitleOutput = FetchIssueOutput & {
+  gitHub: FetchIssueOutput['gitHub'] & {
+    issueSlugTitle: string
+  }
+}
+
+export type CreateWorktreeOutput = GenerateSlugTitleOutput & {
+  gitHub: GenerateSlugTitleOutput['gitHub'] & {
+    branchName: string
+  }
+  environment: GenerateSlugTitleOutput['environment'] & {
+    worktreePath: string
+  }
+}
+
+export type GenerateEnvFileOutput = CreateWorktreeOutput & {
+  environment: CreateWorktreeOutput['environment'] & {
+    webPort: number
+    apiPort: number
+    dbName: string
+    appName: string
+  }
+}

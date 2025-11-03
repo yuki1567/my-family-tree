@@ -17,8 +17,8 @@ async function main() {
   const createWorktreeCtx = createWorktree(generateSlugTitleCtx)
   const generateEnvFileCtx = await generateEnvFile(createWorktreeCtx)
   createDbSchema(generateEnvFileCtx)
-  openVscode(generateEnvFileCtx)
   generatePrompt(generateEnvFileCtx)
+  openVscode(generateEnvFileCtx)
 }
 
 main().catch((error) => {

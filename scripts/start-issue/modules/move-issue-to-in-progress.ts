@@ -2,21 +2,12 @@ import {
   FETCH_STATUS_FIELD_ID_QUERY,
   UPDATE_PROJECT_ITEM_STATUS_MUTATION,
 } from '../core/graphql-queries.js'
-import type { Ctx } from '../core/types.js'
+import type { FetchIssueOutput } from '../core/types.js'
 import { log, runCommand } from '../core/utils.js'
-import {
-  assertInProgressStatusId,
-  assertIssueNumber,
-  assertProjectId,
-  assertProjectItemId,
-} from '../core/validators.js'
 
-export async function moveIssueToInProgress(ctx: Ctx): Promise<void> {
-  assertProjectId(ctx)
-  assertProjectItemId(ctx)
-  assertInProgressStatusId(ctx)
-  assertIssueNumber(ctx)
-
+export async function moveIssueToInProgress(
+  ctx: FetchIssueOutput
+): Promise<void> {
   const currentUser = runCommand('gh', ['api', 'user', '--jq', '.login'])
   runCommand('gh', [
     'issue',

@@ -2,31 +2,17 @@ import { copyFileSync } from 'node:fs'
 import path from 'node:path'
 
 import { DATABASE, FILES, PORTS } from '../core/constants.js'
-import type { Ctx } from '../core/types.js'
+import type {
+  CreateWorktreeOutput,
+  GenerateEnvFileOutput,
+} from '../core/types.js'
 import { PROJECT_ROOT, log } from '../core/utils.js'
-import {
-  assertBranchName,
-  assertDbAdminPassword,
-  assertDbAdminUser,
-  assertDbUser,
-  assertDbUserPassword,
-  assertIssueNumber,
-  assertIssueSlugTitle,
-  assertWorktreePath,
-} from '../core/validators.js'
 
 import { registerWorktreeParameters } from './parameter-store.js'
 
-export async function generateEnvFile(ctx: Ctx): Promise<Ctx> {
-  assertIssueNumber(ctx)
-  assertIssueSlugTitle(ctx)
-  assertWorktreePath(ctx)
-  assertBranchName(ctx)
-  assertDbAdminUser(ctx)
-  assertDbAdminPassword(ctx)
-  assertDbUser(ctx)
-  assertDbUserPassword(ctx)
-
+export async function generateEnvFile(
+  ctx: CreateWorktreeOutput
+): Promise<GenerateEnvFileOutput> {
   const webPort = PORTS.WEB_BASE + ctx.gitHub.issueNumber
   const apiPort = PORTS.API_BASE + ctx.gitHub.issueNumber
   const truncatedSlug =
