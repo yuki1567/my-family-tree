@@ -19,7 +19,7 @@ async function main() {
   await moveIssueToInProgress(fetchIssueCtx)
   const generateSlugTitleCtx = await generateSlugTitle(fetchIssueCtx)
   const createWorktreeCtx = createWorktree(generateSlugTitleCtx)
-  const generateEnvFileCtx = generateEnvFile(createWorktreeCtx)
+  const generateEnvFileCtx = await generateEnvFile(createWorktreeCtx)
   createDbSchema(generateEnvFileCtx)
   openVscode(generateEnvFileCtx)
   generatePrompt(generateEnvFileCtx)
