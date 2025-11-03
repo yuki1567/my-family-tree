@@ -1,48 +1,4 @@
-import { spawnSync } from 'node:child_process'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
-export type GitHub = {
-  issueNumber?: number
-  issueTitle?: string
-  issueLabel?: string
-  issueSlugTitle?: string
-  branchName?: string
-}
-
-export type GithubProjects = {
-  projectId?: string
-  projectNumber?: number
-  statusFieldId?: string
-  todoStatusId?: string
-  inProgressStatusId?: string
-  inReviewStatusId?: string
-  projectItemId?: string
-}
-
-export type Environment = {
-  webPort?: number
-  apiPort?: number
-  dbName?: string
-  dbAdminUser?: string
-  dbAdminPassword?: string
-  dbUser?: string
-  dbUserPassword?: string
-  appName?: string
-  worktreePath?: string
-}
-
-export type Ctx = {
-  gitHub?: GitHub
-  githubProjects?: GithubProjects
-  cloudTranslation?: string
-  environment?: Environment
-}
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-export const PROJECT_ROOT = path.resolve(__dirname, '../..')
+import type { Ctx, Environment, GitHub, GithubProjects } from './types.js'
 
 function createValidationError(fieldName: string): Error {
   return new Error(`${fieldName}が定義されていません`)
@@ -310,42 +266,4 @@ export function isValidWebPort(
   ctx: Ctx
 ): ctx is Ctx & { environment: Environment & { webPort: number } } {
   return typeof ctx.environment?.webPort === 'number'
-}
-
-export function runCommand(
-  command: string,
-  args: string[],
-  env?: NodeJS.ProcessEnv
-): string {
-  const result = spawnSync(command, args, {
-    encoding: 'utf-8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-    cwd: PROJECT_ROOT,
-    env,
-  })
-
-  if (result.status !== 0) {
-    const stderr = result.stderr?.toString().trim() ?? ''
-    throw new Error(`${command} ${args.join(' ')} failed: ${stderr}`)
-  }
-
-  return result.stdout?.toString().trim() ?? ''
-}
-
-export function getRequiredEnv(key: string): string {
-  const value = process.env[key]
-  if (!value) {
-    throw new Error(`環境変数${key}が設定されていません`)
-  }
-  return value
-}
-
-export function log(message: string) {
-  const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0]
-  console.log(`[${timestamp}] ${message}`)
-}
-
-export function logError(message: string) {
-  const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0]
-  console.error(`[${timestamp}] ❌ ERROR: ${message}`)
 }

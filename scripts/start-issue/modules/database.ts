@@ -1,0 +1,43 @@
+import { spawnSync } from 'node:child_process'
+
+import { CONFIG } from '../core/config.js'
+import type { Ctx } from '../core/types.js'
+import { PROJECT_ROOT, log } from '../core/utils.js'
+import { assertDbAdminPassword, assertDbName } from '../core/validators.js'
+
+export function createDbSchema(ctx: Ctx): void {
+  assertDbName(ctx)
+  assertDbAdminPassword(ctx)
+
+  const dbName = ctx.environment.dbName
+  const adminPassword = ctx.environment.dbAdminPassword
+
+  log('🗄 データベーススキーマを作成中...')
+  const result = spawnSync(
+    'docker-compose',
+    [
+      'exec',
+      '-T',
+      '-e',
+      `PGPASSWORD=${adminPassword}`,
+      CONFIG.docker.dbService,
+      'psql',
+      '-U',
+      CONFIG.docker.dbAdminUser,
+      '-d',
+      CONFIG.docker.dbDefaultDatabase,
+      '-c',
+      `CREATE DATABASE ${dbName};`,
+    ],
+    {
+      cwd: PROJECT_ROOT,
+      stdio: 'inherit',
+    }
+  )
+
+  if (result.status !== 0) {
+    throw new Error('PostgreSQLコマンドの実行に失敗しました')
+  }
+
+  log(`🗄 DBスキーマを作成しました: ${dbName}`)
+}

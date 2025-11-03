@@ -1,5 +1,6 @@
+import type { Ctx } from '../core/types.js'
+import { log, runCommand } from '../core/utils.js'
 import {
-  type Ctx,
   assertCloudTranslation,
   assertInProgressStatusId,
   assertIssueNumber,
@@ -7,9 +8,8 @@ import {
   assertProjectId,
   assertProjectItemId,
   assertTodoStatusId,
-  log,
-  runCommand,
-} from './context.js'
+} from '../core/validators.js'
+
 import {
   getRequiredParameter,
   loadParametersFromStore,
