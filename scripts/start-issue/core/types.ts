@@ -35,7 +35,7 @@ export type Ctx = {
   environment?: Environment
 }
 
-export type LoadEnvOutput = {
+export type InitializeContextOutput = {
   githubProjects: {
     projectId: string
     projectNumber: number
@@ -53,13 +53,13 @@ export type LoadEnvOutput = {
   }
 }
 
-export type FetchIssueOutput = LoadEnvOutput & {
+export type FetchIssueOutput = InitializeContextOutput & {
   gitHub: {
     issueNumber: number
     issueTitle: string
     issueLabel: string
   }
-  githubProjects: LoadEnvOutput['githubProjects'] & {
+  githubProjects: InitializeContextOutput['githubProjects'] & {
     projectItemId: string
   }
 }
@@ -79,7 +79,7 @@ export type CreateWorktreeOutput = GenerateSlugTitleOutput & {
   }
 }
 
-export type GenerateEnvFileOutput = CreateWorktreeOutput & {
+export type SetupEnvironmentOutput = CreateWorktreeOutput & {
   environment: CreateWorktreeOutput['environment'] & {
     webPort: number
     apiPort: number

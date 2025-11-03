@@ -4,15 +4,15 @@ import path from 'node:path'
 import { DATABASE, FILES, PORTS } from '../core/constants.js'
 import type {
   CreateWorktreeOutput,
-  GenerateEnvFileOutput,
+  SetupEnvironmentOutput,
 } from '../core/types.js'
 import { PROJECT_ROOT, log } from '../core/utils.js'
 
 import { registerWorktreeParameters } from './parameter-store.js'
 
-export async function generateEnvFile(
+export async function setupEnvironment(
   ctx: CreateWorktreeOutput
-): Promise<GenerateEnvFileOutput> {
+): Promise<SetupEnvironmentOutput> {
   const webPort = PORTS.WEB_BASE + ctx.gitHub.issueNumber
   const apiPort = PORTS.API_BASE + ctx.gitHub.issueNumber
   const truncatedSlug =

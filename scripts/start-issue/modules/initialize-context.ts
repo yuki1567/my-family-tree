@@ -1,4 +1,4 @@
-import type { LoadEnvOutput } from '../core/types.js'
+import type { InitializeContextOutput } from '../core/types.js'
 import { log } from '../core/utils.js'
 
 import {
@@ -6,7 +6,7 @@ import {
   loadParametersFromStore,
 } from './parameter-store.js'
 
-export async function loadEnv(): Promise<LoadEnvOutput> {
+export async function initializeContext(): Promise<InitializeContextOutput> {
   const params = await loadParametersFromStore()
 
   const dbAdminUser = getRequiredParameter(params, 'DATABASE_ADMIN_USER')
@@ -39,7 +39,7 @@ export async function loadEnv(): Promise<LoadEnvOutput> {
     'GITHUB_INREVIEW_STATUS_ID'
   )
 
-  log('環境変数を読み込みました')
+  log('Parameter Storeからパラメータを読み込み、コンテキストを初期化しました')
   return {
     githubProjects: {
       projectId: githubProjectId,

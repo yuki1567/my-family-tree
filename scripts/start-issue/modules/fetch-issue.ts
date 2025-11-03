@@ -1,10 +1,13 @@
 import { GitHubGraphQLError, IssueNotFoundError } from '../core/errors.js'
 import { FETCH_PROJECT_ISSUES_QUERY } from '../core/graphql-queries.js'
-import type { FetchIssueOutput, LoadEnvOutput } from '../core/types.js'
+import type {
+  FetchIssueOutput,
+  InitializeContextOutput,
+} from '../core/types.js'
 import { log, runCommand } from '../core/utils.js'
 
 export async function fetchIssue(
-  ctx: LoadEnvOutput
+  ctx: InitializeContextOutput
 ): Promise<FetchIssueOutput> {
   const result = runCommand('gh', [
     'api',

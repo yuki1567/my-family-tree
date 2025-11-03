@@ -2,10 +2,10 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 import { FILES } from '../core/constants.js'
-import type { GenerateEnvFileOutput } from '../core/types.js'
+import type { SetupEnvironmentOutput } from '../core/types.js'
 import { PROJECT_ROOT, log } from '../core/utils.js'
 
-export function generatePrompt(ctx: GenerateEnvFileOutput): void {
+export function generatePrompt(ctx: SetupEnvironmentOutput): void {
   const templatePath = path.join(PROJECT_ROOT, FILES.PROMPT.TEMPLATE)
   const outputPath = path.join(PROJECT_ROOT, FILES.PROMPT.OUTPUT)
   const template = readFileSync(templatePath, 'utf-8')
