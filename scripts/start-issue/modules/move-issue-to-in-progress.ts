@@ -3,39 +3,79 @@ import {
   FETCH_STATUS_FIELD_ID_QUERY,
   UPDATE_PROJECT_ITEM_STATUS_MUTATION,
 } from '../core/graphql-queries.js'
-import type { FetchIssueOutput } from '../core/types.js'
+import type {
+  FetchIssueOutput,
+  FetchStatusFieldIdResponse,
+} from '../core/types.js'
 import { log, runCommand } from '../core/utils.js'
 
 export async function moveIssueToInProgress(
   ctx: FetchIssueOutput
 ): Promise<void> {
-  const currentUser = runCommand('gh', ['api', 'user', '--jq', '.login'])
+  const currentUser = getCurrentUser()
+  assignIssueToUser(ctx.gitHub.issueNumber, currentUser)
+
+  const statusFieldId = fetchStatusFieldId(ctx.githubProjects.projectId)
+  updateIssueStatus(ctx, statusFieldId)
+}
+
+function getCurrentUser(): string {
+  return runCommand('gh', ['api', 'user', '--jq', '.login'])
+}
+
+function assignIssueToUser(issueNumber: number, userName: string): void {
   runCommand('gh', [
     'issue',
     'edit',
-    ctx.gitHub.issueNumber.toString(),
+    issueNumber.toString(),
     '--add-assignee',
-    currentUser,
+    userName,
   ])
 
-  log(`Issue #${ctx.gitHub.issueNumber} を ${currentUser} にアサインしました`)
+  log(`Issue #${issueNumber} を ${userName} にアサインしました`)
+}
 
-  const fieldResult = runCommand('gh', [
+function fetchStatusFieldId(projectId: string): string {
+  const result = runCommand('gh', [
     'api',
     'graphql',
     '-f',
     `query=${FETCH_STATUS_FIELD_ID_QUERY}`,
     '-f',
-    `projectId=${ctx.githubProjects.projectId}`,
+    `projectId=${projectId}`,
   ])
 
-  const fieldData = JSON.parse(fieldResult)
-  const statusFieldId = fieldData.data?.node?.field?.id
+  const response = JSON.parse(result)
+  const validatedData = validateStatusFieldIdResponse(response)
 
-  if (!statusFieldId) {
-    throw new GitHubGraphQLError('fetchStatusFieldId', ['data.node.field.id'])
+  return validatedData.data.node.field.id
+}
+
+function validateStatusFieldIdResponse(
+  data: unknown
+): FetchStatusFieldIdResponse {
+  if (
+    typeof data === 'object' &&
+    data !== null &&
+    'data' in data &&
+    typeof data.data === 'object' &&
+    data.data !== null &&
+    'node' in data.data &&
+    typeof data.data.node === 'object' &&
+    data.data.node !== null &&
+    'field' in data.data.node &&
+    typeof data.data.node.field === 'object' &&
+    data.data.node.field !== null &&
+    'id' in data.data.node.field &&
+    typeof data.data.node.field.id === 'string'
+  ) {
+    return data as FetchStatusFieldIdResponse
   }
 
+  throw new GitHubGraphQLError('fetchStatusFieldId', ['data.node.field.id'])
+}
+
+function updateIssueStatus(ctx: FetchIssueOutput, statusFieldId: string): void {
   runCommand('gh', [
     'api',
     'graphql',

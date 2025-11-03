@@ -30,6 +30,16 @@ export type FetchProjectIssuesResponse = {
   }
 }
 
+export type FetchStatusFieldIdResponse = {
+  data: {
+    node: {
+      field: {
+        id: string
+      }
+    }
+  }
+}
+
 export type GitHub = {
   issueNumber?: number
   issueTitle?: string
