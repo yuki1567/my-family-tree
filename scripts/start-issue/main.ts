@@ -1,14 +1,13 @@
 import { logError } from './core/utils.js'
-import { createDbSchema } from './modules/database.js'
-import { generateEnvFile, generatePrompt } from './modules/env-generator.js'
-import {
-  fetchIssue,
-  generateSlugTitle,
-  loadEnv,
-  moveIssueToInProgress,
-} from './modules/issue-service.js'
-import { openVscode } from './modules/vscode.js'
-import { createWorktree } from './modules/worktree.js'
+import { createDbSchema } from './modules/create-db-schema.js'
+import { createWorktree } from './modules/create-worktree.js'
+import { fetchIssue } from './modules/fetch-issue.js'
+import { generateEnvFile } from './modules/generate-env-file.js'
+import { generatePrompt } from './modules/generate-prompt.js'
+import { generateSlugTitle } from './modules/generate-slug-title.js'
+import { loadEnv } from './modules/load-env.js'
+import { moveIssueToInProgress } from './modules/move-issue-to-in-progress.js'
+import { openVscode } from './modules/open-vscode.js'
 
 async function main() {
   const loadEnvCtx = await loadEnv()
