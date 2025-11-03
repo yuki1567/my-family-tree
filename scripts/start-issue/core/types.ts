@@ -40,6 +40,14 @@ export type FetchStatusFieldIdResponse = {
   }
 }
 
+export type GoogleTranslateResponse = {
+  data: {
+    translations: Array<{
+      translatedText: string
+    }>
+  }
+}
+
 export type GitHub = {
   issueNumber?: number
   issueTitle?: string
