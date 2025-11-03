@@ -160,7 +160,7 @@ export async function registerWorktreeParameters(
   params: Record<string, string>
 ): Promise<void> {
   const region = process.env['AWS_REGION']
-  const pathPrefix = CONFIG.aws.parameterPath.worktree(issueNumber)
+  const pathPrefix = `${CONFIG.aws.parameterPath.worktreePrefix}/${issueNumber}`
   const client = new SSMClient({ region })
 
   log(`🔐 Parameter Storeにパラメータを登録中... (Path: ${pathPrefix})`)

@@ -10,7 +10,7 @@ export const CONFIG = {
   aws: {
     parameterPath: {
       development: '/family-tree/development',
-      worktree: (issueNum: number) => `/family-tree/worktree/${issueNum}`,
+      worktreePrefix: '/family-tree/worktree',
     },
   },
   files: {
