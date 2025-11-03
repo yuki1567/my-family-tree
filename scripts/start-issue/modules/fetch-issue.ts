@@ -1,4 +1,8 @@
 import { FETCH_PROJECT_ISSUES_QUERY } from '../core/graphql-queries.js'
+import {
+  GitHubGraphQLError,
+  IssueNotFoundError,
+} from '../core/errors.js'
 import type { FetchIssueOutput, LoadEnvOutput } from '../core/types.js'
 import { log, runCommand } from '../core/utils.js'
 
@@ -17,7 +21,7 @@ export async function fetchIssue(
   const data = JSON.parse(result)
 
   if (!data.data?.node?.items?.nodes) {
-    throw new Error('Github Projects APIからデータが取得できませんでした')
+    throw new GitHubGraphQLError('fetchProjectIssues', ['data.node.items.nodes'])
   }
 
   const todoItems = data.data.node.items.nodes.filter(
@@ -34,7 +38,7 @@ export async function fetchIssue(
   )
 
   if (todoItems.length === 0) {
-    throw new Error('To Doステータスのissueが見つかりませんでした')
+    throw new IssueNotFoundError()
   }
 
   const firstItem = todoItems[0]

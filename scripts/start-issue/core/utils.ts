@@ -2,6 +2,8 @@ import { spawnSync } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { SystemCommandError } from './errors.js'
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
@@ -21,7 +23,7 @@ export function runCommand(
 
   if (result.status !== 0) {
     const stderr = result.stderr?.toString().trim() ?? ''
-    throw new Error(`${command} ${args.join(' ')} failed: ${stderr}`)
+    throw new SystemCommandError(command, args, stderr)
   }
 
   return result.stdout?.toString().trim() ?? ''

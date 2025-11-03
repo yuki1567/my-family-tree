@@ -1,4 +1,5 @@
 import { TRANSLATION } from '../core/constants.js'
+import { GoogleTranslateError } from '../core/errors.js'
 import type {
   FetchIssueOutput,
   GenerateSlugTitleOutput,
@@ -23,17 +24,17 @@ export async function generateSlugTitle(
   })
 
   if (!response.ok) {
-    throw new Error(`API: ${response.status} ${response.statusText}`)
+    throw new GoogleTranslateError(response.status, response.statusText)
   }
 
   const payload = await response.json()
 
   if (payload.errors) {
-    throw new Error(`API: ${JSON.stringify(payload.errors)}`)
+    throw new GoogleTranslateError(response.status, response.statusText)
   }
 
   if (!payload.data) {
-    throw new Error('APIからデータが取得できませんでした。')
+    throw new GoogleTranslateError(response.status, response.statusText)
   }
   const translated = payload.data.translations[0].translatedText
 

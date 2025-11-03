@@ -7,6 +7,10 @@ import {
 } from '@aws-sdk/client-ssm'
 
 import { AWS } from '../core/constants.js'
+import {
+  AWSAuthenticationError,
+  ParameterNotFoundError,
+} from '../core/errors.js'
 import { log } from '../core/utils.js'
 
 /**
@@ -18,19 +22,12 @@ export async function loadParametersFromStore(): Promise<
 > {
   const awsVault = process.env['AWS_VAULT']
   if (!awsVault) {
-    throw new Error(
-      'AWS_VAULT環境変数が設定されていません。\n' +
-        'このスクリプトはaws-vault経由で実行する必要があります。\n' +
-        '実行例: aws-vault exec family-tree-dev -- npm run start:issue'
-    )
+    throw new AWSAuthenticationError('AWS_VAULT')
   }
 
   const region = process.env['AWS_REGION']
   if (!region) {
-    throw new Error(
-      'AWS_REGION環境変数が設定されていません。\n' +
-        'aws-vaultの設定を確認してください。'
-    )
+    throw new AWSAuthenticationError('AWS_REGION')
   }
 
   const parameterPath = AWS.PARAMETER_PATH.DEVELOPMENT
@@ -71,10 +68,7 @@ export function getRequiredParameter(
 ): string {
   const value = params[key]
   if (!value) {
-    throw new Error(
-      `必須パラメータ ${key} がParameter Storeに設定されていません。\n` +
-        `Parameter Storeパス: /family-tree/development/${key.toLowerCase().replace(/_/g, '-')}`
-    )
+    throw new ParameterNotFoundError(key, AWS.PARAMETER_PATH.DEVELOPMENT)
   }
   return value
 }
@@ -231,7 +225,5 @@ export async function registerWorktreeParameters(
     { successCount: 0, errorCount: 0 }
   )
 
-  log(
-    `Parameter Store登録完了: 成功 ${successCount}件, エラー ${errorCount}件`
-  )
+  log(`Parameter Store登録完了: 成功 ${successCount}件, エラー ${errorCount}件`)
 }
