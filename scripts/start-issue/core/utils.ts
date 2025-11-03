@@ -42,7 +42,15 @@ export function log(message: string) {
   console.log(`[${timestamp}] ${message}`)
 }
 
-export function logError(message: string) {
+export function logError(error: Error | string) {
   const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0]
-  console.error(`[${timestamp}] ERROR: ${message}`)
+
+  if (error instanceof Error) {
+    console.error(`[${timestamp}] ERROR: ${error.message}`)
+    if (error.stack) {
+      console.error(error.stack)
+    }
+  } else {
+    console.error(`[${timestamp}] ERROR: ${error}`)
+  }
 }

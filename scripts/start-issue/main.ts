@@ -22,6 +22,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  logError(error.message)
+  logError(error)
   process.exit(1)
 })
