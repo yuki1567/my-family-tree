@@ -1,3 +1,5 @@
+import type { SSMClient } from '@aws-sdk/client-ssm'
+
 export type GitHub = {
   issueNumber?: number
   issueTitle?: string
@@ -36,6 +38,7 @@ export type Ctx = {
 }
 
 export type InitializeContextOutput = {
+  ssmClient: SSMClient
   githubProjects: {
     projectId: string
     projectNumber: number
