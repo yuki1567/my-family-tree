@@ -1,8 +1,5 @@
+import { GitHubGraphQLError, IssueNotFoundError } from '../core/errors.js'
 import { FETCH_PROJECT_ISSUES_QUERY } from '../core/graphql-queries.js'
-import {
-  GitHubGraphQLError,
-  IssueNotFoundError,
-} from '../core/errors.js'
 import type { FetchIssueOutput, LoadEnvOutput } from '../core/types.js'
 import { log, runCommand } from '../core/utils.js'
 
@@ -21,7 +18,9 @@ export async function fetchIssue(
   const data = JSON.parse(result)
 
   if (!data.data?.node?.items?.nodes) {
-    throw new GitHubGraphQLError('fetchProjectIssues', ['data.node.items.nodes'])
+    throw new GitHubGraphQLError('fetchProjectIssues', [
+      'data.node.items.nodes',
+    ])
   }
 
   const todoItems = data.data.node.items.nodes.filter(

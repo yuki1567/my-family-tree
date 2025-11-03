@@ -44,5 +44,5 @@ export function log(message: string) {
 
 export function logError(message: string) {
   const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0]
-  console.error(`[${timestamp}] ❌ ERROR: ${message}`)
+  console.error(`[${timestamp}] ERROR: ${message}`)
 }

@@ -1,8 +1,8 @@
+import { GitHubGraphQLError } from '../core/errors.js'
 import {
   FETCH_STATUS_FIELD_ID_QUERY,
   UPDATE_PROJECT_ITEM_STATUS_MUTATION,
 } from '../core/graphql-queries.js'
-import { GitHubGraphQLError } from '../core/errors.js'
 import type { FetchIssueOutput } from '../core/types.js'
 import { log, runCommand } from '../core/utils.js'
 
