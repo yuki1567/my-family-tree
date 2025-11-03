@@ -29,14 +29,6 @@ export function runCommand(
   return result.stdout?.toString().trim() ?? ''
 }
 
-export function getRequiredEnv(key: string): string {
-  const value = process.env[key]
-  if (!value) {
-    throw new Error(`環境変数${key}が設定されていません`)
-  }
-  return value
-}
-
 export function log(message: string) {
   const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0]
   console.log(`[${timestamp}] ${message}`)
