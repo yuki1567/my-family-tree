@@ -2,10 +2,18 @@ import { PutParameterCommand, type SSMClient } from '@aws-sdk/client-ssm'
 import { copyFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { AWS, DATABASE, FILES, PORTS } from '../core/constants.js'
+import {
+  AWS,
+  DATABASE,
+  FILES,
+  PORTS,
+  WORKTREE_PARAMETERS,
+} from '../core/constants.js'
 import type {
   CreateWorktreeOutput,
+  ParameterDescriptor,
   SetupEnvironmentOutput,
+  WorktreeParameterKey,
   WorktreeParameters,
 } from '../core/types.js'
 import { PROJECT_ROOT, log } from '../core/utils.js'
@@ -100,9 +108,9 @@ function buildDatabaseUrls(
   }
 }
 
-/**
- * WorktreeのパラメータをParameter Storeに登録
- */
+const VALID_WORKTREE_KEYS = new Set<string>(WORKTREE_PARAMETERS.ALL_KEYS)
+const SECURE_KEYS = new Set<string>(WORKTREE_PARAMETERS.SECURE_KEYS)
+
 async function registerWorktreeParameters(
   client: SSMClient,
   issueNumber: number,
@@ -112,60 +120,65 @@ async function registerWorktreeParameters(
 
   log(`Parameter Storeにパラメータを登録中... (Path: ${pathPrefix})`)
 
-  const classifyParameterType = (key: string): 'String' | 'SecureString' =>
-    ['secret', 'password', 'url'].some((token) => key.includes(token))
-      ? 'SecureString'
-      : 'String'
+  const descriptors = Object.entries(params).map(([key, value]) =>
+    createParameterDescriptor(pathPrefix, key, value)
+  )
 
-  type ParameterDescriptor = {
-    key: string
-    value: string
-    name: string
-    type: 'String' | 'SecureString'
+  const results = await Promise.all(
+    descriptors.map((descriptor) => registerSingleParameter(client, descriptor))
+  )
+
+  const successCount = results.filter(Boolean).length
+  const errorCount = results.length - successCount
+
+  log(`Parameter Store登録完了: 成功 ${successCount}件, エラー ${errorCount}件`)
+}
+
+function createParameterDescriptor(
+  pathPrefix: string,
+  key: string,
+  value: string
+): ParameterDescriptor {
+  if (!isWorktreeParameterKey(key)) {
+    throw new Error(`Invalid worktree parameter key: ${key}`)
   }
 
-  const describeParameter = ([key, value]: [
-    string,
-    string,
-  ]): ParameterDescriptor => ({
+  return {
     key,
     value,
     name: `${pathPrefix}/${key}`,
     type: classifyParameterType(key),
-  })
-
-  const registerParameter = async ({
-    key,
-    value,
-    name,
-    type,
-  }: ParameterDescriptor): Promise<'success' | 'error'> => {
-    try {
-      await client.send(
-        new PutParameterCommand({
-          Name: name,
-          Value: value,
-          Type: type,
-          Overwrite: true,
-        })
-      )
-      log(`  ✓ ${key} を登録しました (Type: ${type})`)
-      return 'success'
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error)
-      log(`  ✗ ${key} の登録に失敗しました: ${errorMessage}`)
-      return 'error'
-    }
   }
+}
 
-  const descriptors = Object.entries(params).map(describeParameter)
-  const results = await Promise.all(
-    descriptors.map((descriptor) => registerParameter(descriptor))
-  )
+async function registerSingleParameter(
+  client: SSMClient,
+  descriptor: ParameterDescriptor
+): Promise<boolean> {
+  try {
+    await client.send(
+      new PutParameterCommand({
+        Name: descriptor.name,
+        Value: descriptor.value,
+        Type: descriptor.type,
+        Overwrite: true,
+      })
+    )
+    log(`  ✓ ${descriptor.key} を登録しました (Type: ${descriptor.type})`)
+    return true
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    log(`  ✗ ${descriptor.key} の登録に失敗しました: ${errorMessage}`)
+    return false
+  }
+}
 
-  const successCount = results.filter((result) => result === 'success').length
-  const errorCount = results.filter((result) => result === 'error').length
+function isWorktreeParameterKey(key: string): key is WorktreeParameterKey {
+  return VALID_WORKTREE_KEYS.has(key)
+}
 
-  log(`Parameter Store登録完了: 成功 ${successCount}件, エラー ${errorCount}件`)
+function classifyParameterType(
+  key: WorktreeParameterKey
+): 'String' | 'SecureString' {
+  return SECURE_KEYS.has(key) ? 'SecureString' : 'String'
 }

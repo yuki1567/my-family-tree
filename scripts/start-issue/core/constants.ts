@@ -49,3 +49,26 @@ export const LABEL = {
   PRIORITY_PREFIX: 'priority',
   DEFAULT_LABEL: 'ラベルなし',
 } as const
+
+export const WORKTREE_PARAMETERS = {
+  ALL_KEYS: [
+    'branch-name',
+    'issue-number',
+    'web-port',
+    'api-port',
+    'database-url',
+    'database-admin-url',
+    'log-level',
+    'database-admin-user',
+    'database-admin-password',
+    'database-name',
+    'database-user',
+    'database-user-password',
+  ],
+  SECURE_KEYS: [
+    'database-url',
+    'database-admin-url',
+    'database-admin-password',
+    'database-user-password',
+  ],
+} as const

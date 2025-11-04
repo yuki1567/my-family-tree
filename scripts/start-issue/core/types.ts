@@ -154,3 +154,10 @@ export type WorktreeParameterKey =
   | 'database-user-password'
 
 export type WorktreeParameters = Record<WorktreeParameterKey, string>
+
+export type ParameterDescriptor = {
+  key: WorktreeParameterKey
+  value: string
+  name: string
+  type: 'String' | 'SecureString'
+}
