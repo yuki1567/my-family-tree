@@ -77,7 +77,8 @@
 #### データ保存
 
 - **Phase 1**: LocalStorage でのデータ保存
-- **Phase 2**: MySQL + AWS S3 での永続化
+- **Phase 2**: PostgreSQL + AWS S3 での永続化
+  - 変更理由：開発環境で既にPostgreSQL（Drizzle ORM）を採用しており、技術スタックの整合性を確保するため
 
 #### データ出力
 
