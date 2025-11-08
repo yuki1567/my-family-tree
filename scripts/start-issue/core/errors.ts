@@ -100,3 +100,17 @@ export class ParameterNameUndefinedError extends BaseError {
     )
   }
 }
+
+export class AwsProfileConfigError extends BaseError {
+  constructor(profileName: string, missingField: 'role_arn' | 'config_file') {
+    const messages = {
+      role_arn:
+        `AWS profile "${profileName}" に role_arn が設定されていません。\n` +
+        `aws configure でプロファイルを確認してください。`,
+      config_file:
+        `AWS config ファイルが存在しません。\n` +
+        `~/.aws/config を作成してください。`,
+    }
+    super(messages[missingField])
+  }
+}

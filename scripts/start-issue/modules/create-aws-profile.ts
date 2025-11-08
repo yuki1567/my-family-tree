@@ -4,6 +4,7 @@ import { homedir } from 'node:os'
 import path from 'node:path'
 
 import { AWS } from '../core/constants.js'
+import { AwsProfileConfigError } from '../core/errors.js'
 import type {
   AwsProfileConfig,
   CreateAwsProfileOutput,
@@ -51,7 +52,7 @@ export function createAwsProfile(
 function loadAwsConfigContent(): string {
   const configPath = getAwsConfigPath()
   if (!existsSync(configPath)) {
-    throw new Error(`AWS config "${configPath}" が存在しません。`)
+    throw new AwsProfileConfigError('', 'config_file')
   }
   return readFileSync(configPath, 'utf-8')
 }
@@ -65,21 +66,24 @@ function profileAlreadyExists(
 
 function findProfileConfig(profileName: string): AwsProfileConfig {
   const roleArn = getRoleArn(profileName)
-
-  if (!roleArn) {
-    throw new Error(
-      `AWS profile "${AWS.PROFILE.REFERENCE_PROFILE}" に role_arn が設定されていません`
-    )
-  }
-
   return { roleArn, sourceProfile: 'default' }
 }
 
-function getRoleArn(profile: string) {
-  const result = execSync(`aws configure get profile.${profile}.role_arn`, {
-    encoding: 'utf-8',
-  })
-  return result.trim()
+function getRoleArn(profile: string): string {
+  try {
+    const result = execSync(`aws configure get profile.${profile}.role_arn`, {
+      encoding: 'utf-8',
+    })
+    const roleArn = result.trim()
+
+    if (!roleArn) {
+      throw new AwsProfileConfigError(profile, 'role_arn')
+    }
+
+    return roleArn
+  } catch {
+    throw new AwsProfileConfigError(profile, 'role_arn')
+  }
 }
 
 function appendProfileToAwsConfig(
@@ -88,13 +92,15 @@ function appendProfileToAwsConfig(
   sourceProfile: string
 ): void {
   const configPath = getAwsConfigPath()
-  const profileConfig = `
-    [profile ${profileName}]
-    role_arn = ${roleArn}
-    source_profile = ${sourceProfile}
-  `
+  const profileLines = [
+    '',
+    `[profile ${profileName}]`,
+    `role_arn = ${roleArn}`,
+    `source_profile = ${sourceProfile}`,
+    '',
+  ]
 
-  appendFileSync(configPath, profileConfig, 'utf-8')
+  appendFileSync(configPath, profileLines.join('\n'), 'utf-8')
 }
 
 function getAwsConfigPath(): string {
