@@ -146,10 +146,8 @@ export type CreateAwsProfileOutput = SetupEnvironmentOutput & {
 }
 
 export type AwsProfileConfig = {
-  profileName: string
-  roleArn?: string
-  sourceProfile?: string
-  region?: string
+  roleArn: string
+  sourceProfile: string
 }
 
 export type WorktreeParameterKey =
