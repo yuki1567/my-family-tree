@@ -8,6 +8,7 @@
 
 - **タイトル**: {{ISSUE_TITLE}}
 - **ブランチ**: {{BRANCH_NAME}}
+- **AWS Profile**: {{AWS_PROFILE_NAME}}
 - **Frontend**: http://localhost:{{WEB_PORT}}
 - **API**: http://localhost:{{API_PORT}}
 
@@ -64,10 +65,10 @@ gh issue comment {{ISSUE_NUMBER}} --body "## 実装計画
 npm install
 
 # STEP2: appsコンテナ起動（必須）
-docker compose --profile development up -d --no-deps apps
+aws-vault exec {{AWS_PROFILE_NAME}} -- docker compose up -d --no-deps apps
 
 # STEP3: マイグレーション実行（必須）
-npm run db:generate
+aws-vault exec {{AWS_PROFILE_NAME}} -- npm run db:generate
 
 # STEP4: 起動確認（必須）
 docker compose ps

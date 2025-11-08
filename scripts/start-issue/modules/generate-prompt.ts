@@ -2,10 +2,10 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 import { FILES } from '../core/constants.js'
-import type { SetupEnvironmentOutput } from '../core/types.js'
+import type { CreateAwsProfileOutput } from '../core/types.js'
 import { PROJECT_ROOT, log } from '../core/utils.js'
 
-export function generatePrompt(ctx: SetupEnvironmentOutput): void {
+export function generatePrompt(ctx: CreateAwsProfileOutput): void {
   const templatePath = path.join(PROJECT_ROOT, FILES.PROMPT.TEMPLATE)
   const outputPath = path.join(PROJECT_ROOT, FILES.PROMPT.OUTPUT)
   const template = readFileSync(templatePath, 'utf-8')
@@ -13,6 +13,7 @@ export function generatePrompt(ctx: SetupEnvironmentOutput): void {
     .replaceAll('{{ISSUE_NUMBER}}', String(ctx.gitHub.issueNumber))
     .replaceAll('{{ISSUE_TITLE}}', ctx.gitHub.issueTitle)
     .replaceAll('{{BRANCH_NAME}}', ctx.gitHub.branchName)
+    .replaceAll('{{AWS_PROFILE_NAME}}', ctx.environment.awsProfileName)
     .replaceAll('{{WEB_PORT}}', String(ctx.environment.webPort))
     .replaceAll('{{API_PORT}}', String(ctx.environment.apiPort))
     .replaceAll('{{PROJECT_NUMBER}}', String(ctx.githubProjects.projectNumber))

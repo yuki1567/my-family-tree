@@ -1,4 +1,5 @@
 import { logError } from './core/utils.js'
+import { createAwsProfile } from './modules/create-aws-profile.js'
 import { createDbSchema } from './modules/create-db-schema.js'
 import { createWorktree } from './modules/create-worktree.js'
 import { fetchIssue } from './modules/fetch-issue.js'
@@ -16,9 +17,10 @@ async function main() {
   const generateSlugTitleCtx = await generateSlugTitle(fetchIssueCtx)
   const createWorktreeCtx = createWorktree(generateSlugTitleCtx)
   const setupEnvironmentCtx = await setupEnvironment(createWorktreeCtx)
-  createDbSchema(setupEnvironmentCtx)
-  generatePrompt(setupEnvironmentCtx)
-  openVscode(setupEnvironmentCtx)
+  const createAwsProfileCtx = createAwsProfile(setupEnvironmentCtx)
+  createDbSchema(createAwsProfileCtx)
+  generatePrompt(createAwsProfileCtx)
+  openVscode(createAwsProfileCtx)
 }
 
 main().catch((error) => {

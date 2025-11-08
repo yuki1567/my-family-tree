@@ -244,17 +244,34 @@ family-tree-app/
 
 ### 5.1 環境起動・停止（PM2統合運用）
 
-#### 統合サービス起動
+#### メインブランチでの起動
 
 ```bash
-# フルスタック開発環境起動
-docker-compose up apps db
+# 起動
+aws-vault exec family-tree-dev -- docker-compose up -d
+```
 
-# バックグラウンド起動
-docker-compose up -d apps db
+#### Worktree環境での起動
 
-# アプリケーションのみ起動（データベース既起動時）
-docker-compose up apps
+worktreeでは、issue番号ごとに独立したAWS profileとポート番号を使用します。
+
+**前提条件:**
+
+- メインブランチで`db`コンテナが起動していること（共有DBを使用）
+- `start-issue`スクリプトでAWS profileが自動生成されていること
+
+```bash
+# Worktree用appsコンテナ起動
+# AWS profile名: family-tree-worktree-{issueNumber}
+# 例: issue #123の場合
+aws-vault exec family-tree-worktree-123 -- docker compose up -d apps
+
+# 起動確認
+docker compose ps
+
+# ポート確認
+# Frontend: http://localhost:3123 (3000 + issue番号)
+# API: http://localhost:4123 (4000 + issue番号)
 ```
 
 #### ログ確認・操作

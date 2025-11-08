@@ -2,10 +2,10 @@ import { spawnSync } from 'node:child_process'
 
 import { DOCKER } from '../core/constants.js'
 import { DatabaseCommandError } from '../core/errors.js'
-import type { SetupEnvironmentOutput } from '../core/types.js'
+import type { CreateAwsProfileOutput } from '../core/types.js'
 import { PROJECT_ROOT, log } from '../core/utils.js'
 
-export function createDbSchema(ctx: SetupEnvironmentOutput): void {
+export function createDbSchema(ctx: CreateAwsProfileOutput): void {
   const dbName = ctx.environment.dbName
   const adminPassword = ctx.environment.dbAdminPassword
 

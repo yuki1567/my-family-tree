@@ -139,6 +139,19 @@ export type SetupEnvironmentOutput = CreateWorktreeOutput & {
   }
 }
 
+export type CreateAwsProfileOutput = SetupEnvironmentOutput & {
+  environment: SetupEnvironmentOutput['environment'] & {
+    awsProfileName: string
+  }
+}
+
+export type AwsProfileConfig = {
+  profileName: string
+  roleArn?: string
+  sourceProfile?: string
+  region?: string
+}
+
 export type WorktreeParameterKey =
   | 'branch-name'
   | 'issue-number'

@@ -13,6 +13,10 @@ export const AWS = {
     DEVELOPMENT: '/family-tree/development',
     WORKTREE: '/family-tree/worktree',
   },
+  PROFILE: {
+    PREFIX: 'family-tree-worktree',
+    REFERENCE_PROFILE: 'family-tree-dev',
+  },
 } as const
 
 export const FILES = {
