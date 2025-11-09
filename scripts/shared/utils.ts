@@ -1,0 +1,24 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+export const PROJECT_ROOT = path.resolve(__dirname, '..', '..')
+
+export function log(message: string): void {
+  const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
+  console.log(`[${timestamp}] ${message}`)
+}
+
+export function logError(error: unknown): void {
+  const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
+  if (error instanceof Error) {
+    console.error(`[${timestamp}] ❌ ERROR: ${error.message}`)
+    if (error.stack) {
+      console.error(error.stack)
+    }
+  } else {
+    console.error(`[${timestamp}] ❌ ERROR: ${String(error)}`)
+  }
+}
