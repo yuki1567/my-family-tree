@@ -1,23 +1,14 @@
 import { extractIssueLabel, fetchIssueByNumber } from '../../lib/github-api.js'
+import type {
+  FetchIssueContext,
+  InitializeContext,
+} from '../../shared/types.js'
 import { log } from '../../shared/utils.js'
 
-import type { InitializeOutput } from './initialize.js'
-
-export type FetchIssueOutput = InitializeOutput & {
-  gitHub: {
-    issueNumber: number
-    issueTitle: string
-    issueLabel: string
-  }
-  githubProjects: InitializeOutput['githubProjects'] & {
-    projectItemId: string
-  }
-}
-
 export async function fetchIssue(
-  ctx: InitializeOutput,
+  ctx: InitializeContext,
   issueNumber: number
-): Promise<FetchIssueOutput> {
+): Promise<FetchIssueContext> {
   const { issue, projectItemId } = await fetchIssueByNumber(
     ctx.githubProjects.projectId,
     issueNumber

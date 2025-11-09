@@ -1,11 +1,10 @@
 import { exec } from 'node:child_process'
 
 import { updateIssueStatus } from '../../lib/github-api.js'
+import type { CreateAwsProfileContext } from '../../shared/types.js'
 import { log } from '../../shared/utils.js'
 
-import type { CreateAwsProfileOutput } from './create-aws-profile.js'
-
-export async function openVscode(ctx: CreateAwsProfileOutput): Promise<void> {
+export async function openVscode(ctx: CreateAwsProfileContext): Promise<void> {
   await updateIssueStatus(
     ctx.githubProjects.projectId,
     ctx.githubProjects.projectItemId,

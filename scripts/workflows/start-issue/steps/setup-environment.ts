@@ -4,22 +4,15 @@ import path from 'node:path'
 import { putParameters } from '../../lib/aws-ssm.js'
 import { generateDatabaseName } from '../../lib/database.js'
 import { FILES, PORTS } from '../../shared/constants.js'
+import type {
+  CreateWorktreeContext,
+  SetupEnvironmentContext,
+} from '../../shared/types.js'
 import { PROJECT_ROOT, log } from '../../shared/utils.js'
 
-import type { CreateWorktreeOutput } from './create-worktree.js'
-
-export type SetupEnvironmentOutput = CreateWorktreeOutput & {
-  environment: CreateWorktreeOutput['environment'] & {
-    webPort: number
-    apiPort: number
-    dbName: string
-    appName: string
-  }
-}
-
 export async function setupEnvironment(
-  ctx: CreateWorktreeOutput
-): Promise<SetupEnvironmentOutput> {
+  ctx: CreateWorktreeContext
+): Promise<SetupEnvironmentContext> {
   const { webPort, apiPort } = calculateWorktreePorts(ctx.gitHub.issueNumber)
   const dbName = generateDatabaseName(ctx.gitHub.issueSlugTitle)
   const appName = `app-${ctx.gitHub.issueSlugTitle}`
@@ -79,7 +72,7 @@ function calculateWorktreePorts(issueNumber: number): {
 }
 
 function buildDatabaseUrls(
-  env: CreateWorktreeOutput['environment'],
+  env: CreateWorktreeContext['environment'],
   dbName: string
 ): {
   databaseUrl: string

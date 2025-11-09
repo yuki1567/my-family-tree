@@ -1,16 +1,12 @@
 import { createAwsProfile as libCreateAwsProfile } from '../../lib/aws-profile.js'
-
-import type { SetupEnvironmentOutput } from './setup-environment.js'
-
-export type CreateAwsProfileOutput = SetupEnvironmentOutput & {
-  environment: SetupEnvironmentOutput['environment'] & {
-    awsProfileName: string
-  }
-}
+import type {
+  CreateAwsProfileContext,
+  SetupEnvironmentContext,
+} from '../../shared/types.js'
 
 export function createAwsProfile(
-  ctx: SetupEnvironmentOutput
-): CreateAwsProfileOutput {
+  ctx: SetupEnvironmentContext
+): CreateAwsProfileContext {
   const awsProfileName = libCreateAwsProfile(ctx.gitHub.issueNumber)
 
   return {

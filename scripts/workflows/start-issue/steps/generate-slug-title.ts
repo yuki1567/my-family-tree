@@ -1,20 +1,16 @@
 import { translateText } from '../../lib/translation.js'
+import type {
+  FetchIssueContext,
+  GenerateSlugTitleContext,
+} from '../../shared/types.js'
 import { log } from '../../shared/utils.js'
 
-import type { FetchIssueOutput } from './fetch-issue.js'
-
-export type GenerateSlugTitleOutput = FetchIssueOutput & {
-  gitHub: FetchIssueOutput['gitHub'] & {
-    issueSlugTitle: string
-  }
-}
-
 export async function generateSlugTitle(
-  ctx: FetchIssueOutput
-): Promise<GenerateSlugTitleOutput> {
+  ctx: FetchIssueContext
+): Promise<GenerateSlugTitleContext> {
   const translatedText = await translateText(
     ctx.gitHub.issueTitle,
-    ctx.cloudTranslation
+    ctx.cloudTranslationApiKey
   )
   const issueSlugTitle = convertToSlug(translatedText)
 

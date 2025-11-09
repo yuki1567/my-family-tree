@@ -1,11 +1,10 @@
 import { execSync } from 'node:child_process'
 
 import { createDatabase as libCreateDatabase } from '../../lib/database.js'
+import type { CreateAwsProfileContext } from '../../shared/types.js'
 import { log } from '../../shared/utils.js'
 
-import type { CreateAwsProfileOutput } from './create-aws-profile.js'
-
-export function createDatabase(ctx: CreateAwsProfileOutput): void {
+export function createDatabase(ctx: CreateAwsProfileContext): void {
   libCreateDatabase(ctx.environment.dbName, ctx.environment.dbAdminPassword)
 
   log('🔄 Prisma migrateを実行中...')

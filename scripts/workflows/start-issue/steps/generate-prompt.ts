@@ -2,11 +2,10 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 import { FILES } from '../../shared/constants.js'
+import type { CreateAwsProfileContext } from '../../shared/types.js'
 import { PROJECT_ROOT, log } from '../../shared/utils.js'
 
-import type { CreateAwsProfileOutput } from './create-aws-profile.js'
-
-export function generatePrompt(ctx: CreateAwsProfileOutput): void {
+export function generatePrompt(ctx: CreateAwsProfileContext): void {
   const templatePath = path.join(PROJECT_ROOT, FILES.PROMPT.TEMPLATE)
   const outputPath = path.join(PROJECT_ROOT, FILES.PROMPT.OUTPUT)
 

@@ -96,3 +96,71 @@ export type WorktreeConfig = {
 export type BaseContext = {
   ssmClient: SSMClient
 }
+
+export type GitHubProjectsConfig = {
+  projectId: string
+  projectNumber: number
+  statusFieldId: string
+  todoStatusId: string
+  inProgressStatusId: string
+  inReviewStatusId: string
+}
+
+export type DatabaseConfig = {
+  adminUser: string
+  adminPassword: string
+  user: string
+  userPassword: string
+}
+
+export type InitializeContext = {
+  ssmClient: SSMClient
+  githubProjects: GitHubProjectsConfig
+  cloudTranslationApiKey: string
+  database: DatabaseConfig
+}
+
+export type FetchIssueContext = InitializeContext & {
+  gitHub: {
+    issueNumber: number
+    issueTitle: string
+    issueLabel: string
+  }
+  githubProjects: InitializeContext['githubProjects'] & {
+    projectItemId: string
+  }
+}
+
+export type GenerateSlugTitleContext = FetchIssueContext & {
+  gitHub: FetchIssueContext['gitHub'] & {
+    issueSlugTitle: string
+  }
+}
+
+export type CreateWorktreeContext = GenerateSlugTitleContext & {
+  gitHub: GenerateSlugTitleContext['gitHub'] & {
+    branchName: string
+  }
+  environment: {
+    worktreePath: string
+    dbAdminUser: string
+    dbAdminPassword: string
+    dbUser: string
+    dbUserPassword: string
+  }
+}
+
+export type SetupEnvironmentContext = CreateWorktreeContext & {
+  environment: CreateWorktreeContext['environment'] & {
+    webPort: number
+    apiPort: number
+    dbName: string
+    appName: string
+  }
+}
+
+export type CreateAwsProfileContext = SetupEnvironmentContext & {
+  environment: SetupEnvironmentContext['environment'] & {
+    awsProfileName: string
+  }
+}

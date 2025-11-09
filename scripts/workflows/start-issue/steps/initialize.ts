@@ -10,28 +10,10 @@ import {
   ParameterStoreError,
   WorktreeScriptError,
 } from '../../shared/errors.js'
+import type { InitializeContext } from '../../shared/types.js'
 import { log } from '../../shared/utils.js'
 
-export type InitializeOutput = {
-  ssmClient: SSMClient
-  githubProjects: {
-    projectId: string
-    projectNumber: number
-    statusFieldId: string
-    todoStatusId: string
-    inProgressStatusId: string
-    inReviewStatusId: string
-  }
-  cloudTranslation: string
-  environment: {
-    dbAdminUser: string
-    dbAdminPassword: string
-    dbUser: string
-    dbUserPassword: string
-  }
-}
-
-export async function initialize(): Promise<InitializeOutput> {
+export async function initialize(): Promise<InitializeContext> {
   const ssmClient = createSSMClient()
   const parameters = await loadParametersFromStore(ssmClient)
 
@@ -54,21 +36,18 @@ export async function initialize(): Promise<InitializeOutput> {
         'GITHUB_INREVIEW_STATUS_ID'
       ),
     },
-    cloudTranslation: getRequiredParameter(
+    cloudTranslationApiKey: getRequiredParameter(
       parameters,
       'GOOGLE_TRANSLATE_API_KEY'
     ),
-    environment: {
-      dbAdminUser: getRequiredParameter(parameters, 'DATABASE_ADMIN_USER'),
-      dbAdminPassword: getRequiredParameter(
+    database: {
+      adminUser: getRequiredParameter(parameters, 'DATABASE_ADMIN_USER'),
+      adminPassword: getRequiredParameter(
         parameters,
         'DATABASE_ADMIN_PASSWORD'
       ),
-      dbUser: getRequiredParameter(parameters, 'DATABASE_USER'),
-      dbUserPassword: getRequiredParameter(
-        parameters,
-        'DATABASE_USER_PASSWORD'
-      ),
+      user: getRequiredParameter(parameters, 'DATABASE_USER'),
+      userPassword: getRequiredParameter(parameters, 'DATABASE_USER_PASSWORD'),
     },
   }
 }
