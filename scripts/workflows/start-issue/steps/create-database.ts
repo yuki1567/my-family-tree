@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process'
 
-import { createDatabase as libCreateDatabase } from '../../../lib/database.js'
-import { log } from '../../../shared/utils.js'
+import { createDatabase as libCreateDatabase } from '../../lib/database.js'
+import { log } from '../../shared/utils.js'
 
 import type { CreateAwsProfileOutput } from './create-aws-profile.js'
 

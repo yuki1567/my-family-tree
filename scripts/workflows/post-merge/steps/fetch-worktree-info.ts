@@ -1,6 +1,6 @@
-import { getWorktreeInfo } from '../../../lib/git.js'
-import type { WorktreeInfo } from '../../../shared/types.js'
-import { log } from '../../../shared/utils.js'
+import { getWorktreeInfo } from '../../lib/git.js'
+import type { WorktreeInfo } from '../../shared/types.js'
+import { log } from '../../shared/utils.js'
 
 export function fetchWorktreeInfo(issueNumber: number): WorktreeInfo {
   const worktreeInfo = getWorktreeInfo(issueNumber)

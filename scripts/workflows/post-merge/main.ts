@@ -1,7 +1,7 @@
 import { SSMClient } from '@aws-sdk/client-ssm'
 
-import { AWS } from '../../shared/constants.js'
-import { log, logError } from '../../shared/utils.js'
+import { AWS } from '../shared/constants.js'
+import { log, logError } from '../shared/utils.js'
 
 import { cleanupAwsProfile } from './steps/cleanup-aws-profile.js'
 import { cleanupContainer } from './steps/cleanup-container.js'

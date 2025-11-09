@@ -1,4 +1,4 @@
-import { createAwsProfile as libCreateAwsProfile } from '../../../lib/aws-profile.js'
+import { createAwsProfile as libCreateAwsProfile } from '../../lib/aws-profile.js'
 
 import type { SetupEnvironmentOutput } from './setup-environment.js'
 

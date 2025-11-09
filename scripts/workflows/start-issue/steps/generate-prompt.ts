@@ -1,8 +1,8 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { FILES } from '../../../shared/constants.js'
-import { PROJECT_ROOT, log } from '../../../shared/utils.js'
+import { FILES } from '../../shared/constants.js'
+import { PROJECT_ROOT, log } from '../../shared/utils.js'
 
 import type { CreateAwsProfileOutput } from './create-aws-profile.js'
 

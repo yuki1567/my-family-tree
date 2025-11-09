@@ -1,7 +1,7 @@
 import { exec } from 'node:child_process'
 
-import { updateIssueStatus } from '../../../lib/github-api.js'
-import { log } from '../../../shared/utils.js'
+import { updateIssueStatus } from '../../lib/github-api.js'
+import { log } from '../../shared/utils.js'
 
 import type { CreateAwsProfileOutput } from './create-aws-profile.js'
 

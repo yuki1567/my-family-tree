@@ -1,8 +1,5 @@
-import {
-  extractIssueLabel,
-  fetchIssueByNumber,
-} from '../../../lib/github-api.js'
-import { log } from '../../../shared/utils.js'
+import { extractIssueLabel, fetchIssueByNumber } from '../../lib/github-api.js'
+import { log } from '../../shared/utils.js'
 
 import type { InitializeOutput } from './initialize.js'
 

@@ -35,7 +35,9 @@
     "quality:backend": "docker compose exec apps npm run quality --workspace=apps/backend",
     "clean": "rm -rf node_modules package-lock.json apps/*/node_modules apps/*/dist apps/*/.nuxt apps/*/.output",
     "clean:install": "npm run clean && npm install",
-    "start:issue": "tsx scripts/start-issue/main.ts"
+    "start:issue": "tsx scripts/start-issue/main.ts",
+    "start:issue:v2": "tsx scripts/workflows/start-issue/main.ts",
+    "post:merge": "tsx scripts/workflows/post-merge/main.ts"
   },
   "devDependencies": {
     "@aws-sdk/client-ssm": "3.922.0",

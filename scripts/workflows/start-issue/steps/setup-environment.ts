@@ -1,10 +1,10 @@
 import { copyFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { putParameters } from '../../../lib/aws-ssm.js'
-import { generateDatabaseName } from '../../../lib/database.js'
-import { FILES, PORTS } from '../../../shared/constants.js'
-import { PROJECT_ROOT, log } from '../../../shared/utils.js'
+import { putParameters } from '../../lib/aws-ssm.js'
+import { generateDatabaseName } from '../../lib/database.js'
+import { FILES, PORTS } from '../../shared/constants.js'
+import { PROJECT_ROOT, log } from '../../shared/utils.js'
 
 import type { CreateWorktreeOutput } from './create-worktree.js'
 

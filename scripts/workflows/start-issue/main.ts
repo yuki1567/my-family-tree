@@ -1,4 +1,4 @@
-import { logError } from '../../shared/utils.js'
+import { logError } from '../shared/utils.js'
 
 import { createAwsProfile } from './steps/create-aws-profile.js'
 import { createDatabase } from './steps/create-database.js'

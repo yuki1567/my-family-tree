@@ -1,10 +1,10 @@
 import { SSMClient } from '@aws-sdk/client-ssm'
 
-import { getParametersByPath } from '../../../lib/aws-ssm.js'
-import { AWS } from '../../../shared/constants.js'
-import { ParameterStoreError } from '../../../shared/errors.js'
-import type { WorktreeConfig } from '../../../shared/types.js'
-import { log } from '../../../shared/utils.js'
+import { getParametersByPath } from '../../lib/aws-ssm.js'
+import { AWS } from '../../shared/constants.js'
+import { ParameterStoreError } from '../../shared/errors.js'
+import type { WorktreeConfig } from '../../shared/types.js'
+import { log } from '../../shared/utils.js'
 
 export async function loadWorktreeConfig(
   client: SSMClient,

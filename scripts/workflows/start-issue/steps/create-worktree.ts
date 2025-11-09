@@ -1,7 +1,7 @@
 import path from 'node:path'
 
-import { createWorktree as gitCreateWorktree } from '../../../lib/git.js'
-import { PROJECT_ROOT } from '../../../shared/utils.js'
+import { createWorktree as gitCreateWorktree } from '../../lib/git.js'
+import { PROJECT_ROOT } from '../../shared/utils.js'
 
 import type { GenerateSlugTitleOutput } from './generate-slug-title.js'
 

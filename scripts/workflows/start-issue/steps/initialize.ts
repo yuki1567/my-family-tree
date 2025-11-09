@@ -5,12 +5,12 @@ import {
   paginateGetParametersByPath,
 } from '@aws-sdk/client-ssm'
 
-import { AWS } from '../../../shared/constants.js'
+import { AWS } from '../../shared/constants.js'
 import {
   ParameterStoreError,
   WorktreeScriptError,
-} from '../../../shared/errors.js'
-import { log } from '../../../shared/utils.js'
+} from '../../shared/errors.js'
+import { log } from '../../shared/utils.js'
 
 export type InitializeOutput = {
   ssmClient: SSMClient

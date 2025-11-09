@@ -1,5 +1,5 @@
-import { translateText } from '../../../lib/translation.js'
-import { log } from '../../../shared/utils.js'
+import { translateText } from '../../lib/translation.js'
+import { log } from '../../shared/utils.js'
 
 import type { FetchIssueOutput } from './fetch-issue.js'
 
