@@ -5,7 +5,7 @@ import {
   paginateGetParametersByPath,
 } from '@aws-sdk/client-ssm'
 
-import { AWS } from '../../shared/constants.js'
+import { AWS, PARAMETER_KEYS } from '../../shared/constants.js'
 import {
   ParameterStoreError,
   WorktreeScriptError,
@@ -21,33 +21,48 @@ export async function initialize(): Promise<InitializeContext> {
   return {
     ssmClient,
     githubProjects: {
-      projectId: getRequiredParameter(parameters, 'GITHUB_PROJECT_ID'),
-      projectNumber: Number(
-        getRequiredParameter(parameters, 'GITHUB_PROJECT_NUMBER')
+      projectId: getRequiredParameter(
+        parameters,
+        PARAMETER_KEYS.GITHUB.PROJECT_ID
       ),
-      statusFieldId: getRequiredParameter(parameters, 'GITHUB_STATUS_FIELD_ID'),
-      todoStatusId: getRequiredParameter(parameters, 'GITHUB_TODO_STATUS_ID'),
+      projectNumber: Number(
+        getRequiredParameter(parameters, PARAMETER_KEYS.GITHUB.PROJECT_NUMBER)
+      ),
+      statusFieldId: getRequiredParameter(
+        parameters,
+        PARAMETER_KEYS.GITHUB.STATUS_FIELD_ID
+      ),
+      todoStatusId: getRequiredParameter(
+        parameters,
+        PARAMETER_KEYS.GITHUB.TODO_STATUS_ID
+      ),
       inProgressStatusId: getRequiredParameter(
         parameters,
-        'GITHUB_INPROGRESS_STATUS_ID'
+        PARAMETER_KEYS.GITHUB.INPROGRESS_STATUS_ID
       ),
       inReviewStatusId: getRequiredParameter(
         parameters,
-        'GITHUB_INREVIEW_STATUS_ID'
+        PARAMETER_KEYS.GITHUB.INREVIEW_STATUS_ID
       ),
     },
     cloudTranslationApiKey: getRequiredParameter(
       parameters,
-      'GOOGLE_TRANSLATE_API_KEY'
+      PARAMETER_KEYS.GOOGLE.TRANSLATE_API_KEY
     ),
     database: {
-      adminUser: getRequiredParameter(parameters, 'DATABASE_ADMIN_USER'),
+      adminUser: getRequiredParameter(
+        parameters,
+        PARAMETER_KEYS.DATABASE.ADMIN_USER
+      ),
       adminPassword: getRequiredParameter(
         parameters,
-        'DATABASE_ADMIN_PASSWORD'
+        PARAMETER_KEYS.DATABASE.ADMIN_PASSWORD
       ),
-      user: getRequiredParameter(parameters, 'DATABASE_USER'),
-      userPassword: getRequiredParameter(parameters, 'DATABASE_USER_PASSWORD'),
+      user: getRequiredParameter(parameters, PARAMETER_KEYS.DATABASE.USER),
+      userPassword: getRequiredParameter(
+        parameters,
+        PARAMETER_KEYS.DATABASE.USER_PASSWORD
+      ),
     },
   }
 }
