@@ -114,7 +114,6 @@ export type DatabaseConfig = {
 }
 
 export type InitializeContext = {
-  ssmClient: SSMClient
   githubProjects: GitHubProjectsConfig
   cloudTranslationApiKey: string
   database: DatabaseConfig
