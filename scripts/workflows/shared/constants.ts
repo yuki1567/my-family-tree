@@ -75,6 +75,22 @@ export const PARAMETER_KEYS = {
   },
 } as const
 
+export const DEVELOPMENT_PARAMETERS = {
+  GITHUB_PROJECT_ID: 'github-project-id',
+  GITHUB_PROJECT_NUMBER: 'github-project-number',
+  GITHUB_STATUS_FIELD_ID: 'github-status-field-id',
+  GITHUB_TODO_STATUS_ID: 'github-todo-status-id',
+  GITHUB_INPROGRESS_STATUS_ID: 'github-inprogress-status-id',
+  GITHUB_INREVIEW_STATUS_ID: 'github-inreview-status-id',
+  GOOGLE_TRANSLATE_API_KEY: 'google-translate-api-key',
+  DATABASE_ADMIN_USER: 'database-admin-user',
+  DATABASE_ADMIN_PASSWORD: 'database-admin-password',
+  DATABASE_USER: 'database-user',
+  DATABASE_USER_PASSWORD: 'database-user-password',
+} as const
+
+export type DevelopmentParameterKey = keyof typeof DEVELOPMENT_PARAMETERS
+
 export const WORKTREE_PARAMETERS = {
   ALL_KEYS: [
     'branch-name',
