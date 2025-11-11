@@ -1,214 +1,201 @@
-import { execSync } from 'node:child_process'
+import { execSync } from 'child_process'
 
-import { GRAPHQL, LABEL } from '../shared/constants.js'
-import { GitHubApiError } from '../shared/errors.js'
+import { LABEL } from '../shared/constants.js'
+import {
+  GitHubApiError,
+  GitHubGraphQLError,
+  IssueNotFoundError,
+} from '../shared/errors.js'
+import { FETCH_PROJECT_ISSUES_QUERY } from '../shared/graphql-queries.js'
 import type {
   FetchProjectIssuesResponse,
-  FetchStatusFieldIdResponse,
   GitHubIssue,
-  ProjectItem,
 } from '../shared/types.js'
-import { log } from '../shared/utils.js'
 
-const FETCH_PROJECT_ISSUES_QUERY = `
-  query($projectId: ID!) {
-    node(id: $projectId) {
-      ... on ProjectV2 {
-        items(first: ${GRAPHQL.LIMITS.PROJECT_ITEMS}) {
-          nodes {
-            id
-            fieldValueByName(name: "${GRAPHQL.FIELD_NAMES.STATUS}") {
-              ... on ProjectV2ItemFieldSingleSelectValue {
-                optionId
-              }
-            }
-            content {
-              ... on Issue {
-                number
-                title
-                labels(first: ${GRAPHQL.LIMITS.ISSUE_LABELS}) {
-                  nodes {
-                    name
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+export class GitHubApi {
+  constructor(
+    private readonly projectId: string,
+    private readonly statusFieldId: string,
+    private readonly statusIds: {
+      todo: string
+      inProgress: string
+      inReview: string
     }
-  }
-`
+  ) {}
 
-const UPDATE_PROJECT_ITEM_STATUS_MUTATION = `
-  mutation($projectId: ID!, $itemId: ID!, $statusFieldId: ID!, $statusValueId: String!) {
-    updateProjectV2ItemFieldValue(
-      input: {
-        projectId: $projectId
-        itemId: $itemId
-        fieldId: $statusFieldId
-        value: { singleSelectOptionId: $statusValueId }
-      }
+  private issueNumber?: number
+  private issuetitle?: string
+  private projectItemId?: string
+  private label?: string
+
+  getProjectId(): string {
+    return this.projectId
+  }
+
+  getStatusFieldId(): string {
+    return this.statusFieldId
+  }
+
+  getInReviewStatusId(): string {
+    return this.statusIds.inReview
+  }
+
+  public async loadTopPriorityIssue(): Promise<void> {
+    const todoItems = await this.fetchProjectIssues()
+
+    const firstItem = todoItems[0]
+
+    if (!firstItem?.content) {
+      throw new GitHubApiError('Issue内容が取得できません')
+    }
+
+    this.setIssue(firstItem.content, firstItem.id)
+  }
+
+  private ensureIssueLoaded(): void {
+    if (
+      this.issueNumber === undefined ||
+      this.issuetitle === undefined ||
+      this.projectItemId === undefined ||
+      this.label === undefined
     ) {
-      projectV2Item {
-        id
-      }
+      throw new GitHubApiError(
+        'Issue情報が読み込まれていません。loadTopPriorityIssue()を先に実行してください'
+      )
     }
   }
-`
 
-const FETCH_STATUS_FIELD_ID_QUERY = `
-  query($projectId: ID!) {
-    node(id: $projectId) {
-      ... on ProjectV2 {
-        field(name: "${GRAPHQL.FIELD_NAMES.STATUS}") {
-          ... on ProjectV2SingleSelectField {
-            id
-          }
-        }
-      }
-    }
+  public getIssueNumber(): number {
+    this.ensureIssueLoaded()
+    return this.issueNumber!
   }
-`
 
-export async function fetchProjectIssues(
-  projectId: string,
-  todoStatusId: string
-): Promise<ProjectItem[]> {
-  try {
-    const response = await executeGraphQL<FetchProjectIssuesResponse>(
-      FETCH_PROJECT_ISSUES_QUERY,
-      { projectId }
-    )
-
-    return response.data.node.items.nodes.filter(
-      (item) => item.fieldValueByName?.optionId === todoStatusId
-    )
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    throw new GitHubApiError(`Issue一覧取得に失敗しました: ${errorMessage}`)
+  public getIssueTitle(): string {
+    this.ensureIssueLoaded()
+    return this.issuetitle!
   }
-}
 
-export async function fetchIssueByNumber(
-  projectId: string,
-  issueNumber: number
-): Promise<{ issue: GitHubIssue; projectItemId: string }> {
-  try {
-    const response = await executeGraphQL<FetchProjectIssuesResponse>(
-      FETCH_PROJECT_ISSUES_QUERY,
-      { projectId }
-    )
-
-    const projectItem = response.data.node.items.nodes.find(
-      (item) => item.content?.number === issueNumber
-    )
-
-    if (!projectItem?.content) {
-      throw new GitHubApiError(`Issue #${issueNumber} が見つかりません`)
-    }
-
-    return {
-      issue: projectItem.content,
-      projectItemId: projectItem.id,
-    }
-  } catch (error) {
-    if (error instanceof GitHubApiError) {
-      throw error
-    }
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    throw new GitHubApiError(`Issue取得に失敗しました: ${errorMessage}`)
+  public getIssueLabel(): string {
+    this.ensureIssueLoaded()
+    return this.label!
   }
-}
 
-export async function fetchStatusFieldId(projectId: string): Promise<string> {
-  try {
-    const response = await executeGraphQL<FetchStatusFieldIdResponse>(
-      FETCH_STATUS_FIELD_ID_QUERY,
-      { projectId }
-    )
-
-    return response.data.node.field.id
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    throw new GitHubApiError(
-      `Status Field ID取得に失敗しました: ${errorMessage}`
-    )
+  public getProjectItemId(): string {
+    this.ensureIssueLoaded()
+    return this.projectItemId!
   }
-}
 
-export async function updateIssueStatus(
-  projectId: string,
-  itemId: string,
-  statusFieldId: string,
-  statusValueId: string
-): Promise<void> {
-  try {
-    await executeGraphQL(UPDATE_PROJECT_ITEM_STATUS_MUTATION, {
-      projectId,
-      itemId,
-      statusFieldId,
-      statusValueId,
+  private async fetchProjectIssues() {
+    const response = this.executeGraphQL(FETCH_PROJECT_ISSUES_QUERY, {
+      projectId: this.projectId,
     })
-    log('✅ Issueステータスを更新しました')
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    throw new GitHubApiError(
-      `Issueステータス更新に失敗しました: ${errorMessage}`
+
+    const validatedData = this.validateGraphQLResponse(response)
+
+    const filterdData = validatedData.data.node.items.nodes.filter(
+      (item) => item.fieldValueByName?.optionId === this.statusIds.todo
     )
-  }
-}
 
-export function closeIssue(issueNumber: number): void {
-  try {
-    const state = execSync(
-      `gh issue view ${issueNumber} --json state -q ".state"`,
-      { encoding: 'utf-8' }
-    ).trim()
-
-    if (state === 'CLOSED') {
-      log(`ℹ️ Issue #${issueNumber} は既にクローズ済みです`)
-      return
+    if (filterdData.length === 0) {
+      throw new IssueNotFoundError()
     }
 
-    execSync(
-      `gh issue close ${issueNumber} --comment "✅ 開発完了・マージ済み"`,
-      { stdio: 'inherit' }
-    )
-    log(`✅ Issueクローズ: #${issueNumber}`)
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    throw new GitHubApiError(
-      `Issueクローズに失敗しました: #${issueNumber}\n${errorMessage}`
+    return filterdData
+  }
+
+  private executeGraphQL(
+    query: string,
+    variables: Record<string, unknown>
+  ): unknown {
+    const variablesJson = JSON.stringify(variables).replace(/"/g, '\\"')
+    const queryJson = query.replace(/\n/g, ' ').replace(/"/g, '\\"')
+
+    try {
+      const result = execSync(
+        `gh api graphql -f query="${queryJson}" -f variables="${variablesJson}"`,
+        { encoding: 'utf-8' }
+      )
+      return JSON.parse(result)
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      throw new GitHubApiError(`GraphQL実行エラー: ${errorMessage}`)
+    }
+  }
+
+  private isFetchProjectIssuesResponse(
+    data: unknown
+  ): data is FetchProjectIssuesResponse {
+    return (
+      typeof data === 'object' &&
+      data !== null &&
+      'data' in data &&
+      typeof data.data === 'object' &&
+      data.data !== null &&
+      'node' in data.data &&
+      typeof data.data.node === 'object' &&
+      data.data.node !== null &&
+      'items' in data.data.node &&
+      typeof data.data.node.items === 'object' &&
+      data.data.node.items !== null &&
+      'nodes' in data.data.node.items &&
+      Array.isArray(data.data.node.items.nodes)
     )
   }
-}
 
-export function extractIssueLabel(issue: GitHubIssue): string {
-  const priorityLabel = issue.labels.nodes.find((label) =>
-    label.name.startsWith(LABEL.PRIORITY_PREFIX)
-  )
-  return (
-    priorityLabel?.name.replace(`${LABEL.PRIORITY_PREFIX}:`, '') ||
-    LABEL.DEFAULT_LABEL
-  )
-}
+  private validateGraphQLResponse(data: unknown): FetchProjectIssuesResponse {
+    if (this.isFetchProjectIssuesResponse(data)) {
+      return data
+    }
 
-async function executeGraphQL<T>(
-  query: string,
-  variables: Record<string, unknown>
-): Promise<T> {
-  const variablesJson = JSON.stringify(variables).replace(/"/g, '\\"')
-  const queryJson = query.replace(/\n/g, ' ').replace(/"/g, '\\"')
+    throw new GitHubGraphQLError('fetchProjectIssues', [
+      'data.node.items.nodes',
+    ])
+  }
 
-  try {
-    const result = execSync(
-      `gh api graphql -f query="${queryJson}" -f variables="${variablesJson}"`,
-      { encoding: 'utf-8' }
+  private setIssue(issue: GitHubIssue, projectItemId: string): void {
+    this.issuetitle = issue.title
+    this.issueNumber = issue.number
+    this.projectItemId = projectItemId
+    this.label = this.extractIssueLabel(issue)
+  }
+
+  async fetchHighPriorityIssue(): Promise<{
+    issue: GitHubIssue
+    projectItemId: string
+  }> {
+    throw new Error('Not implemented')
+  }
+
+  async fetchIssueByNumber(
+    _issueNumber: number
+  ): Promise<{ issue: GitHubIssue; projectItemId: string }> {
+    throw new Error('Not implemented')
+  }
+
+  async moveToInProgress(_projectItemId: string): Promise<void> {
+    throw new Error('Not implemented')
+  }
+
+  async moveToInReview(_projectItemId: string): Promise<void> {
+    throw new Error('Not implemented')
+  }
+
+  async closeIssue(_issueNumber: number): Promise<void> {
+    throw new Error('Not implemented')
+  }
+
+  private extractIssueLabel(issue: GitHubIssue): string {
+    const typeLabel = issue.labels.nodes.find(
+      (label) => !label.name.startsWith(LABEL.PRIORITY_PREFIX)
     )
-    return JSON.parse(result) as T
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    throw new GitHubApiError(`GraphQL実行エラー: ${errorMessage}`)
+    return typeLabel?.name || LABEL.DEFAULT_LABEL
+  }
+
+  private async updateIssueStatus(
+    _itemId: string,
+    _statusValueId: string
+  ): Promise<void> {
+    throw new Error('Not implemented')
   }
 }

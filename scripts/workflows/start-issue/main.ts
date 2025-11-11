@@ -11,19 +11,8 @@ import { openVscode } from './steps/open-vscode.js'
 import { setupEnvironment } from './steps/setup-environment.js'
 
 async function main() {
-  const issueNumberArg = process.argv[2]
-
-  if (!issueNumberArg) {
-    throw new Error('issue番号を指定してください')
-  }
-
-  const issueNumber = Number.parseInt(issueNumberArg, 10)
-  if (Number.isNaN(issueNumber)) {
-    throw new Error(`無効なissue番号です: ${issueNumberArg}`)
-  }
-
   const initializeCtx = await initialize()
-  const fetchIssueCtx = await fetchIssue(initializeCtx, issueNumber)
+  const fetchIssueCtx = await fetchIssue(initializeCtx)
   const generateSlugTitleCtx = await generateSlugTitle(fetchIssueCtx)
   const createWorktreeCtx = createWorktree(generateSlugTitleCtx)
   const setupEnvironmentCtx = await setupEnvironment(createWorktreeCtx)

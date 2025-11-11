@@ -19,6 +19,22 @@ export class GitHubApiError extends WorktreeScriptError {
   }
 }
 
+export class IssueNotFoundError extends GitHubApiError {
+  constructor() {
+    super('Todoステータスのissueが見つかりません')
+    this.name = 'IssueNotFoundError'
+  }
+}
+
+export class GitHubGraphQLError extends GitHubApiError {
+  constructor(operation: string, expectedFields: string[]) {
+    super(
+      `GraphQLレスポンスの構造が不正です (operation: ${operation}, expected: ${expectedFields.join(', ')})`
+    )
+    this.name = 'GitHubGraphQLError'
+  }
+}
+
 export class AwsProfileConfigError extends WorktreeScriptError {
   constructor(profileName: string, configType: 'config_file' | 'role_arn') {
     const messages = {

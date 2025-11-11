@@ -1,5 +1,5 @@
-import { ParameterStore } from 'scripts/workflows/lib/parameter-store.js'
-
+import { GitHubApi } from '../../lib/github-api.js'
+import { ParameterStore } from '../../lib/parameter-store.js'
 import { AWS, PARAMETER_KEYS } from '../../shared/constants.js'
 import type { InitializeContext } from '../../shared/types.js'
 import { log } from '../../shared/utils.js'
@@ -14,19 +14,19 @@ export async function initialize(): Promise<InitializeContext> {
 
   const getParameter = (key: string) =>
     parameterStore.getRequired(parameters, key, AWS.PARAMETER_PATH.DEVELOPMENT)
-  const getParameterToNumber = (key: string) => Number(getParameter(key))
+
+  const githubApi = new GitHubApi(
+    getParameter(PARAMETER_KEYS.GITHUB.PROJECT_ID),
+    getParameter(PARAMETER_KEYS.GITHUB.STATUS_FIELD_ID),
+    {
+      todo: getParameter(PARAMETER_KEYS.GITHUB.TODO_STATUS_ID),
+      inProgress: getParameter(PARAMETER_KEYS.GITHUB.INPROGRESS_STATUS_ID),
+      inReview: getParameter(PARAMETER_KEYS.GITHUB.INREVIEW_STATUS_ID),
+    }
+  )
 
   return {
-    githubProjects: {
-      projectId: getParameter(PARAMETER_KEYS.GITHUB.PROJECT_ID),
-      projectNumber: getParameterToNumber(PARAMETER_KEYS.GITHUB.PROJECT_NUMBER),
-      statusFieldId: getParameter(PARAMETER_KEYS.GITHUB.STATUS_FIELD_ID),
-      todoStatusId: getParameter(PARAMETER_KEYS.GITHUB.TODO_STATUS_ID),
-      inProgressStatusId: getParameter(
-        PARAMETER_KEYS.GITHUB.INPROGRESS_STATUS_ID
-      ),
-      inReviewStatusId: getParameter(PARAMETER_KEYS.GITHUB.INREVIEW_STATUS_ID),
-    },
+    githubApi,
     cloudTranslationApiKey: getParameter(
       PARAMETER_KEYS.GOOGLE.TRANSLATE_API_KEY
     ),

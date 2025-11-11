@@ -52,7 +52,7 @@ export const GRAPHQL = {
 
 export const LABEL = {
   PRIORITY_PREFIX: 'priority',
-  DEFAULT_LABEL: 'ラベルなし',
+  DEFAULT_LABEL: 'no-label',
 } as const
 
 export const PARAMETER_KEYS = {

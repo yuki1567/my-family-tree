@@ -1,5 +1,7 @@
 import type { SSMClient } from '@aws-sdk/client-ssm'
 
+import type { GitHubApi } from '../lib/github-api.js'
+
 export type GitHubLabel = {
   name: string
 }
@@ -97,15 +99,6 @@ export type BaseContext = {
   ssmClient: SSMClient
 }
 
-export type GitHubProjectsConfig = {
-  projectId: string
-  projectNumber: number
-  statusFieldId: string
-  todoStatusId: string
-  inProgressStatusId: string
-  inReviewStatusId: string
-}
-
 export type DatabaseConfig = {
   adminUser: string
   adminPassword: string
@@ -114,7 +107,7 @@ export type DatabaseConfig = {
 }
 
 export type InitializeContext = {
-  githubProjects: GitHubProjectsConfig
+  githubApi: GitHubApi
   cloudTranslationApiKey: string
   database: DatabaseConfig
 }
@@ -124,8 +117,6 @@ export type FetchIssueContext = InitializeContext & {
     issueNumber: number
     issueTitle: string
     issueLabel: string
-  }
-  githubProjects: InitializeContext['githubProjects'] & {
     projectItemId: string
   }
 }

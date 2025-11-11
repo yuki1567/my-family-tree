@@ -190,16 +190,15 @@ EOF
 
 **固定値**（プロジェクトで共通）:
 
-- Project番号: `{{PROJECT_NUMBER}}`
 - Project ID: `{{PROJECT_ID}}`
 - StatusフィールドID: `{{STATUS_FIELD_ID}}`
-- "In review"オプションID: `{{IN_REVIEW_OPTION_ID}}`
+- "In review"オプションID: `{{IN_REVIEW_STATUS_ID}}`
 
 **実行手順**:
 
 ```bash
 # STEP1: Project item IDを取得（issue番号{{ISSUE_NUMBER}}のアイテムID）
-gh project item-list {{PROJECT_NUMBER}} --owner @me --format json --limit 100 | jq -r '.items[] | select(.content.number == {{ISSUE_NUMBER}}) | .id'
+gh project item-list 1 --owner @me --format json --limit 100 | jq -r '.items[] | select(.content.number == {{ISSUE_NUMBER}}) | .id'
 # → 出力されたIDをコピー（例: PVTI_****************）
 
 # STEP2: Statusを"In review"に変更（STEP1で取得したIDを使用）
@@ -207,7 +206,7 @@ gh project item-edit \
   --id "<STEP1で取得したID>" \
   --project-id "{{PROJECT_ID}}" \
   --field-id "{{STATUS_FIELD_ID}}" \
-  --single-select-option-id "{{IN_REVIEW_OPTION_ID}}"
+  --single-select-option-id "{{IN_REVIEW_STATUS_ID}}"
 ```
 
 **実行時の注意**:
