@@ -1,4 +1,5 @@
 import { execSync } from 'child_process'
+import path from 'node:path'
 
 import { LABEL } from '../shared/constants.js'
 import {
@@ -10,15 +11,9 @@ import { FETCH_PROJECT_ISSUES_QUERY } from '../shared/graphql-queries.js'
 import type {
   FetchProjectIssuesResponse,
   GitHubIssue,
+  IssueData,
 } from '../shared/types.js'
-
-type IssueData = {
-  number: number
-  title: string
-  projectItemId: string
-  label: string
-  slugTitle?: string
-}
+import { PROJECT_ROOT } from '../shared/utils.js'
 
 export class GitHubApi {
   constructor(
@@ -57,6 +52,26 @@ export class GitHubApi {
     }
 
     return this._issueData.slugTitle
+  }
+
+  get branchName(): string {
+    if (!this._issueData?.branchName) {
+      throw new GitHubApiError(
+        'ブランチ名が生成されていません。ワークフローの実行順序を確認してください'
+      )
+    }
+
+    return this._issueData.branchName
+  }
+
+  get worktreePath(): string {
+    if (!this._issueData?.worktreePath) {
+      throw new GitHubApiError(
+        'Worktreeパスが生成されていません。ワークフローの実行順序を確認してください'
+      )
+    }
+
+    return this._issueData.worktreePath
   }
 
   public async loadTopPriorityIssue(): Promise<void> {
@@ -158,31 +173,6 @@ export class GitHubApi {
     }
   }
 
-  async fetchHighPriorityIssue(): Promise<{
-    issue: GitHubIssue
-    projectItemId: string
-  }> {
-    throw new Error('Not implemented')
-  }
-
-  async fetchIssueByNumber(
-    _issueNumber: number
-  ): Promise<{ issue: GitHubIssue; projectItemId: string }> {
-    throw new Error('Not implemented')
-  }
-
-  async moveToInProgress(_projectItemId: string): Promise<void> {
-    throw new Error('Not implemented')
-  }
-
-  async moveToInReview(_projectItemId: string): Promise<void> {
-    throw new Error('Not implemented')
-  }
-
-  async closeIssue(_issueNumber: number): Promise<void> {
-    throw new Error('Not implemented')
-  }
-
   public generateSlugTitle(translatedTitle: string): void {
     if (!this._issueData) {
       throw new GitHubApiError(
@@ -190,7 +180,18 @@ export class GitHubApi {
       )
     }
 
-    this._issueData.slugTitle = this.convertToSlug(translatedTitle)
+    const slugTitle = this.convertToSlug(translatedTitle)
+    const issueNumber = this._issueData.number
+    const label = this._issueData.label
+
+    this._issueData.slugTitle = slugTitle
+    this._issueData.branchName = `${label}/${issueNumber}-${slugTitle}`
+    this._issueData.worktreePath = path.resolve(
+      PROJECT_ROOT,
+      '..',
+      label,
+      `${issueNumber}-${slugTitle}`
+    )
   }
 
   private convertToSlug(text: string): string {
@@ -211,6 +212,18 @@ export class GitHubApi {
     _itemId: string,
     _statusValueId: string
   ): Promise<void> {
+    throw new Error('Not implemented')
+  }
+
+  async moveToInProgress(_projectItemId: string): Promise<void> {
+    throw new Error('Not implemented')
+  }
+
+  async moveToInReview(_projectItemId: string): Promise<void> {
+    throw new Error('Not implemented')
+  }
+
+  async closeIssue(_issueNumber: number): Promise<void> {
     throw new Error('Not implemented')
   }
 }

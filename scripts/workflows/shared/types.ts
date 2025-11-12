@@ -111,3 +111,13 @@ export type WorkflowContext = {
   parameterStore: ParameterStore
   githubApi: GitHubApi
 }
+
+export type IssueData = {
+  number: number
+  title: string
+  projectItemId: string
+  label: string
+  slugTitle?: string
+  branchName?: string
+  worktreePath?: string
+}

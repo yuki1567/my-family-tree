@@ -15,7 +15,6 @@ async function main() {
 
   await fetchIssue(ctx)
   await generateSlugTitle(ctx)
-
   await createWorktree(ctx)
   await setupEnvironment(ctx)
   await createAwsProfile(ctx)
