@@ -12,32 +12,40 @@ import type {
   GitHubIssue,
 } from '../shared/types.js'
 
+type IssueData = {
+  number: number
+  title: string
+  projectItemId: string
+  label: string
+}
+
 export class GitHubApi {
   constructor(
-    private readonly projectId: string,
-    private readonly statusFieldId: string,
-    private readonly statusIds: {
+    private readonly _projectId: string,
+    private readonly _statusFieldId: string,
+    private readonly _statusIds: {
       todo: string
       inProgress: string
       inReview: string
     }
   ) {}
 
-  private issueNumber?: number
-  private issuetitle?: string
-  private projectItemId?: string
-  private label?: string
+  private _issueData?: IssueData
 
-  getProjectId(): string {
-    return this.projectId
+  get projectId(): string {
+    return this._projectId
   }
 
-  getStatusFieldId(): string {
-    return this.statusFieldId
+  get statusFieldId(): string {
+    return this._statusFieldId
   }
 
-  getInReviewStatusId(): string {
-    return this.statusIds.inReview
+  get inReviewStatusId(): string {
+    return this._statusIds.inReview
+  }
+
+  get issueData(): IssueData {
+    return this.readIssue()
   }
 
   public async loadTopPriorityIssue(): Promise<void> {
@@ -52,48 +60,25 @@ export class GitHubApi {
     this.setIssue(firstItem.content, firstItem.id)
   }
 
-  private ensureIssueLoaded(): void {
-    if (
-      this.issueNumber === undefined ||
-      this.issuetitle === undefined ||
-      this.projectItemId === undefined ||
-      this.label === undefined
-    ) {
+  private readIssue(): IssueData {
+    if (this._issueData === undefined) {
       throw new GitHubApiError(
         'Issue情報が読み込まれていません。loadTopPriorityIssue()を先に実行してください'
       )
     }
-  }
 
-  public getIssueNumber(): number {
-    this.ensureIssueLoaded()
-    return this.issueNumber!
-  }
-
-  public getIssueTitle(): string {
-    this.ensureIssueLoaded()
-    return this.issuetitle!
-  }
-
-  public getIssueLabel(): string {
-    this.ensureIssueLoaded()
-    return this.label!
-  }
-
-  public getProjectItemId(): string {
-    this.ensureIssueLoaded()
-    return this.projectItemId!
+    return this._issueData
   }
 
   private async fetchProjectIssues() {
     const response = this.executeGraphQL(FETCH_PROJECT_ISSUES_QUERY, {
-      projectId: this.projectId,
+      projectId: this._projectId,
     })
 
     const validatedData = this.validateGraphQLResponse(response)
 
     const filterdData = validatedData.data.node.items.nodes.filter(
-      (item) => item.fieldValueByName?.optionId === this.statusIds.todo
+      (item) => item.fieldValueByName?.optionId === this._statusIds.todo
     )
 
     if (filterdData.length === 0) {
@@ -154,10 +139,12 @@ export class GitHubApi {
   }
 
   private setIssue(issue: GitHubIssue, projectItemId: string): void {
-    this.issuetitle = issue.title
-    this.issueNumber = issue.number
-    this.projectItemId = projectItemId
-    this.label = this.extractIssueLabel(issue)
+    this._issueData = {
+      number: issue.number,
+      title: issue.title,
+      projectItemId,
+      label: this.extractIssueLabel(issue),
+    }
   }
 
   async fetchHighPriorityIssue(): Promise<{

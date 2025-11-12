@@ -7,9 +7,9 @@ export async function fetchIssue(
   await ctx.githubApi.loadTopPriorityIssue()
 
   log(
-    `✓ Issue #${ctx.githubApi.getIssueNumber()}: ${ctx.githubApi.getIssueTitle()}`
+    `✓ Issue #${ctx.githubApi.issueData.number}: ${ctx.githubApi.issueData.title}`
   )
-  log(`✓ Label: ${ctx.githubApi.getIssueLabel()}`)
+  log(`✓ Label: ${ctx.githubApi.issueData.label}`)
 
   return ctx
 }
