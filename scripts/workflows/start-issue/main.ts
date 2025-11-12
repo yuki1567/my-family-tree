@@ -11,15 +11,17 @@ import { openVscode } from './steps/open-vscode.js'
 import { setupEnvironment } from './steps/setup-environment.js'
 
 async function main() {
-  const initializeCtx = await initialize()
-  const fetchIssueCtx = await fetchIssue(initializeCtx)
-  const generateSlugTitleCtx = await generateSlugTitle(fetchIssueCtx)
-  const createWorktreeCtx = createWorktree(generateSlugTitleCtx)
-  const setupEnvironmentCtx = await setupEnvironment(createWorktreeCtx)
-  const createAwsProfileCtx = createAwsProfile(setupEnvironmentCtx)
-  createDatabase(createAwsProfileCtx)
-  generatePrompt(createAwsProfileCtx)
-  await openVscode(createAwsProfileCtx)
+  const ctx = await initialize()
+
+  await fetchIssue(ctx)
+  await generateSlugTitle(ctx)
+
+  await createWorktree(ctx)
+  await setupEnvironment(ctx)
+  await createAwsProfile(ctx)
+  await createDatabase(ctx)
+  await generatePrompt(ctx)
+  await openVscode(ctx)
 }
 
 main().catch((error) => {
