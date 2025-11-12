@@ -11,13 +11,33 @@ import type {
 } from '../shared/types.js'
 
 export class ParameterStore {
-  private readonly client: SSMClient
+  private constructor(
+    private readonly _parameters: Record<string, string>,
+    private readonly _path: string
+  ) {}
 
-  constructor() {
-    this.client = this.createClient()
+  public static async create(path: string): Promise<ParameterStore> {
+    const client = ParameterStore.createClient()
+    const rawParams = await ParameterStore.fetchParameters(client, path)
+    const parameters = ParameterStore.transformToMap(rawParams, path)
+    return new ParameterStore(parameters, path)
   }
 
-  private createClient(): SSMClient {
+  public get(key: string): string {
+    return this._parameters[key]!
+  }
+
+  public validateRequiredParameters(keys: string[]): void {
+    const missing = keys.filter((k) => !this._parameters[k])
+
+    if (missing.length > 0) {
+      throw new ParameterStoreError(
+        `必須パラメータが見つかりません: ${missing.join(', ')} (${this._path})`
+      )
+    }
+  }
+
+  private static createClient(): SSMClient {
     const awsVault = process.env['AWS_VAULT']
     if (!awsVault) {
       throw new WorktreeScriptError(
@@ -28,33 +48,12 @@ export class ParameterStore {
     return new SSMClient()
   }
 
-  public async getParameterMap(path: string): Promise<Record<string, string>> {
-    const parameters = await this.fetchParameters(path)
-
-    return parameters.reduce<Record<string, string>>((acc, parameter) => {
-      const [key, value] = this.extractKeyValue(parameter, path)
-      acc[key] = value
-      return acc
-    }, {})
-  }
-
-  public getRequired(
-    parameter: Record<string, string>,
-    key: string,
+  private static async fetchParameters(
+    client: SSMClient,
     path: string
-  ): string {
-    const value = parameter[key]
-    if (!value) {
-      throw new ParameterStoreError(
-        `必須パラメータが見つかりません: ${key} (${path})`
-      )
-    }
-    return value
-  }
-
-  private async fetchParameters(path: string): Promise<Parameter[]> {
+  ): Promise<Parameter[]> {
     const paginator = paginateGetParametersByPath(
-      { client: this.client },
+      { client },
       { Path: path, Recursive: true, WithDecryption: true }
     )
 
@@ -68,7 +67,18 @@ export class ParameterStore {
     return parameters
   }
 
-  private extractKeyValue(
+  private static transformToMap(
+    parameters: Parameter[],
+    path: string
+  ): Record<string, string> {
+    return parameters.reduce<Record<string, string>>((acc, parameter) => {
+      const [key, value] = ParameterStore.extractKeyValue(parameter, path)
+      acc[key] = value
+      return acc
+    }, {})
+  }
+
+  private static extractKeyValue(
     parameter: Parameter,
     path: string
   ): [string, string] {

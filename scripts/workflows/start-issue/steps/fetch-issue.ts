@@ -1,9 +1,9 @@
-import type { InitializeContext } from '../../shared/types.js'
+import type { WorkflowContext } from '../../shared/types.js'
 import { log } from '../../shared/utils.js'
 
 export async function fetchIssue(
-  ctx: InitializeContext
-): Promise<InitializeContext> {
+  ctx: WorkflowContext
+): Promise<WorkflowContext> {
   await ctx.githubApi.loadTopPriorityIssue()
 
   log(

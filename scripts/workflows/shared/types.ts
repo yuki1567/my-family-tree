@@ -1,6 +1,7 @@
 import type { SSMClient } from '@aws-sdk/client-ssm'
 
 import type { GitHubApi } from '../lib/github-api.js'
+import type { ParameterStore } from '../lib/parameter-store.js'
 
 export type GitHubLabel = {
   name: string
@@ -106,13 +107,12 @@ export type DatabaseConfig = {
   userPassword: string
 }
 
-export type InitializeContext = {
+export type WorkflowContext = {
+  parameterStore: ParameterStore
   githubApi: GitHubApi
-  cloudTranslationApiKey: string
-  database: DatabaseConfig
 }
 
-export type FetchIssueContext = InitializeContext & {
+export type FetchIssueContext = WorkflowContext & {
   gitHub: {
     issueNumber: number
     issueTitle: string
