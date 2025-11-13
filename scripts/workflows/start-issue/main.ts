@@ -1,6 +1,6 @@
 import { logError } from '../shared/utils.js'
 
-import { createAwsProfile } from './steps/create-aws-profile.js'
+import { setupAwsProfile } from './steps/create-aws-profile.js'
 import { createDatabase } from './steps/create-database.js'
 import { createGitWorktree } from './steps/create-worktree.js'
 import { fetchIssue } from './steps/fetch-issue.js'
@@ -17,7 +17,7 @@ async function main() {
   await generateSlugTitle(ctx)
   await createGitWorktree(ctx)
   await setupEnvironment(ctx)
-  await createAwsProfile(ctx)
+  setupAwsProfile(ctx)
   await createDatabase(ctx)
   await generatePrompt(ctx)
   await openVscode(ctx)
