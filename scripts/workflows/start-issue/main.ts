@@ -1,6 +1,5 @@
 import { logError } from '../shared/utils.js'
 
-import { createDatabase } from './steps/create-database.js'
 import { createGitWorktree } from './steps/create-worktree.js'
 import { fetchIssue } from './steps/fetch-issue.js'
 import { generatePrompt } from './steps/generate-prompt.js'
@@ -8,6 +7,7 @@ import { generateSlugTitle } from './steps/generate-slug-title.js'
 import { initialize } from './steps/initialize.js'
 import { openVscode } from './steps/open-vscode.js'
 import { setupAwsProfile } from './steps/setup-aws-profile.js'
+import { setupDatabase } from './steps/setup-database.js'
 import { setupEnvironment } from './steps/setup-environment.js'
 
 async function main() {
@@ -18,7 +18,7 @@ async function main() {
   await createGitWorktree(ctx)
   await setupEnvironment(ctx)
   setupAwsProfile(ctx)
-  await createDatabase(ctx)
+  await setupDatabase(ctx)
   await generatePrompt(ctx)
   await openVscode(ctx)
 }
