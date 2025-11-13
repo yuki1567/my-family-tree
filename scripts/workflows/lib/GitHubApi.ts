@@ -6,12 +6,16 @@ import {
   GitHubGraphQLError,
   IssueNotFoundError,
 } from '../shared/errors.js'
-import { FETCH_PROJECT_ISSUES_QUERY } from '../shared/graphql-queries.js'
+import {
+  FETCH_PROJECT_ISSUES_QUERY,
+  UPDATE_PROJECT_ITEM_STATUS_MUTATION,
+} from '../shared/graphql-queries.js'
 import type {
   FetchProjectIssuesResponse,
   GitHubIssue,
   IssueData,
 } from '../shared/types.js'
+import { log } from '../shared/utils.js'
 
 export class GitHubApi {
   constructor(
@@ -52,6 +56,11 @@ export class GitHubApi {
     }
 
     this.setIssue(firstItem.content, firstItem.id)
+  }
+
+  public async moveToInProgress(): Promise<void> {
+    await this.updateIssueStatus()
+    log(`Issue #${this.issueData.number} をIn Progressステータスへ移動しました`)
   }
 
   private readIssue(): IssueData {
@@ -148,15 +157,13 @@ export class GitHubApi {
     return typeLabel?.name || LABEL.DEFAULT_LABEL
   }
 
-  private async updateIssueStatus(
-    _itemId: string,
-    _statusValueId: string
-  ): Promise<void> {
-    throw new Error('Not implemented')
-  }
-
-  async moveToInProgress(_projectItemId: string): Promise<void> {
-    throw new Error('Not implemented')
+  private async updateIssueStatus(): Promise<void> {
+    this.executeGraphQL(UPDATE_PROJECT_ITEM_STATUS_MUTATION, {
+      projectId: this._projectId,
+      itemId: this.issueData.projectItemId,
+      statusFieldId: this._statusFieldId,
+      statusValueId: this._statusIds.inProgress,
+    })
   }
 
   async moveToInReview(_projectItemId: string): Promise<void> {
@@ -165,5 +172,23 @@ export class GitHubApi {
 
   async closeIssue(_issueNumber: number): Promise<void> {
     throw new Error('Not implemented')
+  }
+
+  public assignToCurrentUser(): void {
+    const currentUser = this.getCurrentUser()
+    this.assignIssue(this.issueData.number, currentUser)
+  }
+
+  private getCurrentUser(): string {
+    const result = execSync('gh api user --jq .login', { encoding: 'utf-8' })
+    return result.trim()
+  }
+
+  private assignIssue(issueNumber: number, userName: string): void {
+    execSync(`gh issue edit ${issueNumber} --add-assignee ${userName}`, {
+      encoding: 'utf-8',
+    })
+
+    log(`Issue #${issueNumber} を ${userName} にアサインしました`)
   }
 }
