@@ -1,6 +1,6 @@
 import { exec } from 'node:child_process'
 
-import { updateIssueStatus } from '../../lib/github-api.js'
+import { updateIssueStatus } from '../../lib/GitHubApi.js'
 import type { CreateAwsProfileContext } from '../../shared/types.js'
 import { log } from '../../shared/utils.js'
 

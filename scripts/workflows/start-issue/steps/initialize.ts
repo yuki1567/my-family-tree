@@ -1,5 +1,5 @@
-import { GitHubApi } from '../../lib/github-api.js'
-import { ParameterStore } from '../../lib/parameter-store.js'
+import { GitHubApi } from '../../lib/GitHubApi.js'
+import { ParameterStore } from '../../lib/ParameterStore.js'
 import { AWS, PARAMETER_KEYS } from '../../shared/constants.js'
 import type { WorkflowContext } from '../../shared/types.js'
 import { log } from '../../shared/utils.js'

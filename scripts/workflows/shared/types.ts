@@ -1,7 +1,7 @@
 import type { SSMClient } from '@aws-sdk/client-ssm'
 
-import type { GitHubApi } from '../lib/github-api.js'
-import type { ParameterStore } from '../lib/parameter-store.js'
+import type { GitHubApi } from '../lib/GitHubApi.js'
+import type { ParameterStore } from '../lib/ParameterStore.js'
 
 export type GitHubLabel = {
   name: string

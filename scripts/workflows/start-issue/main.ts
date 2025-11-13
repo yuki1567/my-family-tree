@@ -2,7 +2,7 @@ import { logError } from '../shared/utils.js'
 
 import { createAwsProfile } from './steps/create-aws-profile.js'
 import { createDatabase } from './steps/create-database.js'
-import { createWorktree } from './steps/create-worktree.js'
+import { createGitWorktree } from './steps/create-worktree.js'
 import { fetchIssue } from './steps/fetch-issue.js'
 import { generatePrompt } from './steps/generate-prompt.js'
 import { generateSlugTitle } from './steps/generate-slug-title.js'
@@ -15,7 +15,7 @@ async function main() {
 
   await fetchIssue(ctx)
   await generateSlugTitle(ctx)
-  await createWorktree(ctx)
+  await createGitWorktree(ctx)
   await setupEnvironment(ctx)
   await createAwsProfile(ctx)
   await createDatabase(ctx)

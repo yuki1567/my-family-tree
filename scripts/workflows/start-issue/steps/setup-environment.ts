@@ -4,14 +4,11 @@ import path from 'node:path'
 import { putParameters } from '../../lib/aws-ssm.js'
 import { generateDatabaseName } from '../../lib/database.js'
 import { FILES, PORTS } from '../../shared/constants.js'
-import type {
-  CreateWorktreeContext,
-  SetupEnvironmentContext,
-} from '../../shared/types.js'
+import type { WorkflowContext } from '../../shared/types.js'
 import { PROJECT_ROOT, log } from '../../shared/utils.js'
 
 export async function setupEnvironment(
-  ctx: CreateWorktreeContext
+  ctx: WorkflowContext
 ): Promise<SetupEnvironmentContext> {
   const { webPort, apiPort } = calculateWorktreePorts(ctx.gitHub.issueNumber)
   const dbName = generateDatabaseName(ctx.gitHub.issueSlugTitle)
