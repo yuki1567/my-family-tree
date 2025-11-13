@@ -4,17 +4,19 @@ import { WorktreeEnvironment } from '../../lib/WorktreeEnvironment.js'
 import {
   AWS,
   PARAMETER_KEYS,
-  REQUIRED_DEVELOPMENT_PARAMETERS,
+  REQUIRED_WORKTREE_PARAMETERS,
 } from '../../shared/constants.js'
 import type { WorkflowContext } from '../../shared/types.js'
-import { log } from '../../shared/utils.js'
+import { log, parseIssueNumber } from '../../shared/utils.js'
 
 export async function initialize(): Promise<WorkflowContext> {
+  const issueNumber = parseIssueNumber(process.argv[2])
+
   const parameterStore = await ParameterStore.create(
-    AWS.PARAMETER_PATH.DEVELOPMENT
+    `${AWS.PARAMETER_PATH.WORKTREE}/${issueNumber}`
   )
 
-  parameterStore.validateRequiredParameters(REQUIRED_DEVELOPMENT_PARAMETERS)
+  parameterStore.validateRequiredParameters(REQUIRED_WORKTREE_PARAMETERS)
 
   const githubApi = new GitHubApi(
     parameterStore.get(PARAMETER_KEYS.GITHUB_PROJECT_ID),
@@ -37,7 +39,7 @@ export async function initialize(): Promise<WorkflowContext> {
   const logLevel = parameterStore.get(PARAMETER_KEYS.LOG_LEVEL)
   const worktreeEnvironment = new WorktreeEnvironment(dbConfig, logLevel)
 
-  log('Parameter Storeからパラメータを読み込み、コンテキストを初期化しました')
+  log('✅ コンテキストを初期化しました')
 
   return {
     parameterStore,

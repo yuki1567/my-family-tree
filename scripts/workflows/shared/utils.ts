@@ -22,3 +22,16 @@ export function logError(error: unknown): void {
     console.error(`[${timestamp}] ❌ ERROR: ${String(error)}`)
   }
 }
+
+export function parseIssueNumber(issueNumber: string | undefined): number {
+  if (!issueNumber) {
+    throw new Error('issue番号を指定してください')
+  }
+
+  const parsedIssueNumber = Number.parseInt(issueNumber, 10)
+  if (Number.isNaN(parsedIssueNumber)) {
+    throw new Error(`無効なissue番号です: ${issueNumber}`)
+  }
+
+  return parsedIssueNumber
+}

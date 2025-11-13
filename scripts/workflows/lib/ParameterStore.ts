@@ -31,7 +31,7 @@ export class ParameterStore {
     return this._parameters[key]!
   }
 
-  public validateRequiredParameters(keys: string[]): void {
+  public validateRequiredParameters(keys: readonly string[]): void {
     const missing = keys.filter((k) => !this._parameters[k])
 
     if (missing.length > 0) {
