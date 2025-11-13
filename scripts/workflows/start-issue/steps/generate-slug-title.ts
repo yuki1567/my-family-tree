@@ -6,7 +6,7 @@ import type {
   GoogleTranslateResponse,
   WorkflowContext,
 } from '../../shared/types.js'
-import { log, PROJECT_ROOT } from '../../shared/utils.js'
+import { PROJECT_ROOT, log } from '../../shared/utils.js'
 
 export async function generateSlugTitle(ctx: WorkflowContext): Promise<void> {
   const issueTitle = ctx.githubApi.issueData.title
@@ -15,18 +15,11 @@ export async function generateSlugTitle(ctx: WorkflowContext): Promise<void> {
   const translatedText = await translateText(issueTitle, apiKey)
   const slugTitle = convertToSlug(translatedText)
 
-  ctx.worktreeEnvironment.generatePaths(slugTitle, PROJECT_ROOT)
+  ctx.worktreeEnvironment.setWorktreeInfo(slugTitle, PROJECT_ROOT)
 
   log(`Issueタイトルを翻訳・スラグ化しました: ${slugTitle}`)
   log(`✓ Branch: ${ctx.worktreeEnvironment.branchName}`)
   log(`✓ Path: ${ctx.worktreeEnvironment.worktreePath}`)
-}
-
-function convertToSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
 }
 
 async function translateText(text: string, apiKey: string): Promise<string> {
@@ -78,4 +71,11 @@ function isGoogleTranslateResponse(
     'translations' in data.data &&
     Array.isArray(data.data.translations)
   )
+}
+
+function convertToSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
 }

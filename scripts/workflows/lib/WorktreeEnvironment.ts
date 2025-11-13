@@ -34,10 +34,10 @@ export class WorktreeEnvironment {
     this._projectItemId = issue.projectItemId
   }
 
-  public generatePaths(slugTitle: string, rootPath: string): void {
+  public setWorktreeInfo(slugTitle: string, rootPath: string): void {
     if (!this._issueNumber || !this._label) {
       throw new WorktreeScriptError(
-        'Issue data must be set before generating paths'
+        'Issue data must be set before setting worktree info'
       )
     }
 
