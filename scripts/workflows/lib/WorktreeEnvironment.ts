@@ -62,6 +62,13 @@ export class WorktreeEnvironment {
     return this._issueNumber
   }
 
+  get slugTitle(): string {
+    if (!this._slugTitle) {
+      throw new WorktreeScriptError('Slug title not generated')
+    }
+    return this._slugTitle
+  }
+
   get branchName(): string {
     if (!this._branchName) {
       throw new WorktreeScriptError('Branch name not generated')

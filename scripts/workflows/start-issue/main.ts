@@ -22,7 +22,7 @@ async function main() {
   setupAwsProfile(ctx)
   setupDatabase(ctx)
   generatePrompt(ctx)
-  await openVscode(ctx)
+  openVscode(ctx)
 }
 
 main().catch((error) => {
