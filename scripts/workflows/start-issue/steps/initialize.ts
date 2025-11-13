@@ -1,5 +1,6 @@
 import { GitHubApi } from '../../lib/GitHubApi.js'
 import { ParameterStore } from '../../lib/ParameterStore.js'
+import { WorktreeEnvironment } from '../../lib/WorktreeEnvironment.js'
 import { AWS, PARAMETER_KEYS } from '../../shared/constants.js'
 import type { WorkflowContext } from '../../shared/types.js'
 import { log } from '../../shared/utils.js'
@@ -10,8 +11,6 @@ export async function initialize(): Promise<WorkflowContext> {
   )
 
   parameterStore.validateRequiredParameters(Object.values(PARAMETER_KEYS))
-
-  log('Parameter Storeからパラメータを読み込み、コンテキストを初期化しました')
 
   const githubApi = new GitHubApi(
     parameterStore.get(PARAMETER_KEYS.GITHUB_PROJECT_ID),
@@ -25,8 +24,20 @@ export async function initialize(): Promise<WorkflowContext> {
     }
   )
 
+  const dbConfig = {
+    adminUser: parameterStore.get(PARAMETER_KEYS.DATABASE_ADMIN_USER),
+    adminPassword: parameterStore.get(PARAMETER_KEYS.DATABASE_ADMIN_PASSWORD),
+    user: parameterStore.get(PARAMETER_KEYS.DATABASE_USER),
+    userPassword: parameterStore.get(PARAMETER_KEYS.DATABASE_USER_PASSWORD),
+  }
+  const logLevel = parameterStore.get(PARAMETER_KEYS.LOG_LEVEL)
+  const worktreeEnvironment = new WorktreeEnvironment(dbConfig, logLevel)
+
+  log('Parameter Storeからパラメータを読み込み、コンテキストを初期化しました')
+
   return {
     parameterStore,
     githubApi,
+    worktreeEnvironment,
   }
 }

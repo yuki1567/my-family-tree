@@ -1,19 +1,10 @@
 import { createAwsProfile as libCreateAwsProfile } from '../../lib/aws-profile.js'
-import type {
-  CreateAwsProfileContext,
-  SetupEnvironmentContext,
-} from '../../shared/types.js'
+import type { WorkflowContext } from '../../shared/types.js'
 
-export function createAwsProfile(
-  ctx: SetupEnvironmentContext
-): CreateAwsProfileContext {
-  const awsProfileName = libCreateAwsProfile(ctx.gitHub.issueNumber)
+export function createAwsProfile(ctx: WorkflowContext): void {
+  const awsProfileName = libCreateAwsProfile(
+    ctx.worktreeEnvironment.issueNumber
+  )
 
-  return {
-    ...ctx,
-    environment: {
-      ...ctx.environment,
-      awsProfileName,
-    },
-  }
+  ctx.worktreeEnvironment.setAwsProfile(awsProfileName)
 }

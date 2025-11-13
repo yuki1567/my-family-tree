@@ -6,17 +6,27 @@ import type {
   GoogleTranslateResponse,
   WorkflowContext,
 } from '../../shared/types.js'
-import { log } from '../../shared/utils.js'
+import { log, PROJECT_ROOT } from '../../shared/utils.js'
 
 export async function generateSlugTitle(ctx: WorkflowContext): Promise<void> {
   const issueTitle = ctx.githubApi.issueData.title
   const apiKey = ctx.parameterStore.get(PARAMETER_KEYS.GOOGLE_TRANSLATE_API_KEY)
 
   const translatedText = await translateText(issueTitle, apiKey)
+  const slugTitle = convertToSlug(translatedText)
 
-  ctx.githubApi.generateSlugTitle(translatedText)
+  ctx.worktreeEnvironment.generatePaths(slugTitle, PROJECT_ROOT)
 
-  log(`Issueタイトルを翻訳・スラグ化しました: ${ctx.githubApi.slugTitle}`)
+  log(`Issueタイトルを翻訳・スラグ化しました: ${slugTitle}`)
+  log(`✓ Branch: ${ctx.worktreeEnvironment.branchName}`)
+  log(`✓ Path: ${ctx.worktreeEnvironment.worktreePath}`)
+}
+
+function convertToSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
 }
 
 async function translateText(text: string, apiKey: string): Promise<string> {

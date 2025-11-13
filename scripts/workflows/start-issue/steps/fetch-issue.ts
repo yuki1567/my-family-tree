@@ -4,8 +4,15 @@ import { log } from '../../shared/utils.js'
 export async function fetchIssue(ctx: WorkflowContext): Promise<void> {
   await ctx.githubApi.loadTopPriorityIssue()
 
-  log(
-    `✓ Issue #${ctx.githubApi.issueData.number}: ${ctx.githubApi.issueData.title}`
-  )
-  log(`✓ Label: ${ctx.githubApi.issueData.label}`)
+  const issueData = ctx.githubApi.issueData
+
+  ctx.worktreeEnvironment.setIssueData({
+    number: issueData.number,
+    title: issueData.title,
+    label: issueData.label,
+    projectItemId: issueData.projectItemId,
+  })
+
+  log(`✓ Issue #${issueData.number}: ${issueData.title}`)
+  log(`✓ Label: ${issueData.label}`)
 }

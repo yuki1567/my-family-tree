@@ -1,54 +1,140 @@
+import path from 'node:path'
+
 import { DATABASE, PORTS, WORKTREE_PARAMETERS } from '../shared/constants.js'
+import { WorktreeScriptError } from '../shared/errors.js'
 import type { DatabaseConfig, WorktreeParameters } from '../shared/types.js'
 
 export class WorktreeEnvironment {
-  private readonly _issueNumber: number
-  private readonly _branchName: string
-  private readonly _webPort: number
-  private readonly _apiPort: number
-  private readonly _databaseName: string
-  private readonly _appName: string
-  private readonly _databaseUrl: string
-  private readonly _databaseAdminUrl: string
+  private _issueNumber?: number
+  private _issueTitle?: string
+  private _label?: string
+  private _projectItemId?: string
+  private _slugTitle?: string
+  private _branchName?: string
+  private _worktreePath?: string
+  private _awsProfileName?: string
+
   private readonly _dbConfig: DatabaseConfig
   private readonly _logLevel: string
 
-  constructor(
-    issueNumber: number,
-    slugTitle: string,
-    dbConfig: DatabaseConfig,
-    logLevel: string
-  ) {
-    this._issueNumber = issueNumber
-    this._branchName = `feature/issue-${issueNumber}-${slugTitle}`
-    this._webPort = PORTS.WEB_BASE + issueNumber
-    this._apiPort = PORTS.API_BASE + issueNumber
-    this._databaseName = this.generateDatabaseName(slugTitle)
-    this._appName = `app-${slugTitle}`
-    this._databaseUrl = this.buildDatabaseUrl(
-      dbConfig.user,
-      dbConfig.userPassword,
-      this._databaseName
-    )
-    this._databaseAdminUrl = this.buildDatabaseUrl(
-      dbConfig.adminUser,
-      dbConfig.adminPassword,
-      'postgres'
-    )
+  constructor(dbConfig: DatabaseConfig, logLevel: string) {
     this._dbConfig = dbConfig
     this._logLevel = logLevel
+  }
+
+  public setIssueData(issue: {
+    number: number
+    title: string
+    label: string
+    projectItemId: string
+  }): void {
+    this._issueNumber = issue.number
+    this._issueTitle = issue.title
+    this._label = issue.label
+    this._projectItemId = issue.projectItemId
+  }
+
+  public generatePaths(slugTitle: string, rootPath: string): void {
+    if (!this._issueNumber || !this._label) {
+      throw new WorktreeScriptError(
+        'Issue data must be set before generating paths'
+      )
+    }
+
+    this._slugTitle = slugTitle
+    this._branchName = `${this._label}/${this._issueNumber}-${slugTitle}`
+    this._worktreePath = path.resolve(
+      rootPath,
+      '..',
+      this._label,
+      `${this._issueNumber}-${slugTitle}`
+    )
+  }
+
+  public setAwsProfile(profileName: string): void {
+    this._awsProfileName = profileName
+  }
+
+  get issueNumber(): number {
+    if (this._issueNumber === undefined) {
+      throw new WorktreeScriptError('Issue number not set')
+    }
+    return this._issueNumber
+  }
+
+  get branchName(): string {
+    if (!this._branchName) {
+      throw new WorktreeScriptError('Branch name not generated')
+    }
+    return this._branchName
+  }
+
+  get worktreePath(): string {
+    if (!this._worktreePath) {
+      throw new WorktreeScriptError('Worktree path not generated')
+    }
+    return this._worktreePath
+  }
+
+  get awsProfileName(): string {
+    if (!this._awsProfileName) {
+      throw new WorktreeScriptError('AWS profile not set')
+    }
+    return this._awsProfileName
+  }
+
+  get webPort(): number {
+    return PORTS.WEB_BASE + this.issueNumber
+  }
+
+  get apiPort(): number {
+    return PORTS.API_BASE + this.issueNumber
+  }
+
+  get databaseName(): string {
+    if (!this._slugTitle) {
+      throw new WorktreeScriptError('Slug title not generated')
+    }
+    return this.generateDatabaseName(this._slugTitle)
+  }
+
+  get appName(): string {
+    if (!this._slugTitle) {
+      throw new WorktreeScriptError('Slug title not generated')
+    }
+    return `app-${this._slugTitle}`
+  }
+
+  get databaseUrl(): string {
+    return this.buildDatabaseUrl(
+      this._dbConfig.user,
+      this._dbConfig.userPassword,
+      this.databaseName
+    )
+  }
+
+  get databaseAdminUrl(): string {
+    return this.buildDatabaseUrl(
+      this._dbConfig.adminUser,
+      this._dbConfig.adminPassword,
+      'postgres'
+    )
+  }
+
+  get dbAdminPassword(): string {
+    return this._dbConfig.adminPassword
   }
 
   public getWorktreeParameters(): WorktreeParameters {
     const KEYS = WORKTREE_PARAMETERS.KEYS
     return {
-      [KEYS.ISSUE_NUMBER]: this._issueNumber,
-      [KEYS.BRANCH_NAME]: this._branchName,
-      [KEYS.WEB_PORT]: this._webPort,
-      [KEYS.API_PORT]: this._apiPort,
-      [KEYS.DATABASE_NAME]: this._databaseName,
-      [KEYS.DATABASE_URL]: this._databaseUrl,
-      [KEYS.DATABASE_ADMIN_URL]: this._databaseAdminUrl,
+      [KEYS.ISSUE_NUMBER]: this.issueNumber,
+      [KEYS.BRANCH_NAME]: this.branchName,
+      [KEYS.WEB_PORT]: this.webPort,
+      [KEYS.API_PORT]: this.apiPort,
+      [KEYS.DATABASE_NAME]: this.databaseName,
+      [KEYS.DATABASE_URL]: this.databaseUrl,
+      [KEYS.DATABASE_ADMIN_URL]: this.databaseAdminUrl,
       [KEYS.DATABASE_ADMIN_USER]: this._dbConfig.adminUser,
       [KEYS.DATABASE_ADMIN_PASSWORD]: this._dbConfig.adminPassword,
       [KEYS.DATABASE_USER]: this._dbConfig.user,

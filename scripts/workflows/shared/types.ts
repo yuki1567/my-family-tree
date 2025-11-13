@@ -2,6 +2,7 @@ import type { SSMClient } from '@aws-sdk/client-ssm'
 
 import type { GitHubApi } from '../lib/GitHubApi.js'
 import type { ParameterStore } from '../lib/ParameterStore.js'
+import type { WorktreeEnvironment } from '../lib/WorktreeEnvironment.js'
 
 export type GitHubLabel = {
   name: string
@@ -110,6 +111,7 @@ export type DatabaseConfig = {
 export type WorkflowContext = {
   parameterStore: ParameterStore
   githubApi: GitHubApi
+  worktreeEnvironment: WorktreeEnvironment
 }
 
 export type IssueData = {
@@ -117,7 +119,4 @@ export type IssueData = {
   title: string
   projectItemId: string
   label: string
-  slugTitle?: string
-  branchName?: string
-  worktreePath?: string
 }

@@ -1,5 +1,4 @@
 import { execSync } from 'child_process'
-import path from 'node:path'
 
 import { LABEL } from '../shared/constants.js'
 import {
@@ -13,7 +12,6 @@ import type {
   GitHubIssue,
   IssueData,
 } from '../shared/types.js'
-import { PROJECT_ROOT } from '../shared/utils.js'
 
 export class GitHubApi {
   constructor(
@@ -42,36 +40,6 @@ export class GitHubApi {
 
   get issueData(): IssueData {
     return this.readIssue()
-  }
-
-  get slugTitle(): string {
-    if (!this._issueData?.slugTitle) {
-      throw new GitHubApiError(
-        'スラグタイトルが生成されていません。ワークフローの実行順序を確認してください'
-      )
-    }
-
-    return this._issueData.slugTitle
-  }
-
-  get branchName(): string {
-    if (!this._issueData?.branchName) {
-      throw new GitHubApiError(
-        'ブランチ名が生成されていません。ワークフローの実行順序を確認してください'
-      )
-    }
-
-    return this._issueData.branchName
-  }
-
-  get worktreePath(): string {
-    if (!this._issueData?.worktreePath) {
-      throw new GitHubApiError(
-        'Worktreeパスが生成されていません。ワークフローの実行順序を確認してください'
-      )
-    }
-
-    return this._issueData.worktreePath
   }
 
   public async loadTopPriorityIssue(): Promise<void> {
@@ -171,34 +139,6 @@ export class GitHubApi {
       projectItemId,
       label: this.extractIssueLabel(issue),
     }
-  }
-
-  public generateSlugTitle(translatedTitle: string): void {
-    if (!this._issueData) {
-      throw new GitHubApiError(
-        'Issue情報が読み込まれていません。ワークフローの実行順序を確認してください'
-      )
-    }
-
-    const slugTitle = this.convertToSlug(translatedTitle)
-    const issueNumber = this._issueData.number
-    const label = this._issueData.label
-
-    this._issueData.slugTitle = slugTitle
-    this._issueData.branchName = `${label}/${issueNumber}-${slugTitle}`
-    this._issueData.worktreePath = path.resolve(
-      PROJECT_ROOT,
-      '..',
-      label,
-      `${issueNumber}-${slugTitle}`
-    )
-  }
-
-  private convertToSlug(text: string): string {
-    return text
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
   }
 
   private extractIssueLabel(issue: GitHubIssue): string {
