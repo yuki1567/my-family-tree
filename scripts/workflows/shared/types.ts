@@ -65,7 +65,7 @@ export type WorktreeParameterKey =
   | 'database-user'
   | 'database-user-password'
 
-export type WorktreeParameters = Record<WorktreeParameterKey, string>
+export type WorktreeParameters = Record<WorktreeParameterKey, string | number>
 
 export type ParameterDescriptor = {
   key: WorktreeParameterKey

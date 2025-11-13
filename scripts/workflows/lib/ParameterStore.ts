@@ -1,14 +1,18 @@
 import {
   type Parameter,
+  PutParameterCommand,
   SSMClient,
   paginateGetParametersByPath,
 } from '@aws-sdk/client-ssm'
 
+import { AWS, WORKTREE_PARAMETERS } from '../shared/constants.js'
 import { ParameterStoreError, WorktreeScriptError } from '../shared/errors.js'
 import type {
   ParameterDescriptor,
+  WorktreeParameterKey,
   WorktreeParameters,
 } from '../shared/types.js'
+import { log } from '../shared/utils.js'
 
 export class ParameterStore {
   private constructor(
@@ -17,9 +21,9 @@ export class ParameterStore {
   ) {}
 
   public static async create(path: string): Promise<ParameterStore> {
-    const client = ParameterStore.createClient()
-    const rawParams = await ParameterStore.fetchParameters(client, path)
-    const parameters = ParameterStore.transformToMap(rawParams, path)
+    const client = this.createClient()
+    const rawParams = await this.fetchParameters(client, path)
+    const parameters = this.transformToMap(rawParams, path)
     return new ParameterStore(parameters, path)
   }
 
@@ -72,7 +76,7 @@ export class ParameterStore {
     path: string
   ): Record<string, string> {
     return parameters.reduce<Record<string, string>>((acc, parameter) => {
-      const [key, value] = ParameterStore.extractKeyValue(parameter, path)
+      const [key, value] = this.extractKeyValue(parameter, path)
       acc[key] = value
       return acc
     }, {})
@@ -94,40 +98,82 @@ export class ParameterStore {
     return [key, parameter.Value]
   }
 
-  async putWorktreeParameters(
-    _issueNumber: number,
-    _params: WorktreeParameters
+  public static async putParameters(
+    issueNumber: number,
+    parameters: WorktreeParameters
   ): Promise<void> {
-    throw new Error('Not implemented')
+    const client = this.createClient()
+    const pathPrefix = `${AWS.PARAMETER_PATH.WORKTREE}/${issueNumber}`
+
+    const descriptors = Object.entries(parameters).map(([key, value]) =>
+      this.createParameterDescriptor(pathPrefix, key, value)
+    )
+
+    const results = await Promise.all(
+      descriptors.map((descriptor) =>
+        this.putSingleParameter(client, descriptor)
+      )
+    )
+
+    const successCount = results.filter(Boolean).length
+    const errorCount = results.length - successCount
+
+    log(
+      `Parameter Store登録完了: 成功 ${successCount}件, エラー ${errorCount}件`
+    )
   }
 
-  async deleteWorktreeParameters(_issueNumber: number): Promise<void> {
-    throw new Error('Not implemented')
-  }
-
-  private extractParameter(
-    _params: Parameter[],
-    _key: string,
-    _basePath: string
-  ): string {
-    throw new Error('Not implemented')
-  }
-
-  private createParameterDescriptor(
-    _pathPrefix: string,
-    _key: string,
-    _value: string
+  private static createParameterDescriptor(
+    pathPrefix: string,
+    key: string,
+    value: string | number
   ): ParameterDescriptor {
-    throw new Error('Not implemented')
+    if (!this.isWorktreeParameterKey(key)) {
+      throw new ParameterStoreError(`Invalid worktree parameter key: ${key}`)
+    }
+
+    return {
+      key,
+      value: String(value),
+      name: `${pathPrefix}/${key}`,
+      type: this.classifyParameterType(key),
+    }
   }
 
-  private async putSingleParameter(
-    _descriptor: ParameterDescriptor
+  private static async putSingleParameter(
+    client: SSMClient,
+    descriptor: ParameterDescriptor
   ): Promise<boolean> {
-    throw new Error('Not implemented')
+    try {
+      await client.send(
+        new PutParameterCommand({
+          Name: descriptor.name,
+          Value: descriptor.value,
+          Type: descriptor.type,
+          Overwrite: true,
+        })
+      )
+      log(`  ✓ ${descriptor.key} を登録しました (Type: ${descriptor.type})`)
+      return true
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      log(`  ✗ ${descriptor.key} の登録に失敗しました: ${errorMessage}`)
+      return false
+    }
   }
 
-  private async deleteSingleParameter(_name: string): Promise<boolean> {
-    throw new Error('Not implemented')
+  private static isWorktreeParameterKey(
+    key: string
+  ): key is WorktreeParameterKey {
+    const validateParameterKeys = new Set<string>(WORKTREE_PARAMETERS.ALL_KEYS)
+    return validateParameterKeys.has(key)
+  }
+
+  private static classifyParameterType(
+    key: WorktreeParameterKey
+  ): 'String' | 'SecureString' {
+    const secureKeys = new Set<string>(WORKTREE_PARAMETERS.SECURE_KEYS)
+    return secureKeys.has(key) ? 'SecureString' : 'String'
   }
 }

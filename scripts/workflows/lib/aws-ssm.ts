@@ -182,7 +182,7 @@ async function deleteSingleParameter(
 function createParameterDescriptor(
   pathPrefix: string,
   key: string,
-  value: string
+  value: string | number
 ): ParameterDescriptor {
   if (!isWorktreeParameterKey(key)) {
     throw new ParameterStoreError(`Invalid worktree parameter key: ${key}`)
@@ -190,7 +190,7 @@ function createParameterDescriptor(
 
   return {
     key,
-    value,
+    value: String(value),
     name: `${pathPrefix}/${key}`,
     type: classifyParameterType(key),
   }

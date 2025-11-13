@@ -1,82 +1,45 @@
 import { copyFileSync } from 'node:fs'
 import path from 'node:path'
+import { ParameterStore } from 'scripts/workflows/lib/ParameterStore.js'
 
-import { putParameters } from '../../lib/aws-ssm.js'
-import { generateDatabaseName } from '../../lib/database.js'
-import { FILES, PORTS } from '../../shared/constants.js'
+import { WorktreeEnvironment } from '../../lib/WorktreeEnvironment.js'
+import { FILES, PARAMETER_KEYS } from '../../shared/constants.js'
 import type { WorkflowContext } from '../../shared/types.js'
 import { PROJECT_ROOT, log } from '../../shared/utils.js'
 
-export async function setupEnvironment(
-  ctx: WorkflowContext
-): Promise<SetupEnvironmentContext> {
-  const { webPort, apiPort } = calculateWorktreePorts(ctx.gitHub.issueNumber)
-  const dbName = generateDatabaseName(ctx.gitHub.issueSlugTitle)
-  const appName = `app-${ctx.gitHub.issueSlugTitle}`
+export async function setupEnvironment(ctx: WorkflowContext): Promise<void> {
+  const issueNumber = ctx.githubApi.issueData.number
+  const slugTitle = ctx.githubApi.slugTitle
+  const dbConfig = {
+    adminUser: ctx.parameterStore.get(PARAMETER_KEYS.DATABASE_ADMIN_USER),
+    adminPassword: ctx.parameterStore.get(
+      PARAMETER_KEYS.DATABASE_ADMIN_PASSWORD
+    ),
+    user: ctx.parameterStore.get(PARAMETER_KEYS.DATABASE_USER),
+    userPassword: ctx.parameterStore.get(PARAMETER_KEYS.DATABASE_USER_PASSWORD),
+  }
+  const logLevel = ctx.parameterStore.get(PARAMETER_KEYS.LOG_LEVEL)
+  const worktreeEnvironment = new WorktreeEnvironment(
+    issueNumber,
+    slugTitle,
+    dbConfig,
+    logLevel
+  )
 
   const srcClaudeLocalSettings = path.join(
     PROJECT_ROOT,
     FILES.CLAUDE_LOCAL_SETTINGS
   )
   const dstClaudeLocalSettings = path.join(
-    ctx.environment.worktreePath,
+    ctx.githubApi.worktreePath,
     FILES.CLAUDE_LOCAL_SETTINGS
   )
 
   copyFileSync(srcClaudeLocalSettings, dstClaudeLocalSettings)
   log(`Claudeローカル設定ファイルをコピーしました: ${dstClaudeLocalSettings}`)
 
-  const { databaseUrl, databaseAdminUrl } = buildDatabaseUrls(
-    ctx.environment,
-    dbName
+  await ParameterStore.putParameters(
+    issueNumber,
+    worktreeEnvironment.getWorktreeParameters()
   )
-
-  await putParameters(ctx.ssmClient, ctx.gitHub.issueNumber, {
-    'branch-name': ctx.gitHub.branchName,
-    'issue-number': String(ctx.gitHub.issueNumber),
-    'web-port': String(webPort),
-    'api-port': String(apiPort),
-    'database-url': databaseUrl,
-    'database-admin-url': databaseAdminUrl,
-    'log-level': 'query,info,warn,error',
-    'database-admin-user': ctx.environment.dbAdminUser,
-    'database-admin-password': ctx.environment.dbAdminPassword,
-    'database-name': dbName,
-    'database-user': ctx.environment.dbUser,
-    'database-user-password': ctx.environment.dbUserPassword,
-  })
-
-  return {
-    ...ctx,
-    environment: {
-      ...ctx.environment,
-      webPort,
-      apiPort,
-      dbName,
-      appName,
-    },
-  }
-}
-
-function calculateWorktreePorts(issueNumber: number): {
-  webPort: number
-  apiPort: number
-} {
-  return {
-    webPort: PORTS.WEB_BASE + issueNumber,
-    apiPort: PORTS.API_BASE + issueNumber,
-  }
-}
-
-function buildDatabaseUrls(
-  env: CreateWorktreeContext['environment'],
-  dbName: string
-): {
-  databaseUrl: string
-  databaseAdminUrl: string
-} {
-  return {
-    databaseUrl: `postgresql://${env.dbUser}:${env.dbUserPassword}@db:5432/${dbName}`,
-    databaseAdminUrl: `postgresql://${env.dbAdminUser}:${env.dbAdminPassword}@db:5432/postgres`,
-  }
 }

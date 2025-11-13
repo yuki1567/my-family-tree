@@ -67,6 +67,7 @@ export const PARAMETER_KEYS = {
   DATABASE_USER: 'DATABASE_USER',
   DATABASE_USER_PASSWORD: 'DATABASE_USER_PASSWORD',
   GOOGLE_TRANSLATE_API_KEY: 'GOOGLE_TRANSLATE_API_KEY',
+  LOG_LEVEL: 'LOG_LEVEL',
 } as const
 
 export const DEVELOPMENT_PARAMETERS = {
@@ -81,29 +82,35 @@ export const DEVELOPMENT_PARAMETERS = {
   DATABASE_ADMIN_PASSWORD: 'database-admin-password',
   DATABASE_USER: 'database-user',
   DATABASE_USER_PASSWORD: 'database-user-password',
+  LOG_LEVEL: 'log-level',
 } as const
 
 export type DevelopmentParameterKey = keyof typeof DEVELOPMENT_PARAMETERS
 
+const WORKTREE_PARAMETER_KEYS = {
+  BRANCH_NAME: 'branch-name',
+  ISSUE_NUMBER: 'issue-number',
+  WEB_PORT: 'web-port',
+  API_PORT: 'api-port',
+  DATABASE_URL: 'database-url',
+  DATABASE_ADMIN_URL: 'database-admin-url',
+  LOG_LEVEL: 'log-level',
+  DATABASE_ADMIN_USER: 'database-admin-user',
+  DATABASE_ADMIN_PASSWORD: 'database-admin-password',
+  DATABASE_NAME: 'database-name',
+  DATABASE_USER: 'database-user',
+  DATABASE_USER_PASSWORD: 'database-user-password',
+} as const
+
+const WORKTREE_SECURE_KEYS = [
+  'database-url',
+  'database-admin-url',
+  'database-admin-password',
+  'database-user-password',
+] as const
+
 export const WORKTREE_PARAMETERS = {
-  ALL_KEYS: [
-    'branch-name',
-    'issue-number',
-    'web-port',
-    'api-port',
-    'database-url',
-    'database-admin-url',
-    'log-level',
-    'database-admin-user',
-    'database-admin-password',
-    'database-name',
-    'database-user',
-    'database-user-password',
-  ],
-  SECURE_KEYS: [
-    'database-url',
-    'database-admin-url',
-    'database-admin-password',
-    'database-user-password',
-  ],
+  KEYS: WORKTREE_PARAMETER_KEYS,
+  ALL_KEYS: Object.values(WORKTREE_PARAMETER_KEYS),
+  SECURE_KEYS: WORKTREE_SECURE_KEYS,
 } as const
