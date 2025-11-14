@@ -1,9 +1,8 @@
 import { removeLocalBranch, removeRemoteBranch } from '../../lib/git.js'
-import { closeIssue as githubCloseIssue } from '../../lib/GitHubApi.js'
-import type { WorktreeInfo } from '../../shared/types.js'
+import type { WorkflowContext } from '../../shared/types.js'
 
-export function closeIssue(worktreeInfo: WorktreeInfo): void {
-  removeLocalBranch(worktreeInfo.branch)
-  removeRemoteBranch(worktreeInfo.branch)
-  githubCloseIssue(worktreeInfo.issueNumber)
+export function githubCloseIssue(ctx: WorkflowContext): void {
+  removeLocalBranch(ctx.worktreeEnvironment.branchName)
+  removeRemoteBranch(ctx.worktreeEnvironment.branchName)
+  ctx.githubApi.closeIssue()
 }

@@ -1,5 +1,5 @@
-import { mergeToMain as gitMergeToMain } from '../../lib/git.js'
+import { mergeToMain } from '../../lib/git.js'
 
-export function mergeToMain(): void {
-  gitMergeToMain()
+export function gitMergeToMain(): void {
+  mergeToMain()
 }

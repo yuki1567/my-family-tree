@@ -128,7 +128,7 @@ export class WorktreeEnvironment {
     )
   }
 
-  get dbAdminPassword(): string {
+  get databaseAdminPassword(): string {
     return this._dbConfig.adminPassword
   }
 

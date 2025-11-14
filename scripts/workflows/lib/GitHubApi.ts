@@ -166,12 +166,30 @@ export class GitHubApi {
     })
   }
 
-  async moveToInReview(_projectItemId: string): Promise<void> {
-    throw new Error('Not implemented')
-  }
+  public async closeIssue(): Promise<void> {
+    try {
+      const state = execSync(
+        `gh issue view ${this.issueData.number} --json state -q ".state"`,
+        { encoding: 'utf-8' }
+      ).trim()
 
-  async closeIssue(_issueNumber: number): Promise<void> {
-    throw new Error('Not implemented')
+      if (state === 'CLOSED') {
+        log(`Issue #${this.issueData.number} は既にクローズ済みです`)
+        return
+      }
+
+      execSync(
+        `gh issue close ${this.issueData.number} --comment "✅ 開発完了・マージ済み"`,
+        { stdio: 'inherit' }
+      )
+      log(`Issue #${this.issueData.number} をクローズしました`)
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      throw new GitHubApiError(
+        `Issueクローズに失敗しました: #${this.issueData.number}\n${errorMessage}`
+      )
+    }
   }
 
   public assignToCurrentUser(): void {

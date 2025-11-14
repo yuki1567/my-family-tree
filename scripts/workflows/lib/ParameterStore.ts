@@ -1,4 +1,5 @@
 import {
+  DeleteParameterCommand,
   type Parameter,
   PutParameterCommand,
   SSMClient,
@@ -29,6 +30,10 @@ export class ParameterStore {
 
   public get(key: string): string {
     return this._parameters[key]!
+  }
+
+  get path(): string {
+    return this._path
   }
 
   public validateRequiredParameters(keys: readonly string[]): void {
@@ -175,5 +180,51 @@ export class ParameterStore {
   ): 'String' | 'SecureString' {
     const secureKeys = new Set<string>(WORKTREE_PARAMETERS.SECURE_KEYS)
     return secureKeys.has(key) ? 'SecureString' : 'String'
+  }
+
+  public async deleteParameters(): Promise<void> {
+    log(`🔐 Parameter Store クリーンアップ開始: ${this._path}`)
+
+    const client = ParameterStore.createClient()
+    const parameterNames = Object.keys(this._parameters).map((key) =>
+      this.reconstructParameterName(key)
+    )
+
+    const results = await Promise.all(
+      parameterNames.map((name) => this.deleteSingleParameter(client, name))
+    )
+
+    const successCount = results.filter(Boolean).length
+    const errorCount = results.length - successCount
+    log(
+      `Parameter Store削除完了: 成功 ${successCount}件, エラー ${errorCount}件`
+    )
+  }
+
+  private reconstructParameterName(key: string): string {
+    const paramName = key.toLowerCase().replace(/_/g, '-')
+    return `${this._path}/${paramName}`
+  }
+
+  private async deleteSingleParameter(
+    client: SSMClient,
+    name: string
+  ): Promise<boolean> {
+    try {
+      await client.send(
+        new DeleteParameterCommand({
+          Name: name,
+        })
+      )
+      log(`  ✗ ${name}を パラメータストアから削除しました`)
+      return true
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      log(
+        `  ✗ ${name}を パラメータストアから削除に失敗したした: ${errorMessage}`
+      )
+      return false
+    }
   }
 }

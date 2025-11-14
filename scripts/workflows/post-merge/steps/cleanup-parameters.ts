@@ -1,10 +1,5 @@
-import type { SSMClient } from '@aws-sdk/client-ssm'
+import { WorkflowContext } from 'scripts/workflows/shared/types.js'
 
-import { deleteParametersByPath } from '../../lib/aws-ssm.js'
-
-export async function cleanupParameters(
-  client: SSMClient,
-  issueNumber: number
-): Promise<void> {
-  await deleteParametersByPath(client, issueNumber)
+export async function cleanupParameters(ctx: WorkflowContext): Promise<void> {
+  await ctx.parameterStore.deleteParameters()
 }
