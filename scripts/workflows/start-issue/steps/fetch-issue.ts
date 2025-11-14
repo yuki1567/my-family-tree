@@ -8,9 +8,7 @@ export async function fetchIssue(ctx: WorkflowContext): Promise<void> {
 
   ctx.worktreeEnvironment.setIssueData({
     number: issueData.number,
-    title: issueData.title,
     label: issueData.label,
-    projectItemId: issueData.projectItemId,
   })
 
   log(`✓ Issue #${issueData.number}: ${issueData.title}`)

@@ -6,9 +6,7 @@ import type { DatabaseConfig, WorktreeParameters } from '../shared/types.js'
 
 export class WorktreeEnvironment {
   private _issueNumber?: number
-  private _issueTitle?: string
   private _label?: string
-  private _projectItemId?: string
   private _slugTitle?: string
   private _branchName?: string
   private _worktreePath?: string
@@ -22,16 +20,9 @@ export class WorktreeEnvironment {
     this._logLevel = logLevel
   }
 
-  public setIssueData(issue: {
-    number: number
-    title: string
-    label: string
-    projectItemId: string
-  }): void {
+  public setIssueData(issue: { number: number; label: string }): void {
     this._issueNumber = issue.number
-    this._issueTitle = issue.title
     this._label = issue.label
-    this._projectItemId = issue.projectItemId
   }
 
   public setWorktreeInfo(slugTitle: string, rootPath: string): void {
