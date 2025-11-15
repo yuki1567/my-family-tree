@@ -1,13 +1,13 @@
 import { Git } from '../lib/Git.js'
 import { PARAMETER_KEYS } from '../shared/constants.js'
+import { buildWorktreeConfig } from '../shared/steps/buildWorktreeConfig.js'
+import { generateSlugFromIssueTitle } from '../shared/steps/generateSlugFromIssueTitle.js'
+import { initialize } from '../shared/steps/initialize.js'
 import { log, logError } from '../shared/utils.js'
 
-import { buildWorktreeConfig } from './steps/buildWorktreeConfig.js'
 import { cleanupAwsResources } from './steps/cleanupAwsResources.js'
 import { cleanupInfrastructure } from './steps/cleanupInfrastructure.js'
 import { cleanupWorktree } from './steps/cleanupWorktree.js'
-import { generateSlugFromIssueTitle } from './steps/generateSlugFromIssueTitle.js'
-import { initialize } from './steps/initialize.js'
 
 async function main() {
   log('🚀 post-mergeワークフローを開始します')
