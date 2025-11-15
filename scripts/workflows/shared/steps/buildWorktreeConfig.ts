@@ -1,8 +1,8 @@
 import path from 'path'
 
-import { PORTS } from '../../shared/constants.js'
-import { WorktreeConfig } from '../../shared/types.js'
-import { PROJECT_ROOT } from '../../shared/utils.js'
+import { PORTS } from '../constants.js'
+import { WorktreeConfig } from '../types.js'
+import { PROJECT_ROOT } from '../utils.js'
 
 export function buildWorktreeConfig(issueNumber: number): WorktreeConfig {
   const branchName = `family-tree-${issueNumber}`

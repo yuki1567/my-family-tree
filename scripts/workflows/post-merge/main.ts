@@ -1,5 +1,6 @@
 import { Git } from '../lib/Git.js'
 import { GitHubApi } from '../lib/GitHubApi.js'
+import { buildWorktreeConfig } from '../shared/steps/buildWorktreeConfig.js'
 import { log, logError, parseIssueNumber } from '../shared/utils.js'
 
 import { cleanupAwsResources } from './steps/cleanupAwsResources.js'
@@ -15,9 +16,9 @@ async function main() {
 
   log('🔄 Step 2/5: mainブランチにマージ中...')
   const issueNumber = parseIssueNumber(process.argv[2])
-  const { path, branchName } = Git.getWorktreeByIssueNumber(issueNumber)
+  const worktreeConfig = buildWorktreeConfig(issueNumber)
 
-  const git = new Git(branchName, path)
+  const git = new Git(worktreeConfig.branchName, worktreeConfig.worktreePath)
 
   git.mergeToMain()
 
