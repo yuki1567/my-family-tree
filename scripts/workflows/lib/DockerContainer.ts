@@ -5,7 +5,7 @@ import { DatabaseError } from '../shared/errors.js'
 import { log } from '../shared/utils.js'
 
 export class DockerContainer {
-  constructor(private readonly containerName: string) {}
+  constructor(private readonly name: string) {}
 
   public cleanup(): void {
     this.stop()
@@ -15,25 +15,25 @@ export class DockerContainer {
 
   private stop(): void {
     try {
-      execSync(`docker stop ${this.containerName}`, { stdio: 'pipe' })
+      execSync(`docker stop ${this.name}`, { stdio: 'pipe' })
     } catch {
-      log(`ℹ️ コンテナは既に停止済み: ${this.containerName}`)
+      log(`ℹ️ コンテナは既に停止済み: ${this.name}`)
     }
   }
 
   private remove(): void {
     try {
-      execSync(`docker rm ${this.containerName}`, { stdio: 'pipe' })
+      execSync(`docker rm ${this.name}`, { stdio: 'pipe' })
     } catch {
-      log(`ℹ️ コンテナは既に存在しません: ${this.containerName}`)
+      log(`ℹ️ コンテナは既に存在しません: ${this.name}`)
     }
   }
 
   private removeImage(): void {
     try {
-      execSync(`docker rmi ${this.containerName}`, { stdio: 'pipe' })
+      execSync(`docker rmi ${this.name}`, { stdio: 'pipe' })
     } catch {
-      log(`ℹ️ イメージは既に存在しません: ${this.containerName}`)
+      log(`ℹ️ イメージは既に存在しません: ${this.name}`)
     }
   }
 

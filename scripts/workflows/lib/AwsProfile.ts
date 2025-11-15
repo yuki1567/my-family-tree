@@ -14,14 +14,10 @@ import type { AwsProfileConfig } from '../shared/types.js'
 import { log } from '../shared/utils.js'
 
 export class AwsProfile {
-  private readonly profileName: string
-
-  constructor(issueNumber: number) {
-    this.profileName = `${AWS.PROFILE.PREFIX}-${issueNumber}`
-  }
+  constructor(private readonly _name: string) {}
 
   get name(): string {
-    return this.profileName
+    return this._name
   }
 
   public create(): void {
@@ -50,7 +46,7 @@ export class AwsProfile {
     const configContent = readFileSync(configPath, 'utf-8')
 
     if (!this.exists(configContent)) {
-      log(`ℹ️ AWS profile "${this.profileName}" は存在しません`)
+      log(`ℹ️ AWS profile "${this._name}" は存在しません`)
       return
     }
 
@@ -59,7 +55,7 @@ export class AwsProfile {
   }
 
   private exists(configContent: string): boolean {
-    return configContent.includes(`[profile ${this.profileName}]`)
+    return configContent.includes(`[profile ${this._name}]`)
   }
 
   private loadConfigContent(): string {
@@ -96,7 +92,7 @@ export class AwsProfile {
     const configPath = this.getConfigPath()
     const profileLines = [
       '',
-      `[profile ${this.profileName}]`,
+      `[profile ${this._name}]`,
       `role_arn = ${roleArn}`,
       `source_profile = ${sourceProfile}`,
       '',
@@ -107,7 +103,7 @@ export class AwsProfile {
 
   private removeFromConfig(configContent: string): string {
     const lines = configContent.split('\n')
-    const profileHeader = `[profile ${this.profileName}]`
+    const profileHeader = `[profile ${this._name}]`
     const result: string[] = []
     let skipMode = false
 

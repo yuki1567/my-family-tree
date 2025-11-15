@@ -172,27 +172,27 @@ export class GitHubApi {
     return typeLabel?.name || LABEL.DEFAULT_LABEL
   }
 
-  public async closeIssue(): Promise<void> {
+  public static async closeIssue(issueNumber: number): Promise<void> {
     try {
       const state = execSync(
-        `gh issue view ${this._issue.number} --json state -q ".state"`,
+        `gh issue view ${issueNumber} --json state -q ".state"`,
         { encoding: 'utf-8' }
       ).trim()
 
       if (state === 'CLOSED') {
-        log(`ℹ️ Issue #${this._issue.number} は既にクローズ済みです`)
+        log(`ℹ️ Issue #${issueNumber} は既にクローズ済みです`)
         return
       }
 
       execSync(
-        `gh issue close ${this._issue.number} --comment "✅ 開発完了・マージ済み"`,
+        `gh issue close ${issueNumber} --comment "✅ 開発完了・マージ済み"`,
         { stdio: 'inherit' }
       )
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
       throw new GitHubApiError(
-        `Issueクローズに失敗しました: #${this._issue.number}\n${errorMessage}`
+        `Issueクローズに失敗しました: #${issueNumber}\n${errorMessage}`
       )
     }
   }

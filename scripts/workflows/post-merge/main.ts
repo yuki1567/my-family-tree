@@ -1,44 +1,36 @@
 import { Git } from '../lib/Git.js'
-import { PARAMETER_KEYS } from '../shared/constants.js'
-import { buildWorktreeConfig } from '../shared/steps/buildWorktreeConfig.js'
-import { generateSlugFromIssueTitle } from '../shared/steps/generateSlugFromIssueTitle.js'
-import { initialize } from '../shared/steps/initialize.js'
-import { log, logError } from '../shared/utils.js'
+import { GitHubApi } from '../lib/GitHubApi.js'
+import { log, logError, parseIssueNumber } from '../shared/utils.js'
 
 import { cleanupAwsResources } from './steps/cleanupAwsResources.js'
 import { cleanupInfrastructure } from './steps/cleanupInfrastructure.js'
 import { cleanupWorktree } from './steps/cleanupWorktree.js'
+import { initialize } from './steps/initialize.js'
 
 async function main() {
   log('🚀 post-mergeワークフローを開始します')
 
   log('📋 Step 1/5: Issue情報を取得中...')
-  const { parameterStore, gitHubApi } = await initialize()
+  const { parameterStore } = await initialize()
 
   log('🔄 Step 2/5: mainブランチにマージ中...')
-  const slugTitle = await generateSlugFromIssueTitle(
-    gitHubApi.issue.title,
-    parameterStore.getParameter(PARAMETER_KEYS.GOOGLE_TRANSLATE_API_KEY)
-  )
+  const issueNumber = parseIssueNumber(process.argv[2])
+  const { path, branchName } = Git.getWorktreeByIssueNumber(issueNumber)
 
-  const worktreeConfig = buildWorktreeConfig(
-    gitHubApi.issue.number,
-    gitHubApi.issue.label,
-    slugTitle
-  )
-  const git = new Git(worktreeConfig.branchName, worktreeConfig.worktreePath)
+  const git = new Git(branchName, path)
+
   git.mergeToMain()
 
   log('🧹 Step 3/5: インフラストラクチャをクリーンアップ中...')
-  await cleanupInfrastructure(slugTitle, parameterStore)
+  await cleanupInfrastructure(parameterStore, issueNumber)
 
   log('🗑️  Step 4/5: AWSリソースをクリーンアップ中...')
-  cleanupAwsResources(parameterStore, gitHubApi.issue.number)
+  await cleanupAwsResources(issueNumber)
 
   log('✨ Step 5/5: Worktreeとブランチを削除し、Issueをクローズ中...')
   cleanupWorktree(git)
 
-  gitHubApi.closeIssue()
+  GitHubApi.closeIssue(issueNumber)
 
   log('✅ post-merge処理が完了しました')
 }

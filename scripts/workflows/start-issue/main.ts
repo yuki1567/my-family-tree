@@ -4,13 +4,13 @@ import { AwsProfile } from '../lib/AwsProfile.js'
 import { Database } from '../lib/Database.js'
 import { DockerContainer } from '../lib/DockerContainer.js'
 import { Git } from '../lib/Git.js'
-import { PARAMETER_KEYS } from '../shared/constants.js'
-import { buildWorktreeConfig } from '../shared/steps/buildWorktreeConfig.js'
-import { generateSlugFromIssueTitle } from '../shared/steps/generateSlugFromIssueTitle.js'
-import { initialize } from '../shared/steps/initialize.js'
+import { AWS, PARAMETER_KEYS } from '../shared/constants.js'
 import { log, logError } from '../shared/utils.js'
 
+import { buildWorktreeConfig } from './steps/buildWorktreeConfig.js'
 import { generatePromptFile } from './steps/generatePromptFile.js'
+import { generateSlugFromIssueTitle } from './steps/generateSlugFromIssueTitle.js'
+import { initialize } from './steps/initialize.js'
 import { setupInfrastructure } from './steps/setupInfrastructure.js'
 import { setupWorktreeEnvironment } from './steps/setupWorktreeEnvironment.js'
 
@@ -44,8 +44,9 @@ async function main() {
     parameterStore.getParameter(PARAMETER_KEYS.DATABASE_USER),
     parameterStore.getParameter(PARAMETER_KEYS.DATABASE_USER_PASSWORD)
   )
-  const awsProfile = new AwsProfile(gitHubApi.issue.number)
-  const dockerContainer = new DockerContainer(`app-${slugTitle}`)
+  const appName = `${AWS.PROFILE.PREFIX}-${gitHubApi.issue.number}`
+  const awsProfile = new AwsProfile(appName)
+  const dockerContainer = new DockerContainer(appName)
 
   const environmentParameters = {
     parameterStore,
@@ -54,7 +55,7 @@ async function main() {
     database,
     worktreeConfig,
   }
-  setupWorktreeEnvironment(environmentParameters)
+  await setupWorktreeEnvironment(environmentParameters)
 
   log('⚙️  Step 4/5: インフラストラクチャをセットアップ中...')
   await setupInfrastructure(

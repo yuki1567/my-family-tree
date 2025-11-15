@@ -74,4 +74,34 @@ export class Git {
       )
     }
   }
+
+  public static getWorktreeByIssueNumber(issueNumber: number): {
+    path: string
+    branchName: string
+  } {
+    const result = execSync('git worktree list', { encoding: 'utf-8' })
+    const lines = result.split('\n')
+
+    const worktreeInfo = lines.find((line) => line.includes(`/${issueNumber}-`))
+
+    if (!worktreeInfo) {
+      throw new GitOperationError(
+        `Issue #${issueNumber} に対応するワークツリーが見つかりません`
+      )
+    }
+
+    const parts = worktreeInfo.trim().split(/\s+/)
+    const path = parts[0]
+    const branchWithBrackets = parts[2]
+
+    if (!path || !branchWithBrackets) {
+      throw new GitOperationError(
+        `Worktree情報のパースに失敗しました: ${worktreeInfo}`
+      )
+    }
+
+    const branchName = branchWithBrackets.replace(/^\[|\]$/g, '')
+
+    return { path, branchName }
+  }
 }
