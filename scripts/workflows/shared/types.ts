@@ -1,10 +1,7 @@
-import type { SSMClient } from '@aws-sdk/client-ssm'
-
 import type { Database } from '../lib/Database.js'
 import type { Git } from '../lib/Git.js'
 import type { GitHubApi } from '../lib/GitHubApi.js'
 import type { ParameterStore } from '../lib/ParameterStore.js'
-import type { WorktreeEnvironment } from '../lib/WorktreeEnvironment.js'
 
 import { PARAMETER_KEYS } from './constants.js'
 
@@ -50,14 +47,6 @@ export type FetchStatusFieldIdResponse = {
   }
 }
 
-export type GoogleTranslateResponse = {
-  data: {
-    translations: Array<{
-      translatedText: string
-    }>
-  }
-}
-
 export type WorktreeParameterKey =
   | 'branch-name'
   | 'issue-number'
@@ -79,29 +68,6 @@ export type ParameterDescriptor = {
   value: string
   name: string
   type: 'String' | 'SecureString'
-}
-
-export type WorktreeInfo = {
-  issueNumber: number
-  path: string
-  branch: string
-}
-
-export type BaseContext = {
-  ssmClient: SSMClient
-}
-
-export type DatabaseConfig = {
-  adminUser: string
-  adminPassword: string
-  user: string
-  userPassword: string
-}
-
-export type WorkflowContext = {
-  parameterStore: ParameterStore
-  githubApi: GitHubApi
-  worktreeEnvironment?: WorktreeEnvironment
 }
 
 export type Issue = {
@@ -128,6 +94,7 @@ export type Parameters = Record<string, string>
 
 export type WorktreeConfig = {
   branchName: string
+  databaseName: string
   worktreePath: string
   webPort: number
   apiPort: number

@@ -28,7 +28,7 @@ async function main() {
 
   const git = new Git(worktreeConfig.branchName, worktreeConfig.worktreePath)
   const database = new Database(
-    worktreeConfig.branchName.replace(/-/g, '_'),
+    worktreeConfig.databaseName,
     parameterStore.getParameter(PARAMETER_KEYS.DATABASE_ADMIN_USER),
     parameterStore.getParameter(PARAMETER_KEYS.DATABASE_ADMIN_PASSWORD),
     parameterStore.getParameter(PARAMETER_KEYS.DATABASE_USER),

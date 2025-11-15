@@ -27,7 +27,11 @@ async function main() {
   git.mergeToMain()
 
   log('🧹 Step 3/5: インフラストラクチャをクリーンアップ中...')
-  await cleanupInfrastructure(parameterStore, issueNumber)
+  await cleanupInfrastructure(
+    parameterStore,
+    worktreeConfig.branchName,
+    worktreeConfig.databaseName
+  )
 
   log('🗑️  Step 4/5: AWSリソースをクリーンアップ中...')
   await cleanupAwsResources(parameterStore, worktreeConfig.branchName)
