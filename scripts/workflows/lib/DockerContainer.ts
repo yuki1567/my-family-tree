@@ -8,10 +8,7 @@ import { DatabaseError } from './WorkflowError.js'
 export class DockerContainer {
   constructor(private readonly name: string) {}
 
-  private isDatabasePresent(
-    dbName: string,
-    adminPassword: string
-  ): boolean {
+  private isDatabasePresent(dbName: string, adminPassword: string): boolean {
     try {
       const result = execSync(
         `docker exec -e PGPASSWORD="${adminPassword}" ${DOCKER.DB_SERVICE} psql -U ${DOCKER.DB_ADMIN_USER} -d ${DOCKER.DB_DEFAULT_DATABASE} -c "SELECT 1 FROM pg_database WHERE datname = '${dbName}';" -t`,

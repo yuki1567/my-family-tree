@@ -62,7 +62,11 @@ export class AwsProfile {
   private loadConfigContent(): string {
     const configPath = this.getConfigPath()
     if (!existsSync(configPath)) {
-      throw new AwsProfileError('', 'config_file', 'AwsProfile.loadConfigContent')
+      throw new AwsProfileError(
+        '',
+        'config_file',
+        'AwsProfile.loadConfigContent'
+      )
     }
     return readFileSync(configPath, 'utf-8')
   }
