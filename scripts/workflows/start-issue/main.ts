@@ -4,12 +4,11 @@ import { AwsProfile } from '../lib/AwsProfile.js'
 import { Database } from '../lib/Database.js'
 import { DockerContainer } from '../lib/DockerContainer.js'
 import { Git } from '../lib/Git.js'
-import { AWS, PARAMETER_KEYS } from '../shared/constants.js'
+import { PARAMETER_KEYS } from '../shared/constants.js'
 import { log, logError } from '../shared/utils.js'
 
 import { buildWorktreeConfig } from './steps/buildWorktreeConfig.js'
 import { generatePromptFile } from './steps/generatePromptFile.js'
-import { generateSlugFromIssueTitle } from './steps/generateSlugFromIssueTitle.js'
 import { initialize } from './steps/initialize.js'
 import { setupInfrastructure } from './steps/setupInfrastructure.js'
 import { setupWorktreeEnvironment } from './steps/setupWorktreeEnvironment.js'
@@ -25,28 +24,18 @@ async function main() {
   gitHubApi.moveToInProgress()
 
   log('🏗️  Step 3/5: Worktree環境を構築中...')
-  const slugTitle = await generateSlugFromIssueTitle(
-    gitHubApi.issue.title,
-    parameterStore.getParameter(PARAMETER_KEYS.GOOGLE_TRANSLATE_API_KEY)
-  )
-
-  const worktreeConfig = buildWorktreeConfig(
-    gitHubApi.issue.number,
-    gitHubApi.issue.label,
-    slugTitle
-  )
+  const worktreeConfig = buildWorktreeConfig(gitHubApi.issue.number)
 
   const git = new Git(worktreeConfig.branchName, worktreeConfig.worktreePath)
   const database = new Database(
-    slugTitle,
+    worktreeConfig.branchName.replace(/-/g, '_'),
     parameterStore.getParameter(PARAMETER_KEYS.DATABASE_ADMIN_USER),
     parameterStore.getParameter(PARAMETER_KEYS.DATABASE_ADMIN_PASSWORD),
     parameterStore.getParameter(PARAMETER_KEYS.DATABASE_USER),
     parameterStore.getParameter(PARAMETER_KEYS.DATABASE_USER_PASSWORD)
   )
-  const appName = `${AWS.PROFILE.PREFIX}-${gitHubApi.issue.number}`
-  const awsProfile = new AwsProfile(appName)
-  const dockerContainer = new DockerContainer(appName)
+  const awsProfile = new AwsProfile(worktreeConfig.branchName)
+  const dockerContainer = new DockerContainer(worktreeConfig.branchName)
 
   const environmentParameters = {
     parameterStore,
