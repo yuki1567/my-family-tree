@@ -74,7 +74,54 @@ export class GitHubApi {
     return new GitHubApi(projectId, statusFieldId, statusIds, issue)
   }
 
+  private getCurrentStatusId(): string {
+    const query = `
+      query($itemId: ID!) {
+        node(id: $itemId) {
+          ... on ProjectV2Item {
+            fieldValueByName(name: "Status") {
+              ... on ProjectV2ItemFieldSingleSelectValue {
+                optionId
+              }
+            }
+          }
+        }
+      }
+    `
+
+    const response = GitHubApi.executeGraphQL(query, {
+      itemId: this._issue.projectItemId,
+    })
+
+    if (
+      typeof response === 'object' &&
+      response !== null &&
+      'data' in response &&
+      typeof response.data === 'object' &&
+      response.data !== null &&
+      'node' in response.data &&
+      typeof response.data.node === 'object' &&
+      response.data.node !== null &&
+      'fieldValueByName' in response.data.node &&
+      typeof response.data.node.fieldValueByName === 'object' &&
+      response.data.node.fieldValueByName !== null &&
+      'optionId' in response.data.node.fieldValueByName &&
+      typeof response.data.node.fieldValueByName.optionId === 'string'
+    ) {
+      return response.data.node.fieldValueByName.optionId
+    }
+
+    return ''
+  }
+
   public moveToInProgress(): void {
+    const currentStatusId = this.getCurrentStatusId()
+
+    if (currentStatusId === this._statusIds.inProgress) {
+      log(`ℹ️ Issue #${this._issue.number} is already In Progress`)
+      return
+    }
+
     GitHubApi.executeGraphQL(UPDATE_PROJECT_ITEM_STATUS_MUTATION, {
       projectId: this._projectId,
       itemId: this._issue.projectItemId,

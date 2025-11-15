@@ -8,6 +8,21 @@ import { DatabaseError } from './WorkflowError.js'
 export class DockerContainer {
   constructor(private readonly name: string) {}
 
+  private isDatabasePresent(
+    dbName: string,
+    adminPassword: string
+  ): boolean {
+    try {
+      const result = execSync(
+        `docker exec -e PGPASSWORD="${adminPassword}" ${DOCKER.DB_SERVICE} psql -U ${DOCKER.DB_ADMIN_USER} -d ${DOCKER.DB_DEFAULT_DATABASE} -c "SELECT 1 FROM pg_database WHERE datname = '${dbName}';" -t`,
+        { encoding: 'utf-8' }
+      )
+      return result.trim() === '1'
+    } catch {
+      return false
+    }
+  }
+
   public cleanup(): void {
     this.stop()
     this.remove()
@@ -39,6 +54,11 @@ export class DockerContainer {
   }
 
   public createDatabase(dbName: string, adminPassword: string): void {
+    if (this.isDatabasePresent(dbName, adminPassword)) {
+      log(`ℹ️ Database already exists: ${dbName}`)
+      return
+    }
+
     try {
       execSync(
         `docker exec -e PGPASSWORD="${adminPassword}" ${DOCKER.DB_SERVICE} psql -U ${DOCKER.DB_ADMIN_USER} -d ${DOCKER.DB_DEFAULT_DATABASE} -c "CREATE DATABASE ${dbName};"`,
@@ -55,6 +75,11 @@ export class DockerContainer {
   }
 
   public deleteDatabase(dbName: string, adminPassword: string): void {
+    if (!this.isDatabasePresent(dbName, adminPassword)) {
+      log(`ℹ️ Database does not exist: ${dbName}`)
+      return
+    }
+
     try {
       execSync(
         `docker exec -e PGPASSWORD="${adminPassword}" ${DOCKER.DB_SERVICE} psql -U ${DOCKER.DB_ADMIN_USER} -d ${DOCKER.DB_DEFAULT_DATABASE} -c "DROP DATABASE IF EXISTS ${dbName};"`,

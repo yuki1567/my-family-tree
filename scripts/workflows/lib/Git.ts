@@ -10,7 +10,23 @@ export class Git {
     private readonly path: string
   ) {}
 
+  private isWorktreePresent(): boolean {
+    try {
+      const result = execSync('git worktree list --porcelain', {
+        encoding: 'utf-8',
+      })
+      return result.includes(`worktree ${this.path}`)
+    } catch {
+      return false
+    }
+  }
+
   public createWorktree(): void {
+    if (this.isWorktreePresent()) {
+      log(`ℹ️ Worktree already exists: ${this.path}`)
+      return
+    }
+
     try {
       execSync(`git worktree add "${this.path}" -b ${this.branchName}`, {
         stdio: 'inherit',
@@ -26,6 +42,11 @@ export class Git {
   }
 
   public removeWorktree(): void {
+    if (!this.isWorktreePresent()) {
+      log(`ℹ️ Worktree does not exist: ${this.path}`)
+      return
+    }
+
     try {
       execSync(`git worktree remove "${this.path}"`, {
         stdio: 'inherit',
