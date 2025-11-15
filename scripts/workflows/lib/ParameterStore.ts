@@ -7,7 +7,6 @@ import {
 } from '@aws-sdk/client-ssm'
 
 import { AWS, WORKTREE_PARAMETERS } from '../shared/constants.js'
-import { ParameterStoreError, WorktreeScriptError } from '../shared/errors.js'
 import type {
   ParameterDescriptor,
   ParameterKey,
@@ -16,6 +15,8 @@ import type {
   WorktreeParameters,
 } from '../shared/types.js'
 import { log } from '../shared/utils.js'
+
+import { ParameterStoreError, WorkflowError } from './WorkflowError.js'
 
 export class ParameterStore {
   private constructor(
@@ -42,7 +43,8 @@ export class ParameterStore {
 
     if (value === undefined) {
       throw new ParameterStoreError(
-        `パラメータが見つかりません: ${key} (${this._path})`
+        `パラメータが見つかりません: ${key} (${this._path})`,
+        'ParameterStore.getParameter'
       )
     }
 
@@ -58,7 +60,8 @@ export class ParameterStore {
 
     if (missing.length > 0) {
       throw new ParameterStoreError(
-        `必須パラメータが見つかりません: ${missing.join(', ')} (${this._path})`
+        `必須パラメータが見つかりません: ${missing.join(', ')} (${this._path})`,
+        'ParameterStore.validateRequiredParameters'
       )
     }
   }
@@ -66,8 +69,9 @@ export class ParameterStore {
   private static createClient(): SSMClient {
     const awsVault = process.env['AWS_VAULT']
     if (!awsVault) {
-      throw new WorktreeScriptError(
-        'AWS_VAULT環境変数が設定されていません。aws-vaultを使用してください'
+      throw new WorkflowError(
+        'AWS_VAULT環境変数が設定されていません。aws-vaultを使用してください',
+        'ParameterStore.createClient'
       )
     }
 
@@ -113,7 +117,8 @@ export class ParameterStore {
   ): [string, string] {
     if (!parameter.Name || !parameter.Value) {
       throw new ParameterStoreError(
-        `無効なパラメータ: Name=${parameter.Name}, Value=${parameter.Value}`
+        `無効なパラメータ: Name=${parameter.Name}, Value=${parameter.Value}`,
+        'ParameterStore.extractKeyValue'
       )
     }
 
@@ -154,7 +159,10 @@ export class ParameterStore {
     value: string | number
   ): ParameterDescriptor {
     if (!this.isWorktreeParameterKey(key)) {
-      throw new ParameterStoreError(`Invalid worktree parameter key: ${key}`)
+      throw new ParameterStoreError(
+        `Invalid worktree parameter key: ${key}`,
+        'ParameterStore.createParameterDescriptor'
+      )
     }
 
     return {

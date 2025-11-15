@@ -1,7 +1,8 @@
 import { execSync } from 'node:child_process'
 
-import { GitOperationError } from '../shared/errors.js'
 import { log } from '../shared/utils.js'
+
+import { GitError } from './WorkflowError.js'
 
 export class Git {
   constructor(
@@ -17,7 +18,10 @@ export class Git {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
-      throw new GitOperationError(`Worktree作成に失敗しました: ${errorMessage}`)
+      throw new GitError(
+        `Worktree作成に失敗しました: ${errorMessage}`,
+        'Git.createWorktree'
+      )
     }
   }
 
@@ -29,8 +33,9 @@ export class Git {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
-      throw new GitOperationError(
-        `Worktree削除に失敗しました: ${this.path}\n${errorMessage}`
+      throw new GitError(
+        `Worktree削除に失敗しました: ${this.path}\n${errorMessage}`,
+        'Git.removeWorktree'
       )
     }
   }
@@ -69,8 +74,9 @@ export class Git {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
-      throw new GitOperationError(
-        `main への取り込みに失敗しました: ${errorMessage}`
+      throw new GitError(
+        `main への取り込みに失敗しました: ${errorMessage}`,
+        'Git.mergeToMain'
       )
     }
   }

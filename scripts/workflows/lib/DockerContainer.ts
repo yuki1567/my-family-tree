@@ -1,8 +1,9 @@
 import { execSync } from 'node:child_process'
 
 import { DOCKER } from '../shared/constants.js'
-import { DatabaseError } from '../shared/errors.js'
 import { log } from '../shared/utils.js'
+
+import { DatabaseError } from './WorkflowError.js'
 
 export class DockerContainer {
   constructor(private readonly name: string) {}
@@ -46,7 +47,10 @@ export class DockerContainer {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
-      throw new DatabaseError(`データベース作成に失敗しました: ${errorMessage}`)
+      throw new DatabaseError(
+        `データベース作成に失敗しました: ${errorMessage}`,
+        'DockerContainer.createDatabase'
+      )
     }
   }
 
@@ -59,7 +63,10 @@ export class DockerContainer {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
-      throw new DatabaseError(`データベース削除に失敗しました: ${errorMessage}`)
+      throw new DatabaseError(
+        `データベース削除に失敗しました: ${errorMessage}`,
+        'DockerContainer.deleteDatabase'
+      )
     }
   }
 }

@@ -9,9 +9,10 @@ import { homedir } from 'node:os'
 import path from 'node:path'
 
 import { AWS } from '../shared/constants.js'
-import { AwsProfileConfigError } from '../shared/errors.js'
 import type { AwsProfileConfig } from '../shared/types.js'
 import { log } from '../shared/utils.js'
+
+import { AwsProfileError } from './WorkflowError.js'
 
 export class AwsProfile {
   constructor(private readonly _name: string) {}
@@ -61,7 +62,7 @@ export class AwsProfile {
   private loadConfigContent(): string {
     const configPath = this.getConfigPath()
     if (!existsSync(configPath)) {
-      throw new AwsProfileConfigError('', 'config_file')
+      throw new AwsProfileError('', 'config_file', 'AwsProfile.loadConfigContent')
     }
     return readFileSync(configPath, 'utf-8')
   }
@@ -79,12 +80,12 @@ export class AwsProfile {
       const roleArn = result.trim()
 
       if (!roleArn) {
-        throw new AwsProfileConfigError(profile, 'role_arn')
+        throw new AwsProfileError(profile, 'role_arn', 'AwsProfile.getRoleArn')
       }
 
       return roleArn
     } catch {
-      throw new AwsProfileConfigError(profile, 'role_arn')
+      throw new AwsProfileError(profile, 'role_arn', 'AwsProfile.getRoleArn')
     }
   }
 

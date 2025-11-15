@@ -2,11 +2,6 @@ import { execSync } from 'child_process'
 
 import { LABEL } from '../shared/constants.js'
 import {
-  GitHubApiError,
-  GitHubGraphQLError,
-  IssueNotFoundError,
-} from '../shared/errors.js'
-import {
   FETCH_PROJECT_ISSUES_QUERY,
   UPDATE_PROJECT_ITEM_STATUS_MUTATION,
 } from '../shared/graphql-queries.js'
@@ -18,6 +13,12 @@ import type {
   ProjectItem,
 } from '../shared/types.js'
 import { log } from '../shared/utils.js'
+
+import {
+  GitHubApiError,
+  GitHubGraphQLError,
+  IssueNotFoundError,
+} from './WorkflowError.js'
 
 export class GitHubApi {
   private readonly _projectId: string
@@ -62,7 +63,10 @@ export class GitHubApi {
     const firstItem = todoItems[0]
 
     if (!firstItem?.content) {
-      throw new GitHubApiError('Issueの内容が取得できません')
+      throw new GitHubApiError(
+        'Issueの内容が取得できません',
+        'GitHubApi.create'
+      )
     }
 
     const issue = this.extractIssue(firstItem)
@@ -94,7 +98,7 @@ export class GitHubApi {
     )
 
     if (filterdData.length === 0) {
-      throw new IssueNotFoundError()
+      throw new IssueNotFoundError('GitHubApi.fetchTodoIssues')
     }
 
     return filterdData
@@ -116,7 +120,10 @@ export class GitHubApi {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
-      throw new GitHubApiError(`GraphQL実行エラー: ${errorMessage}`)
+      throw new GitHubApiError(
+        `GraphQL実行エラー: ${errorMessage}`,
+        'GitHubApi.executeGraphQL'
+      )
     }
   }
 
@@ -127,9 +134,11 @@ export class GitHubApi {
       return data
     }
 
-    throw new GitHubGraphQLError('fetchProjectIssues', [
-      'data.node.items.nodes',
-    ])
+    throw new GitHubGraphQLError(
+      'fetchProjectIssues',
+      ['data.node.items.nodes'],
+      'GitHubApi.validateGraphQLResponse'
+    )
   }
 
   private static isFetchProjectIssuesResponse(
@@ -154,7 +163,10 @@ export class GitHubApi {
 
   private static extractIssue(issue: ProjectItem): Issue {
     if (!issue.content) {
-      throw new GitHubApiError('Issueの内容が取得できません')
+      throw new GitHubApiError(
+        'Issueの内容が取得できません',
+        'GitHubApi.extractIssue'
+      )
     }
 
     return {
@@ -192,7 +204,8 @@ export class GitHubApi {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
       throw new GitHubApiError(
-        `Issueクローズに失敗しました: #${issueNumber}\n${errorMessage}`
+        `Issueクローズに失敗しました: #${issueNumber}\n${errorMessage}`,
+        'GitHubApi.closeIssue'
       )
     }
   }

@@ -14,7 +14,11 @@ export function log(message: string): void {
 export function logError(error: unknown): void {
   const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
   if (error instanceof Error) {
-    console.error(`[${timestamp}] ❌ ERROR: ${error.message}`)
+    const stepInfo =
+      'step' in error && typeof error.step === 'string'
+        ? ` [${error.step}]`
+        : ''
+    console.error(`[${timestamp}] ❌ ERROR${stepInfo}: ${error.message}`)
     if (error.stack) {
       console.error(error.stack)
     }
