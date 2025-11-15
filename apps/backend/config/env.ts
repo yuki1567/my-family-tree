@@ -1,7 +1,6 @@
 export type LogLevel = 'query' | 'info' | 'warn' | 'error'
 
 type Config = {
-  NODE_ENV: string
   LOG_LEVEL: LogLevel[]
   DATABASE_URL: string
   JWT_SECRET: string
@@ -45,7 +44,6 @@ function parseLogLevels(rawValue: string): LogLevel[] {
 }
 
 export const envConfig = {
-  NODE_ENV: requireEnv('NODE_ENV'),
   LOG_LEVEL: parseLogLevels(requireEnv('LOG_LEVEL')),
   DATABASE_URL: requireEnv('DATABASE_URL'),
   JWT_SECRET: requireEnv('JWT_SECRET'),
