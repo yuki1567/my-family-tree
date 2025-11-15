@@ -1,6 +1,6 @@
 import { Git } from 'scripts/workflows/lib/Git.js'
 
-export function cleanupWorktree(git: Git): void {
+export async function cleanupWorktree(git: Git): Promise<void> {
   git.removeWorktree()
   git.removeLocalBranch()
   git.removeRemoteBranch()

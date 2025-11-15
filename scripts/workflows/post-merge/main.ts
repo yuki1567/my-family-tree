@@ -26,20 +26,17 @@ async function main() {
 
   git.mergeToMain()
 
-  log('🧹 Step 3/5: インフラストラクチャをクリーンアップ中...')
-  await cleanupInfrastructure(
-    parameterStore,
-    worktreeConfig.branchName,
-    worktreeConfig.databaseName
-  )
-
-  log('🗑️  Step 4/5: AWSリソースをクリーンアップ中...')
-  await cleanupAwsResources(parameterStore, worktreeConfig.branchName)
-
-  log('✨ Step 5/5: Worktreeとブランチを削除し、Issueをクローズ中...')
-  cleanupWorktree(git)
-
-  GitHubApi.closeIssue(issueNumber)
+  log('🧹 Step 3/3: クリーンアップ処理を並列実行中...')
+  await Promise.all([
+    cleanupInfrastructure(
+      parameterStore,
+      worktreeConfig.branchName,
+      worktreeConfig.databaseName
+    ),
+    cleanupAwsResources(parameterStore, worktreeConfig.branchName),
+    cleanupWorktree(git),
+    GitHubApi.closeIssue(issueNumber),
+  ])
 
   log('✅ post-merge処理が完了しました')
 }
