@@ -1,152 +1,46 @@
-import path from 'node:path'
-import { URL } from 'node:url'
-import { WorktreeScriptError } from 'scripts/workflows/shared/errors.js'
-import { GoogleTranslateResponse } from 'scripts/workflows/shared/types.js'
-
-import { AwsProfile } from '../lib/AwsProfile.js'
-import { Database } from '../lib/Database.js'
-import { DockerContainer } from '../lib/DockerContainer.js'
 import { Git } from '../lib/Git.js'
-import { GitHubApi } from '../lib/GitHubApi.js'
-import { ParameterStore } from '../lib/ParameterStore.js'
-import {
-  AWS,
-  PARAMETER_KEYS,
-  REQUIRED_WORKTREE_PARAMETERS,
-  TRANSLATION,
-} from '../shared/constants.js'
-import { PROJECT_ROOT, logError, parseIssueNumber } from '../shared/utils.js'
+import { PARAMETER_KEYS } from '../shared/constants.js'
+import { log, logError } from '../shared/utils.js'
+
+import { buildWorktreeConfig } from './steps/buildWorktreeConfig.js'
+import { cleanupAwsResources } from './steps/cleanupAwsResources.js'
+import { cleanupInfrastructure } from './steps/cleanupInfrastructure.js'
+import { cleanupWorktree } from './steps/cleanupWorktree.js'
+import { generateSlugFromIssueTitle } from './steps/generateSlugFromIssueTitle.js'
+import { initialize } from './steps/initialize.js'
 
 async function main() {
-  const issueNumber = parseIssueNumber(process.argv[2])
+  log('🚀 post-mergeワークフローを開始します')
 
-  const parameterStore = await ParameterStore.create(
-    `${AWS.PARAMETER_PATH.WORKTREE}/${issueNumber}`,
-    REQUIRED_WORKTREE_PARAMETERS
-  )
+  log('📋 Step 1/5: Issue情報を取得中...')
+  const { parameterStore, gitHubApi } = await initialize()
 
-  const issueStatusIds = {
-    todo: parameterStore.getParameter(PARAMETER_KEYS.GITHUB_TODO_STATUS_ID),
-    inProgress: parameterStore.getParameter(
-      PARAMETER_KEYS.GITHUB_INPROGRESS_STATUS_ID
-    ),
-    inReview: parameterStore.getParameter(
-      PARAMETER_KEYS.GITHUB_INREVIEW_STATUS_ID
-    ),
-  }
-
-  const gitHubApi = await GitHubApi.create(
-    parameterStore.getParameter(PARAMETER_KEYS.GITHUB_PROJECT_ID),
-    parameterStore.getParameter(PARAMETER_KEYS.GITHUB_STATUS_FIELD_ID),
-    issueStatusIds
-  )
-
-  const translatedText = await translateText(
+  log('🔄 Step 2/5: mainブランチにマージ中...')
+  const slugTitle = await generateSlugFromIssueTitle(
     gitHubApi.issue.title,
     parameterStore.getParameter(PARAMETER_KEYS.GOOGLE_TRANSLATE_API_KEY)
   )
-  const slugTitle = convertToSlug(translatedText)
 
-  const branchName = `${gitHubApi.issue.label}/${gitHubApi.issue.number}-${slugTitle}`
-  const worktreePath = path.resolve(
-    PROJECT_ROOT,
-    '..',
+  const worktreeConfig = buildWorktreeConfig(
+    gitHubApi.issue.number,
     gitHubApi.issue.label,
-    `${issueNumber}-${slugTitle}`
+    slugTitle
   )
-
-  const git = new Git(branchName, worktreePath)
-
+  const git = new Git(worktreeConfig.branchName, worktreeConfig.worktreePath)
   git.mergeToMain()
 
-  const database = new Database(
-    slugTitle,
-    parameterStore.getParameter(PARAMETER_KEYS.DATABASE_ADMIN_USER),
-    parameterStore.getParameter(PARAMETER_KEYS.DATABASE_ADMIN_PASSWORD),
-    parameterStore.getParameter(PARAMETER_KEYS.DATABASE_USER),
-    parameterStore.getParameter(PARAMETER_KEYS.DATABASE_USER_PASSWORD)
-  )
+  log('🧹 Step 3/5: インフラストラクチャをクリーンアップ中...')
+  await cleanupInfrastructure(slugTitle, parameterStore)
 
-  const dockerContainer = new DockerContainer(`app-${slugTitle}`)
+  log('🗑️  Step 4/5: AWSリソースをクリーンアップ中...')
+  cleanupAwsResources(parameterStore, gitHubApi.issue.number)
 
-  dockerContainer.deleteDatabase(
-    database.name,
-    parameterStore.getParameter(PARAMETER_KEYS.DATABASE_ADMIN_PASSWORD)
-  )
-
-  parameterStore.deleteParameters()
-
-  const awsProfile = new AwsProfile(gitHubApi.issue.number)
-
-  awsProfile.delete()
-
-  dockerContainer.cleanup()
-
-  git.removeWorktree()
-
-  git.removeLocalBranch()
-
-  git.removeRemoteBranch()
+  log('✨ Step 5/5: Worktreeとブランチを削除し、Issueをクローズ中...')
+  cleanupWorktree(git)
 
   gitHubApi.closeIssue()
-}
 
-async function translateText(text: string, apiKey: string): Promise<string> {
-  const url = new URL(TRANSLATION.API_ENDPOINT)
-  url.searchParams.set('q', text)
-  url.searchParams.set('source', TRANSLATION.SOURCE_LANG)
-  url.searchParams.set('target', TRANSLATION.TARGET_LANG)
-  url.searchParams.set('key', apiKey)
-
-  try {
-    const response = await fetch(url.toString(), {
-      method: 'POST',
-    })
-
-    if (!response.ok) {
-      throw new WorktreeScriptError(
-        `Translation API error: ${response.status} ${response.statusText}`
-      )
-    }
-
-    const data: unknown = await response.json()
-
-    if (!isGoogleTranslateResponse(data)) {
-      throw new WorktreeScriptError('翻訳APIのレスポンス形式が不正です')
-    }
-
-    const firstTranslation = data.data.translations[0]
-
-    if (!firstTranslation) {
-      throw new WorktreeScriptError('翻訳結果が空です')
-    }
-
-    return firstTranslation.translatedText
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    throw new WorktreeScriptError(`翻訳に失敗しました: ${errorMessage}`)
-  }
-}
-
-function isGoogleTranslateResponse(
-  data: unknown
-): data is GoogleTranslateResponse {
-  return (
-    typeof data === 'object' &&
-    data !== null &&
-    'data' in data &&
-    typeof data.data === 'object' &&
-    data.data !== null &&
-    'translations' in data.data &&
-    Array.isArray(data.data.translations)
-  )
-}
-
-function convertToSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
+  log('✅ post-merge処理が完了しました')
 }
 
 main().catch((error) => {
