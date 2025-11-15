@@ -12,23 +12,47 @@ import {
 } from '../shared/graphql-queries.js'
 import type {
   FetchProjectIssuesResponse,
-  GitHubIssue,
-  IssueData,
+  GitHubLabels,
+  GitHubStatusIds,
+  Issue,
+  ProjectItem,
 } from '../shared/types.js'
 import { log } from '../shared/utils.js'
 
 export class GitHubApi {
-  constructor(
-    private readonly _projectId: string,
-    private readonly _statusFieldId: string,
-    private readonly _statusIds: {
-      todo: string
-      inProgress: string
-      inReview: string
-    }
-  ) {}
+  private readonly _projectId: string
+  private readonly _statusFieldId: string
+  private readonly _statusIds: GitHubStatusIds
+  private readonly _issue: Issue
 
-  private _issueData?: IssueData
+  private constructor(
+    projectId: string,
+    statusFieldId: string,
+    statusIds: GitHubStatusIds,
+    issue: Issue
+  ) {
+    this._projectId = projectId
+    this._statusFieldId = statusFieldId
+    this._statusIds = statusIds
+    this._issue = issue
+  }
+
+  static async create(
+    projectId: string,
+    statusFieldId: string,
+    statusIds: GitHubStatusIds
+  ): Promise<GitHubApi> {
+    const todoItems = await this.fetchTodoIssues(projectId, statusIds.todo)
+    const firstItem = todoItems[0]
+
+    if (!firstItem?.content) {
+      throw new GitHubApiError('Issueの内容が取得できません')
+    }
+
+    const issue = this.extractIssue(firstItem)
+
+    return new GitHubApi(projectId, statusFieldId, statusIds, issue)
+  }
 
   get projectId(): string {
     return this._projectId
@@ -38,50 +62,31 @@ export class GitHubApi {
     return this._statusFieldId
   }
 
-  get inReviewStatusId(): string {
-    return this._statusIds.inReview
+  get statusIds(): GitHubStatusIds {
+    return this._statusIds
   }
 
-  get issueData(): IssueData {
-    return this.readIssue()
-  }
-
-  public async loadTopPriorityIssue(): Promise<void> {
-    const todoItems = await this.fetchProjectIssues()
-
-    const firstItem = todoItems[0]
-
-    if (!firstItem?.content) {
-      throw new GitHubApiError('Issue内容が取得できません')
-    }
-
-    this.setIssue(firstItem.content, firstItem.id)
+  get issue(): Issue {
+    return this._issue
   }
 
   public async moveToInProgress(): Promise<void> {
     await this.updateIssueStatus()
-    log(`Issue #${this.issueData.number} をIn Progressステータスへ移動しました`)
+    log(`Issue #${this._issue.number} をIn Progressステータスへ移動しました`)
   }
 
-  private readIssue(): IssueData {
-    if (this._issueData === undefined) {
-      throw new GitHubApiError(
-        'Issue情報が読み込まれていません。loadTopPriorityIssue()を先に実行してください'
-      )
-    }
-
-    return this._issueData
-  }
-
-  private async fetchProjectIssues() {
+  private static async fetchTodoIssues(
+    projectId: string,
+    todoStatusId: string
+  ) {
     const response = this.executeGraphQL(FETCH_PROJECT_ISSUES_QUERY, {
-      projectId: this._projectId,
+      projectId,
     })
 
     const validatedData = this.validateGraphQLResponse(response)
 
     const filterdData = validatedData.data.node.items.nodes.filter(
-      (item) => item.fieldValueByName?.optionId === this._statusIds.todo
+      (item) => item.fieldValueByName?.optionId === todoStatusId
     )
 
     if (filterdData.length === 0) {
@@ -91,7 +96,7 @@ export class GitHubApi {
     return filterdData
   }
 
-  private executeGraphQL(
+  private static executeGraphQL(
     query: string,
     variables: Record<string, unknown>
   ): unknown {
@@ -131,8 +136,10 @@ export class GitHubApi {
     )
   }
 
-  private validateGraphQLResponse(data: unknown): FetchProjectIssuesResponse {
-    if (this.isFetchProjectIssuesResponse(data)) {
+  private static validateGraphQLResponse(
+    data: unknown
+  ): FetchProjectIssuesResponse {
+    if (GitHubApi.isFetchProjectIssuesResponseStatic(data)) {
       return data
     }
 
@@ -141,26 +148,50 @@ export class GitHubApi {
     ])
   }
 
-  private setIssue(issue: GitHubIssue, projectItemId: string): void {
-    this._issueData = {
-      number: issue.number,
-      title: issue.title,
-      projectItemId,
-      label: this.extractIssueLabel(issue),
+  private static isFetchProjectIssuesResponseStatic(
+    data: unknown
+  ): data is FetchProjectIssuesResponse {
+    return (
+      typeof data === 'object' &&
+      data !== null &&
+      'data' in data &&
+      typeof data.data === 'object' &&
+      data.data !== null &&
+      'node' in data.data &&
+      typeof data.data.node === 'object' &&
+      data.data.node !== null &&
+      'items' in data.data.node &&
+      typeof data.data.node.items === 'object' &&
+      data.data.node.items !== null &&
+      'nodes' in data.data.node.items &&
+      Array.isArray(data.data.node.items.nodes)
+    )
+  }
+
+  private static extractIssue(issue: ProjectItem): Issue {
+    if (!issue.content) {
+      throw new GitHubApiError('Issueの内容が取得できません')
+    }
+
+    return {
+      number: issue.content?.number,
+      title: issue.content?.title,
+      label: this.extractIssueLabel(issue.content?.labels),
+      projectItemId: issue.id,
     }
   }
 
-  private extractIssueLabel(issue: GitHubIssue): string {
-    const typeLabel = issue.labels.nodes.find(
+  private static extractIssueLabel(labels: GitHubLabels): string {
+    const typeLabel = labels.nodes.find(
       (label) => !label.name.startsWith(LABEL.PRIORITY_PREFIX)
     )
     return typeLabel?.name || LABEL.DEFAULT_LABEL
   }
 
   private async updateIssueStatus(): Promise<void> {
-    this.executeGraphQL(UPDATE_PROJECT_ITEM_STATUS_MUTATION, {
+    GitHubApi.executeGraphQL(UPDATE_PROJECT_ITEM_STATUS_MUTATION, {
       projectId: this._projectId,
-      itemId: this.issueData.projectItemId,
+      itemId: this._issue.projectItemId,
       statusFieldId: this._statusFieldId,
       statusValueId: this._statusIds.inProgress,
     })
@@ -169,32 +200,32 @@ export class GitHubApi {
   public async closeIssue(): Promise<void> {
     try {
       const state = execSync(
-        `gh issue view ${this.issueData.number} --json state -q ".state"`,
+        `gh issue view ${this._issue.number} --json state -q ".state"`,
         { encoding: 'utf-8' }
       ).trim()
 
       if (state === 'CLOSED') {
-        log(`Issue #${this.issueData.number} は既にクローズ済みです`)
+        log(`Issue #${this._issue.number} は既にクローズ済みです`)
         return
       }
 
       execSync(
-        `gh issue close ${this.issueData.number} --comment "✅ 開発完了・マージ済み"`,
+        `gh issue close ${this._issue.number} --comment "✅ 開発完了・マージ済み"`,
         { stdio: 'inherit' }
       )
-      log(`Issue #${this.issueData.number} をクローズしました`)
+      log(`Issue #${this._issue.number} をクローズしました`)
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
       throw new GitHubApiError(
-        `Issueクローズに失敗しました: #${this.issueData.number}\n${errorMessage}`
+        `Issueクローズに失敗しました: #${this._issue.number}\n${errorMessage}`
       )
     }
   }
 
   public assignToCurrentUser(): void {
     const currentUser = this.getCurrentUser()
-    this.assignIssue(this.issueData.number, currentUser)
+    this.assignIssue(this._issue.number, currentUser)
   }
 
   private getCurrentUser(): string {

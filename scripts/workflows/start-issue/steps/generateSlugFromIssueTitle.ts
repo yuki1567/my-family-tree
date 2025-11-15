@@ -1,25 +1,14 @@
 import { URL } from 'node:url'
+import { TRANSLATION } from 'scripts/workflows/shared/constants.js'
+import { WorktreeScriptError } from 'scripts/workflows/shared/errors.js'
+import { GoogleTranslateResponse } from 'scripts/workflows/shared/types.js'
 
-import { PARAMETER_KEYS, TRANSLATION } from '../../shared/constants.js'
-import { WorktreeScriptError } from '../../shared/errors.js'
-import type {
-  GoogleTranslateResponse,
-  WorkflowContext,
-} from '../../shared/types.js'
-import { PROJECT_ROOT, log } from '../../shared/utils.js'
-
-export async function generateSlugTitle(ctx: WorkflowContext): Promise<void> {
-  const issueTitle = ctx.githubApi.issueData.title
-  const apiKey = ctx.parameterStore.get(PARAMETER_KEYS.GOOGLE_TRANSLATE_API_KEY)
-
+export async function generateSlugFromIssueTitle(
+  issueTitle: string,
+  apiKey: string
+): Promise<string> {
   const translatedText = await translateText(issueTitle, apiKey)
-  const slugTitle = convertToSlug(translatedText)
-
-  ctx.worktreeEnvironment.setWorktreeInfo(slugTitle, PROJECT_ROOT)
-
-  log(`Issueタイトルを翻訳・スラグ化しました: ${slugTitle}`)
-  log(`✓ Branch: ${ctx.worktreeEnvironment.branchName}`)
-  log(`✓ Path: ${ctx.worktreeEnvironment.worktreePath}`)
+  return convertToSlug(translatedText)
 }
 
 async function translateText(text: string, apiKey: string): Promise<string> {

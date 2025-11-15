@@ -148,7 +148,7 @@ npm run test:backend
 gh issue view {{ISSUE_NUMBER}} --json labels
 
 # PR作成（テンプレート厳守）
-gh pr create --title "{{ISSUE_TITLE}}" --label "{{ISSUE_LABELS}}" --body "$(cat <<'EOF'
+gh pr create --title "{{ISSUE_TITLE}}" --label "{{ISSUE_LABEL}}" --body "$(cat <<'EOF'
 ## 概要
 issue #{{ISSUE_NUMBER}}の要件を満たすため、以下の実装を行いました：
 - [具体的に何を解決したか]

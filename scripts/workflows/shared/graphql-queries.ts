@@ -1,4 +1,4 @@
-import { GRAPHQL } from '../../start-issue/core/constants.js'
+import { GRAPHQL } from '../shared/constants.js'
 
 export const FETCH_PROJECT_ISSUES_QUERY = `
   query($projectId: ID!) {

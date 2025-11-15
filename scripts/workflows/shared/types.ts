@@ -1,19 +1,25 @@
 import type { SSMClient } from '@aws-sdk/client-ssm'
 
+import type { Database } from '../lib/Database.js'
+import type { Git } from '../lib/Git.js'
 import type { GitHubApi } from '../lib/GitHubApi.js'
 import type { ParameterStore } from '../lib/ParameterStore.js'
 import type { WorktreeEnvironment } from '../lib/WorktreeEnvironment.js'
+
+import { PARAMETER_KEYS } from './constants.js'
 
 export type GitHubLabel = {
   name: string
 }
 
+export type GitHubLabels = {
+  nodes: GitHubLabel[]
+}
+
 export type GitHubIssue = {
   number: number
   title: string
-  labels: {
-    nodes: GitHubLabel[]
-  }
+  labels: GitHubLabels
 }
 
 export type ProjectItem = {
@@ -81,22 +87,6 @@ export type WorktreeInfo = {
   branch: string
 }
 
-export type WorktreeConfig = {
-  issueNumber: number
-  branchName: string
-  webPort: number
-  apiPort: number
-  databaseName: string
-  databaseUrl: string
-  databaseAdminUrl: string
-  databaseAdminUser: string
-  databaseAdminPassword: string
-  databaseUser: string
-  databaseUserPassword: string
-  appName?: string
-  awsProfileName: string
-}
-
 export type BaseContext = {
   ssmClient: SSMClient
 }
@@ -111,12 +101,42 @@ export type DatabaseConfig = {
 export type WorkflowContext = {
   parameterStore: ParameterStore
   githubApi: GitHubApi
-  worktreeEnvironment: WorktreeEnvironment
+  worktreeEnvironment?: WorktreeEnvironment
 }
 
-export type IssueData = {
+export type Issue = {
   number: number
   title: string
-  projectItemId: string
   label: string
+  projectItemId: string
+}
+
+export type AwsProfileConfig = {
+  roleArn: string
+  sourceProfile: string
+}
+
+export type GitHubStatusIds = {
+  todo: string
+  inProgress: string
+  inReview: string
+}
+
+export type ParameterKey = (typeof PARAMETER_KEYS)[keyof typeof PARAMETER_KEYS]
+
+export type Parameters = Record<string, string>
+
+export type WorktreeConfig = {
+  branchName: string
+  worktreePath: string
+  webPort: number
+  apiPort: number
+}
+
+export type WorktreeEnvironmentParameters = {
+  parameterStore: ParameterStore
+  gitHubApi: GitHubApi
+  git: Git
+  database: Database
+  worktreeConfig: WorktreeConfig
 }

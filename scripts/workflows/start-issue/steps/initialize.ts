@@ -1,47 +1,38 @@
-import { GitHubApi } from '../../lib/GitHubApi.js'
-import { ParameterStore } from '../../lib/ParameterStore.js'
-import { WorktreeEnvironment } from '../../lib/WorktreeEnvironment.js'
+import { GitHubApi } from 'scripts/workflows/lib/GitHubApi.js'
+import { ParameterStore } from 'scripts/workflows/lib/ParameterStore.js'
 import {
   AWS,
   PARAMETER_KEYS,
   REQUIRED_DEVELOPMENT_PARAMETERS,
-} from '../../shared/constants.js'
-import type { WorkflowContext } from '../../shared/types.js'
-import { log } from '../../shared/utils.js'
+} from 'scripts/workflows/shared/constants.js'
 
-export async function initialize(): Promise<WorkflowContext> {
+export async function initialize(): Promise<{
+  parameterStore: ParameterStore
+  gitHubApi: GitHubApi
+}> {
   const parameterStore = await ParameterStore.create(
-    AWS.PARAMETER_PATH.DEVELOPMENT
+    AWS.PARAMETER_PATH.DEVELOPMENT,
+    REQUIRED_DEVELOPMENT_PARAMETERS
   )
 
-  parameterStore.validateRequiredParameters(REQUIRED_DEVELOPMENT_PARAMETERS)
-
-  const githubApi = new GitHubApi(
-    parameterStore.get(PARAMETER_KEYS.GITHUB_PROJECT_ID),
-    parameterStore.get(PARAMETER_KEYS.GITHUB_STATUS_FIELD_ID),
-    {
-      todo: parameterStore.get(PARAMETER_KEYS.GITHUB_TODO_STATUS_ID),
-      inProgress: parameterStore.get(
-        PARAMETER_KEYS.GITHUB_INPROGRESS_STATUS_ID
-      ),
-      inReview: parameterStore.get(PARAMETER_KEYS.GITHUB_INREVIEW_STATUS_ID),
-    }
-  )
-
-  const dbConfig = {
-    adminUser: parameterStore.get(PARAMETER_KEYS.DATABASE_ADMIN_USER),
-    adminPassword: parameterStore.get(PARAMETER_KEYS.DATABASE_ADMIN_PASSWORD),
-    user: parameterStore.get(PARAMETER_KEYS.DATABASE_USER),
-    userPassword: parameterStore.get(PARAMETER_KEYS.DATABASE_USER_PASSWORD),
+  const issueStatusIds = {
+    todo: parameterStore.getParameter(PARAMETER_KEYS.GITHUB_TODO_STATUS_ID),
+    inProgress: parameterStore.getParameter(
+      PARAMETER_KEYS.GITHUB_INPROGRESS_STATUS_ID
+    ),
+    inReview: parameterStore.getParameter(
+      PARAMETER_KEYS.GITHUB_INREVIEW_STATUS_ID
+    ),
   }
-  const logLevel = parameterStore.get(PARAMETER_KEYS.LOG_LEVEL)
-  const worktreeEnvironment = new WorktreeEnvironment(dbConfig, logLevel)
 
-  log('Parameter Storeからパラメータを読み込み、コンテキストを初期化しました')
+  const gitHubApi = await GitHubApi.create(
+    parameterStore.getParameter(PARAMETER_KEYS.GITHUB_PROJECT_ID),
+    parameterStore.getParameter(PARAMETER_KEYS.GITHUB_STATUS_FIELD_ID),
+    issueStatusIds
+  )
 
   return {
     parameterStore,
-    githubApi,
-    worktreeEnvironment,
+    gitHubApi,
   }
 }

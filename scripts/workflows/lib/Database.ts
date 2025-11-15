@@ -1,53 +1,32 @@
-import { execSync } from 'node:child_process'
-
-import { DATABASE, DOCKER } from '../shared/constants.js'
-import { DatabaseError } from '../shared/errors.js'
-import { log } from '../shared/utils.js'
+import { DATABASE } from '../shared/constants.js'
 
 export class Database {
-  private readonly dbName: string
+  private readonly _name: string
+  private readonly _adminUrl: string
+  private readonly _userUrl: string
 
   constructor(
     slugTitle: string,
-    private readonly adminPassword: string
+    adminUser: string,
+    adminPassword: string,
+    user: string,
+    userPassword: string
   ) {
-    this.dbName = this.generateName(slugTitle)
+    this._name = this.generateName(slugTitle)
+    this._adminUrl = this.buildDatabaseUrl(adminUser, adminPassword, 'postgres')
+    this._userUrl = this.buildDatabaseUrl(user, userPassword, this._name)
   }
 
   get name(): string {
-    return this.dbName
+    return this._name
   }
 
-  create(): void {
-    log(`🗄 データベース作成: ${this.dbName}`)
-
-    try {
-      execSync(
-        `docker exec -e PGPASSWORD="${this.adminPassword}" ${DOCKER.DB_SERVICE} psql -U ${DOCKER.DB_ADMIN_USER} -d ${DOCKER.DB_DEFAULT_DATABASE} -c "CREATE DATABASE ${this.dbName};"`,
-        { stdio: 'inherit' }
-      )
-      log(`✅ データベース作成完了: ${this.dbName}`)
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error)
-      throw new DatabaseError(`データベース作成に失敗しました: ${errorMessage}`)
-    }
+  get adminUrl(): string {
+    return this._adminUrl
   }
 
-  delete(): void {
-    log(`🗄 データベース削除: ${this.dbName}`)
-
-    try {
-      execSync(
-        `docker exec -e PGPASSWORD="${this.adminPassword}" ${DOCKER.DB_SERVICE} psql -U ${DOCKER.DB_ADMIN_USER} -d ${DOCKER.DB_DEFAULT_DATABASE} -c "DROP DATABASE IF EXISTS ${this.dbName};"`,
-        { stdio: 'inherit' }
-      )
-      log(`✅ データベース削除完了: ${this.dbName}`)
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error)
-      throw new DatabaseError(`データベース削除に失敗しました: ${errorMessage}`)
-    }
+  get userUrl(): string {
+    return this._userUrl
   }
 
   private generateName(slugTitle: string): string {
@@ -64,5 +43,13 @@ export class Database {
     return lastHyphenIndex > 0
       ? slug.substring(0, lastHyphenIndex)
       : slug.substring(0, DATABASE.MAX_SLUG_LENGTH)
+  }
+
+  private buildDatabaseUrl(
+    user: string,
+    password: string,
+    name: string
+  ): string {
+    return `postgresql://${user}:${password}@db:5432/${name}`
   }
 }

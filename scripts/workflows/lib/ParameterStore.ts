@@ -10,6 +10,8 @@ import { AWS, WORKTREE_PARAMETERS } from '../shared/constants.js'
 import { ParameterStoreError, WorktreeScriptError } from '../shared/errors.js'
 import type {
   ParameterDescriptor,
+  ParameterKey,
+  Parameters,
   WorktreeParameterKey,
   WorktreeParameters,
 } from '../shared/types.js'
@@ -17,26 +19,41 @@ import { log } from '../shared/utils.js'
 
 export class ParameterStore {
   private constructor(
-    private readonly _parameters: Record<string, string>,
+    private readonly _parameters: Parameters,
     private readonly _path: string
   ) {}
 
-  public static async create(path: string): Promise<ParameterStore> {
+  public static async create(
+    path: string,
+    requiredKeys: readonly ParameterKey[]
+  ): Promise<ParameterStore> {
     const client = this.createClient()
     const rawParams = await this.fetchParameters(client, path)
     const parameters = this.transformToMap(rawParams, path)
-    return new ParameterStore(parameters, path)
+
+    const parameterStore = new ParameterStore(parameters, path)
+    parameterStore.validateRequiredParameters(requiredKeys)
+
+    return parameterStore
   }
 
-  public get(key: string): string {
-    return this._parameters[key]!
+  public getParameter(key: ParameterKey): string {
+    const value = this._parameters[key]
+
+    if (value === undefined) {
+      throw new ParameterStoreError(
+        `パラメータが見つかりません: ${key} (${this._path})`
+      )
+    }
+
+    return value
   }
 
   get path(): string {
     return this._path
   }
 
-  public validateRequiredParameters(keys: readonly string[]): void {
+  public validateRequiredParameters(keys: readonly ParameterKey[]): void {
     const missing = keys.filter((k) => !this._parameters[k])
 
     if (missing.length > 0) {
@@ -77,13 +94,16 @@ export class ParameterStore {
   }
 
   private static transformToMap(
-    parameters: Parameter[],
+    parameters: readonly Parameter[],
     path: string
-  ): Record<string, string> {
-    return parameters.reduce<Record<string, string>>((acc, parameter) => {
+  ): Parameters {
+    return parameters.reduce<Parameters>((acc, parameter) => {
       const [key, value] = this.extractKeyValue(parameter, path)
-      acc[key] = value
-      return acc
+
+      return {
+        ...acc,
+        [key]: value,
+      }
     }, {})
   }
 

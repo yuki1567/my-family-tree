@@ -7,18 +7,15 @@ import { log } from '../shared/utils.js'
 export class Git {
   constructor(
     private readonly branchName: string,
-    private readonly worktreePath: string
+    private readonly path: string
   ) {}
 
   createWorktree(): void {
     try {
-      execSync(
-        `git worktree add "${this.worktreePath}" -b ${this.branchName}`,
-        {
-          stdio: 'inherit',
-        }
-      )
-      log(`✅ Worktree作成完了: ${this.worktreePath}`)
+      execSync(`git worktree add "${this.path}" -b ${this.branchName}`, {
+        stdio: 'inherit',
+      })
+      log(`✅ Worktree作成完了: ${this.path}`)
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
@@ -27,18 +24,18 @@ export class Git {
   }
 
   removeWorktree(): void {
-    log(`📂 Worktree削除: ${this.worktreePath}`)
+    log(`📂 Worktree削除: ${this.path}`)
 
     try {
-      execSync(`git worktree remove "${this.worktreePath}"`, {
+      execSync(`git worktree remove "${this.path}"`, {
         stdio: 'inherit',
       })
-      log(`✅ Worktree削除完了: ${this.worktreePath}`)
+      log(`✅ Worktree削除完了: ${this.path}`)
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
       throw new GitOperationError(
-        `Worktree削除に失敗しました: ${this.worktreePath}\n${errorMessage}`
+        `Worktree削除に失敗しました: ${this.path}\n${errorMessage}`
       )
     }
   }

@@ -10,12 +10,8 @@ import path from 'node:path'
 
 import { AWS } from '../shared/constants.js'
 import { AwsProfileConfigError } from '../shared/errors.js'
+import type { AwsProfileConfig } from '../shared/types.js'
 import { log } from '../shared/utils.js'
-
-type AwsProfileConfig = {
-  roleArn: string
-  sourceProfile: string
-}
 
 export class AwsProfile {
   private readonly profileName: string
