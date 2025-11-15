@@ -1,20 +1,24 @@
 import { Git } from '../lib/Git.js'
 import { GitHubApi } from '../lib/GitHubApi.js'
+import { ParameterStore } from '../lib/ParameterStore.js'
+import { AWS, REQUIRED_WORKTREE_PARAMETERS } from '../shared/constants.js'
 import { buildWorktreeConfig } from '../shared/steps/buildWorktreeConfig.js'
 import { log, logError, parseIssueNumber } from '../shared/utils.js'
 
 import { cleanupAwsResources } from './steps/cleanupAwsResources.js'
 import { cleanupInfrastructure } from './steps/cleanupInfrastructure.js'
 import { cleanupWorktree } from './steps/cleanupWorktree.js'
-import { initialize } from './steps/initialize.js'
 
 async function main() {
   log('🚀 post-mergeワークフローを開始します')
 
-  log('📋 Step 1/5: Issue情報を取得中...')
-  const { parameterStore } = await initialize()
+  log('📋 Step 1/5: パラメータを取得中...')
+  const parameterStore = await ParameterStore.create(
+    AWS.PARAMETER_PATH.WORKTREE,
+    REQUIRED_WORKTREE_PARAMETERS
+  )
 
-  log('🔄 Step 2/5: mainブランチにマージ中...')
+  log('🔄 Step 2/5: Worktree情報を構築し、mainブランチにマージ中...')
   const issueNumber = parseIssueNumber(process.argv[2])
   const worktreeConfig = buildWorktreeConfig(issueNumber)
 
@@ -26,7 +30,7 @@ async function main() {
   await cleanupInfrastructure(parameterStore, issueNumber)
 
   log('🗑️  Step 4/5: AWSリソースをクリーンアップ中...')
-  await cleanupAwsResources(issueNumber)
+  await cleanupAwsResources(parameterStore, issueNumber)
 
   log('✨ Step 5/5: Worktreeとブランチを削除し、Issueをクローズ中...')
   cleanupWorktree(git)
