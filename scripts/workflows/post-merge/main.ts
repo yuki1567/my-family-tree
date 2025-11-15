@@ -30,7 +30,7 @@ async function main() {
   await cleanupInfrastructure(parameterStore, issueNumber)
 
   log('🗑️  Step 4/5: AWSリソースをクリーンアップ中...')
-  await cleanupAwsResources(parameterStore, issueNumber)
+  await cleanupAwsResources(parameterStore, worktreeConfig.branchName)
 
   log('✨ Step 5/5: Worktreeとブランチを削除し、Issueをクローズ中...')
   cleanupWorktree(git)

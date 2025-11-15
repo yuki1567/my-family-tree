@@ -10,7 +10,7 @@ export function cleanupInfrastructure(
   const appName = `${AWS.PROFILE.PREFIX}-${issueNumber}`
   const dockerContainer = new DockerContainer(appName)
   const database = new Database(
-    appName,
+    appName.replace(/-/g, '_'),
     parameterStore.getParameter(PARAMETER_KEYS.DATABASE_ADMIN_USER),
     parameterStore.getParameter(PARAMETER_KEYS.DATABASE_ADMIN_PASSWORD),
     parameterStore.getParameter(PARAMETER_KEYS.DATABASE_USER),
