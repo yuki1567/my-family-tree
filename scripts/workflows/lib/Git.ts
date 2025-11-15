@@ -61,16 +61,17 @@ export class Git {
       log(`ℹ️ リモートブランチは既に存在しません: ${this.branchName}`)
     }
   }
-}
 
-export function mergeToMain(): void {
-  try {
-    execSync('git checkout main', { stdio: 'inherit' })
-    execSync('git pull origin main', { stdio: 'inherit' })
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    throw new GitOperationError(
-      `main への取り込みに失敗しました: ${errorMessage}`
-    )
+  public mergeToMain(): void {
+    try {
+      execSync('git checkout main', { stdio: 'inherit' })
+      execSync('git pull origin main', { stdio: 'inherit' })
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+      throw new GitOperationError(
+        `main への取り込みに失敗しました: ${errorMessage}`
+      )
+    }
   }
 }
