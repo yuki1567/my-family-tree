@@ -178,7 +178,6 @@ export class ParameterStore {
           Overwrite: true,
         })
       )
-      log(`  ✓ ${descriptor.key} を登録しました (Type: ${descriptor.type})`)
       return true
     } catch (error) {
       const errorMessage =
@@ -236,13 +235,12 @@ export class ParameterStore {
           Name: name,
         })
       )
-      log(`  ✗ ${name}を パラメータストアから削除しました`)
       return true
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
       log(
-        `  ✗ ${name}を パラメータストアから削除に失敗したした: ${errorMessage}`
+        `  ✗ ${name}を パラメータストアから削除に失敗しました: ${errorMessage}`
       )
       return false
     }

@@ -37,23 +37,6 @@ export class GitHubApi {
     this._issue = issue
   }
 
-  static async create(
-    projectId: string,
-    statusFieldId: string,
-    statusIds: GitHubStatusIds
-  ): Promise<GitHubApi> {
-    const todoItems = await this.fetchTodoIssues(projectId, statusIds.todo)
-    const firstItem = todoItems[0]
-
-    if (!firstItem?.content) {
-      throw new GitHubApiError('Issueの内容が取得できません')
-    }
-
-    const issue = this.extractIssue(firstItem)
-
-    return new GitHubApi(projectId, statusFieldId, statusIds, issue)
-  }
-
   get projectId(): string {
     return this._projectId
   }
@@ -70,9 +53,30 @@ export class GitHubApi {
     return this._issue
   }
 
-  public async moveToInProgress(): Promise<void> {
-    await this.updateIssueStatus()
-    log(`Issue #${this._issue.number} をIn Progressステータスへ移動しました`)
+  public static async create(
+    projectId: string,
+    statusFieldId: string,
+    statusIds: GitHubStatusIds
+  ): Promise<GitHubApi> {
+    const todoItems = await this.fetchTodoIssues(projectId, statusIds.todo)
+    const firstItem = todoItems[0]
+
+    if (!firstItem?.content) {
+      throw new GitHubApiError('Issueの内容が取得できません')
+    }
+
+    const issue = this.extractIssue(firstItem)
+
+    return new GitHubApi(projectId, statusFieldId, statusIds, issue)
+  }
+
+  public moveToInProgress(): void {
+    GitHubApi.executeGraphQL(UPDATE_PROJECT_ITEM_STATUS_MUTATION, {
+      projectId: this._projectId,
+      itemId: this._issue.projectItemId,
+      statusFieldId: this._statusFieldId,
+      statusValueId: this._statusIds.inProgress,
+    })
   }
 
   private static async fetchTodoIssues(
@@ -116,30 +120,10 @@ export class GitHubApi {
     }
   }
 
-  private isFetchProjectIssuesResponse(
-    data: unknown
-  ): data is FetchProjectIssuesResponse {
-    return (
-      typeof data === 'object' &&
-      data !== null &&
-      'data' in data &&
-      typeof data.data === 'object' &&
-      data.data !== null &&
-      'node' in data.data &&
-      typeof data.data.node === 'object' &&
-      data.data.node !== null &&
-      'items' in data.data.node &&
-      typeof data.data.node.items === 'object' &&
-      data.data.node.items !== null &&
-      'nodes' in data.data.node.items &&
-      Array.isArray(data.data.node.items.nodes)
-    )
-  }
-
   private static validateGraphQLResponse(
     data: unknown
   ): FetchProjectIssuesResponse {
-    if (GitHubApi.isFetchProjectIssuesResponseStatic(data)) {
+    if (this.isFetchProjectIssuesResponse(data)) {
       return data
     }
 
@@ -148,7 +132,7 @@ export class GitHubApi {
     ])
   }
 
-  private static isFetchProjectIssuesResponseStatic(
+  private static isFetchProjectIssuesResponse(
     data: unknown
   ): data is FetchProjectIssuesResponse {
     return (
@@ -188,15 +172,6 @@ export class GitHubApi {
     return typeLabel?.name || LABEL.DEFAULT_LABEL
   }
 
-  private async updateIssueStatus(): Promise<void> {
-    GitHubApi.executeGraphQL(UPDATE_PROJECT_ITEM_STATUS_MUTATION, {
-      projectId: this._projectId,
-      itemId: this._issue.projectItemId,
-      statusFieldId: this._statusFieldId,
-      statusValueId: this._statusIds.inProgress,
-    })
-  }
-
   public async closeIssue(): Promise<void> {
     try {
       const state = execSync(
@@ -205,7 +180,7 @@ export class GitHubApi {
       ).trim()
 
       if (state === 'CLOSED') {
-        log(`Issue #${this._issue.number} は既にクローズ済みです`)
+        log(`ℹ️ Issue #${this._issue.number} は既にクローズ済みです`)
         return
       }
 
@@ -213,7 +188,6 @@ export class GitHubApi {
         `gh issue close ${this._issue.number} --comment "✅ 開発完了・マージ済み"`,
         { stdio: 'inherit' }
       )
-      log(`Issue #${this._issue.number} をクローズしました`)
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error)
@@ -237,7 +211,5 @@ export class GitHubApi {
     execSync(`gh issue edit ${issueNumber} --add-assignee ${userName}`, {
       encoding: 'utf-8',
     })
-
-    log(`Issue #${issueNumber} を ${userName} にアサインしました`)
   }
 }

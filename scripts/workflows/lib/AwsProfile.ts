@@ -24,11 +24,10 @@ export class AwsProfile {
     return this.profileName
   }
 
-  create(): void {
+  public create(): void {
     const configContent = this.loadConfigContent()
 
     if (this.exists(configContent)) {
-      log(`AWS profile "${this.profileName}" は既に存在します`)
       return
     }
 
@@ -38,29 +37,25 @@ export class AwsProfile {
       referenceProfile.roleArn,
       referenceProfile.sourceProfile
     )
-
-    log(`AWS profile "${this.profileName}" を作成しました`)
   }
 
-  delete(): void {
+  public delete(): void {
     const configPath = this.getConfigPath()
 
     if (!existsSync(configPath)) {
-      log(`AWS config ファイルが存在しません: ${configPath}`)
+      log(`ℹ️ AWS config ファイルが存在しません: ${configPath}`)
       return
     }
 
     const configContent = readFileSync(configPath, 'utf-8')
 
     if (!this.exists(configContent)) {
-      log(`AWS profile "${this.profileName}" は存在しません`)
+      log(`ℹ️ AWS profile "${this.profileName}" は存在しません`)
       return
     }
 
     const updatedContent = this.removeFromConfig(configContent)
     writeFileSync(configPath, updatedContent, 'utf-8')
-
-    log(`✅ AWS profile "${this.profileName}" を削除しました`)
   }
 
   private exists(configContent: string): boolean {
