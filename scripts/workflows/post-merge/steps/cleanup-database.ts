@@ -1,9 +1,10 @@
-import { deleteDatabase } from '../../lib/database.js'
+import { Database } from '../../lib/Database.js'
 import type { WorkflowContext } from '../../shared/types.js'
 
 export function cleanupDatabase(ctx: WorkflowContext): void {
-  deleteDatabase(
-    ctx.worktreeEnvironment.databaseAdminUrl,
+  const database = new Database(
+    ctx.worktreeEnvironment.slugTitle,
     ctx.worktreeEnvironment.databaseAdminPassword
   )
+  database.delete()
 }

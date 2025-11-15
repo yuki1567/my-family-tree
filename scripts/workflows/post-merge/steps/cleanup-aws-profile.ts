@@ -1,6 +1,7 @@
-import { deleteAwsProfile } from 'scripts/workflows/lib/aws-profile.js'
-import { WorkflowContext } from 'scripts/workflows/shared/types.js'
+import { AwsProfile } from '../../lib/AwsProfile.js'
+import type { WorkflowContext } from '../../shared/types.js'
 
 export function cleanupAwsProfile(ctx: WorkflowContext): void {
-  deleteAwsProfile(ctx.githubApi.issueData.number)
+  const awsProfile = new AwsProfile(ctx.githubApi.issueData.number)
+  awsProfile.delete()
 }

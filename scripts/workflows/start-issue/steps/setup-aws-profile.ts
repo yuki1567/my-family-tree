@@ -1,8 +1,9 @@
-import { createAwsProfile } from '../../lib/aws-profile.js'
+import { AwsProfile } from '../../lib/AwsProfile.js'
 import type { WorkflowContext } from '../../shared/types.js'
 
 export function setupAwsProfile(ctx: WorkflowContext): void {
-  const awsProfileName = createAwsProfile(ctx.worktreeEnvironment.issueNumber)
+  const awsProfile = new AwsProfile(ctx.worktreeEnvironment.issueNumber)
+  awsProfile.create()
 
-  ctx.worktreeEnvironment.setAwsProfile(awsProfileName)
+  ctx.worktreeEnvironment.setAwsProfile(awsProfile.name)
 }
