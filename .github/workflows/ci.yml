@@ -77,7 +77,12 @@ jobs:
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache || true
 
       - name: Wait for containers to be ready
-        run: sleep 10
+        run: |
+          until docker compose exec -T db pg_isready -U postgres; do
+            echo "Waiting for database..."
+            sleep 1
+          done
+          echo "Database is ready!"
 
       - name: Run quality checks and builds in parallel
         run: |
