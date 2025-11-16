@@ -155,14 +155,20 @@ export class GitHubApi {
     query: string,
     variables: Record<string, unknown>
   ): unknown {
-    const variablesJson = JSON.stringify(variables).replace(/"/g, '\\"')
-    const queryJson = query.replace(/\n/g, ' ').replace(/"/g, '\\"')
+    const queryNormalized = query.replace(/\n/g, ' ')
+
+    const variableFlags = Object.entries(variables)
+      .map(([key, value]) => {
+        const valueStr =
+          typeof value === 'string' ? value : JSON.stringify(value)
+        return `-f ${key}='${valueStr}'`
+      })
+      .join(' ')
+
+    const command = `gh api graphql -f query='${queryNormalized}' ${variableFlags}`
 
     try {
-      const result = execSync(
-        `gh api graphql -f query="${queryJson}" -f variables="${variablesJson}"`,
-        { encoding: 'utf-8' }
-      )
+      const result = execSync(command, { encoding: 'utf-8' })
       return JSON.parse(result)
     } catch (error) {
       const errorMessage =
