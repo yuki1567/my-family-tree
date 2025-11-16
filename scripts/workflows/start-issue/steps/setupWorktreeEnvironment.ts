@@ -31,8 +31,6 @@ export async function setupWorktreeEnvironment(
   const worktreeParameters = {
     [KEYS.ISSUE_NUMBER]: gitHubApi.issue.number,
     [KEYS.BRANCH_NAME]: worktreeConfig.branchName,
-    [KEYS.WEB_PORT]: worktreeConfig.webPort,
-    [KEYS.API_PORT]: worktreeConfig.apiPort,
     [KEYS.DATABASE_NAME]: database.name,
     [KEYS.DATABASE_URL]: database.userUrl,
     [KEYS.DATABASE_ADMIN_URL]: database.adminUrl,
