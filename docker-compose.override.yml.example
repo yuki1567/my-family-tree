@@ -1,21 +1,5 @@
-# ============================================================
-# Docker Compose Override Example (開発環境用)
-# ============================================================
-# このファイルは開発環境でdocker-compose.ymlの設定を
-# オーバーライドするためのテンプレートです。
-#
-# 使用方法:
-#   cp docker-compose.override.yml.example docker-compose.override.yml
-#
-# 注意:
-#   - docker-compose.override.ymlはgitで管理されません（.gitignoreに含まれています）
-#   - 各開発者が自分のローカル環境に合わせてカスタマイズしてください
-# ============================================================
-
 services:
   apps:
-    build:
-      target: development
     image: ${AWS_VAULT:-family-tree-app}
     container_name: ${AWS_VAULT:-family-tree-app}
     ports:
