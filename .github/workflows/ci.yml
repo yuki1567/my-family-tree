@@ -39,35 +39,32 @@ jobs:
       - name: Create Docker network
         run: docker network create my-family-tree-shared
 
+      - name: Build Docker images
+        run: |
+          docker compose build --parallel
+
       - name: Start Docker containers
         run: docker compose --profile development up -d
 
       - name: Wait for containers to be ready
-        run: sleep 10
+        run: |
+          until docker compose exec -T db pg_isready -U postgres; do
+            echo "Waiting for database..."
+            sleep 1
+          done
+          echo "Database is ready!"
 
-      - name: Lint frontend
-        run: npm run lint:frontend
-
-      - name: Lint backend
-        run: npm run lint:backend
-
-      - name: Type check frontend
-        run: npm run type-check:frontend
-
-      - name: Type check backend
-        run: npm run type-check:backend
-
-      - name: Build frontend
-        run: npm run build:frontend
-
-      - name: Build backend
-        run: npm run build:backend
-
-      - name: Test frontend
-        run: npm run test:frontend
-
-      - name: Test backend
-        run: npm run test:backend
+      - name: Run quality checks, builds, and tests in parallel
+        run: |
+          npm run lint:frontend &
+          npm run lint:backend &
+          npm run type-check:frontend &
+          npm run type-check:backend &
+          npm run build:frontend &
+          npm run build:backend &
+          npm run test:frontend &
+          npm run test:backend &
+          wait
 
       - name: Stop Docker containers
         if: always()
