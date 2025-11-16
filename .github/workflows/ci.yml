@@ -58,7 +58,7 @@ jobs:
             --cache-from type=local,src=/tmp/.buildx-cache \
             --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \
             --load \
-            .
+            . &
 
           docker buildx build \
             -f docker/db/Dockerfile \
@@ -66,7 +66,9 @@ jobs:
             --cache-from type=local,src=/tmp/.buildx-cache \
             --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \
             --load \
-            .
+            . &
+
+          wait
 
       - name: Start Docker containers
         run: docker compose --profile development up -d
