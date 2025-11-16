@@ -23,14 +23,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ hashFiles('docker/**', '**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -55,16 +47,16 @@ jobs:
           docker buildx build \
             -f docker/apps/Dockerfile \
             -t ${AWS_VAULT:-family-tree-app} \
-            --cache-from type=local,src=/tmp/.buildx-cache \
-            --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
             --load \
             . &
 
           docker buildx build \
             -f docker/db/Dockerfile \
             -t db \
-            --cache-from type=local,src=/tmp/.buildx-cache \
-            --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
             --load \
             . &
 
@@ -72,11 +64,6 @@ jobs:
 
       - name: Start Docker containers
         run: docker compose --profile development up -d
-
-      - name: Update Docker cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache || true
 
       - name: Wait for containers to be ready
         run: |
