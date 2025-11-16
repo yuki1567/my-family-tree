@@ -15,12 +15,21 @@
 # ==============================================
 # Source Code (mounted via volume in CI)
 # ==============================================
-apps/**/*.ts
-apps/**/*.tsx
-apps/**/*.vue
-apps/**/*.js
-apps/**/*.jsx
-apps/**/*.css
+apps/*/src
+apps/*/public
+apps/*/tests
+apps/*/components
+apps/*/composables
+apps/*/layouts
+apps/*/middleware
+apps/*/pages
+apps/*/plugins
+apps/*/routes
+apps/*/services
+apps/*/utils
+apps/*/assets
+apps/*/*.test.ts
+apps/*/*.spec.ts
 
 # ==============================================
 # Test Coverage

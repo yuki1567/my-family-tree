@@ -42,21 +42,27 @@ jobs:
       - name: Create Docker network
         run: docker network create my-family-tree-shared
 
+      - name: Pull base images
+        run: |
+          docker pull node:22.18-slim &
+          docker pull postgres:18 &
+          wait
+
       - name: Build Docker images with cache
         run: |
           docker buildx build \
             -f docker/apps/Dockerfile \
             -t ${AWS_VAULT:-family-tree-app} \
-            --cache-from type=gha \
-            --cache-to type=gha,mode=max \
+            --cache-from type=gha,scope=apps \
+            --cache-to type=gha,scope=apps,mode=max \
             --load \
             . &
 
           docker buildx build \
             -f docker/db/Dockerfile \
             -t db \
-            --cache-from type=gha \
-            --cache-to type=gha,mode=max \
+            --cache-from type=gha,scope=db \
+            --cache-to type=gha,scope=db,mode=max \
             --load \
             . &
 
