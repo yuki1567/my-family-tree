@@ -50,12 +50,26 @@ jobs:
       - name: Create Docker network
         run: docker network create my-family-tree-shared
 
-      - name: Build and start Docker containers
+      - name: Build Docker images with cache
         run: |
-          docker compose build \
+          docker buildx build \
+            -f docker/apps/Dockerfile \
+            -t ${AWS_VAULT:-family-tree-app} \
             --cache-from type=local,src=/tmp/.buildx-cache \
-            --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max
-          docker compose --profile development up -d
+            --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --load \
+            .
+
+          docker buildx build \
+            -f docker/db/Dockerfile \
+            -t db \
+            --cache-from type=local,src=/tmp/.buildx-cache \
+            --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --load \
+            .
+
+      - name: Start Docker containers
+        run: docker compose --profile development up -d
 
       - name: Update Docker cache
         run: |
