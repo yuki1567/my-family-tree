@@ -13,25 +13,6 @@
 *.map
 
 # ==============================================
-# Source Code (mounted via volume in CI)
-# ==============================================
-apps/*/src
-apps/*/public
-apps/*/tests
-apps/*/components
-apps/*/composables
-apps/*/layouts
-apps/*/middleware
-apps/*/pages
-apps/*/plugins
-apps/*/routes
-apps/*/services
-apps/*/utils
-apps/*/assets
-apps/*/*.test.ts
-apps/*/*.spec.ts
-
-# ==============================================
 # Test Coverage
 # ==============================================
 **/coverage
