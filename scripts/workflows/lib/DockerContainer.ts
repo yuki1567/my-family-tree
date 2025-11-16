@@ -11,7 +11,7 @@ export class DockerContainer {
   private isDatabasePresent(dbName: string, adminPassword: string): boolean {
     try {
       const result = execSync(
-        `docker exec -e PGPASSWORD="${adminPassword}" ${DOCKER.DB_SERVICE} psql -U ${DOCKER.DB_ADMIN_USER} -d ${DOCKER.DB_DEFAULT_DATABASE} -c "SELECT 1 FROM pg_database WHERE datname = '${dbName}';" -t`,
+        `docker compose exec -e PGPASSWORD="${adminPassword}" ${DOCKER.DB_SERVICE} psql -U ${DOCKER.DB_ADMIN_USER} -d ${DOCKER.DB_DEFAULT_DATABASE} -c "SELECT 1 FROM pg_database WHERE datname = '${dbName}';" -t`,
         { encoding: 'utf-8' }
       )
       return result.trim() === '1'
@@ -58,7 +58,7 @@ export class DockerContainer {
 
     try {
       execSync(
-        `docker exec -e PGPASSWORD="${adminPassword}" ${DOCKER.DB_SERVICE} psql -U ${DOCKER.DB_ADMIN_USER} -d ${DOCKER.DB_DEFAULT_DATABASE} -c "CREATE DATABASE ${dbName};"`,
+        `docker compose exec -e PGPASSWORD="${adminPassword}" ${DOCKER.DB_SERVICE} psql -U ${DOCKER.DB_ADMIN_USER} -d ${DOCKER.DB_DEFAULT_DATABASE} -c "CREATE DATABASE ${dbName};"`,
         { stdio: 'inherit' }
       )
     } catch (error) {
@@ -79,7 +79,7 @@ export class DockerContainer {
 
     try {
       execSync(
-        `docker exec -e PGPASSWORD="${adminPassword}" ${DOCKER.DB_SERVICE} psql -U ${DOCKER.DB_ADMIN_USER} -d ${DOCKER.DB_DEFAULT_DATABASE} -c "DROP DATABASE IF EXISTS ${dbName};"`,
+        `docker compose exec -e PGPASSWORD="${adminPassword}" ${DOCKER.DB_SERVICE} psql -U ${DOCKER.DB_ADMIN_USER} -d ${DOCKER.DB_DEFAULT_DATABASE} -c "DROP DATABASE IF EXISTS ${dbName};"`,
         { stdio: 'inherit' }
       )
     } catch (error) {
