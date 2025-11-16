@@ -5,6 +5,9 @@ services:
     image: family-tree-app:latest
     container_name: family-tree-app-prod
     restart: unless-stopped
+    ports:
+      - "3000:3000"
+      - "4000:4000"
     environment:
       - NODE_ENV=production
       - AWS_REGION=ap-northeast-1

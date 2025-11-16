@@ -16,6 +16,11 @@ services:
   apps:
     build:
       target: development
+    image: ${AWS_VAULT:-family-tree-app}
+    container_name: ${AWS_VAULT:-family-tree-app}
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+      - "${API_PORT:-4000}:4000"
     volumes:
       - ./apps:/usr/src/apps
     environment:
