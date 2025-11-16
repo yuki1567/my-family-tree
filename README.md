@@ -2,7 +2,6 @@
 
 家族の系図を管理するWebアプリケーションです。
 
-
 ## 技術スタック
 
 - **フロントエンド**: Nuxt.js 3 + TypeScript + 素のCSS
@@ -175,4 +174,10 @@ cat ~/.aws/config
 
 ```bash
 aws-vault exec family-tree-dev -- npm run start:issue
+```
+
+- issueクローズ
+
+```bash
+aws-vault exec family-tree-dev -- npm run post:merge
 ```
