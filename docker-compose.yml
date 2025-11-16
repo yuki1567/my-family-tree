@@ -3,9 +3,4 @@ services:
     build:
       context: .
       dockerfile: docker/apps/Dockerfile
-    image: ${AWS_VAULT:-family-tree-app}
-    container_name: ${AWS_VAULT:-family-tree-app}
     working_dir: /usr/src
-    ports:
-      - "${WEB_PORT:-3000}:3000"
-      - "${API_PORT:-4000}:4000"
