@@ -1,5 +1,7 @@
-# ========== ステージ1: ベースイメージ（システムレベルの依存関係） ==========
-FROM node:22.18-slim AS base
+FROM node:22.18-slim
+
+# 作業ディレクトリ設定
+WORKDIR /usr/src
 
 RUN npm install -g npm@10.9.3 pm2@6.0.8
 
@@ -13,27 +15,13 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv
     && ./aws/install \
     && rm -rf aws awscliv2.zip
 
-# ========== ステージ2: 依存関係インストール ==========
-FROM base AS dependencies
-
-WORKDIR /usr/src
-
-# package.jsonファイルのみコピー
+# モノレポ対応：依存関係定義ファイルのコピー（レイヤーキャッシュ最適化）
 COPY package*.json ./
 COPY apps/frontend/package*.json ./apps/frontend/
 COPY apps/backend/package*.json ./apps/backend/
 
-# 依存関係インストール
+# ワークスペース全体の依存関係を一括インストール
 RUN npm ci --frozen-lockfile
-
-# ========== ステージ3: 最終イメージ ==========
-FROM base AS final
-
-WORKDIR /usr/src
-
-# 依存関係を前のステージからコピー
-COPY --from=dependencies /usr/src/node_modules ./node_modules
-COPY --from=dependencies /usr/src/apps ./apps
 
 # TypeScript設定ファイルのコピー
 COPY tsconfig*.json ./
