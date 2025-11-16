@@ -42,31 +42,28 @@ jobs:
       - name: Create Docker network
         run: docker network create my-family-tree-shared
 
-      - name: Pull base images
-        run: |
-          docker pull node:22.18-slim &
-          docker pull postgres:18 &
-          wait
-
       - name: Build Docker images with cache
         run: |
           docker buildx build \
             -f docker/apps/Dockerfile \
             -t ${AWS_VAULT:-family-tree-app} \
-            --cache-from type=gha,scope=apps \
-            --cache-to type=gha,scope=apps,mode=max \
+            --cache-from type=gha,scope=buildcache-apps \
+            --cache-to type=gha,scope=buildcache-apps,mode=max \
+            --progress=plain \
             --load \
-            . &
+            . > /tmp/apps-build.log 2>&1 &
 
           docker buildx build \
             -f docker/db/Dockerfile \
             -t db \
-            --cache-from type=gha,scope=db \
-            --cache-to type=gha,scope=db,mode=max \
+            --cache-from type=gha,scope=buildcache-db \
+            --cache-to type=gha,scope=buildcache-db,mode=max \
+            --progress=plain \
             --load \
-            . &
+            . > /tmp/db-build.log 2>&1 &
 
           wait
+          cat /tmp/apps-build.log /tmp/db-build.log
 
       - name: Start Docker containers
         run: docker compose --profile development up -d
@@ -79,7 +76,7 @@ jobs:
           done
           echo "Database is ready!"
 
-      - name: Run quality checks, builds, and tests in parallel
+      - name: Run quality checks and builds in parallel
         run: |
           npm run lint:frontend &
           npm run lint:backend &
@@ -88,8 +85,10 @@ jobs:
           npm run build:frontend &
           npm run build:backend &
           npm run test:frontend &
-          npm run test:backend &
           wait
+
+      - name: Test backend
+        run: npm run test:backend
 
       - name: Stop Docker containers
         if: always()
