@@ -79,7 +79,7 @@ jobs:
           done
           echo "Database is ready!"
 
-      - name: Run quality checks and builds in parallel
+      - name: Run quality checks, builds, and tests in parallel
         run: |
           npm run lint:frontend &
           npm run lint:backend &
@@ -88,10 +88,8 @@ jobs:
           npm run build:frontend &
           npm run build:backend &
           npm run test:frontend &
+          npm run test:backend &
           wait
-
-      - name: Test backend
-        run: npm run test:backend
 
       - name: Stop Docker containers
         if: always()
