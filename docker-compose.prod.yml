@@ -1,7 +1,5 @@
 services:
   apps:
-    build:
-      target: production
     ports:
       - "3000:3000"
       - "4000:4000"
