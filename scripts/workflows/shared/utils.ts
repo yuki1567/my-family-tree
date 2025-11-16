@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-export const PROJECT_ROOT = path.resolve(__dirname, '..', '..')
+export const PROJECT_ROOT = path.resolve(__dirname, '..', '..', '..')
 
 export function log(message: string): void {
   const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
