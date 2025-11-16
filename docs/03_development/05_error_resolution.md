@@ -7,11 +7,13 @@
 ## 基本原則
 
 ### 禁止事項
+
 - 即座の回避策実行（根本原因分析前）
 - 同じエラーを繰り返し同じ方法で対処
 - エラー原因の調査なしでの処置
 
 ### 必須事項
+
 - 3段階分析プロセスの実行
 - 根本原因の特定と修正
 - 修正後の検証テスト
@@ -22,6 +24,7 @@
 ### 1. エラー分析フェーズ
 
 #### 1.1 直接的原因の分析
+
 ```bash
 # エラーメッセージの詳細確認
 # ログファイルの確認
@@ -29,6 +32,7 @@
 ```
 
 #### 1.2 環境状態の確認
+
 ```bash
 # Dockerコンテナ状態確認
 docker-compose ps
@@ -40,6 +44,7 @@ docker-compose ps
 ```
 
 #### 1.3 根本原因の特定
+
 - なぜこのエラーが発生したか
 - どの設定や環境要因が関連するか
 - 他の類似エラーとの関連性
@@ -47,17 +52,20 @@ docker-compose ps
 ### 2. 修正実装フェーズ
 
 #### 優先順位1: 設定ファイル修正
+
 - `package.json`、`package-lock.json`の整合性
 - `docker-compose.yml`、`Dockerfile`の設定見直し
 - 環境変数（`.env`）の正確性
 - TypeScript設定（`tsconfig.json`）
 
 #### 優先順位2: 環境再構築
+
 - Dockerイメージの再ビルド
 - 依存関係の再インストール
 - データベーススキーマの同期
 
 #### 優先順位3: プロセス標準化
+
 - コマンド実行手順の改善
 - 開発ワークフローの見直し
 - ドキュメントの更新
@@ -65,6 +73,7 @@ docker-compose ps
 ### 3. 検証フェーズ
 
 #### 必須検証項目
+
 - 同じコマンドの再実行確認
 - 関連コマンドへの影響確認
 - エラー再現防止テスト
@@ -75,12 +84,15 @@ docker-compose ps
 ### Docker関連エラー
 
 #### コンテナ起動エラー
+
 **分析手順:**
+
 1. `docker-compose logs` でログ確認
 2. `docker-compose.yml` 設定確認
 3. ポート衝突の確認
 
 **根本修正:**
+
 - docker-compose.yml の修正
 - 不要なコンテナの削除
 - ネットワーク設定の見直し
@@ -88,12 +100,15 @@ docker-compose ps
 ### Node.js/npm関連エラー
 
 #### パッケージインストールエラー
+
 **分析手順:**
+
 1. `package.json` と `package-lock.json` の整合性確認
 2. Node.jsバージョン確認
 3. npmキャッシュ状態確認
 
 **根本修正:**
+
 - `docker-compose exec apps npm ci` で正確なインストール
 - package-lock.json の更新
 - Dockerイメージの再ビルド
@@ -101,12 +116,15 @@ docker-compose ps
 ### データベース関連エラー
 
 #### Prisma接続エラー
+
 **分析手順:**
+
 1. データベースコンテナ状態確認
 2. 接続設定（DATABASE_URL）確認
 3. PrismaスキーマとDB同期状態確認
 
 **根本修正:**
+
 - `docker-compose exec apps npx prisma db push`
 - 環境変数の修正
 - データベースの再初期化
@@ -114,12 +132,15 @@ docker-compose ps
 ### PM2関連エラー
 
 #### 環境変数が子プロセスに継承されないエラー
+
 **エラー例:**
+
 ```
 環境変数NODE_ENVが設定されていません
 ```
 
 **分析手順:**
+
 1. entrypoint.shで環境変数が設定されているか確認
    ```bash
    docker-compose logs apps | grep "NODE_ENV"
@@ -128,11 +149,13 @@ docker-compose ps
 3. PM2プロセスの環境変数確認
 
 **根本原因:**
+
 - entrypoint.shでParameter Storeから環境変数を取得・設定している
 - しかし、PM2設定に`env: process.env`が指定されていないため、PM2が起動する子プロセス（npm）に環境変数が継承されない
 
 **根本修正:**
 ecosystem.config.cjsの各アプリ設定に`env: process.env`を追加:
+
 ```javascript
 {
   name: 'backend',
@@ -143,6 +166,7 @@ ecosystem.config.cjsの各アプリ設定に`env: process.env`を追加:
 ```
 
 **検証:**
+
 ```bash
 docker-compose restart apps
 docker-compose exec apps pm2 list
@@ -152,6 +176,7 @@ docker-compose exec apps pm2 list
 ## 修正後の文書化
 
 ### 記録すべき内容
+
 1. **エラーの詳細:** 発生状況、エラーメッセージ
 2. **根本原因:** 特定された原因と理由
 3. **修正内容:** 実装した具体的な修正
@@ -159,6 +184,7 @@ docker-compose exec apps pm2 list
 5. **予防策:** 同じエラーの再発防止方法
 
 ### 文書化場所
+
 - 設定変更: 該当設定ファイルのコメント
 - 手順変更: 関連ドキュメントの更新
 - 一般的なエラー: このドキュメントの追記
@@ -190,4 +216,4 @@ TodoWrite でタスク作成
 
 ---
 
-*このドキュメントは継続的に更新され、新しいエラーパターンと解決方法が追加されます。*
+_このドキュメントは継続的に更新され、新しいエラーパターンと解決方法が追加されます。_

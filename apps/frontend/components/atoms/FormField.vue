@@ -29,7 +29,7 @@
           :value="option.value"
           :required="required"
           class="form-field-radio-input-button"
-        />
+        >
         <component
           :is="option.icon"
           class="form-field-radio-icon"
@@ -64,7 +64,7 @@
       :placeholder="placeholder"
       :required="required"
       :class="inputClasses"
-    />
+    >
 
     <div v-if="errorMessage" class="form-field-error">
       {{ errorMessage }}

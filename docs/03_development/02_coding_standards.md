@@ -80,6 +80,9 @@ enum Gender {
 型アサーション（`as`）は型安全性を損なうため使用禁止。`as const`のみ例外的に許可。
 
 ```typescript
+// ✅ 良い例 2: Zodによるランタイムバリデーション
+import { z } from 'zod'
+
 // ❌ 悪い例 - 型アサーション使用
 const value = unknownValue as string
 const data = apiResponse as UserData
@@ -93,9 +96,6 @@ function isString(value: unknown): value is string {
 if (isString(unknownValue)) {
   console.log(unknownValue.toUpperCase()) // 型安全
 }
-
-// ✅ 良い例 2: Zodによるランタイムバリデーション
-import { z } from 'zod'
 
 const UserDataSchema = z.object({
   id: z.number(),

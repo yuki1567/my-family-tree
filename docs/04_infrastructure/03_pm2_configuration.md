@@ -73,11 +73,13 @@ module.exports = {
 ```
 
 **理由**:
+
 - entrypoint.shでAWS Parameter Storeから取得した環境変数（NODE_ENV、DATABASE_URL等）をPM2が起動するnpmプロセスに渡すため
 - `env`オプションを指定しない場合、PM2はデフォルトで親プロセスの環境変数を完全には継承しない
 - Parameter Store統合と併用する場合、この設定は必須
 
 **影響範囲**:
+
 - バックエンド: `NODE_ENV`、`DATABASE_URL`、`JWT_SECRET`、`LOG_LEVEL`等の必須環境変数
 - フロントエンド: Nuxt.jsの実行環境設定
 
@@ -88,18 +90,21 @@ module.exports = {
 **変更内容**: `env: process.env`の追加
 
 **変更理由**:
+
 - **Parameter Store統合**: AWS Parameter Storeから取得した環境変数をPM2管理下のプロセスに渡すため
 - **PM2の動作**: デフォルトでは親プロセスの環境変数が完全に継承されない仕様
 - **必須環境変数**: NODE_ENV、DATABASE_URL、JWT_SECRET等がバックエンド起動に必須
 
 **修正前の問題**:
+
 ```
 環境変数NODE_ENVが設定されていません
 ```
 
 **修正後の動作**:
+
 ```javascript
-env: process.env  // entrypoint.shで設定された全環境変数を継承
+env: process.env // entrypoint.shで設定された全環境変数を継承
 ```
 
 #### **ファイル拡張子: .js → .cjs**

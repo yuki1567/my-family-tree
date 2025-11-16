@@ -30,7 +30,7 @@
 ```typescript
 // apps/backend/database/schema/people.ts
 // このデータベース設計書を基に作成されるDrizzleスキーマ
-import { pgTable, uuid, varchar, smallint } from 'drizzle-orm/pg-core'
+import { pgTable, smallint, uuid, varchar } from 'drizzle-orm/pg-core'
 
 export const people = pgTable('people', {
   id: uuid('id').primaryKey().defaultRandom(),
