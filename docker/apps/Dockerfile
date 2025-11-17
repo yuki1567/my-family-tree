@@ -52,12 +52,6 @@ ARG BUILD_ENV=production
 
 WORKDIR /usr/src
 
-# 本番環境の場合のみ非rootユーザー作成
-RUN if [ "$BUILD_ENV" = "production" ]; then \
-    addgroup --gid 1001 --system node && \
-    adduser --uid 1001 --system --ingroup node node; \
-    fi
-
 # 必要なシステムパッケージインストール
 RUN apt-get update && \
     if [ "$BUILD_ENV" = "development" ]; then \
@@ -77,7 +71,7 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv
 RUN npm install -g pm2@6.0.8
 
 # ログディレクトリ作成
-RUN mkdir -p /apps/logs && chown -R nodejs:nodejs /apps/logs
+RUN mkdir -p /apps/logs && chown -R node:node /apps/logs
 
 # 開発環境: ソースコード全体をコピー
 # 本番環境: ビルド成果物のみをコピー
