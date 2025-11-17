@@ -119,7 +119,6 @@ RUN if [ "$BUILD_ENV" = "production" ]; then \
 COPY --from=builder /usr/src/node_modules ./node_modules/
 COPY --from=builder /usr/src/apps/backend/node_modules ./apps/backend/node_modules/
 COPY --from=builder /usr/src/apps/frontend/node_modules ./apps/frontend/node_modules/
-COPY --from=builder /usr/src/apps/shared/node_modules ./apps/shared/node_modules/
 
 # 設定ファイルのコピー
 COPY ecosystem.config.cjs ./
