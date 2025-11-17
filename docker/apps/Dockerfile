@@ -25,7 +25,7 @@ COPY .prettierrc ./
 COPY .prettierignore ./
 
 # 全依存関係インストール
-RUN npm ci --frozen-lockfile
+RUN npm ci
 
 # ソースコードのコピー
 COPY apps/shared ./apps/shared
@@ -38,13 +38,9 @@ RUN if [ "$BUILD_ENV" = "production" ]; then \
     cd ../frontend && npm run build; \
     fi
 
-# 本番環境の場合のみ本番用依存関係を別ディレクトリにインストール
+# 本番環境の場合のみdevDependenciesを削除
 RUN if [ "$BUILD_ENV" = "production" ]; then \
-    mkdir -p /prod-deps/backend /prod-deps/frontend && \
-    cp apps/backend/package*.json /prod-deps/backend/ && \
-    cp apps/frontend/package*.json /prod-deps/frontend/ && \
-    cd /prod-deps/backend && npm ci --omit=dev --frozen-lockfile && \
-    cd /prod-deps/frontend && npm ci --omit=dev --frozen-lockfile; \
+    npm prune --omit=dev --workspaces; \
     fi
 
 # ============================================================
@@ -125,24 +121,11 @@ RUN if [ "$BUILD_ENV" = "production" ]; then \
            ./apps/frontend/utils ./apps/frontend/tests ./apps/frontend/.nuxt; \
     fi
 
-# node_modulesのコピー
-# 開発環境: 開発用依存関係含む、本番環境: 本番用依存関係のみ
+# node_modulesのコピー（builderステージでprune済み）
 COPY --from=builder /usr/src/node_modules ./node_modules/
-
-# 本番環境の場合は開発用node_modulesを削除
-RUN if [ "$BUILD_ENV" = "production" ]; then \
-    rm -rf ./node_modules ./apps/backend/node_modules ./apps/frontend/node_modules; \
-    fi
-
-# 本番用node_modulesをコピー
-COPY --from=builder /prod-deps/ /tmp/prod-deps/
-
-# 本番環境の場合は本番用node_modulesを配置
-RUN if [ "$BUILD_ENV" = "production" ]; then \
-    mv /tmp/prod-deps/backend/node_modules ./apps/backend/node_modules && \
-    mv /tmp/prod-deps/frontend/node_modules ./apps/frontend/node_modules && \
-    rm -rf /tmp/prod-deps; \
-    fi
+COPY --from=builder /usr/src/apps/backend/node_modules ./apps/backend/node_modules/
+COPY --from=builder /usr/src/apps/frontend/node_modules ./apps/frontend/node_modules/
+COPY --from=builder /usr/src/apps/shared/node_modules ./apps/shared/node_modules/
 
 # 設定ファイルのコピー
 COPY ecosystem.config.cjs ./
