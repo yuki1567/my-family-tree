@@ -5,7 +5,7 @@ services:
         BUILD_ENV: development
     image: ${AWS_VAULT:-family-tree-app}
     container_name: ${AWS_VAULT:-family-tree-app}
-    ports:
+    ports: !override
       - "3000:3000"
       - "4000:4000"
     volumes:
