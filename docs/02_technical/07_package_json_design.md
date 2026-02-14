@@ -95,31 +95,15 @@ family-tree-app/
 - **バージョン固定理由**: 全アプリでの型互換性保証
 - **Node.js型定義**: 共通実行環境のため
 
-**ESLint設定**
+**Biome設定**
 
 ```json
-"eslint": "9.33.0",
-"@typescript-eslint/eslint-plugin": "8.39.1",
-"@typescript-eslint/parser": "8.39.1",
-"eslint-config-prettier": "10.1.8",
-"eslint-plugin-prettier": "5.5.4"
+"@biomejs/biome": "2.3.15"
 ```
 
-- **統一Lint設定**: 全アプリでのコード品質統一
-- **TypeScript対応**: 厳格モード要件への対応
-- **Prettier統合**: フォーマット自動化
-
-**Prettier設定**
-
-```json
-"prettier": "3.6.2",
-"@trivago/prettier-plugin-sort-imports": "4.3.0"
-```
-
-- **prettier**: コードフォーマット統一
-- **@trivago/prettier-plugin-sort-imports**: import文の自動並び替え
-- **対象ファイル**: `"**/*.{js,ts,vue,json,md}"`
-- **効果**: コードレビュー効率化、import順序の統一
+- **Biome**: リンティング・フォーマット・import整理を単一ツールで統合
+- **設定ファイル**: ルート`biome.json`でモノレポ全体をカバー
+- **効果**: ESLint + Prettierの2ツール構成を1ツールに統合し、設定の簡素化と実行速度の大幅改善を実現
 
 **共通ユーティリティ**
 
@@ -221,15 +205,6 @@ family-tree-app/
   - **Vue 3最適化**: Composition API対応
   - **開発体験**: DevTools統合、HMR対応
 - **@pinia/nuxt**: Nuxt統合用プラグイン
-
-**"@nuxt/eslint": "1.9.0"**
-
-- **理由**: Nuxt専用ESLint設定
-- **提供機能**:
-  - Nuxtの自動import認識
-  - ファイルベースルーティング対応
-  - Vue SFC内でのlint
-  - ESLint Flat Config形式への対応
 
 #### **開発依存関係（devDependencies）**
 

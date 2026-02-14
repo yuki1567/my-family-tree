@@ -27,17 +27,7 @@
 import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
-  modules: [
-    '@pinia/nuxt',
-    [
-      '@nuxt/eslint',
-      {
-        config: {
-          stylistic: false,
-        },
-      },
-    ],
-  ],
+  modules: ['@pinia/nuxt'],
 
   // SPAモード
   ssr: false,
@@ -60,10 +50,8 @@ export default defineNuxtConfig({
 
 **各設定の理由**:
 
-- **`modules: ['@pinia/nuxt', '@nuxt/eslint']`**
+- **`modules: ['@pinia/nuxt']`**
   - **@pinia/nuxt**: 状態管理ライブラリの統合
-  - **@nuxt/eslint**: Nuxt専用ESLint設定（Flat Config形式対応）
-  - **stylistic: false**: スタイル関連ルールを無効化（Prettierに委譲）
 
 - **`ssr: false`**
   - **目的**: SPAモードでの動作

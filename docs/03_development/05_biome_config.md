@@ -52,39 +52,28 @@ Biome 2.x系のスキーマを使用しています。
 ```json
 {
   "formatter": {
-    "enabled": true,
-    "lineWidth": 80,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineEnding": "lf"
+    "indentStyle": "space"
   },
   "javascript": {
     "formatter": {
       "semicolons": "asNeeded",
       "quoteStyle": "single",
-      "trailingCommas": "es5",
-      "bracketSpacing": true,
-      "arrowParentheses": "always",
-      "bracketSameLine": false
+      "trailingCommas": "es5"
     }
   }
 }
 ```
 
+デフォルト値と異なる設定のみ記述しています。
+
 ### 3.2 各設定項目の選択理由
 
-| 設定 | 値 | 理由 |
-|------|-----|------|
-| `lineWidth` | `80` | 可読性と一覧性のバランス |
-| `indentStyle` | `space` | JavaScript/TypeScriptコミュニティ標準 |
-| `indentWidth` | `2` | ファイルサイズ削減、コミュニティ標準 |
-| `lineEnding` | `lf` | クロスプラットフォーム対応 |
-| `semicolons` | `asNeeded` | セミコロンなしでコードがすっきり |
-| `quoteStyle` | `single` | シングルクォートでJS標準に準拠 |
-| `trailingCommas` | `es5` | git diff クリーン化 |
-| `bracketSpacing` | `true` | `{ foo }` 形式で可読性向上 |
-| `arrowParentheses` | `always` | `(x) => x` 形式で一貫性確保 |
-| `bracketSameLine` | `false` | ネストが深い場合の可読性向上 |
+| 設定 | 値 | デフォルト | 理由 |
+|------|-----|-----------|------|
+| `indentStyle` | `space` | `tab` | JavaScript/TypeScriptコミュニティ標準 |
+| `semicolons` | `asNeeded` | `always` | セミコロンなしでコードがすっきり |
+| `quoteStyle` | `single` | `double` | シングルクォートでJS標準に準拠 |
+| `trailingCommas` | `es5` | `all` | git diff クリーン化 |
 
 ## 4. リンタールール詳細
 
@@ -274,20 +263,15 @@ console.error('Error details:', error)
 ### 7.1 手動実行
 
 ```bash
-# 品質チェック（リント + フォーマット + import整理）
-docker compose exec apps npm run quality
+# 一括チェック（リント + フォーマット + import整理）
+docker compose exec apps npm run check
 
-# リント検査
-docker compose exec apps npm run lint
+# 一括自動修正
+docker compose exec apps npm run check:fix
 
-# リント自動修正
-docker compose exec apps npm run lint:fix
-
-# フォーマット検査のみ
-docker compose exec apps npm run format:check
-
-# フォーマット自動修正
-docker compose exec apps npm run format:fix
+# ワークスペース個別の品質チェック（type-check + check + test:unit）
+docker compose exec apps npm run quality --workspace=apps/frontend
+docker compose exec apps npm run quality --workspace=apps/backend
 ```
 
 ### 7.2 IDE連携
@@ -302,14 +286,13 @@ docker compose exec apps npm run format:fix
 
 ### 8.1 エラー対応
 
-1. **リントエラー**: 必ず修正（`npm run lint:fix`で自動修正推奨）
-2. **フォーマット**: コミット前に必ず実行（`npm run format:fix`）
-3. **import整理**: `npm run quality`が自動で実行
+1. **一括修正（推奨）**: `npm run check:fix`でリント・フォーマット・import整理を一括自動修正
+2. **コミット前**: `npm run check`で問題がないか確認
 
 ### 8.2 設定変更時の手順
 
 1. `biome.json`更新
-2. 全ファイルに設定適用: `docker compose exec apps npm run lint:fix && docker compose exec apps npm run format:fix`
+2. 全ファイルに設定適用: `docker compose exec apps npm run check:fix`
 3. 本ドキュメント更新
 4. チーム共有
 

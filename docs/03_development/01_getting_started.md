@@ -100,11 +100,11 @@ npm run build
 # 型チェック
 npm run type-check
 
-# リント実行
-npm run lint
+# コード品質チェック（リント + フォーマット + import整理）
+npm run check
 
-# フォーマット実行
-npm run format
+# コード品質自動修正
+npm run check:fix
 
 # テスト実行
 npm run test

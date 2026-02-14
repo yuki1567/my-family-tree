@@ -45,7 +45,7 @@ jobs:
 
       - name: Run quality checks, builds, and tests in parallel
         run: |
-          npm run quality &
+          npm run check &
           npm run type-check:frontend &
           npm run type-check:backend &
           npm run build:frontend &
