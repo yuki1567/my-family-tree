@@ -36,23 +36,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Create Docker network
-        run: docker network create my-family-tree-shared
-
       - name: Build Docker images
         run: |
           docker compose build --parallel
 
       - name: Start Docker containers
-        run: docker compose --profile development up -d
-
-      - name: Wait for containers to be ready
-        run: |
-          until docker compose exec -T db pg_isready -U postgres; do
-            echo "Waiting for database..."
-            sleep 1
-          done
-          echo "Database is ready!"
+        run: docker compose up -d apps
 
       - name: Run quality checks, builds, and tests in parallel
         run: |

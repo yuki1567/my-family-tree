@@ -32,27 +32,6 @@ services:
       - AWS_SESSION_TOKEN
       - AWS_REGION
 
-  test-db:
-    build:
-      context: .
-      dockerfile: docker/db/Dockerfile
-    image: db
-    container_name: test-db
-    ports:
-      - "5433:5432"
-    environment:
-      - AWS_VAULT
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - AWS_SESSION_TOKEN
-      - AWS_REGION
-    deploy:
-      resources:
-        limits:
-          memory: 256m
-    profiles:
-      - test
-
 networks:
   default:
     name: my-family-tree-shared
