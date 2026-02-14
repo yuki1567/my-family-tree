@@ -24,9 +24,18 @@
 ### Technology Stack (Immutable)
 
 - **Frontend**: Nuxt.js v3 + TypeScript + vanilla CSS
-- **Backend**: Express.js + Prisma + MySQL
+- **Backend**: Hono + Drizzle ORM + PostgreSQL
+- **Shared**: `apps/shared/` - Shared types and API schemas (Zod)
 - **Environment**: Docker + Docker Compose (for development commands)
 - **TypeScript**: Strict mode required
+- **Validation**: Zod (shared between frontend and backend)
+
+### Architecture (Backend: apps/backend/)
+
+- **Routes** (`routes/`) → **Services** (`services/`) → **Repositories** (`repositories/`)
+- **Database**: `database/schema/` (Drizzle schema), `database/client.ts` (connection)
+- **Middlewares**: `middlewares/` (error handling, validation)
+- **Config**: `config/env.ts` (environment variables)
 
 ### Code Comment Guidelines
 
@@ -57,12 +66,12 @@
 
 - ❌ Tailwind CSS, UI frameworks
 - ❌ Local Node.js execution (Docker only)
-- ❌ Direct MySQL operations (use Prisma)
+- ❌ Direct PostgreSQL operations (use Drizzle ORM)
 - ❌ enum usage
 
 ### Command Execution Rules
 
-- **Development commands** (npm, prisma, etc.): `docker-compose exec apps [command]`
+- **Development commands** (npm, drizzle-kit, etc.): `docker compose exec apps [command]`
 - **Infrastructure commands** (.claude/commands/*.md): Execute on host environment
 - **Tests**: Ensure test-db container is running first
 - **Command files execution (CRITICAL)**:

@@ -1,27 +1,24 @@
 {
   "permissions": {
     "allow": [
-      "Write(src/**)",
+      "Write(apps/**)",
       "Write(docs/**)",
       "Bash(npm install:*)",
-      "Bash(ls:*)",
-      "Bash(cat **)",
       "Bash(git add:*)",
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
       "Bash(git push:*)",
       "Bash(git commit:*)",
-      "Bash(gh issue:*)",
-      "Bash(gh issue list:*)",
-      "Bash(gh issue view:*)",
       "Bash(git stash:*)",
       "Bash(git checkout:*)",
       "Bash(git pull:*)",
       "Bash(git worktree:*)",
+      "Bash(gh issue:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue view:*)",
       "Bash(code:*)",
-      "Bash(docker-compose ps)",
-      "Bash(docker-compose exec apps npm test)"
+      "Bash(docker compose:*)"
     ],
     "deny": [
       "Bash(sudo:*)",
@@ -33,7 +30,6 @@
       "Bash(git merge:*)",
       "Bash(git reset:*)",
       "Bash(git rebase:*)",
-      "Bash(git pull:*)",
       "Read(.env*)",
       "Read(id_rsa)",
       "Read(id_ed25519)",
@@ -46,7 +42,7 @@
       "Bash(nc:*)",
       "Bash(npm uninstall:*)",
       "Bash(npm remove:*)",
-      "Bash(mysql:*)"
+      "Bash(psql:*)"
     ]
   }
 }
