@@ -64,15 +64,15 @@
 </template>
 
 <script setup lang="ts">
+import { UserIcon, UsersIcon } from '@heroicons/vue/24/outline'
+import type { ErrorResponse } from '@shared/api/common'
+import { type Component, reactive, ref, watch } from 'vue'
 import AppButton from '@/components/atoms/AppButton.vue'
 import FormField from '@/components/atoms/FormField.vue'
 import AppModal from '@/components/layout/AppModal.vue'
 import { usePersonValidation } from '@/composables/useValidation'
 import type { PersonForm, ValidationErrors } from '@/types/person'
 import { INITIAL_PERSON_FORM } from '@/types/person'
-import { UserIcon, UsersIcon } from '@heroicons/vue/24/outline'
-import type { ErrorResponse } from '@shared/api/common'
-import { type Component, reactive, ref, watch } from 'vue'
 
 type RadioOption = {
   label: string

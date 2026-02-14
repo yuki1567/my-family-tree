@@ -2,8 +2,8 @@ import {
   DeleteParameterCommand,
   type Parameter,
   PutParameterCommand,
-  SSMClient,
   paginateGetParametersByPath,
+  SSMClient,
 } from '@aws-sdk/client-ssm'
 
 import { AWS, WORKTREE_PARAMETERS } from '../shared/constants.js'
@@ -103,11 +103,8 @@ export class ParameterStore {
   ): Parameters {
     return parameters.reduce<Parameters>((acc, parameter) => {
       const [key, value] = this.extractKeyValue(parameter, path)
-
-      return {
-        ...acc,
-        [key]: value,
-      }
+      acc[key] = value
+      return acc
     }, {})
   }
 

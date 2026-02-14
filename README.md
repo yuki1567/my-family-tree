@@ -57,13 +57,13 @@ docker-compose logs -f
 docker-compose exec apps npm run db:studio
 
 # テスト実行
-docker-compose exec app npm run test
+docker compose exec apps npm run test
 
-# リント実行
-docker-compose exec app npm run lint
+# コード品質チェック（リント + フォーマット + import整理）
+docker compose exec apps npm run check
 
 # 型チェック
-docker-compose exec app npm run type-check
+docker compose exec apps npm run type-check
 ```
 
 ## プロジェクト構造

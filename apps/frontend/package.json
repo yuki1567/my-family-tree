@@ -10,15 +10,13 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "type-check": "vue-tsc --noEmit",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format:check": "prettier --check . --ignore-path ../../.prettierignore",
-    "format:fix": "prettier --write . --ignore-path ../../.prettierignore",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
     "test": "vitest run",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "test:watch": "vitest watch tests/unit",
-    "quality": "npm-run-all --parallel type-check lint format:check test:unit"
+    "quality": "npm-run-all --parallel type-check check test:unit"
   },
   "dependencies": {
     "@heroicons/vue": "2.2.0",
@@ -32,7 +30,6 @@
     "zod": "4.1.11"
   },
   "devDependencies": {
-    "@nuxt/eslint": "1.9.0",
     "@vitejs/plugin-vue": "6.0.1",
     "@vue/test-utils": "2.4.6",
     "happy-dom": "20.0.8",

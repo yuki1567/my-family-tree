@@ -1,7 +1,7 @@
-import { readFileSync, writeFileSync } from 'fs'
-import path from 'path'
+import { readFileSync, writeFileSync } from 'node:fs'
+import path from 'node:path'
 
-import { WorktreeConfig } from 'scripts/workflows/shared/types.js'
+import type { WorktreeConfig } from 'scripts/workflows/shared/types.js'
 import { PROJECT_ROOT } from 'scripts/workflows/shared/utils.js'
 
 export function generateDockerComposeOverride(

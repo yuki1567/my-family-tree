@@ -1,5 +1,5 @@
-import { convertStringToDate, formatDateToYYYYMMDD } from '@/utils/dateUtils.js'
 import { describe, expect, it } from 'vitest'
+import { convertStringToDate, formatDateToYYYYMMDD } from '@/utils/dateUtils.js'
 
 describe('dateUtils', () => {
   describe('formatDateToYYYYMMDD', () => {

@@ -43,7 +43,7 @@
 | `move`         | ファイル移動             | `move(#123): utils を shared/utils に移動`         |
 | `revert`       | 以前のコミットに戻す     | `revert(#123): 前回のデータベース変更を戻す`       |
 | `docs`         | ドキュメント修正         | `docs(#123): API仕様書更新`                        |
-| `style`        | コーディングスタイル修正 | `style(#123): ESLint警告修正`                      |
+| `style`        | コーディングスタイル修正 | `style(#123): Biome警告修正`                       |
 | `test`         | テストコード関連         | `test(#123): ユーザー作成APIのテスト追加`          |
 
 ### 段階的コミット戦略
@@ -210,22 +210,23 @@ EOF
 ### 必須チェック項目
 
 - [ ] 全テストが通過
-- [ ] ESLint/Prettierチェック通過
+- [ ] Biomeチェック通過
 - [ ] TypeScript型チェック通過
 - [ ] 受け入れ基準すべて満了
 
 ### 品質チェックコマンド
 
 ```bash
-# backend品質チェック
-npm run docker:quality:backend
+# 一括品質チェック（リント + フォーマット + import整理）
+npm run check
 
-# frontend品質チェック
-npm run docker:quality:frontend
+# ワークスペース個別の品質チェック（type-check + check + test:unit）
+npm run quality:frontend
+npm run quality:backend
 
 # テスト実行
-npm run docker:test:unit
-npm run docker:test:integration
+npm run test:frontend
+npm run test:backend
 ```
 
 ## ベストプラクティス

@@ -13,7 +13,7 @@
 
 - **TypeScript 必須**: 全ファイルで TypeScript 使用
 - **strict mode**: TypeScript strict mode 有効
-- **ESLint + Prettier**: 自動フォーマット・リント必須
+- **Biome**: 自動フォーマット・リント必須
 - **フレームワークレス**: TailwindCSS、UI ライブラリ使用禁止
 
 ### 1.3 プログラミングパラダイム
@@ -464,32 +464,30 @@ enum Gender {
 
 ### 5.1 インポート順序
 
-**Prettier自動並び替え設定済み**: インポート文は`npm run format`で自動整列
+**Biome自動並び替え設定済み**: インポート文は`npm run check:fix`で自動整列
 
 ```typescript
-// ✅ 良い例（Prettierが自動整形）
-// 1. 外部ライブラリ（Node.js標準含む）
-// 3. エイリアスパス（@/）
-import { validatePerson } from '@/utils/validation'
-import { API_ROUTES } from '@shared/constants/api-routes'
-// 2. 共有モジュール（@shared）
-import type { Person } from '@shared/types/person'
+// ✅ 良い例（Biomeが自動整形）
+// 1. Node.js組み込みモジュール
 import { readFile } from 'fs/promises'
+
+// 2. 外部ライブラリ
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
-// 4. 親ディレクトリ（../）
+// 3. プロジェクト内モジュール
+import { API_ROUTES } from '@shared/constants/api-routes'
+import type { Person } from '@shared/types/person'
+import { validatePerson } from '@/utils/validation'
 import { PersonService } from '../services/PersonService'
-
-// 5. 同階層ファイル（./）
 import PersonCard from './PersonCard.vue'
 ```
 
 **設定詳細**:
 
-- **プラグイン**: `@trivago/prettier-plugin-sort-imports`
-- **自動実行**: ファイル保存時またはフォーマットコマンド実行時
-- **グループ分け**: 各グループ間に自動で空行挿入
+- **ツール**: Biome `organizeImports`
+- **自動実行**: ファイル保存時またはチェックコマンド実行時
+- **グループ分け**: Node.js組み込み → 外部パッケージ → プロジェクト内、各グループ内はアルファベット順
 
 ## 6. コメント・ドキュメント
 

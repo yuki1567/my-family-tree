@@ -1,8 +1,8 @@
-import { PersonRepository } from '@/repositories/personRepository.js'
 import type {
   CreatePersonRequest,
   PersonResponse,
 } from '@shared/api/persons.js'
+import type { PersonRepository } from '@/repositories/personRepository.js'
 
 export class PersonService {
   constructor(private personRepository: PersonRepository) {}

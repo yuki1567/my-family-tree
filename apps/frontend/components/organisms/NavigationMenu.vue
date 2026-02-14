@@ -50,7 +50,6 @@
 </template>
 
 <script setup lang="ts">
-import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
 import {
   Bars3Icon,
   Cog6ToothIcon,
@@ -61,6 +60,7 @@ import {
   UsersIcon,
 } from '@heroicons/vue/24/outline'
 import { ref } from 'vue'
+import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
 
 const isExpanded = ref(false)
 const showAddPersonModal = ref(false)

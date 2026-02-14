@@ -85,7 +85,7 @@
   - Root cause analysis REQUIRED before any fixes
   - Temporary workarounds PROHIBITED until exhaustive analysis complete
   - Permanent solutions always prioritized over patches
-- **Code Quality**: ESLint/Prettier configuration - See `docs/03_development/05_eslint_prettier_config.md`
+- **Code Quality**: Biome configuration - See `docs/03_development/05_biome_config.md`
 - **Issue Management**: Follow structured workflow - See `docs/03_development/06_issue_management.md`
 
 _Detailed execution procedures: [Docker Setup](./docs/04_infrastructure/01_docker_setup.md) | [Testing Guide](./docs/03_development/03_testing_guide.md)_

@@ -3,7 +3,7 @@ import type { Git } from '../lib/Git.js'
 import type { GitHubApi } from '../lib/GitHubApi.js'
 import type { ParameterStore } from '../lib/ParameterStore.js'
 
-import { PARAMETER_KEYS } from './constants.js'
+import type { PARAMETER_KEYS } from './constants.js'
 
 export type GitHubLabel = {
   name: string

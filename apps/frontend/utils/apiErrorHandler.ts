@@ -134,15 +134,18 @@ export function logApiError(
   const logMessage = `[${severity.toUpperCase()}] API Error in ${context} - ${endpoint}: ${message}`
 
   if (severity === 'high') {
+    // biome-ignore lint/suspicious/noConsole: エラーログ出力はアプリケーションの本番ログ機能として必要
     console.error(logMessage, error)
   } else if (severity === 'medium') {
+    // biome-ignore lint/suspicious/noConsole: エラーログ出力はアプリケーションの本番ログ機能として必要
     console.warn(logMessage, error)
   } else {
+    // biome-ignore lint/suspicious/noConsole: エラーログ出力はアプリケーションの本番ログ機能として必要
     console.log(logMessage, error)
   }
 
-  // 詳細なエラー情報をログ出力
   if (error.response?.error) {
+    // biome-ignore lint/suspicious/noConsole: エラー詳細のログ出力は本番ログ機能として必要
     console.error('Error details:', error.response.error)
   }
 }

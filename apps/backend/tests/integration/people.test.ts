@@ -1,9 +1,9 @@
+import { eq } from 'drizzle-orm'
+import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 import { createApp } from '@/app.js'
 import { people } from '@/database/schema.js'
 import { peopleRoutes } from '@/routes/peopleRoute.js'
 import { TestDbManager } from '@/tests/helpers/dbManagerHelpers.js'
-import { eq } from 'drizzle-orm'
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
 
 describe('POST /api/people - 人物追加API', () => {
   const app = createApp()
@@ -54,14 +54,14 @@ describe('POST /api/people - 人物追加API', () => {
         .where(eq(people.id, createdId))
 
       expect(dbRecord).toBeTruthy()
-      expect(dbRecord!.id).toBe(createdId)
-      expect(dbRecord!.name).toBe(requestData.name)
-      expect(dbRecord!.gender).toBe(requestData.gender)
-      expect(dbRecord!.birthDate).toBe(requestData.birthDate)
-      expect(dbRecord!.deathDate).toBe(requestData.deathDate)
-      expect(dbRecord!.birthPlace).toBe(requestData.birthPlace)
-      expect(dbRecord!.createdAt).toBeInstanceOf(Date)
-      expect(dbRecord!.updatedAt).toBeInstanceOf(Date)
+      expect(dbRecord?.id).toBe(createdId)
+      expect(dbRecord?.name).toBe(requestData.name)
+      expect(dbRecord?.gender).toBe(requestData.gender)
+      expect(dbRecord?.birthDate).toBe(requestData.birthDate)
+      expect(dbRecord?.deathDate).toBe(requestData.deathDate)
+      expect(dbRecord?.birthPlace).toBe(requestData.birthPlace)
+      expect(dbRecord?.createdAt).toBeInstanceOf(Date)
+      expect(dbRecord?.updatedAt).toBeInstanceOf(Date)
     })
 
     it('最小限のデータの場合、201ステータスでレスポンスを返すか', async () => {
@@ -92,14 +92,14 @@ describe('POST /api/people - 人物追加API', () => {
         .where(eq(people.id, createdId))
 
       expect(dbRecord).toBeTruthy()
-      expect(dbRecord!.id).toBe(createdId)
-      expect(dbRecord!.name).toBeNull()
-      expect(dbRecord!.gender).toBe(0)
-      expect(dbRecord!.birthDate).toBeNull()
-      expect(dbRecord!.deathDate).toBeNull()
-      expect(dbRecord!.birthPlace).toBeNull()
-      expect(dbRecord!.createdAt).toBeInstanceOf(Date)
-      expect(dbRecord!.updatedAt).toBeInstanceOf(Date)
+      expect(dbRecord?.id).toBe(createdId)
+      expect(dbRecord?.name).toBeNull()
+      expect(dbRecord?.gender).toBe(0)
+      expect(dbRecord?.birthDate).toBeNull()
+      expect(dbRecord?.deathDate).toBeNull()
+      expect(dbRecord?.birthPlace).toBeNull()
+      expect(dbRecord?.createdAt).toBeInstanceOf(Date)
+      expect(dbRecord?.updatedAt).toBeInstanceOf(Date)
     })
   })
 

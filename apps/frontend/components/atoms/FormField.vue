@@ -73,9 +73,9 @@
 </template>
 
 <script setup lang="ts">
-import { GENDER_CSS_KEYS, RELATIONSHIP_CSS_KEYS } from '@/types/person'
-import { computed } from 'vue'
 import type { Component } from 'vue'
+import { computed } from 'vue'
+import { GENDER_CSS_KEYS, RELATIONSHIP_CSS_KEYS } from '@/types/person'
 
 type RadioOption = {
   label: string
