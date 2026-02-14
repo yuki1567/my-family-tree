@@ -250,8 +250,7 @@ describe('apiErrorHandler', () => {
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error details:',
-        // biome-ignore lint/style/noNonNullAssertion: テストデータで明示的にresponseを定義済み
-        error.response!.error
+        error.response?.error
       )
     })
   })

@@ -79,16 +79,14 @@ describe('PersonAddModal Integration Test', () => {
         btn.textContent?.includes('キャンセル')
       )
       expect(cancelButton).toBeTruthy()
-      // biome-ignore lint/style/noNonNullAssertion: expectで存在確認済み
-      cancelButton!.click()
+      cancelButton?.click()
 
       await wrapper.vm.$nextTick()
 
       // closeイベントがemitされることを確認
       const closeEvents = wrapper.emitted('close')
       expect(closeEvents).toBeDefined()
-      // biome-ignore lint/style/noNonNullAssertion: expectで存在確認済み
-      expect(closeEvents!.length).toBe(1)
+      expect(closeEvents?.length).toBe(1)
     })
 
     it('バリデーションエラーがある場合、送信されず、エラーメッセージが表示される', async () => {
