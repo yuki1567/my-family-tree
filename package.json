@@ -32,7 +32,7 @@
     "post:merge": "tsx scripts/workflows/post-merge/main.ts"
   },
   "devDependencies": {
-    "@aws-sdk/client-ssm": "3.922.0",
+    "@aws-sdk/client-ssm": "3.990.0",
     "@biomejs/biome": "2.3.15",
     "@types/node": "24.2.1",
     "dotenv": "17.2.2",
