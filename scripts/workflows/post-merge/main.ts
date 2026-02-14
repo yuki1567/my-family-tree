@@ -12,21 +12,21 @@ import { cleanupWorktree } from './steps/cleanupWorktree.js'
 async function main() {
   log('🚀 post-mergeワークフローを開始します')
 
-  log('📋 Step 1/5: パラメータを取得中...')
+  log('📋 Step 1/4: Issue番号を解析中...')
+  const issueNumber = parseIssueNumber(process.argv[2])
+
+  log('📋 Step 2/4: パラメータを取得中...')
   const parameterStore = await ParameterStore.create(
-    AWS.PARAMETER_PATH.WORKTREE,
+    `${AWS.PARAMETER_PATH.WORKTREE}/${issueNumber}`,
     REQUIRED_WORKTREE_PARAMETERS
   )
 
-  log('🔄 Step 2/5: Worktree情報を構築し、mainブランチにマージ中...')
-  const issueNumber = parseIssueNumber(process.argv[2])
+  log('🔄 Step 3/4: Worktree情報を構築し、mainブランチにマージ中...')
   const worktreeConfig = buildWorktreeConfig(issueNumber)
-
   const git = new Git(worktreeConfig.branchName, worktreeConfig.worktreePath)
-
   git.mergeToMain()
 
-  log('🧹 Step 3/3: クリーンアップ処理を並列実行中...')
+  log('🧹 Step 4/4: クリーンアップ処理を並列実行中...')
   await Promise.all([
     cleanupInfrastructure(
       parameterStore,
