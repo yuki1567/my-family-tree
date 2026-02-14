@@ -2,7 +2,6 @@ import { vi } from 'vitest'
 
 // Vue Test UtilsとVitestのグローバル設定
 
-// コンソール警告の制御（必要に応じて）
 const originalWarn = console.warn
 console.warn = (...args: unknown[]) => {
   // 必要な警告のみを表示するフィルタリング

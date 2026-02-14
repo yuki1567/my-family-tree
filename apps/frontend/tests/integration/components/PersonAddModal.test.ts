@@ -1,6 +1,6 @@
-import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
-import { type VueWrapper, mount } from '@vue/test-utils'
+import { mount, type VueWrapper } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
 
 // useFocusTrapのモック
 vi.mock('@vueuse/integrations/useFocusTrap', () => ({
@@ -79,8 +79,7 @@ describe('PersonAddModal Integration Test', () => {
         btn.textContent?.includes('キャンセル')
       )
       expect(cancelButton).toBeTruthy()
-      // expectで存在確認済みのため、非null断言は安全
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      // biome-ignore lint/style/noNonNullAssertion: expectで存在確認済み
       cancelButton!.click()
 
       await wrapper.vm.$nextTick()
@@ -88,8 +87,7 @@ describe('PersonAddModal Integration Test', () => {
       // closeイベントがemitされることを確認
       const closeEvents = wrapper.emitted('close')
       expect(closeEvents).toBeDefined()
-      // expectで存在確認済みのため、非null断言は安全
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      // biome-ignore lint/style/noNonNullAssertion: expectで存在確認済み
       expect(closeEvents!.length).toBe(1)
     })
 

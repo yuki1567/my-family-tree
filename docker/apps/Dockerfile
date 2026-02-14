@@ -19,10 +19,8 @@ COPY tsconfig*.json ./
 COPY apps/frontend/tsconfig*.json ./apps/frontend/
 COPY apps/backend/tsconfig*.json ./apps/backend/
 
-# ESLint/Prettier設定ファイルのコピー
-COPY eslint.config.js ./
-COPY .prettierrc ./
-COPY .prettierignore ./
+# Biome設定ファイルのコピー
+COPY biome.json ./
 
 # 全依存関係インストール
 RUN npm ci
@@ -77,15 +75,13 @@ RUN mkdir -p /apps/logs && chown -R node:node /apps/logs
 # 本番環境: ビルド成果物のみをコピー
 COPY --from=builder /usr/src/package*.json ./
 COPY --from=builder /usr/src/tsconfig*.json ./
-COPY --from=builder /usr/src/eslint.config.js ./
-COPY --from=builder /usr/src/.prettierrc ./
-COPY --from=builder /usr/src/.prettierignore ./
+COPY --from=builder /usr/src/biome.json ./
 
 COPY --from=builder /usr/src/apps/shared ./apps/shared/
 
 # 本番環境の場合は開発用設定ファイルを削除
 RUN if [ "$BUILD_ENV" = "production" ]; then \
-    rm -f tsconfig*.json eslint.config.js .prettierrc .prettierignore && \
+    rm -f tsconfig*.json biome.json && \
     rm -rf ./apps/shared; \
     fi
 

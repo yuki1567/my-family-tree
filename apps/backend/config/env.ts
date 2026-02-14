@@ -9,7 +9,6 @@ type Config = {
 function requireEnv(key: string): string {
   const value = process.env[key]
   if (!value) {
-    console.error(`環境変数${key}が設定されていません`)
     process.exit(1)
   }
   return value
@@ -26,17 +25,11 @@ function parseLogLevels(rawValue: string): LogLevel[] {
     .filter((level) => level.length > 0)
 
   if (levels.length === 0) {
-    console.error(
-      'LOG_LEVEL が空です。少なくとも1つの値を指定してください (例: query,info,warn,error)'
-    )
     process.exit(1)
   }
 
   const validLevels = levels.filter(isLogLevel)
   if (validLevels.length !== levels.length) {
-    console.error(
-      `LOG_LEVEL に無効な値が含まれています: 有効なのは query, info, warn, error です。`
-    )
     process.exit(1)
   }
 

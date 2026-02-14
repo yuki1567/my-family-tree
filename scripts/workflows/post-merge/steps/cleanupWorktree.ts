@@ -1,4 +1,4 @@
-import { Git } from 'scripts/workflows/lib/Git.js'
+import type { Git } from 'scripts/workflows/lib/Git.js'
 
 export async function cleanupWorktree(git: Git): Promise<void> {
   git.removeWorktree()

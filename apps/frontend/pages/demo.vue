@@ -556,11 +556,6 @@
 </template>
 
 <script setup lang="ts">
-import AppButton from '@/components/atoms/AppButton.vue'
-import FormField from '@/components/atoms/FormField.vue'
-import AppModal from '@/components/layout/AppModal.vue'
-import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
-import type { PersonForm } from '@/types/person'
 import {
   FaceSmileIcon,
   HeartIcon,
@@ -573,6 +568,11 @@ import {
 } from '@heroicons/vue/24/outline'
 import { useHead } from 'nuxt/app'
 import { computed, ref } from 'vue'
+import AppButton from '@/components/atoms/AppButton.vue'
+import FormField from '@/components/atoms/FormField.vue'
+import AppModal from '@/components/layout/AppModal.vue'
+import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
+import type { PersonForm } from '@/types/person'
 
 // 人物追加フォーム（PersonAddModal項目ベース）
 const personForm = ref({

@@ -17,9 +17,9 @@
 </template>
 
 <script setup lang="ts">
-import type { Person } from '@/types/person'
 import { UserIcon } from '@heroicons/vue/24/outline'
 import { computed } from 'vue'
+import type { Person } from '@/types/person'
 
 type Props = {
   person: Person

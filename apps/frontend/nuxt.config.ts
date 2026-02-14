@@ -2,17 +2,7 @@ import { fileURLToPath } from 'node:url'
 import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
-  modules: [
-    '@pinia/nuxt',
-    [
-      '@nuxt/eslint',
-      {
-        config: {
-          stylistic: false,
-        },
-      },
-    ],
-  ],
+  modules: ['@pinia/nuxt'],
 
   ssr: false,
 

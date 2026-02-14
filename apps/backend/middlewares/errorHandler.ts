@@ -1,8 +1,8 @@
-import { AppError } from '@/errors/AppError.js'
 import type { ApiErrorResponse, ErrorDetail } from '@shared/api/common.js'
 import type { Context } from 'hono'
 import postgres from 'postgres'
 import { ZodError } from 'zod'
+import { AppError } from '@/errors/AppError.js'
 
 export function errorHandler(err: Error, c: Context): Response {
   if (err instanceof ZodError) {
@@ -24,8 +24,6 @@ export function errorHandler(err: Error, c: Context): Response {
   }
 
   if (err instanceof postgres.PostgresError) {
-    console.error('Database error:', err)
-
     return c.json({
       error: {
         statusCode: 500,
@@ -36,8 +34,6 @@ export function errorHandler(err: Error, c: Context): Response {
   }
 
   if (err instanceof AppError) {
-    console.error('Application error:', err)
-
     return c.json({
       error: {
         statusCode: err.statusCode,
@@ -46,8 +42,6 @@ export function errorHandler(err: Error, c: Context): Response {
       },
     } satisfies ApiErrorResponse)
   }
-
-  console.error('UNKNOWN_ERROR:', err)
 
   return c.json({
     error: {

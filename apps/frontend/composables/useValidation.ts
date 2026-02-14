@@ -1,5 +1,5 @@
-import type { PersonForm, ValidationErrors } from '@/types/person'
 import { reactive, ref, watch } from 'vue'
+import type { PersonForm, ValidationErrors } from '@/types/person'
 
 /**
  * PersonFormバリデーション用Composable

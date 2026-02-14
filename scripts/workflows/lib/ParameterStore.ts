@@ -2,8 +2,8 @@ import {
   DeleteParameterCommand,
   type Parameter,
   PutParameterCommand,
-  SSMClient,
   paginateGetParametersByPath,
+  SSMClient,
 } from '@aws-sdk/client-ssm'
 
 import { AWS, WORKTREE_PARAMETERS } from '../shared/constants.js'
@@ -28,9 +28,9 @@ export class ParameterStore {
     path: string,
     requiredKeys: readonly ParameterKey[]
   ): Promise<ParameterStore> {
-    const client = this.createClient()
-    const rawParams = await this.fetchParameters(client, path)
-    const parameters = this.transformToMap(rawParams, path)
+    const client = ParameterStore.createClient()
+    const rawParams = await ParameterStore.fetchParameters(client, path)
+    const parameters = ParameterStore.transformToMap(rawParams, path)
 
     const parameterStore = new ParameterStore(parameters, path)
     parameterStore.validateRequiredParameters(requiredKeys)
@@ -67,7 +67,7 @@ export class ParameterStore {
   }
 
   private static createClient(): SSMClient {
-    const awsVault = process.env['AWS_VAULT']
+    const awsVault = process.env.AWS_VAULT
     if (!awsVault) {
       throw new WorkflowError(
         'AWS_VAULT環境変数が設定されていません。aws-vaultを使用してください',
@@ -102,12 +102,9 @@ export class ParameterStore {
     path: string
   ): Parameters {
     return parameters.reduce<Parameters>((acc, parameter) => {
-      const [key, value] = this.extractKeyValue(parameter, path)
-
-      return {
-        ...acc,
-        [key]: value,
-      }
+      const [key, value] = ParameterStore.extractKeyValue(parameter, path)
+      acc[key] = value
+      return acc
     }, {})
   }
 
@@ -132,16 +129,16 @@ export class ParameterStore {
     issueNumber: number,
     parameters: WorktreeParameters
   ): Promise<void> {
-    const client = this.createClient()
+    const client = ParameterStore.createClient()
     const pathPrefix = `${AWS.PARAMETER_PATH.WORKTREE}/${issueNumber}`
 
     const descriptors = Object.entries(parameters).map(([key, value]) =>
-      this.createParameterDescriptor(pathPrefix, key, value)
+      ParameterStore.createParameterDescriptor(pathPrefix, key, value)
     )
 
     const results = await Promise.all(
       descriptors.map((descriptor) =>
-        this.putSingleParameter(client, descriptor)
+        ParameterStore.putSingleParameter(client, descriptor)
       )
     )
 
@@ -158,7 +155,7 @@ export class ParameterStore {
     key: string,
     value: string | number
   ): ParameterDescriptor {
-    if (!this.isWorktreeParameterKey(key)) {
+    if (!ParameterStore.isWorktreeParameterKey(key)) {
       throw new ParameterStoreError(
         `Invalid worktree parameter key: ${key}`,
         'ParameterStore.createParameterDescriptor'
@@ -169,7 +166,7 @@ export class ParameterStore {
       key,
       value: String(value),
       name: `${pathPrefix}/${key}`,
-      type: this.classifyParameterType(key),
+      type: ParameterStore.classifyParameterType(key),
     }
   }
 

@@ -1,6 +1,5 @@
-import { promisify } from 'util'
-
-import { exec } from 'child_process'
+import { exec } from 'node:child_process'
+import { promisify } from 'node:util'
 
 import { getBackendDir } from '../helpers/pathHelpers.js'
 

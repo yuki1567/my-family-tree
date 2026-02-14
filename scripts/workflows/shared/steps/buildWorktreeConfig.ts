@@ -1,7 +1,7 @@
-import path from 'path'
+import path from 'node:path'
 
 import { AWS, PORTS } from '../constants.js'
-import { WorktreeConfig } from '../types.js'
+import type { WorktreeConfig } from '../types.js'
 import { PROJECT_ROOT } from '../utils.js'
 
 export function buildWorktreeConfig(issueNumber: number): WorktreeConfig {

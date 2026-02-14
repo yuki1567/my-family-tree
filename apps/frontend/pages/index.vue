@@ -24,13 +24,13 @@
 </template>
 
 <script setup lang="ts">
+import type { ErrorResponse } from '@shared/api/common'
+import { ref } from 'vue'
 import EmptyState from '@/components/molecules/EmptyState.vue'
 import PersonCard from '@/components/molecules/PersonCard.vue'
 import PersonAddModal from '@/components/organisms/PersonAddModal.vue'
 import { usePersonApi } from '@/composables/usePersonApi'
 import type { Person, PersonForm } from '@/types/person'
-import type { ErrorResponse } from '@shared/api/common'
-import { ref } from 'vue'
 
 const personData = ref<Person | undefined>(undefined)
 

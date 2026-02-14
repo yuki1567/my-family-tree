@@ -1,5 +1,5 @@
 /* modern-normalize リセットCSS */
-@import 'modern-normalize/modern-normalize.css';
+@import "modern-normalize/modern-normalize.css";
 
 /* CSS変数定義 */
 :root {
@@ -130,7 +130,7 @@ html {
 /* 基本スタイル */
 body {
   font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
   color: var(--color-text);
   background-color: var(--color-background);
 }

@@ -1,6 +1,5 @@
-import { promisify } from 'util'
-
-import { execFile } from 'child_process'
+import { execFile } from 'node:child_process'
+import { promisify } from 'node:util'
 
 const exec = promisify(execFile)
 
@@ -28,8 +27,8 @@ async function initEnvConfig(): Promise<Config> {
 }
 
 async function loadParameterStore(): Promise<void> {
-  const awsVault = process.env['AWS_VAULT']
-  const awsRegion = process.env['AWS_REGION']
+  const awsVault = process.env.AWS_VAULT
+  const awsRegion = process.env.AWS_REGION
 
   if (!awsVault) {
     throw new Error(

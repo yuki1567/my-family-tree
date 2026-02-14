@@ -8,7 +8,7 @@ const isValidDateString = (dateStr: string): boolean => {
   if (!dateStringRegex.test(dateStr)) return false
 
   const date = new Date(dateStr)
-  if (isNaN(date.getTime())) return false
+  if (Number.isNaN(date.getTime())) return false
 
   return dateStr === date.toISOString().split('T')[0]
 }

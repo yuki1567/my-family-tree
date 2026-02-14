@@ -171,11 +171,11 @@ describe('apiErrorHandler', () => {
   })
 
   describe('logApiError', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: vi.spyOn の戻り値型を柔軟に扱うため
     let consoleErrorSpy: any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: vi.spyOn の戻り値型を柔軟に扱うため
     let consoleWarnSpy: any
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: vi.spyOn の戻り値型を柔軟に扱うため
     let consoleLogSpy: any
 
     beforeEach(() => {
@@ -250,8 +250,7 @@ describe('apiErrorHandler', () => {
 
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error details:',
-        // テストデータで明示的にresponseを定義しているため、非null断言は安全
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        // biome-ignore lint/style/noNonNullAssertion: テストデータで明示的にresponseを定義済み
         error.response!.error
       )
     })

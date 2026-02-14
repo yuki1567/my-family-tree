@@ -1,5 +1,5 @@
-import { errorHandler } from '@/middlewares/errorHandler.js'
 import { Hono } from 'hono'
+import { errorHandler } from '@/middlewares/errorHandler.js'
 
 export function createApp() {
   const app = new Hono()

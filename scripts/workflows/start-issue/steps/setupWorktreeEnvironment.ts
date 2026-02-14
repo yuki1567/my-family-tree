@@ -1,5 +1,5 @@
-import { copyFileSync } from 'fs'
-import path from 'path'
+import { copyFileSync } from 'node:fs'
+import path from 'node:path'
 
 import { ParameterStore } from 'scripts/workflows/lib/ParameterStore.js'
 import {
@@ -7,7 +7,7 @@ import {
   PARAMETER_KEYS,
   WORKTREE_PARAMETERS,
 } from 'scripts/workflows/shared/constants.js'
-import { WorktreeEnvironmentParameters } from 'scripts/workflows/shared/types.js'
+import type { WorktreeEnvironmentParameters } from 'scripts/workflows/shared/types.js'
 import { PROJECT_ROOT } from 'scripts/workflows/shared/utils.js'
 
 export async function setupWorktreeEnvironment(
