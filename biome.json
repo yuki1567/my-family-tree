@@ -58,7 +58,9 @@
         "useShorthandAssign": "error"
       },
       "complexity": {
-        "useOptionalChain": "error"
+        "useOptionalChain": "error",
+        "noThisInStatic": "off",
+        "noStaticOnlyClass": "off"
       }
     }
   },
