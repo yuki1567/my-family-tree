@@ -94,7 +94,7 @@ main() {
   params=$(get_parameters)
   set_parameters "$params"
 
-  pm2 start ecosystem.config.cjs
+  pm2 start ecosystem.config.cjs --only frontend-dev,backend-dev
   tail -f /dev/null
 }
 

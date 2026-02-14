@@ -433,7 +433,6 @@ family-tree-app/
 - **postgres**: PostgreSQL用のJavaScriptクライアント
 - **データベース設計書整合性**: docs/02_technical/02_database_design.mdとの一貫性
 
-
 **バリデーション**
 
 ```json
@@ -493,6 +492,7 @@ family-tree-app/
   - supertestなどの外部ライブラリは不要
   - **利点**: 追加依存関係なし、シンプルなテストコード、型安全性
 - **具体例**:
+
   ```typescript
   test('GET /api/people', async () => {
     const response = await app.request('/api/people', {

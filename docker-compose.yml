@@ -3,58 +3,27 @@ services:
     build:
       context: .
       dockerfile: docker/apps/Dockerfile
-    image: ${AWS_VAULT:-family-tree-app}
-    container_name: ${AWS_VAULT:-family-tree-app}
     working_dir: /usr/src
     ports:
-      - "${WEB_PORT:-3000}:3000"
-      - "${API_PORT:-4000}:4000"
-    volumes:
-      - ./apps:/usr/src/apps
-    environment:
-      - AWS_VAULT
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - AWS_SESSION_TOKEN
-      - AWS_REGION
-
-  db:
-    build:
-      context: .
-      dockerfile: docker/db/Dockerfile
-    image: db
-    container_name: family-tree-shared-db
-    environment:
-      - AWS_VAULT
-      - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
-      - AWS_SESSION_TOKEN
-      - AWS_REGION
-    ports:
-      - "5432:5432"
+      - "3000:3000"
+      - "4000:4000"
 
   test-db:
     build:
       context: .
       dockerfile: docker/db/Dockerfile
-    image: db
     container_name: test-db
-    environment:
-      AWS_VAULT: ${AWS_VAULT}
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN}
-      AWS_REGION: ${AWS_REGION}
     ports:
       - "5433:5432"
+    environment:
+      - AWS_VAULT
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - AWS_REGION
     deploy:
       resources:
         limits:
           memory: 256m
     profiles:
       - test
-
-networks:
-  default:
-    name: my-family-tree-shared
-    external: true

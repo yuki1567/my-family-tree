@@ -197,11 +197,13 @@ export function handleApiError(error: ApiError): ApiErrorHandlingResult
 ```
 
 **返り値**:
+
 - `message`: ユーザー向けのエラーメッセージ（日本語）
 - `shouldShowToUser`: ユーザーに表示すべきかどうか
 - `severity`: エラーの深刻度（`low` | `medium` | `high`）
 
 **使用例**:
+
 ```typescript
 const { message, shouldShowToUser } = handleApiError(error)
 if (shouldShowToUser) {
@@ -216,11 +218,12 @@ HTTPステータスコードとエラーコードから日本語エラーメッ�
 ```typescript
 export function formatErrorMessage(
   status: HttpStatusCode,
-  errorCode?: string,
+  errorCode?: string
 ): string
 ```
 
 **使用例**:
+
 ```typescript
 const message = formatErrorMessage(404, 'NOT_FOUND')
 // => 'データが見つかりません'
@@ -234,16 +237,18 @@ API エラーをコンソールにログ出力します。エラーの深刻度�
 export function logApiError(
   error: ApiError,
   context: string,
-  endpoint: string,
+  endpoint: string
 ): void
 ```
 
 **ログレベル**:
+
 - `high`: `console.error()`
 - `medium`: `console.warn()`
 - `low`: `console.log()`
 
 **使用例**:
+
 ```typescript
 logApiError(error, 'PersonAPI', 'GET /api/people')
 // => [HIGH] API Error in PersonAPI - GET /api/people: サーバーエラーが発生しました
@@ -259,6 +264,7 @@ export function handleNetworkError(): ApiErrorHandlingResult
 ```
 
 **使用例**:
+
 ```typescript
 if (isNetworkError(error)) {
   const result = handleNetworkError()
@@ -270,17 +276,18 @@ if (isNetworkError(error)) {
 
 ##### HTTPステータスコード別の分類
 
-| ステータス | 深刻度 | デフォルトメッセージ | 説明 |
-|-----------|--------|---------------------|------|
-| 400 | medium | 入力内容に誤りがあります | バリデーションエラー |
-| 401 | high | 認証が必要です | 認証エラー |
-| 403 | high | アクセス権限がありません | 権限エラー |
-| 404 | medium | 要求されたデータが見つかりません | データ不見当 |
-| 500 | high | サーバーエラーが発生しました | サーバーエラー |
+| ステータス | 深刻度 | デフォルトメッセージ             | 説明                 |
+| ---------- | ------ | -------------------------------- | -------------------- |
+| 400        | medium | 入力内容に誤りがあります         | バリデーションエラー |
+| 401        | high   | 認証が必要です                   | 認証エラー           |
+| 403        | high   | アクセス権限がありません         | 権限エラー           |
+| 404        | medium | 要求されたデータが見つかりません | データ不見当         |
+| 500        | high   | サーバーエラーが発生しました     | サーバーエラー       |
 
 ##### エラーコード別のメッセージ
 
 **共通エラーコード**:
+
 - `VALIDATION_ERROR`: 入力内容に誤りがあります
 - `UNAUTHORIZED`: 認証が必要です
 - `FORBIDDEN`: アクセス権限がありません
@@ -290,6 +297,7 @@ if (isNetworkError(error)) {
 - `UNEXPECTED_ERROR`: 予期しないエラーが発生しました
 
 **バリデーションエラーコード**:
+
 - `NAME_TOO_LONG`: 名前が長すぎます
 - `INVALID_GENDER`: 性別の指定が不正です
 - `INVALID_DATE_FORMAT`: 日付の形式が不正です
@@ -343,6 +351,7 @@ export type ApiErrorHandlingResult = {
 各関数の単体テストを`apps/frontend/tests/unit/utils/apiErrorHandler.test.ts`に実装しています。
 
 **テストカバレッジ**:
+
 - HTTPステータスコード別のエラーハンドリング
 - エラーコード別のメッセージ変換
 - バリデーションエラー詳細の処理

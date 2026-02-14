@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'frontend',
+      name: 'frontend-dev',
       cwd: '/usr/src',
       script: 'npm',
       args: 'run dev:frontend',
@@ -11,12 +11,28 @@ module.exports = {
       log_file: '/apps/logs/frontend-combined.log',
     },
     {
-      name: 'backend',
+      name: 'backend-dev',
       script: 'npm',
       args: 'run dev:backend',
       cwd: '/usr/src',
       watch: ['apps/backend'],
       ignore_watch: ['**/node_modules/**', '**/dist/**', '**/logs/**'],
+      error_file: '/apps/logs/backend-error.log',
+      out_file: '/apps/logs/backend-out.log',
+      log_file: '/apps/logs/backend-combined.log',
+    },
+    {
+      name: 'frontend',
+      cwd: '/usr/src',
+      script: './apps/frontend/.output/server/index.mjs',
+      error_file: '/apps/logs/frontend-error.log',
+      out_file: '/apps/logs/frontend-out.log',
+      log_file: '/apps/logs/frontend-combined.log',
+    },
+    {
+      name: 'backend',
+      cwd: '/usr/src',
+      script: './apps/backend/dist/index.js',
       error_file: '/apps/logs/backend-error.log',
       out_file: '/apps/logs/backend-out.log',
       log_file: '/apps/logs/backend-combined.log',

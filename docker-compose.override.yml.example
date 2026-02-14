@@ -1,0 +1,38 @@
+services:
+  apps:
+    build:
+      args:
+        BUILD_ENV: development
+    image: ${AWS_VAULT:-family-tree-app}
+    container_name: ${AWS_VAULT:-family-tree-app}
+    ports: !override
+      - "3000:3000"
+      - "4000:4000"
+    volumes:
+      - ./apps:/usr/src/apps
+    environment:
+      - AWS_VAULT
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - AWS_REGION
+
+  db:
+    build:
+      context: .
+      dockerfile: docker/db/Dockerfile
+    image: db
+    container_name: family-tree-shared-db
+    ports:
+      - "5432:5432"
+    environment:
+      - AWS_VAULT
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
+      - AWS_REGION
+
+networks:
+  default:
+    name: my-family-tree-shared
+    external: true

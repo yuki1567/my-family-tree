@@ -229,6 +229,7 @@ Production: https://your-domain.com/api
 3. **予期しないエラー**: その他のエラーは`errorHandler`ミドルウェアが`UNKNOWN_ERROR`として500エラーで返却
 
 **実装場所**:
+
 - ルートハンドラー: [apps/backend/routes/peopleRoute.ts](../../apps/backend/routes/peopleRoute.ts)
 - エラーハンドラー: [apps/backend/middlewares/errorHandler.ts](../../apps/backend/middlewares/errorHandler.ts)
 - エラークラス: [apps/backend/errors/AppError.ts](../../apps/backend/errors/AppError.ts)

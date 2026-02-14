@@ -121,6 +121,7 @@ export default withNuxt([
 ```
 
 **特徴**:
+
 - **`@nuxt/eslint`**: Nuxtが推奨する設定を自動的に適用
 - **`.nuxt/eslint.config.mjs`**: Nuxt起動時に自動生成される設定ファイル
 - **Vue専用ルール**: `withNuxt()`が自動的にVue関連のルールを追加
