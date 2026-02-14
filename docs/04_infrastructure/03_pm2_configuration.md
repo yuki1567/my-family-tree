@@ -7,7 +7,7 @@
 **単一コンテナ内でのフロント・バック統合管理**
 
 - Docker apps コンテナ内でPM2による複数プロセス管理
-- フロントエンド（Nuxt.js）とバックエンド（Express.js）の同時実行
+- フロントエンド（Nuxt.js）とバックエンド（Hono）の同時実行
 - 統合ログ管理とプロセス監視
 
 ### 1.2 統合運用の利点
@@ -267,7 +267,7 @@ watch: ['apps/backend', 'apps/shared']
 
 **監視対象**:
 
-- `apps/backend/**/*.ts` (Express.js)
+- `apps/backend/**/*.ts` (Hono)
 - `apps/shared/**/*.ts` (共有ライブラリ)
 
 **apps/shared監視の重要性**
@@ -389,7 +389,7 @@ pm2 show backend
 **Docker環境起動**
 
 ```bash
-docker-compose up -d
+docker compose up -d
 # → entrypoint.sh → PM2自動起動
 ```
 
@@ -397,19 +397,19 @@ docker-compose up -d
 
 ```bash
 # コンテナ内でのPM2操作
-docker-compose exec apps pm2 list
-docker-compose exec apps pm2 restart all
+docker compose exec apps pm2 list
+docker compose exec apps pm2 restart all
 ```
 
 **ログ確認**
 
 ```bash
 # リアルタイムログ
-docker-compose exec apps pm2 logs --lines 50
+docker compose exec apps pm2 logs --lines 50
 
 # ファイル直接確認
-docker-compose exec apps tail -f logs/frontend-combined.log
-docker-compose exec apps tail -f logs/backend-combined.log
+docker compose exec apps tail -f logs/frontend-combined.log
+docker compose exec apps tail -f logs/backend-combined.log
 ```
 
 ### 6.2 トラブルシューティング
@@ -418,24 +418,24 @@ docker-compose exec apps tail -f logs/backend-combined.log
 
 ```bash
 # プロセス状態確認
-docker-compose exec apps pm2 list
-docker-compose exec apps pm2 show backend
+docker compose exec apps pm2 list
+docker compose exec apps pm2 show backend
 
 # 手動再起動
-docker-compose exec apps pm2 restart backend
+docker compose exec apps pm2 restart backend
 
 # ログ確認
-docker-compose exec apps pm2 logs backend --lines 100
+docker compose exec apps pm2 logs backend --lines 100
 ```
 
 **ファイル監視問題**
 
 ```bash
 # 監視状態確認
-docker-compose exec apps pm2 show backend
+docker compose exec apps pm2 show backend
 
 # 手動restart（監視無効化）
-docker-compose exec apps pm2 restart backend --watch=false
+docker compose exec apps pm2 restart backend --watch=false
 ```
 
 ## 7. 将来的な拡張

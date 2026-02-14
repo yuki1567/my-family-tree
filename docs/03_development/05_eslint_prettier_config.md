@@ -420,7 +420,7 @@ const config = {
 
 **`"^[^./]"`**: 外部ライブラリ
 
-- **対象**: `express`, `vue`, `lodash` など
+- **対象**: `hono`, `vue`, `drizzle-orm` など
 - **理由**: 外部依存関係の明確化
 - **効果**: package.json との整合性確認が容易
 
@@ -432,7 +432,7 @@ const config = {
 
 **`"^@/(.*)$"`**: エイリアスパス
 
-- **対象**: `@/services`, `@/controllers` など
+- **対象**: `@/services`, `@/routes` など
 - **理由**: アプリケーション内部モジュールの整理
 - **効果**: 深い相対パスの回避
 
@@ -452,22 +452,22 @@ const config = {
 
 ```typescript
 // ❌ 整形前（混乱した順序）
-import { validatePerson } from './validators/personValidator'
-import express from 'express'
-import { FamilyMember } from '@shared/types/familyMember'
+import { validatePerson } from './utils/validation'
+import { Hono } from 'hono'
+import { PersonResponse } from '@shared/api/persons'
 import fs from 'fs'
-import { familyTreeStore } from '../stores/familyTree'
+import { PersonService } from '../services/personService'
 
 // ✅ 整形後（自動並び替え結果）
 import fs from 'fs' // Node.js標準モジュール（最優先）
 
-import express from 'express' // 外部ライブラリ
+import { Hono } from 'hono' // 外部ライブラリ
 
-import { FamilyMember } from '@shared/types/familyMember' // 共有モジュール
+import { PersonResponse } from '@shared/api/persons' // 共有モジュール
 
-import { familyTreeStore } from '../stores/familyTree' // 親ディレクトリ
+import { PersonService } from '../services/personService' // 親ディレクトリ
 
-import { validatePerson } from './validators/personValidator' // 同階層
+import { validatePerson } from './utils/validation' // 同階層
 ```
 
 ## 4. 実行方法
@@ -476,16 +476,16 @@ import { validatePerson } from './validators/personValidator' // 同階層
 
 ```bash
 # リント検査
-docker-compose exec apps npm run lint
+docker compose exec apps npm run lint
 
 # リント自動修正
-docker-compose exec apps npm run lint:fix
+docker compose exec apps npm run lint:fix
 
 # フォーマット実行
-docker-compose exec apps npm run format
+docker compose exec apps npm run format
 
 # フォーマット検査のみ
-docker-compose exec apps npm run format:check
+docker compose exec apps npm run format:check
 ```
 
 ### 4.2 IDE連携

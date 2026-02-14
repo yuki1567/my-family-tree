@@ -152,54 +152,44 @@ const isValidEmail = (email: string): boolean => {
 
 **クラスベース設計**：「状態管理」「ビジネスロジック」を表現する層
 
-- **対象層**: `controllers/`, `services/`, `repositories/`
+- **対象層**: `services/`, `repositories/`
 - **理由**: 依存性注入、状態管理、継承を活用したオブジェクト指向設計を採用
 
 **アロー関数**：「純粋関数」「小さい再利用関数」が多い層
 
-- **対象層**: `middlewares/`, `validations/`, `utils/`, `config/`
+- **対象層**: `routes/`, `middlewares/`, `utils/`, `config/`
 - **理由**: 純粋関数や小さな再利用可能な関数を中心に構成され、関数型プログラミングのスタイルを採用
 
 ```typescript
-// ✅ 良い例（クラスベース設計：controllers/, services/, repositories/）
-export class PersonController {
-  constructor(private personService: PersonService) {}
-
-  async create(req: Request, res: Response): Promise<void> {
-    const validatedData = req.body as CreatePersonRequest
-    const result = await this.personService.create(validatedData)
-
-    res.status(201).json({
-      data: result,
-    })
-  }
-}
-
+// ✅ 良い例（クラスベース設計：services/, repositories/）
 export class PersonService {
   constructor(private personRepository: PersonRepository) {}
 
-  async create(data: CreatePersonRequest) {
+  async create(data: CreatePersonRequest): Promise<PersonResponse> {
     return await this.personRepository.create(data)
   }
 }
 
 export class PersonRepository {
-  async create(data: CreatePersonRequest) {
-    // データベース操作
+  async create(data: CreatePersonRequest): Promise<PersonResponse> {
+    const [person] = await db.insert(people).values(data).returning()
+    // ...satisfies PersonResponse で型安全に変換
     return result
   }
 }
 
-// ✅ 良い例（アロー関数：middlewares/, validations/, utils/, config/）
-const validateBody =
-  (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
-    try {
-      req.body = schema.parse(req.body)
-      next()
-    } catch (error) {
-      next(error)
-    }
+// ✅ 良い例（アロー関数：routes/, middlewares/, utils/, config/）
+// Honoルートハンドラー
+const peopleRoutes = new Hono()
+peopleRoutes.post(
+  '/people',
+  zValidator('json', CreatePersonRequestSchema),
+  async (c) => {
+    const validatedData = c.req.valid('json')
+    const result = await personService.create(validatedData)
+    return c.json<CreatePersonResponse>({ data: result }, 201)
   }
+)
 
 const formatErrorMessage = (error: ZodError): string => {
   return error.errors.map((e) => e.message).join(', ')

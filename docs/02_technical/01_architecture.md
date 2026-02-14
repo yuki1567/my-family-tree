@@ -78,22 +78,20 @@ frontend/
 
 ## 4. バックエンド構成（apps/backend/）
 
-### 4.1 レイヤードアーキテクチャ + Express
+### 4.1 レイヤードアーキテクチャ + Hono
 
 ```typescript
 backend/
 ├── config/                    # 環境設定・アプリケーション設定
-├── controllers/               # HTTPレイヤー（薄い層）
+├── routes/                    # ルーティング定義 + Zodバリデーション
 ├── services/                  # ビジネスロジック層
 ├── repositories/              # データアクセス層（抽象化）
-├── routes/                    # ルーティング定義
 ├── middlewares/               # 横断的関心事
-├── validations/               # バリデーションスキーマ
+├── errors/                    # カスタムエラークラス
 ├── utils/                     # 共通ユーティリティ関数
-└── database/                  # データベース関連（ORM非依存）
+└── database/                  # データベース関連
     ├── schema/               # Drizzle ORMスキーマ定義
     ├── migrations/           # マイグレーションファイル
-    ├── seeds/                # 初期データ
     └── client.ts             # DB接続設定
 ```
 
@@ -108,66 +106,59 @@ backend/
 #### 具体的な責任分担
 
 ```typescript
-// Controller: HTTPリクエスト・レスポンス
-export const createPerson = async (req: Request, res: Response) => {
-  const data = validatePersonData(req.body)
-  const result = await personService.create(data)
-  res.json(result)
-}
+// Route: HTTPリクエスト処理 + Zodバリデーション（@hono/zod-validator）
+peopleRoutes.post(
+  '/people',
+  zValidator('json', CreatePersonRequestSchema),
+  async (c) => {
+    const validatedData = c.req.valid('json')
+    const result = await personService.create(validatedData)
+    return c.json<CreatePersonResponse>({ data: result }, 201)
+  }
+)
 
-// Service: ビジネスロジック
-export const create = async (data: CreatePersonData) => {
-  return await personRepository.create(data)
+// Service: ビジネスロジック（コンストラクタ注入）
+export class PersonService {
+  constructor(private personRepository: PersonRepository) {}
+  async create(data: CreatePersonRequest): Promise<PersonResponse> {
+    return await this.personRepository.create(data)
+  }
 }
 
 // Repository: データアクセス（Drizzle ORM）
-export const create = async (data: CreatePersonData) => {
-  const [person] = await db.insert(people).values(data).returning()
-  return person
+export class PersonRepository {
+  async create(data: CreatePersonRequest): Promise<PersonResponse> {
+    const [person] = await db.insert(people).values(data).returning()
+    // ...satisfies PersonResponse で型安全に変換
+    return result
+  }
 }
 ```
 
-### 4.3 Honoフレームワーク移行戦略
+### 4.3 Honoフレームワーク
 
-#### 段階的移行アプローチ
+#### 選定理由
 
-Express.jsからHonoへの段階的移行を実施中です。
-
-**移行戦略の理由**
-
-- **型安全性の向上**: Honoはエンドツーエンドの型推論を提供
+- **型安全性の向上**: エンドツーエンドの型推論を提供
 - **パフォーマンス**: 軽量で高速な実装
 - **開発体験**: モダンなAPI設計、Web標準準拠
-- **並行運用**: 既存Express環境と共存可能
 
-#### Hono版app.ts（app.hono.ts）
+#### app.ts
 
 ```typescript
-// apps/backend/app.hono.ts
-export function createHonoApp(): Hono<Env> {
-  const app = new Hono<Env>()
-
-  // グローバルエラーハンドラー
-  app.onError((error, c) => {
-    // ZodError、Drizzleエラー、AppError、予期しないエラーを処理
-    // Express版と同じエラーレスポンス形式を維持
-  })
-
+// apps/backend/app.ts
+export function createApp() {
+  const app = new Hono()
+  app.onError(errorHandler)
   return app
 }
 ```
 
 **主要機能**
 
-- **エラーハンドリング**: ZodError、Drizzleエラー、AppError、予期しないエラーの統一処理
-- **レスポンス形式**: Express版との互換性維持
+- **エラーハンドリング**: ZodError、PostgresError、AppError、予期しないエラーの統一処理
 - **型安全性**: TypeScript型推論によるコンパイル時エラー検出
-
-**並行運用の利点**
-
-- 既存Express版（`app.ts`）は影響を受けない
-- ルートごとに段階的に移行可能
-- ロールバックが容易
+- **Zodバリデーション**: `@hono/zod-validator`によるリクエスト検証
 
 ## 5. Docker 構成
 
@@ -176,8 +167,8 @@ export function createHonoApp(): Hono<Env> {
 ```yaml
 # docker-compose.yml
 services:
-  apps: # Node.js（Nuxt + Express + Hono）統合コンテナ
-  db: # MySQL
+  apps: # Node.js（Nuxt + Hono）統合コンテナ
+  db: # PostgreSQL
 ```
 
 ### 5.2 保守性の考慮
@@ -185,6 +176,6 @@ services:
 #### コンテナ設計の利点
 
 - **統合管理**: 単一appsコンテナでのフロント・バック一元運用
-- **DB 分離**: MySQL コンテナの独立性保持
+- **DB 分離**: PostgreSQL コンテナの独立性保持
 
 **重要**: このアーキテクチャは**保守性**を最優先に設計されています。新機能追加や技術変更時は、この設計原則を維持することを最重要視してください。

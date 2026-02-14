@@ -271,14 +271,15 @@ CREATE INDEX idx_people_status_created_at ON people(status, created_at);
 
 ```sql
 CREATE TABLE new_table (
-  id VARCHAR(36) PRIMARY KEY COMMENT 'ID（UUID）',
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   -- ビジネスカラム
-  name VARCHAR(100) NOT NULL COMMENT '名前',
-  status TINYINT COMMENT 'ステータス（0:無効, 1:有効）',
+  name VARCHAR(100) NOT NULL,
+  status SMALLINT DEFAULT 0,
   -- 必須の管理カラム
-  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '作成日時',
-  updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新日時'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='テーブル説明';
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+-- 注: updated_atの自動更新はDrizzle ORMの$onUpdate機能で制御
 ```
 
 #### 外部キー設定
@@ -318,12 +319,9 @@ apps/backend/database/
 │   └── people.ts             # 人物テーブル定義
 ├── client.ts                  # Drizzle接続設定
 ├── drizzle.config.ts          # Drizzle Kit設定
-├── migrations/                # マイグレーション履歴
-│   ├── 0000_initial.sql      # 初期マイグレーション
-│   └── meta/                 # メタデータ
-└── seeds/                     # 初期データ投入
-    ├── development.ts         # 開発環境用データ
-    └── production.ts          # 本番環境用データ
+└── migrations/                # マイグレーション履歴
+    ├── 0000_initial.sql      # 初期マイグレーション
+    └── meta/                 # メタデータ
 ```
 
 #### マイグレーション命名規則
@@ -344,16 +342,16 @@ Drizzle Kitは自動的にマイグレーション名を生成しますが、以
 
 ```bash
 # マイグレーション生成（スキーマから自動生成）
-docker-compose exec apps npm run db:generate
+docker compose exec apps npm run db:generate
 
 # マイグレーション実行
-docker-compose exec apps npm run db:migrate
+docker compose exec apps npm run db:migrate
 
 # スキーマをDBに直接反映（開発環境のみ）
-docker-compose exec apps npm run db:push
+docker compose exec apps npm run db:push
 
 # Drizzle Studio起動（データ閲覧・編集）
-docker-compose exec apps npm run db:studio
+docker compose exec apps npm run db:studio
 ```
 
 #### 段階的スキーマ変更
@@ -363,13 +361,13 @@ docker-compose exec apps npm run db:studio
 # apps/backend/database/schema/people.ts
 
 # 2. マイグレーション生成
-docker-compose exec apps npm run db:generate
+docker compose exec apps npm run db:generate
 
 # 3. 生成されたマイグレーションを確認
 # apps/backend/database/migrations/
 
 # 4. マイグレーション実行
-docker-compose exec apps npm run db:migrate
+docker compose exec apps npm run db:migrate
 
 # 注意: 本番環境でのマイグレーション適用は慎重に検討すること
 # 自動適用ではなく、手動での段階的な変更を推奨

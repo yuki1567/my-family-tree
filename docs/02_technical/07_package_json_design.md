@@ -8,7 +8,7 @@
 family-tree-app/
 ├── package.json              # ワークスペース管理・共通ツール
 ├── apps/frontend/package.json # Nuxt.js v3 + TypeScript環境
-├── apps/backend/package.json  # Hono + Prisma + TypeScript環境
+├── apps/backend/package.json  # Hono + Drizzle ORM + TypeScript環境
 └── apps/shared/              # package.json不要（ルート依存関係参照）
 ```
 
@@ -475,15 +475,14 @@ family-tree-app/
 **テストフレームワーク**
 
 ```json
-"jest": "29.7.0",
-"@types/jest": "29.5.12",
-"ts-jest": "29.2.5"
+"vitest": "4.0.3",
+"supertest": "7.1.4"
 ```
 
 - **Vitest選定理由**:
   - **フロントエンドとの統一**: 同一テストフレームワークによる学習コスト削減
   - **vs Jest**: ESModules対応が容易、高速起動
-  - **モック機能**: Express middleware、Drizzle ORMの詳細モック
+  - **モック機能**: Drizzle ORMの詳細モック
   - **設定の安定性**: TypeScript + ESModules設定が確立
 - **Node.js対応**: サーバーサイドテストも問題なく実行可能
 

@@ -26,20 +26,20 @@ git checkout develop  # 開発ブランチに切り替え
 
 ```bash
 # Docker Compose で全サービス起動
-docker-compose up -d
+docker compose up -d
 
 # 起動確認
-docker-compose ps
+docker compose ps
 
 # ログ確認
-docker-compose logs -f
+docker compose logs -f
 ```
 
 ### 2.3 データベース初期化
 
 ```bash
 # アプリケーションコンテナに入る
-docker-compose exec apps bash
+docker compose exec apps bash
 
 # Drizzleマイグレーション生成
 npm run db:generate
@@ -49,9 +49,6 @@ npm run db:migrate
 
 # または開発環境では直接スキーマを反映
 npm run db:push
-
-# シードデータ投入（任意）
-npm run db:seed
 
 # 動作確認用データベース確認
 npm run db:studio
@@ -64,7 +61,7 @@ npm run db:studio
 
 ```bash
 # アプリケーションコンテナに入る
-docker-compose exec apps bash
+docker compose exec apps bash
 
 # 依存関係インストール
 npm install
@@ -78,10 +75,10 @@ npm run type-check
 ```bash
 # PM2による自動起動（entrypoint.shで実行）
 # 手動起動の場合
-docker-compose exec apps npm run dev
+docker compose exec apps npm run dev
 
 # または新しいターミナルで
-docker-compose exec apps bash
+docker compose exec apps bash
 npm run dev
 ```
 
@@ -95,7 +92,7 @@ npm run dev
 
 ```bash
 # アプリケーションコンテナに入る
-docker-compose exec apps bash
+docker compose exec apps bash
 
 # ビルド
 npm run build
@@ -131,17 +128,7 @@ npm run db:push
 npm run db:studio
 
 # データベース接続確認
-docker-compose exec apps npm run db:push --help
-```
-
-### 4.2 シードデータ管理
-
-```bash
-# シードデータ投入
-npm run db:seed
-
-# シードデータ内容確認
-cat apps/backend/database/seeds/development.ts
+docker compose exec apps npm run db:push --help
 ```
 
 ## 5. トラブルシューティング
@@ -150,18 +137,18 @@ cat apps/backend/database/seeds/development.ts
 
 #### Docker 関連
 
-**問題**: `docker-compose up` でエラーが発生
+**問題**: `docker compose up` でエラーが発生
 
 ```bash
 # コンテナ・ボリューム・ネットワークをクリア
-docker-compose down -v --remove-orphans
+docker compose down -v --remove-orphans
 docker system prune -f
 
 # イメージを再ビルド
-docker-compose build --no-cache
+docker compose build --no-cache
 
 # 再起動
-docker-compose up -d
+docker compose up -d
 ```
 
 **問題**: ポート競合エラー
@@ -181,13 +168,13 @@ lsof -i :5432
 
 ```bash
 # データベースコンテナ状態確認
-docker-compose logs db
+docker compose logs db
 
 # データベース再起動
-docker-compose restart db
+docker compose restart db
 
 # 接続テスト
-docker-compose exec apps npm run db:push
+docker compose exec apps npm run db:push
 ```
 
 **問題**: マイグレーションエラー
@@ -203,8 +190,8 @@ npm run db:push
 npm run db:migrate
 
 # データベース再起動が必要な場合
-docker-compose down -v
-docker-compose up -d
+docker compose down -v
+docker compose up -d
 ```
 
 #### アプリケーション関連
@@ -213,19 +200,19 @@ docker-compose up -d
 
 ```bash
 # node_modulesクリア
-docker-compose exec apps rm -rf node_modules
-docker-compose exec apps npm cache clean --force
-docker-compose exec apps npm install
+docker compose exec apps rm -rf node_modules
+docker compose exec apps npm cache clean --force
+docker compose exec apps npm install
 ```
 
 **問題**: TypeScript エラー
 
 ```bash
 # Drizzleスキーマの型チェック
-docker-compose exec apps npm run type-check
+docker compose exec apps npm run type-check
 
 # TypeScript設定確認
-docker-compose exec apps npx tsc --noEmit
+docker compose exec apps npx tsc --noEmit
 ```
 
 #### PM2関連
@@ -234,14 +221,14 @@ docker-compose exec apps npx tsc --noEmit
 
 ```bash
 # PM2プロセス状態確認
-docker-compose exec apps pm2 list
+docker compose exec apps pm2 list
 
 # 手動でPM2起動テスト
-docker-compose exec apps pm2 start ecosystem.config.cjs
+docker compose exec apps pm2 start ecosystem.config.cjs
 
 # 作業ディレクトリ確認
-docker-compose exec apps pwd
-docker-compose exec apps ls -la
+docker compose exec apps pwd
+docker compose exec apps ls -la
 ```
 
 **問題**: ES Modules vs CommonJS エラー
@@ -264,16 +251,16 @@ ls -la ecosystem.config.*
 
 ```bash
 # 全サービスのログ
-docker-compose logs -f
+docker compose logs -f
 
 # 特定サービスのログ
-docker-compose logs -f apps
-docker-compose logs -f db
+docker compose logs -f apps
+docker compose logs -f db
 
 # PM2ログ確認
-docker-compose exec apps pm2 logs
+docker compose exec apps pm2 logs
 
 # アプリケーション内のログファイル確認
-docker-compose exec apps tail -f logs/frontend-combined.log
-docker-compose exec apps tail -f logs/backend-combined.log
+docker compose exec apps tail -f logs/frontend-combined.log
+docker compose exec apps tail -f logs/backend-combined.log
 ```

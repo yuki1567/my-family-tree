@@ -8,14 +8,14 @@
 family-tree-app/
 ├── apps (Node.js + PM2) # PM2管理による統合アプリケーション
 │   ├── frontend         # Nuxt.js (PM2プロセス)
-│   └── backend          # Express.js (PM2プロセス)
-└── db (MySQL 8.4.6)     # データベース
+│   └── backend          # Hono (PM2プロセス)
+└── db (PostgreSQL 18)   # データベース
 ```
 
 ### 1.2 ネットワーク・ポート構成
 
-- **apps**: 3000（Nuxt.js）, 4000（Express.js API）- PM2による単一コンテナ管理
-- **db**: ${MYSQL_PORT}（MySQL、環境変数で設定可能）
+- **apps**: 3000（Nuxt.js）, 4000（Hono API）- PM2による単一コンテナ管理
+- **db**: 5432（PostgreSQL）
 
 ### 1.3 PM2統合運用の利点
 
@@ -36,7 +36,7 @@ family-tree-app/
 
 ```
 family-tree-app/
-├── docker-compose.yml          # メイン構成定義
+├── docker compose.yml          # メイン構成定義
 ├── .env                        # 環境変数
 ├── .dockerignore              # Docker除外ファイル
 └── docker/                    # Docker関連ファイル
@@ -44,16 +44,16 @@ family-tree-app/
     │   ├── Dockerfile         # Node.js アプリ用
     │   └── entrypoint.sh      # 起動スクリプト
     └── db/
-        ├── Dockerfile         # MySQL用（カスタマイズ用）
-        └── my.cnf            # MySQL設定
+        ├── Dockerfile         # PostgreSQL用（カスタマイズ用）
+        └── init.sh           # PostgreSQL初期化スクリプト
 ```
 
 ### 2.2 Docker Compose 設定
 
-**docker-compose.yml** の基本構成：
+**docker compose.yml** の基本構成：
 
 - **apps コンテナ**: PM2統合による Node.js アプリケーション実行環境
-- **db コンテナ**: MySQL 8.4.6 データベース
+- **db コンテナ**: PostgreSQL 18 データベース
 - **環境変数**: .env ファイルによる統一管理
 - **ボリューム**: 部分的ソースコードマウント（`./apps:/usr/src/apps`）
 - **作業ディレクトリ**: `/usr/src`（コンテナ内でのプロジェクトルート）
@@ -68,8 +68,8 @@ family-tree-app/
   - _効果_: npm scriptsとPM2の動作環境統一
 - **開発環境特化**: データ永続化なし（本番はRDS使用）
   - _理由_: 開発環境では高速な環境リセットを重視、本番環境はAWS RDSによる管理運用のため
-- **ポート競合回避**: MYSQL_PORT環境変数でカスタマイズ可能
-  - _理由_: 開発者のローカル環境で他のMySQLサービスとの競合を避けるため
+- **ポート競合回避**: 環境変数でカスタマイズ可能
+  - _理由_: 開発者のローカル環境で他のPostgreSQLサービスとの競合を避けるため
 
 ### 2.3 開発環境の特徴
 
@@ -98,7 +98,7 @@ family-tree-app/
 - **作業ディレクトリ**: `/usr/src`での統一管理
   - _選定理由_: npm workspace、PM2設定、ファイル構造の一元化
   - _効果_: パス参照の簡素化、設定ファイル間の整合性確保
-- **開発ツール統合**: vim、curl、default-mysql-clientの標準インストール
+- **開発ツール統合**: vim、curl、postgresql-clientの標準インストール
   - _選定理由_: コンテナ内での直接ファイル編集、DB接続確認による開発効率向上
 - **PM2統合管理**: ecosystem.config.cjs による統合プロセス管理
   - _選定理由_: CommonJS形式でのES Modules互換性確保、フロント・バックエンド統合運用
@@ -162,7 +162,7 @@ family-tree-app/
 
 ### 3.5 PostgreSQL コンテナ設定
 
-**docker-compose.yml の db サービス** の設計方針：
+**docker compose.yml の db サービス** の設計方針：
 
 - **ベースイメージ**: postgres:18-alpine
   - _選定理由_: 最新の安定版による機能・セキュリティ向上、軽量なAlpineベース
@@ -198,57 +198,15 @@ family-tree-app/
 - **その他設定**: PostgreSQL 18 デフォルト値を使用
   - _選定理由_: 公式推奨設定による安定性・パフォーマンス・セキュリティ確保
 
-## 4. 環境変数設定
+## 4. 基本操作コマンド
 
-### 4.1 .env ファイル作成
-
-プロジェクトルートに `.env` ファイルを作成し、必要な環境変数を設定してください。
-
-**なぜ .env ファイルを使用するのか:**
-
-- **セキュリティ**: 認証情報をコードから分離
-- **環境別設定**: 開発・本番環境で異なる設定値を管理
-- **チーム開発**: 各開発者が独自の設定を持てる
-- **バージョン管理除外**: `.gitignore`により機密情報の誤コミットを防止
-
-### 4.2 必要な環境変数
-
-| 変数名                | 説明                  | 設定理由                                           |
-| --------------------- | --------------------- | -------------------------------------------------- |
-| `NODE_ENV`            | Node.js実行環境       | フレームワークの動作モード切り替えのため           |
-| `DATABASE_URL`        | Prisma接続URL         | ORMライブラリによるDB接続設定のため                |
-| `MYSQL_ROOT_PASSWORD` | MySQL root パスワード | 管理者権限による初期設定とセキュリティ確保のため   |
-| `MYSQL_DATABASE`      | データベース名        | プロジェクト専用DB領域の作成のため                 |
-| `MYSQL_USER`          | MySQL ユーザー名      | 最小権限の原則に基づくアプリ専用アカウントのため   |
-| `MYSQL_PASSWORD`      | MySQL パスワード      | アプリケーションアカウントのセキュリティ確保のため |
-| `MYSQL_PORT`          | MySQL外部ポート       | **他サービスとのポート競合回避のため**             |
-
-### 4.3 セキュリティ注意事項
-
-- **.env ファイルは Git にコミットしない**（.gitignore に追加済み）
-- **強力なパスワードを設定**
-- **本番環境では異なる認証情報を使用**
-
-### 4.4 ポート競合の対処
-
-他のMySQLサービスとの競合時は `.env` ファイルの `MYSQL_PORT` を変更してください。
-
-**なぜ環境変数でポート設定するのか:**
-
-- **開発者間の環境差異**: 各開発者のローカル環境で異なるポートが使用可能
-- **CI/CD環境対応**: 自動化環境でのポート割り当ての柔軟性確保
-- **保守性向上**: docker-compose.yml の直接編集を避け、設定ファイルでの管理
-- **本番環境準備**: 将来的なロードバランサーやプロキシ設定への対応準備
-
-## 5. 基本操作コマンド
-
-### 5.1 環境起動・停止（PM2統合運用）
+### 4.1 環境起動・停止（PM2統合運用）
 
 #### メインブランチでの起動
 
 ```bash
 # 起動
-aws-vault exec family-tree-dev -- docker-compose up -d
+aws-vault exec family-tree-dev -- docker compose up -d
 ```
 
 #### Worktree環境での起動
@@ -278,19 +236,19 @@ docker compose ps
 
 ```bash
 # 統合ログ確認
-docker-compose logs -f apps
+docker compose logs -f apps
 
 # データベースログ確認
-docker-compose logs -f db
+docker compose logs -f db
 
 # PM2プロセス状態確認（コンテナ内）
-docker-compose exec apps pm2 list
+docker compose exec apps pm2 list
 
 # 環境停止
-docker-compose down
+docker compose down
 
 # 環境停止（ボリューム削除）
-docker-compose down -v
+docker compose down -v
 ```
 
 **PM2統合運用の利点:**
@@ -299,50 +257,50 @@ docker-compose down -v
 - **自動復旧**: プロセス異常時の自動検出・ログ記録
 - **開発効率**: 複雑なサービス間依存関係の自動管理
 
-### 5.2 コンテナ操作
+### 4.2 コンテナ操作
 
 ```bash
 # アプリケーションコンテナに入る
-docker-compose exec appsbash
+docker compose exec appsbash
 
 # データベースコンテナに入る
-docker-compose exec db bash
+docker compose exec db bash
 
-# MySQLに直接接続
-docker-compose exec db mysql -u family_tree_user -p family_tree
+# PostgreSQLに直接接続
+docker compose exec db psql -U family_tree_user -d family_tree
 
 # PM2プロセス管理（コンテナ内）
-docker-compose exec apps pm2 list        # プロセス一覧
-docker-compose exec appspm2 restart all # 全プロセス再起動
-docker-compose exec appspm2 logs        # ログ確認
+docker compose exec apps pm2 list        # プロセス一覧
+docker compose exec appspm2 restart all # 全プロセス再起動
+docker compose exec appspm2 logs        # ログ確認
 ```
 
-### 5.3 開発コマンド（PM2統合運用）
+### 4.3 開発コマンド（PM2統合運用）
 
 ```bash
 # PM2によるプロセス管理（自動起動）
 # entrypoint.shにより自動実行されるため手動起動は不要
 
 # ビルド（コンテナ内で実行）
-docker-compose exec appsnpm run build:frontend              # フロントエンドビルド
-docker-compose exec appsnpm run build:backend               # バックエンドビルド
+docker compose exec appsnpm run build:frontend              # フロントエンドビルド
+docker compose exec appsnpm run build:backend               # バックエンドビルド
 
 # テスト実行
-docker-compose exec appsnpm run test                        # 全体テスト
+docker compose exec appsnpm run test                        # 全体テスト
 
 # Drizzle ORM操作（アプリケーションコンテナで実行）
-docker-compose exec apps npm run db:studio                     # Drizzle Studio起動
-docker-compose exec apps npm run db:generate                   # マイグレーションファイル生成
-docker-compose exec apps npm run db:migrate                    # マイグレーション実行
-docker-compose exec apps npm run db:seed                       # シードデータ投入
+docker compose exec apps npm run db:studio                     # Drizzle Studio起動
+docker compose exec apps npm run db:generate                   # マイグレーションファイル生成
+docker compose exec apps npm run db:migrate                    # マイグレーション実行
+docker compose exec apps npm run db:seed                       # シードデータ投入
 
 # ワークスペース全体操作
-docker-compose exec appsnpm install                         # 依存関係更新時
+docker compose exec appsnpm install                         # 依存関係更新時
 
 # PM2プロセス制御
-docker-compose exec appspm2 restart frontend               # フロントエンド再起動
-docker-compose exec appspm2 restart backend                # バックエンド再起動
-docker-compose exec appspm2 reload all                     # 全プロセス reload
+docker compose exec appspm2 restart frontend               # フロントエンド再起動
+docker compose exec appspm2 restart backend                # バックエンド再起動
+docker compose exec appspm2 reload all                     # 全プロセス reload
 ```
 
 **PM2統合開発のポイント:**
@@ -351,35 +309,35 @@ docker-compose exec appspm2 reload all                     # 全プロセス rel
 - **プロセス監視**: PM2による異常検出とログ記録
 - **統合運用**: 単一コンテナでのフロント・バック統合管理
 
-## 6. トラブルシューティング
+## 5. トラブルシューティング
 
-### 6.1 よくある問題
+### 5.1 よくある問題
 
 #### ポート競合
 
 ```bash
 # 使用中のポートを確認
 lsof -i :3000
-lsof -i :3306
+lsof -i :5432
 lsof -i :4000
 
 # プロセス停止
 kill -9 <PID>
 
 # Docker環境再起動
-docker-compose down
-docker-compose up -d
+docker compose down
+docker compose up -d
 ```
 
 #### データベース接続エラー
 
 ```bash
 # データベースコンテナ状態確認
-docker-compose ps db
-docker-compose logs db
+docker compose ps db
+docker compose logs db
 
 # データベース再起動
-docker-compose restart db
+docker compose restart db
 
 # ヘルスチェック確認
 docker inspect family-tree-db | grep Health
@@ -390,117 +348,83 @@ docker inspect family-tree-db | grep Health
 ```bash
 # ボリューム確認
 docker volume ls
-docker volume inspect family-tree-app_mysql_data
+docker volume inspect family-tree-app_postgres_data
 
 # ボリューム削除・再作成
-docker-compose down -v
+docker compose down -v
 docker volume prune
-docker-compose up -d
+docker compose up -d
 ```
 
-### 6.2 PM2関連のトラブルシューティング
+### 5.2 PM2関連のトラブルシューティング
 
 #### PM2プロセス異常
 
 ```bash
 # PM2プロセス状態確認
-docker-compose exec apps pm2 list
+docker compose exec apps pm2 list
 
 # 異常プロセスの再起動
-docker-compose exec appspm2 restart <プロセス名>
+docker compose exec appspm2 restart <プロセス名>
 
 # 全プロセス再起動
-docker-compose exec appspm2 restart all
+docker compose exec appspm2 restart all
 
 # PM2ログ確認
-docker-compose exec appspm2 logs --lines 100
+docker compose exec appspm2 logs --lines 100
 ```
 
 #### entrypoint.sh実行エラー
 
 ```bash
 # コンテナ起動ログ確認
-docker-compose logs apps
+docker compose logs apps
 
 # 手動でentrypoint.sh実行
-docker-compose exec appsbash -c "./entrypoint.sh"
+docker compose exec appsbash -c "./entrypoint.sh"
 
 # データベース接続確認
-docker-compose exec appsmysqladmin ping -h"db"
+docker compose exec apps pg_isready -h db
 ```
 
-### 6.3 環境リセット
+### 5.3 環境リセット
 
 #### 完全リセット
 
 ```bash
 # 全コンテナ・ボリューム・ネットワーク削除
-docker-compose down -v --remove-orphans
+docker compose down -v --remove-orphans
 
 # 不要なDockerリソース削除
 docker system prune -f
 
 # 環境再構築
-docker-compose build --no-cache
-docker-compose up -d
+docker compose build --no-cache
+docker compose up -d
 ```
 
 #### データベースリセット
 
 ```bash
 # データベースボリュームのみ削除
-docker-compose down
-docker volume rm family-tree-app_mysql_data
-docker-compose up -d
+docker compose down
+docker volume rm family-tree-app_postgres_data
+docker compose up -d
 ```
 
-### 6.4 MySQL設定カスタマイズ（問題発生時）
-
-#### パフォーマンス問題が発生した場合
-
-**問題**: クエリが遅い、メモリ不足エラー
-**対処**: my.cnfにパフォーマンス設定を追加
-
-```ini
-[mysqld]
-# 既存設定
-character-set-server=utf8mb4
-collation-server=utf8mb4_unicode_ci
-
-# パフォーマンス設定（必要時のみ追加）
-innodb_buffer_pool_size=512M
-max_connections=200
-```
+### 5.4 PostgreSQL設定カスタマイズ（問題発生時）
 
 #### デバッグが必要な場合
 
-**問題**: SQLクエリの問題調査が必要
-**対処**: ログ設定を有効化
-
-```ini
-[mysqld]
-# 既存設定
-character-set-server=utf8mb4
-collation-server=utf8mb4_unicode_ci
-
-# デバッグ設定（問題調査時のみ追加）
-slow_query_log=1
-long_query_time=0.5
-general_log=1
-```
-
-#### 設定変更後のコンテナ再起動
-
 ```bash
 # 設定変更後は必ずコンテナ再起動
-docker-compose restart db
+docker compose restart db
 
 # 設定確認
-docker-compose exec db mysql -e "SHOW VARIABLES LIKE 'character_set%';"
+docker compose exec db psql -U postgres -c "SHOW ALL;"
 ```
 
 **重要**:
 
 - **問題解決後は設定を削除**（デフォルトに戻す）
-- **設定追加の理由をコメントで記録**
 - **本番環境では別途RDS設定で対応**

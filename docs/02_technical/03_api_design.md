@@ -17,38 +17,34 @@
 
 ```
 apps/backend/
-├── controllers/     # HTTPレイヤー（薄い層）
+├── routes/          # ルーティング定義 + Zodバリデーション（@hono/zod-validator）
 ├── services/        # ビジネスロジック層
 ├── repositories/    # データアクセス層（抽象化）
-├── routes/          # ルーティング定義
-├── middlewares/     # 横断的関心事（実行処理）
-├── validations/     # 入力ルール定義
-└── database/        # データベース関連（ORM非依存）
+├── middlewares/     # 横断的関心事（エラーハンドリング等）
+├── errors/          # カスタムエラークラス（AppError, DatabaseError）
+├── config/          # 環境設定
+├── utils/           # 共通ユーティリティ関数
+└── database/        # データベース関連
     ├── schema/      # Drizzle ORMスキーマ定義
-    ├── migrations/
-    ├── seeds/
+    ├── migrations/  # マイグレーションファイル
     └── client.ts    # DB接続設定
 ```
 
 #### 型定義との連携
 
 ```typescript
-// 共有レイヤーの型定義を活用
-import {
+// 共有レイヤーの型定義を活用（apps/shared/api/）
+import type {
   CreatePersonRequest,
   PersonResponse,
-  PersonWithRelationsResponse,
-} from '@/shared/types/request'
-import { ApiResponse } from '@/shared/types/response'
+} from '@shared/api/persons.js'
+import type { ApiErrorResponse } from '@shared/api/common.js'
 
-// APIレスポンス例
-export type PersonApiResponse = ApiResponse<PersonResponse>
-export type PersonListApiResponse = ApiResponse<PersonResponse[]>
-export type PersonWithRelationsApiResponse =
-  ApiResponse<PersonWithRelationsResponse>
+// Zodスキーマから型を推論
+import { CreatePersonRequestSchema } from '@shared/api/persons.js'
 
 // データベース層での変換
-// Drizzle ORM型 → 共有型への変換を Repository層で実施
+// Drizzle ORM型 → 共有型への変換を Repository層で satisfies を使用して実施
 ```
 
 ### 1.3 設計原則
@@ -75,28 +71,25 @@ export type PersonWithRelationsApiResponse =
 **実装パターン**
 
 ```typescript
-// ミドルウェアでのバリデーション
-import { validateBody } from '@/middlewares/validate.js'
-import { createPersonSchema } from '@/validations/personValidation.js'
+// Hono + @hono/zod-validator によるバリデーション
+import { zValidator } from '@hono/zod-validator'
+import { CreatePersonRequestSchema } from '@shared/api/persons.js'
 
-router.post('/people', validateBody(createPersonSchema), controller.create)
-
-// validateBodyミドルウェア内部
-const result = schema.safeParse(req.body)
-if (!result.success) {
-  const errorResponse = mapZodErrorToResponse(result.error)
-  res.status(400).json(errorResponse)
-  return
-}
-req.body = result.data
-next()
+peopleRoutes.post(
+  '/people',
+  zValidator('json', CreatePersonRequestSchema),
+  async (c) => {
+    const validatedData = c.req.valid('json')
+    const result = await personService.create(validatedData)
+    return c.json<CreatePersonResponse>({ data: result }, 201)
+  }
+)
 ```
 
-**エラーマッピング**
+**エラーハンドリング**
 
-- `mapZodErrorToResponse()`ヘルパー関数を使用
-- ZodErrorを統一エラーレスポンス形式に変換
-- フィールドパスとエラーコードの自動抽出
+- `zValidator`がZodErrorを自動検出し、`app.onError`で統一エラーレスポンスに変換
+- `errorHandler`ミドルウェアでZodError、PostgresError、AppErrorを個別処理
 
 ## 2. 共通仕様
 

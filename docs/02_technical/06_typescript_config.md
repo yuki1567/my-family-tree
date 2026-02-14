@@ -18,7 +18,7 @@ family-tree-app/
 
 - **ルート**: 共通の型安全性・コーディング規約
 - **フロント**: DOM、Bundler、Vue.js対応
-- **バック**: Node.js、出力設定、Prisma対応
+- **バック**: Node.js、出力設定、Drizzle ORM対応
 - **共有**: 型チェックのみ（当面ビルド不要、将来的にビルド対応予定）
 
 ## 2. ルートtsconfig.json設計
@@ -55,8 +55,8 @@ family-tree-app/
 
 **"exactOptionalPropertyTypes": false**
 
-- **設定理由**: Prismaクライアント生成型との互換性確保のため無効化
-- **背景**: exactOptionalPropertyTypes: trueの場合、Prisma生成型で`{ field?: T | undefined }`と`{ field?: T }`の区別が厳密になり、実用上の問題が発生
+- **設定理由**: Drizzle ORM推論型との互換性確保のため無効化
+- **背景**: exactOptionalPropertyTypes: trueの場合、Drizzle ORM推論型で`{ field?: T | undefined }`と`{ field?: T }`の区別が厳密になり、実用上の問題が発生
 - **トレードオフ**: 型安全性は若干低下するが、実装の柔軟性とライブラリ互換性を優先
 - **代替策**: optional chainning（`?.`）やnullish coalescing（`??`）で明示的なundefinedハンドリングを実施
 
@@ -125,7 +125,7 @@ family-tree-app/
 **"esModuleInterop": true / "allowSyntheticDefaultImports": true**
 
 - **理由**: CommonJSモジュールとの互換性確保
-- **効果**: import文の統一的使用（`import express from 'express'`形式）
+- **効果**: import文の統一的使用（`import hono from 'hono'`形式）
 - **実用性**: Node.jsライブラリの混在環境対応
 
 #### **パス解決設定**

@@ -116,10 +116,10 @@ sed -i "s|{{JWT_SECRET}}|$JWT_SECRET|g" "$WORKTREE_PATH/.env"
 cp .env.test "$WORKTREE_PATH/.env.test"
 
 # worktree用データベーススキーマを作成
-docker-compose exec db mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;"
+docker compose exec db psql -U postgres -c "CREATE DATABASE ${DB_NAME};"
 
 # 必要最小限の権限のみ付与
-docker-compose exec db mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, ALTER, INDEX ON \`${DB_NAME}\`.* TO 'family_tree_user'@'%';"
+docker compose exec db psql -U postgres -c "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO family_tree_user;" -d "${DB_NAME}"
 
 # 4. VS Codeで新しいworktreeを開く
 code "$WORKTREE_PATH"

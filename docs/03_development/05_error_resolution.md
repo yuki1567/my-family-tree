@@ -31,7 +31,7 @@
 #### 1.2 環境状態の確認
 ```bash
 # Dockerコンテナ状態確認
-docker-compose ps
+docker compose ps
 
 # 設定ファイル整合性確認
 # - package.json と package-lock.json
@@ -76,7 +76,7 @@ docker-compose ps
 
 #### コンテナ起動エラー
 **分析手順:**
-1. `docker-compose logs` でログ確認
+1. `docker compose logs` でログ確認
 2. `docker-compose.yml` 設定確認
 3. ポート衝突の確認
 
@@ -94,20 +94,20 @@ docker-compose ps
 3. npmキャッシュ状態確認
 
 **根本修正:**
-- `docker-compose exec apps npm ci` で正確なインストール
+- `docker compose exec apps npm ci` で正確なインストール
 - package-lock.json の更新
 - Dockerイメージの再ビルド
 
 ### データベース関連エラー
 
-#### Prisma接続エラー
+#### Drizzle ORM接続エラー
 **分析手順:**
 1. データベースコンテナ状態確認
 2. 接続設定（DATABASE_URL）確認
-3. PrismaスキーマとDB同期状態確認
+3. Drizzle ORMスキーマとDB同期状態確認
 
 **根本修正:**
-- `docker-compose exec apps npx prisma db push`
+- `docker compose exec apps npm run db:migrate`
 - 環境変数の修正
 - データベースの再初期化
 
@@ -122,7 +122,7 @@ docker-compose ps
 **分析手順:**
 1. entrypoint.shで環境変数が設定されているか確認
    ```bash
-   docker-compose logs apps | grep "NODE_ENV"
+   docker compose logs apps | grep "NODE_ENV"
    ```
 2. PM2設定ファイル（ecosystem.config.cjs）の`env`オプション確認
 3. PM2プロセスの環境変数確認
@@ -144,8 +144,8 @@ ecosystem.config.cjsの各アプリ設定に`env: process.env`を追加:
 
 **検証:**
 ```bash
-docker-compose restart apps
-docker-compose exec apps pm2 list
+docker compose restart apps
+docker compose exec apps pm2 list
 # backend/frontendのstatusが"online"で、再起動回数が0であることを確認
 ```
 

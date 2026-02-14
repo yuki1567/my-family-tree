@@ -54,7 +54,6 @@
 
 - **Config**: 環境変数の読み込みのみでビジネスロジックがない
 - **Routes**: HTTPレイヤーのため統合テストで検証
-- **Controller**: Request/Responseに依存するため統合テストで検証
 - **Repository**: Drizzle ORMクライアントのモック化は実際のDB操作を検証できないため
 
 ### フロントエンド単体テスト
@@ -248,7 +247,7 @@ describe('usePerson', () => {
 #### ✅ 統合テストで検証すべき内容
 
 - **API疎通**: HTTPリクエスト/レスポンスの正常動作
-- **レイヤー間連携**: Controller → Service → Repository → DB の全体フロー
+- **レイヤー間連携**: Route → Service → Repository → DB の全体フロー
 - **代表的なエラーハンドリング**: 主要なエラーパターンの動作確認
 
 #### ❌ 統合テストで詳細テストすべきでない内容
@@ -412,10 +411,10 @@ describe('POST /api/people', () => {
 
 ```bash
 # テスト用DBコンテナ起動時に初期化
-docker-compose -f docker-compose.test.yml up -d
+docker compose -f docker-compose.test.yml up -d
 
 # 初回のみマイグレーション実行
-docker-compose exec apps npm run db:migrate
+docker compose exec apps npm run db:migrate
 
 # その後はデータクリーンアップのみでテスト実行
 npm run docker:test:integration
@@ -431,48 +430,34 @@ npm run docker:test:integration
 ### 実装例
 
 ```typescript
-// __tests__/integration/personApi.test.ts
-import { createApp } from '@/app'
-import { prisma } from '@/config/database'
-import request from 'supertest'
+// tests/integration/people.test.ts
+import { createApp } from '@/app.js'
+import { db } from '@/database/client.js'
+import { people } from '@/database/schema.js'
+import { peopleRoutes } from '@/routes/peopleRoute.js'
 
 describe('POST /api/people', () => {
-  let app: Express
-
-  beforeAll(async () => {
-    app = createApp()
-    await prisma.$connect()
-  })
-
-  afterAll(async () => {
-    await prisma.$disconnect()
-  })
+  const app = createApp()
+  app.route('/api', peopleRoutes)
 
   beforeEach(async () => {
-    await prisma.people.deleteMany()
+    await db.delete(people)
   })
 
   it('有効なデータの場合、人物を正常に作成できるか', async () => {
-    const response = await request(app).post('/api/people').send({
-      name: 'テスト太郎',
-      gender: 1,
-      birthDate: '1990-01-01',
+    const response = await app.request('/api/people', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'テスト太郎',
+        gender: 1,
+        birthDate: '1990-01-01',
+      }),
     })
 
     expect(response.status).toBe(201)
-    expect(response.body.data).toHaveProperty('id')
-
-    const createdId = response.body.data.id
-    const dbRecord = await prisma.people.findUnique({
-      where: { id: createdId },
-    })
-
-    expect(dbRecord).toBeDefined()
-    expect(dbRecord).toMatchObject({
-      name: 'テスト太郎',
-      gender: 1,
-      birthDate: new Date('1990-01-01'),
-    })
+    const body = await response.json()
+    expect(body.data).toHaveProperty('id')
   })
 })
 ```
@@ -484,7 +469,7 @@ describe('POST /api/people', () => {
 統合テストでは**APIレスポンス検証 + DB状態検証の両方**が必要です：
 
 1. **データ永続化確認**: APIが成功レスポンスを返してもDB保存に失敗する可能性
-2. **Repository層のテスト**: 実際のSQL実行とPrismaマッピングの検証
+2. **Repository層のテスト**: 実際のSQL実行とDrizzle ORMマッピングの検証
 3. **データ変換検証**: API形式とDB保存形式の変換処理確認
 4. **制約・関連性**: DB制約や外部キー関連の動作確認
 
@@ -493,19 +478,17 @@ describe('POST /api/people', () => {
 #### ✅ 推奨：作成IDを使った検証
 
 ```typescript
-const createdId = response.body.data.id
-const dbRecord = await prisma.people.findUnique({
-  where: { id: createdId },
-})
+import { eq } from 'drizzle-orm'
+
+const createdId = body.data.id
+const [dbRecord] = await db.select().from(people).where(eq(people.id, createdId))
 ```
 
 #### ❌ 非効率：全件検索
 
 ```typescript
 // 全データから検索は非効率
-const dbRecord = await prisma.people.findFirst({
-  where: { name: 'テスト太郎' },
-})
+const [dbRecord] = await db.select().from(people).where(eq(people.name, 'テスト太郎'))
 ```
 
 ### 検証レベルの使い分け
@@ -564,34 +547,18 @@ services:
     build:
       context: .
       dockerfile: docker/db/Dockerfile
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - TZ=Asia/Tokyo
-    env_file:
-      - .env
     ports:
-      - '${MYSQL_PORT}:3306'
-    volumes:
-      - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - '5432:5432'
 
   # テスト用データベース（profilesで制御）
   test-db:
     build:
       context: .
       dockerfile: docker/db/Dockerfile
-    environment:
-      - MYSQL_ROOT_PASSWORD=testpass
-      - MYSQL_DATABASE=family_tree_test
-      - MYSQL_USER=testuser
-      - MYSQL_PASSWORD=testpass
-      - TZ=Asia/Tokyo
     ports:
-      - '3307:3306'
+      - '5433:5432'
     tmpfs:
-      - /var/lib/mysql # メモリ上での高速実行
+      - /var/lib/postgresql/data # メモリ上での高速実行
     profiles: ['test'] # テストプロファイル指定
 ```
 
@@ -599,13 +566,13 @@ services:
 
 ```bash
 # 通常の開発環境起動（apps + db のみ）
-docker-compose up -d
+docker compose up -d
 
 # テスト環境起動（apps + db + test-db）
-docker-compose --profile test up -d
+docker compose --profile test up -d
 
 # テスト用DBのみ起動
-docker-compose --profile test up test-db -d
+docker compose --profile test up test-db -d
 ```
 
 ### Profilesを使用するメリット
@@ -623,19 +590,19 @@ docker-compose --profile test up test-db -d
 
 ```bash
 # 1. テスト用DB起動確認・起動
-docker-compose ps test-db
-docker-compose --profile test up test-db -d
+docker compose ps test-db
+docker compose --profile test up test-db -d
 
 # 2. テスト実行（モノレポ構造）
-docker-compose exec apps bash -c "cd apps/backend && TEST_DATABASE_URL='mysql://testuser:testpass@localhost:3307/family_tree_test' npm run docker:test:integration"
+docker compose exec apps bash -c "cd apps/backend && TEST_DATABASE_URL='postgresql://testuser:testpass@test-db:5432/family_tree_test' npm run docker:test:integration"
 ```
 
 **重要**:
 
 - このプロジェクトはモノレポ構造のため、backendワークスペース内で実行する必要があります
-- テスト用DBコンテナの起動は手動で行います（Dockerコンテナ内からのdocker-compose実行制約のため）
+- テスト用DBコンテナの起動は手動で行います（Dockerコンテナ内からのdocker compose実行制約のため）
 
-Jest GlobalSetupで以下が自動実行されます：
+Vitest GlobalSetupで以下が自動実行されます：
 
 1. DB接続確認（リトライ機能付き）
 2. マイグレーション実行
@@ -646,15 +613,15 @@ Jest GlobalSetupで以下が自動実行されます：
 
 ```bash
 # テスト用DB起動（開発セッション中は起動したまま）
-docker-compose --profile test up test-db -d
+docker compose --profile test up test-db -d
 
 # テスト実行（backendワークスペース内で）
-docker-compose exec apps bash
+docker compose exec apps bash
 cd apps/backend
 npm run docker:test:integration
 
 # 開発セッション終了時のみ停止
-docker-compose stop test-db
+docker compose stop test-db
 ```
 
 ### フロントエンド統合テスト
@@ -802,13 +769,13 @@ it('すべての入力フィールドのバリデーションテスト', () => {
 ```json
 {
   "scripts": {
-    "test": "jest --runInBand",
-    "test:unit": "jest --testPathPattern=unit",
-    "test:integration": "jest --testPathPattern=integration --runInBand",
-    "test:coverage": "jest --coverage --runInBand",
-    "test:watch": "jest --watch --testPathPattern=unit",
-    "test:setup": "docker-compose --profile test up test-db -d",
-    "test:teardown": "docker-compose stop test-db"
+    "test": "vitest run",
+    "test:unit": "vitest run --dir tests/unit",
+    "test:integration": "vitest run --dir tests/integration",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest --dir tests/unit",
+    "test:setup": "docker compose --profile test up test-db -d",
+    "test:teardown": "docker compose stop test-db"
   }
 }
 ```
@@ -887,7 +854,7 @@ describe('createPersonSchema', () => {
 **✅ 統合テストで検証する**
 
 - **API疎通**: HTTPリクエスト/レスポンスの基本動作
-- **全レイヤー連携**: Controller → Service → Repository → DB のフロー
+- **全レイヤー連携**: Route → Service → Repository → DB のフロー
 - **代表的なエラー**: 主要なエラーパターン1つずつ
 - **データ永続化**: DBへの正常な保存・取得
 
