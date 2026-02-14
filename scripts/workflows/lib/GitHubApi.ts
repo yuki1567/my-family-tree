@@ -59,7 +59,7 @@ export class GitHubApi {
     statusFieldId: string,
     statusIds: GitHubStatusIds
   ): Promise<GitHubApi> {
-    const todoItems = await GitHubApi.fetchTodoIssues(projectId, statusIds.todo)
+    const todoItems = await this.fetchTodoIssues(projectId, statusIds.todo)
     const firstItem = todoItems[0]
 
     if (!firstItem?.content) {
@@ -69,7 +69,7 @@ export class GitHubApi {
       )
     }
 
-    const issue = GitHubApi.extractIssue(firstItem)
+    const issue = this.extractIssue(firstItem)
 
     return new GitHubApi(projectId, statusFieldId, statusIds, issue)
   }
@@ -134,11 +134,11 @@ export class GitHubApi {
     projectId: string,
     todoStatusId: string
   ) {
-    const response = GitHubApi.executeGraphQL(FETCH_PROJECT_ISSUES_QUERY, {
+    const response = this.executeGraphQL(FETCH_PROJECT_ISSUES_QUERY, {
       projectId,
     })
 
-    const validatedData = GitHubApi.validateGraphQLResponse(response)
+    const validatedData = this.validateGraphQLResponse(response)
 
     const filterdData = validatedData.data.node.items.nodes.filter(
       (item) => item.fieldValueByName?.optionId === todoStatusId
@@ -183,7 +183,7 @@ export class GitHubApi {
   private static validateGraphQLResponse(
     data: unknown
   ): FetchProjectIssuesResponse {
-    if (GitHubApi.isFetchProjectIssuesResponse(data)) {
+    if (this.isFetchProjectIssuesResponse(data)) {
       return data
     }
 
@@ -225,7 +225,7 @@ export class GitHubApi {
     return {
       number: issue.content?.number,
       title: issue.content?.title,
-      label: GitHubApi.extractIssueLabel(issue.content?.labels),
+      label: this.extractIssueLabel(issue.content?.labels),
       projectItemId: issue.id,
     }
   }

@@ -6,6 +6,6 @@ export default defineConfig({
   out: './database/migrations',
   dbCredentials: {
     // biome-ignore lint/style/noNonNullAssertion: drizzle-kitはCLI実行時にDATABASE_URLが必須
-    url: process.env.DATABASE_URL!,
+    url: process.env['DATABASE_URL']!,
   },
 })

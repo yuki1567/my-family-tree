@@ -27,8 +27,8 @@ async function initEnvConfig(): Promise<Config> {
 }
 
 async function loadParameterStore(): Promise<void> {
-  const awsVault = process.env.AWS_VAULT
-  const awsRegion = process.env.AWS_REGION
+  const awsVault = process.env['AWS_VAULT']
+  const awsRegion = process.env['AWS_REGION']
 
   if (!awsVault) {
     throw new Error(

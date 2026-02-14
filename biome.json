@@ -60,7 +60,8 @@
       "complexity": {
         "useOptionalChain": "error",
         "noThisInStatic": "off",
-        "noStaticOnlyClass": "off"
+        "noStaticOnlyClass": "off",
+        "useLiteralKeys": "off"
       }
     }
   },
