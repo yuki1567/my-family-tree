@@ -50,8 +50,6 @@ export type FetchStatusFieldIdResponse = {
 export type WorktreeParameterKey =
   | 'branch-name'
   | 'issue-number'
-  | 'web-port'
-  | 'api-port'
   | 'database-url'
   | 'database-admin-url'
   | 'log-level'

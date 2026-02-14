@@ -63,12 +63,12 @@
 ### Command Execution Rules
 
 - **Development commands** (npm, prisma, etc.): `docker-compose exec apps [command]`
-- **Infrastructure commands** (.claude/commands/*.md): Execute on host environment
+- **Infrastructure commands** (.claude/commands/\*.md): Execute on host environment
 - **Tests**: Ensure test-db container is running first
 - **Command files execution (CRITICAL)**:
   - `.claude/commands/` directory contains executable command files in markdown format
   - When user runs `/command-name`, read and execute `.claude/commands/command-name.md`
-  - Execute bash command blocks (```bash...```) exactly as written in sequential order
+  - Execute bash command blocks (`bash...`) exactly as written in sequential order
   - DO NOT look for `.sh` files - `.claude/commands/` files are always `.md` format
   - DO NOT interpret, modify, substitute, or add commands
   - The markdown files contain executable instructions, not reference documentation
