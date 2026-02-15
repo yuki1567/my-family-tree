@@ -4,506 +4,114 @@
 
 ### 1.1 モノレポ構成でのpackage.json役割分担
 
-```
-family-tree-app/
-├── package.json              # ワークスペース管理・共通ツール
-├── apps/frontend/package.json # Nuxt.js v3 + TypeScript環境
-├── apps/backend/package.json  # Hono + Drizzle ORM + TypeScript環境
-└── apps/shared/              # package.json不要（ルート依存関係参照）
-```
+ルート・フロントエンド・バックエンドの3層構成。sharedは現時点でpackage.json不要（外部依存なし、`@shared/*`エイリアスで直接参照）。
+
+> **実ファイル参照**: `package.json`, `apps/frontend/package.json`, `apps/backend/package.json`
 
 ### 1.2 依存関係管理戦略
 
-**ホイスティング活用**
-
-- 共通依存関係はルートで一元管理
+- 共通依存関係はルートで一元管理（ホイスティング活用）
 - 各アプリ固有の依存関係のみ個別管理
 - バージョン固定によるビルド再現性確保
 
 ## 2. ルートpackage.json設計
 
-### 2.1 各項目の設計理由
+### 2.1 基本設定の設計理由
 
-#### **基本設定**
+| 設定 | 理由 |
+|------|------|
+| `"type": "module"` | ESModules統一。Node.js 22.18で完全サポート |
+| `"workspaces"` | ホイスティング・統一node_modules管理・相互参照の簡易化 |
+| `"private": true` | 公開予定なし |
 
-**"name": "family-tree-app"**
+### 2.2 スクリプト設計の設計理由
 
-- **理由**: プロジェクトルート識別用
-- **方針**: 公開予定なし（private: true）
+| パターン | 理由 |
+|----------|------|
+| 並列実行（`&`使用） | フロント・バック同時起動、型チェック並列実行による高速化 |
+| ワークスペース委譲 | 各アプリのpackage.jsonに実装詳細を委譲し、個別起動・デバッグ対応 |
+| ビルド順次実行（`&&`） | shared → backend → frontend の依存関係に基づく順序制御 |
 
-**"type": "module"**
+### 2.3 共通開発依存関係の選定理由
 
-- **理由**: ESModules統一使用
-- **効果**: import/export構文の一貫性
-- **技術的根拠**: Node.js 22.18でESModules完全サポート
-
-**"workspaces": ["apps/frontend", "apps/backend", "apps/shared"]**
-
-- **理由**: モノレポ依存関係管理の効率化
-- **効果**:
-  - ホイスティング（重複排除）
-  - 統一されたnode_modules管理
-  - 相互参照の簡易化
-- **shared含有理由**: 型定義ファイルのパス解決統一
-
-#### **スクリプト設計**
-
-**並列実行戦略（&使用）**
-
-```json
-"dev": "npm run dev:backend & npm run dev:frontend",
-"type-check": "npm run type-check --workspace=apps/frontend & ..."
-```
-
-- **理由**: 開発効率の最大化
-- **技術的利点**:
-  - フロント・バック同時起動
-  - 型チェック並列実行による高速化
-  - CI/CD環境での並列ジョブ活用
-
-**ワークスペーススクリプトパターン**
-
-```json
-"dev:frontend": "npm run dev --workspace=apps/frontend"
-```
-
-- **理由**: 個別アプリの独立実行可能性
-- **保守性**: 各アプリのpackage.jsonに実装詳細を委譲
-- **運用性**: デバッグ時の個別起動対応
-
-**ビルド順序制御**
-
-```json
-"build": "npm run build:shared && npm run build:backend && npm run build:frontend"
-```
-
-- **理由**: 依存関係に基づく順次実行
-- **順序の根拠**:
-  1. shared: 型定義（将来のビルド対応時）
-  2. backend: APIサーバー
-  3. frontend: APIに依存するクライアント
-
-#### **共通開発依存関係**
-
-**TypeScript関連**
-
-```json
-"typescript": "5.9.2",
-"@types/node": "24.2.1"
-```
-
-- **バージョン固定理由**: 全アプリでの型互換性保証
-- **Node.js型定義**: 共通実行環境のため
-
-**Biome設定**
-
-```json
-"@biomejs/biome": "2.3.15"
-```
-
-- **Biome**: リンティング・フォーマット・import整理を単一ツールで統合
-- **設定ファイル**: ルート`biome.json`でモノレポ全体をカバー
-- **効果**: ESLint + Prettierの2ツール構成を1ツールに統合し、設定の簡素化と実行速度の大幅改善を実現
-
-**共通ユーティリティ**
-
-```json
-"npm-run-all": "4.1.5",
-"tsx": "4.20.5",
-"dotenv": "17.2.2"
-```
-
-- **npm-run-all**: 複数スクリプトの並列・直列実行
-- **tsx**: TypeScriptスクリプトの直接実行（スクリプト用）
-- **dotenv**: 環境変数管理（スクリプト用）
+| パッケージ | 選定理由 |
+|-----------|----------|
+| TypeScript | バージョン固定で全アプリの型互換性保証 |
+| Biome | ESLint + Prettierの2ツール構成を1ツールに統合。設定簡素化と実行速度改善 |
+| npm-run-all | 複数スクリプトの並列・直列実行 |
+| tsx | TypeScriptスクリプトの直接実行（ESModules対応、高速起動） |
+| dotenv | 環境変数管理（スクリプト用） |
 
 ## 3. フロントエンドpackage.json設計
 
-### 3.1 各項目の設計理由
+### 3.1 基本設定の設計理由
 
-#### **基本設定**
+- `@family-tree-app/frontend`: スコープ付きパッケージ名でモノレポ内識別性向上
+- `postinstall: "nuxt prepare"`: Nuxt 3の型生成自動化（.nuxt/types.d.ts等）。TypeScript厳格モードでの型解決に必須
 
-**"name": "@family-tree-app/frontend"**
+### 3.2 本番依存関係の選定理由
 
-- **理由**: スコープ付きパッケージ名による識別性向上
-- **モノレポ内識別**: 複数のfrontendプロジェクトがある場合の区別
-- **将来性**: npm publishする可能性への対応
+| パッケージ | 選定理由 | 比較対象 |
+|-----------|----------|----------|
+| Nuxt 3 | Vue 3ベース、TypeScript標準サポート、ファイルベースルーティング、自動import | - |
+| Vue 3 | Composition API完全サポート、TypeScript統合向上 | - |
+| Pinia | TypeScript完全対応、軽量、Vue 3最適化、DevTools/HMR対応 | vs Vuex: TS対応が劣る |
+| @heroicons/vue | Vue 3用アイコンライブラリ | - |
+| focus-trap | アクセシビリティ対応のフォーカストラップ | - |
+| modern-normalize | モダンブラウザ対応CSSリセット | vs Normalize.css: 後継版 |
 
-#### **スクリプト設計**
+### 3.3 開発依存関係の選定理由
 
-**Nuxtコマンド群**
+| パッケージ | 選定理由 | 比較対象 |
+|-----------|----------|----------|
+| Vitest | Vite統合高速起動、ESModules対応、TypeScript追加設定不要 | vs Jest: 設定が煩雑 |
+| @vue/test-utils | Vue公式コンポーネントテストライブラリ | - |
+| @nuxt/test-utils | Nuxt固有機能テスト（ルーティング等） | - |
+| happy-dom | jsdomより2-3倍高速、インストールサイズ約2MB | vs jsdom: 16MB、低速 |
+| vue-tsc | Vue SFCのTypeScript型チェック（tscはVue構文非対応） | - |
 
-```json
-"dev": "nuxt dev",
-"build": "nuxt build",
-"generate": "nuxt generate",
-"preview": "nuxt preview"
-```
+### 3.4 除外した技術と理由
 
-- **dev**: 開発サーバー（HMR有効）
-- **build**: プロダクションビルド（SSR対応）
-- **generate**: 静的サイト生成（SPA/SSG選択可能）
-- **preview**: ビルド結果のプレビュー
-
-**"postinstall": "nuxt prepare"**
-
-- **理由**: Nuxt 3の型生成・準備処理自動化
-- **効果**: .nuxt/types.d.ts等の自動生成
-- **必要性**: TypeScript厳格モードでの型解決
-
-**TypeScriptチェック**
-
-```json
-"type-check": "vue-tsc --noEmit"
-```
-
-- **vue-tsc使用理由**: Vue SFC（Single File Component）対応
-- **--noEmitオプション**: ファイル出力なし（型チェックのみ）
-- **Nuxtビルドとの分離**: ビルドプロセスとは独立した型検証
-
-**テストスクリプト**
-
-```json
-"test": "vitest",
-"test:ui": "vitest --ui",
-"test:coverage": "vitest --coverage"
-```
-
-- **UI版**: ブラウザベースのテスト実行・デバッグ
-- **カバレッジ**: テストカバレッジレポート生成
-
-#### **本番依存関係（dependencies）**
-
-**"nuxt": "3.19.2"**
-
-- **選定理由**:
-  - Vue 3ベースの最新安定版
-  - TypeScript標準サポート
-  - ファイルベースルーティング
-  - 自動import機能
-  - パフォーマンス改善とバグ修正
-- **バージョン固定理由**: ビルド再現性確保
-
-**"vue": "3.5.10"**
-
-- **選定理由**:
-  - Composition API完全サポート
-  - TypeScript統合の向上
-  - パフォーマンス改善
-- **Nuxtとの関係**: Nuxtが内部で使用（明示的指定で管理）
-
-**状態管理: Pinia**
-
-```json
-"@pinia/nuxt": "0.5.5",
-"pinia": "2.2.4"
-```
-
-- **Pinia選定理由**:
-  - **vs Vuex**: TypeScript完全対応
-  - **軽量性**: 不要な機能を持たない
-  - **Vue 3最適化**: Composition API対応
-  - **開発体験**: DevTools統合、HMR対応
-- **@pinia/nuxt**: Nuxt統合用プラグイン
-
-#### **開発依存関係（devDependencies）**
-
-**テストフレームワーク**
-
-```json
-"vitest": "3.2.4"
-```
-
-- **Vitest選定理由**:
-  - **vs Jest**: Vite統合による高速起動
-  - **ESModules対応**: 設定不要でimport/export
-  - **TypeScript**: 追加設定不要
-  - **Watch Mode**: ファイル変更での自動再実行
-  - **フロント・バック共通化**: 同一テストフレームワークによる学習コスト削減
-- **注**: v3.2.4では`@vitest/ui`と`@vitest/coverage-v8`が本体に統合されており、個別インストール不要
-
-**Vue テストユーティリティ**
-
-```json
-"@nuxt/test-utils": "3.14.3",
-"@vue/test-utils": "2.4.6"
-```
-
-- **@nuxt/test-utils**: Nuxt固有の機能テスト（ルーティング等）
-- **@vue/test-utils**: Vue componentの単体テスト
-
-**DOM環境**
-
-```json
-"happy-dom": "15.11.7"
-```
-
-- **happy-dom選定理由**:
-  - **vs jsdom**: 2-3倍高速なテスト実行
-  - **軽量**: インストールサイズ約2MB（jsdomは16MB）
-  - **Vitest推奨**: Viteエコシステム統合
-  - **十分な機能**: Vue componentテストに必要なDOM API提供
-- **除外したjsdom**: より完全だが、重量・低速
-
-**TypeScript支援**
-
-```json
-"vue-tsc": "2.1.6"
-```
-
-- **役割**: Vue SFC（.vueファイル）のTypeScript型チェック
-- **tscとの違い**: Vue固有の構文理解
-- **Nuxtとの関係**: Nuxtビルドとは独立した型検証
-
-#### **除外した依存関係と理由**
-
-**UIフレームワーク系**
-
-```json
-// 使用しない理由
-"tailwindcss": "CLAUDE.mdで使用禁止明記",
-"vuetify": "カスタムデザイン要件のため不採用",
-"quasar": "プロジェクト規模に対して過剰"
-```
-
-**状態管理系**
-
-```json
-// 使用しない理由
-"vuex": "TypeScript対応が劣る、Piniaが後継",
-"@vueuse/core": "必要に応じて後で追加検討"
-```
-
-**フロントエンド追加依存関係**
-
-```json
-"@heroicons/vue": "2.2.0",
-"@vueuse/integrations": "13.9.0",
-"focus-trap": "7.6.5",
-"modern-normalize": "3.0.1"
-```
-
-- **@heroicons/vue**: Vue 3用のHeroiconsアイコンライブラリ（Tailwind開発元提供）
-- **@vueuse/integrations**: VueUseの統合ライブラリ（外部ライブラリとの連携）
-- **focus-trap**: アクセシビリティ対応のフォーカストラップ実装
-- **modern-normalize**: CSSリセット（Normalize.cssの後継、モダンブラウザ対応）
-
-**テスト系**
-
-```json
-// 使用しない理由
-"jest": "Vitestに統一（フロント・バック共通化）",
-"cypress": "E2Eテスト用、Phase 0では不要",
-"playwright": "E2Eテスト用、Phase 0では不要"
-```
+| 除外技術 | 理由 |
+|----------|------|
+| Tailwind CSS | CLAUDE.mdで使用禁止（カスタムデザイン要件） |
+| Vuetify / Quasar | カスタムデザイン要件 / プロジェクト規模に対して過剰 |
+| Vuex | Piniaが後継、TypeScript対応が劣る |
+| Cypress / Playwright | E2Eテスト用、現フェーズでは不要 |
 
 ## 4. バックエンドpackage.json設計
 
-### 4.1 各項目の設計理由
+### 4.1 スクリプト設計の設計理由
 
-#### **基本設定**
+| スクリプト | ツール | 選定理由 |
+|-----------|--------|----------|
+| dev | tsx watch | vs ts-node: ESModules対応・高速。vs nodemon: TS直接実行・設定不要。`--clear-screen=false`でDocker環境ログ保持 |
+| build | tsc | TypeScriptネイティブコンパイラ。出力先: dist/ |
+| test | Vitest | フロントエンドとの統一、ESModules対応、プロジェクト分離（unit/integration） |
+| db:* | drizzle-kit | generate/migrate/push/studioの各操作を管理 |
 
-**"type": "module"**
+### 4.2 本番依存関係の選定理由
 
-- **理由**: フロントエンドとの統一、モダンJavaScript使用
-- **Drizzle ORM対応**: Drizzle ORMはESModules完全対応
-- **Node.js 22.18**: ネイティブESModulesサポート
+| パッケージ | 選定理由 | 比較対象 |
+|-----------|----------|----------|
+| Hono | 完全な型安全性、Web標準準拠、マルチランタイム対応、軽量高速 | vs Express: 型安全性不足。vs Fastify: TS統合が劣る。vs NestJS: 過剰 |
+| @hono/node-server | Node.js環境でのHono実行用アダプター | - |
+| @hono/zod-validator | HonoとZodの統合（バリデーション処理の型安全化） | - |
+| Drizzle ORM | SQL-like API、完全な型安全性、軽量高速 | vs Prisma: 重い。vs TypeORM: 型推論が劣る |
+| postgres | PostgreSQL用JavaScriptクライアント | - |
+| Zod v4 | TypeScript型推論、パフォーマンス、@hono/zod-validatorとの互換性 | vs Joi: TS統合不足。vs Yup: パフォーマンス劣る |
 
-#### **スクリプト設計**
+### 4.3 APIテスト方針
 
-**開発環境**
+Honoの組み込み`app.request()`メソッドでテスト可能なため、supertestなどの外部ライブラリは不要。Web標準の`Request`/`Response`使用により、追加依存なしで型安全なテストが実現。
 
-```json
-"dev": "tsx watch --clear-screen=false src/index.ts"
-```
+## 5. 共有ライブラリ（shared）の設計判断
 
-- **tsx選定理由**:
-  - **vs ts-node**: ESModules対応、高速起動
-  - **vs nodemon**: TypeScript直接実行、設定不要
-  - **watch mode**: ファイル変更時の自動再起動
-- **--clear-screen=false**: Docker環境でのログ保持
+### 5.1 package.json不要の理由
 
-**ビルド・実行**
+1. ルートのworkspaces設定でnode_modules共有済み
+2. 独自の外部依存関係が現在存在しない
+3. `@shared/*`エイリアスで直接参照可能
+4. 必要になった時点での追加が容易
 
-```json
-"build": "tsc",
-"start": "node dist/index.js"
-```
-
-- **tsc**: TypeScriptネイティブコンパイラ使用
-- **出力**: dist/ディレクトリ（tsconfig.jsonで指定）
-- **本番実行**: コンパイル後のJavaScript実行
-
-**テスト**
-
-```json
-"test": "vitest --run --config vitest.config.ts",
-"test:unit": "vitest --run --config vitest.config.ts --project unit",
-"test:integration": "vitest --run --config vitest.config.ts --project integration",
-"test:watch": "vitest --watch --config vitest.config.ts --project unit"
-```
-
-- **Vitest選定理由**:
-  - **フロントエンドとの統一**: 同一テストフレームワークによる学習コスト削減
-  - **vs Jest**: ESModules対応が容易、高速起動
-  - **Node.js対応**: サーバーサイドテストも問題なく実行可能
-  - **supertest統合**: APIテスト時の連携も良好
-  - **プロジェクト分離**: unit/integration別々に実行可能
-
-**データベース操作**
-
-```json
-"db:generate": "drizzle-kit generate",
-"db:migrate": "DATABASE_URL=$DATABASE_ADMIN_URL drizzle-kit migrate",
-"db:seed": "tsx ./database/seeds/development.ts",
-"db:studio": "DATABASE_URL=$DATABASE_ADMIN_URL drizzle-kit studio",
-"test:db:migrate": "DATABASE_URL=$DATABASE_ADMIN_URL drizzle-kit push"
-```
-
-- **generate**: スキーマからマイグレーションファイル生成
-- **migrate**: マイグレーションの実行（本番環境用）
-- **seed**: 初期データ投入（TypeScript直接実行）
-- **studio**: ブラウザベースのDB管理UI（Drizzle Studio）
-- **test:db:migrate**: テスト環境へのスキーマプッシュ
-
-#### **本番依存関係（dependencies）**
-
-**Hono + TypeScript**
-
-```json
-"hono": "4.9.9",
-"@hono/node-server": "1.19.5",
-"@hono/zod-validator": "0.7.3"
-```
-
-- **Hono選定理由**:
-  - **vs Express**: 完全な型安全性、モダンなAPI設計、高速なパフォーマンス
-  - **vs Fastify**: より優れたTypeScript統合、シンプルなAPI
-  - **vs Koa**: Web標準準拠、エッジランタイム対応
-  - **vs NestJS**: プロジェクト規模に適している軽量性
-- **Honoの主要特徴**:
-  - エンドツーエンドの型推論
-  - Web標準準拠（Fetch API）
-  - マルチランタイム対応（Node.js、Cloudflare Workers等）
-  - 軽量で高速な実装
-- **@hono/node-server**: Node.js環境でのHono実行用アダプター
-- **@hono/zod-validator**: HonoとZodの統合ライブラリ（バリデーション処理の型安全化）
-
-**Drizzle ORM**
-
-```json
-"drizzle-orm": "0.44.6",
-"postgres": "3.4.7"
-```
-
-- **Drizzle ORM選定理由**:
-  - **vs Prisma**: より軽量、SQL-likeなAPI、完全な型安全性
-  - **vs TypeORM**: 優れた型推論、モダンなAPI設計
-  - **vs Sequelize**: TypeScript統合の質、パフォーマンス
-- **Drizzle ORMの主要特徴**:
-  - SQL-likeな直感的なクエリAPI
-  - 完全な型安全性とTypeScript統合
-  - 軽量で高速なパフォーマンス
-  - PostgreSQL完全対応
-- **postgres**: PostgreSQL用のJavaScriptクライアント
-- **データベース設計書整合性**: docs/02_technical/02_database_design.mdとの一貫性
-
-**バリデーション**
-
-```json
-"zod": "4.1.11"
-```
-
-- **zod選定理由**:
-  - **vs Joi**: TypeScript統合、型推論優位
-  - **vs Yup**: パフォーマンス、軽量性
-  - **用途**: APIリクエスト検証、環境変数検証
-- **v4.1.11採用理由**:
-  - @hono/zod-validator 0.7.3の要件（zod ^3.25.0 || ^4.0.0）を満たす
-  - 最新の型安全性改善と機能追加
-
-#### **開発依存関係（devDependencies）**
-
-**TypeScript実行**
-
-```json
-"tsx": "4.19.2"
-```
-
-- **用途**: 開発サーバー、シードスクリプト実行
-- **選定理由**: ESModules対応、高速起動、設定不要
-
-**Drizzle Kit**
-
-```json
-"drizzle-kit": "0.31.5"
-```
-
-- **用途**: Drizzle ORMのマイグレーション管理、スキーマ生成、Drizzle Studio
-- **主要機能**:
-  - **generate**: TypeScriptスキーマからSQLマイグレーション生成
-  - **migrate**: マイグレーション実行
-  - **push**: 開発環境向けのスキーマプッシュ（マイグレーションファイルなし）
-  - **studio**: ブラウザベースのDB管理UI
-
-**テストフレームワーク**
-
-```json
-"vitest": "4.0.3",
-"supertest": "7.1.4"
-```
-
-- **Vitest選定理由**:
-  - **フロントエンドとの統一**: 同一テストフレームワークによる学習コスト削減
-  - **vs Jest**: ESModules対応が容易、高速起動
-  - **モック機能**: Drizzle ORMの詳細モック
-  - **設定の安定性**: TypeScript + ESModules設定が確立
-- **Node.js対応**: サーバーサイドテストも問題なく実行可能
-
-**APIテスト**
-
-- **Hono組み込みテスト機能使用**:
-  - HonoはWeb標準の`Request`/`Response`を使用するため、`app.request()`メソッドで直接テスト可能
-  - supertestなどの外部ライブラリは不要
-  - **利点**: 追加依存関係なし、シンプルなテストコード、型安全性
-- **具体例**:
-
-  ```typescript
-  test('GET /api/people', async () => {
-    const response = await app.request('/api/people', {
-      method: 'GET',
-    })
-
-    expect(response.status).toBe(200)
-    const body = await response.json()
-    expect(body).toHaveProperty('data')
-  })
-  ```
-
-## 5. 共有ライブラリ（shared）の扱い
-
-### 5.1 package.json不要の設計判断
-
-**現在の状況**
-
-- **用途**: 型定義、共通定数、共通ユーティリティ
-- **依存関係**: 現時点で外部ライブラリ依存なし
-- **ビルド**: 当面不要（直接.tsファイル参照）
-
-**package.json不要の理由**
-
-1. **ワークスペース管理**: ルートのworkspaces設定でnode_modules共有
-2. **依存関係**: 独自の外部依存関係が現在存在しない
-3. **アクセス方法**: `@shared/*`エイリアスで直接参照
-4. **保守性**: 必要になった時点での追加が容易
-
-### 5.2 アクセス方法
-
-```typescript
-// フロントエンド・バックエンドから共通でアクセス
-import { API_ROUTES } from '@shared/constants/api-routes'
-import { PersonType } from '@shared/types/person'
-import { formatDate } from '@shared/utils/date'
-```
-
-**重要**: この設計は**保守性**と**開発効率**のバランスを重視しています。新しい依存関係追加時は、プロジェクト全体への影響を慎重に検討してください。
+> **実ファイル参照**: `apps/shared/` ディレクトリ

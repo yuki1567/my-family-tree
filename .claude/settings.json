@@ -44,5 +44,6 @@
       "Bash(npm remove:*)",
       "Bash(psql:*)"
     ]
-  }
+  },
+  "plansDirectory": "./.claude/plans"
 }

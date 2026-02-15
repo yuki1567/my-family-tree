@@ -4,380 +4,102 @@
 
 ### 1.1 データベース基本情報
 
-- **RDBMS**: PostgreSQL 18-alpine
-- **文字セット**: UTF-8
-- **照合順序**: ja_JP.UTF-8
-- **タイムゾーン**: Asia/Tokyo（JST）
-- **ORM**: Drizzle ORM 0.44.6
-- **ドライバー**: postgres 3.4.7
-- **配置場所**: `apps/backend/database/`
+| 項目 | 値 |
+|------|-----|
+| RDBMS | PostgreSQL 18-alpine |
+| 文字セット | UTF-8 |
+| 照合順序 | ja_JP.UTF-8 |
+| タイムゾーン | Asia/Tokyo（JST） |
+| ORM | Drizzle ORM |
+| ドライバー | postgres |
+| 配置場所 | `apps/backend/database/` |
 
 ### 1.2 設計原則
 
-**保守性を最優先とした設計**
+保守性を最優先とした設計：
 
 - **正規化**: 重複データの排除による一貫性確保
-- **外部キー制約**: 参照整合性による data integrity 担保
-- **一意制約**: ビジネスルールを DB 層で強制
+- **外部キー制約**: 参照整合性によるdata integrity担保
+- **一意制約**: ビジネスルールをDB層で強制
 - **論理削除**: 重要データの物理削除回避
-- **UUID 採用**: 分散環境での一意性確保
+- **UUID採用**: 分散環境での一意性確保
 - **型安全性**: 共有型定義（shared/types/）との連携
 
-### 1.3 モノレポ構成での位置づけ
+### 1.3 一元管理フロー
 
-#### Drizzle スキーマとの関係
+データベース設計書 → Drizzleスキーマ → 型定義の一方向フロー。スキーマ変更はDrizzle Kitによる段階的更新。Drizzle ORMから推論される型を利用。
 
-```typescript
-// apps/backend/database/schema/people.ts
-// このデータベース設計書を基に作成されるDrizzleスキーマ
-import { pgTable, smallint, uuid, varchar } from 'drizzle-orm/pg-core'
-
-export const people = pgTable('people', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  name: varchar('name', { length: 100 }),
-  // ...その他フィールド
-})
-
-export type Person = typeof people.$inferSelect
-export type NewPerson = typeof people.$inferInsert
-```
-
-#### 保守性の担保
-
-- **スキーマ変更**: Drizzle Kit による段階的更新
-- **型安全性**: Drizzle ORM から推論される型を利用
-- **一元管理**: データベース設計書 → Drizzle スキーマ → 型定義の一方向フロー
-- **ディレクトリ構造**: `apps/backend/database/schema/` 配下にスキーマファイルを配置
+> **実ファイル参照**: `apps/backend/database/schema/`, `apps/backend/database/client.ts`
 
 ## 2. 命名規則
 
-### 2.1 全般の命名規則
+> **コーディング規約としての命名規則**: `.claude/rules/backend/database.md` を参照
 
-#### 基本原則
+### 2.1 命名の設計理由
 
-- **大文字を使用しない**: 全て小文字で統一
-- **複数単語の連携**: スネークケース（snake_case）を使用
-- **言語**: 基本的にはローマ字ではなく、英語で命名
-- **可読性**: 略語より完全な単語を優先
+| 規則 | 理由 |
+|------|------|
+| 全て小文字・snake_case | クロスプラットフォームでの一貫性、PostgreSQLの標準慣行 |
+| テーブル名は複数形 | RESTfulリソース名との一貫性 |
+| n:n関係テーブルは `{複数形}_{複数形}` | 関係する両テーブルが明確に表現される |
+| 外部キーは `{テーブル名単数形}_id` | 参照先が明確 |
+| 時間カラムは `受動態_at/on` | 日付のみ（`_on`）と日時（`_at`）を区別 |
+| ENUM型不使用 → smallint | PostgreSQLでの拡張性とマイグレーション容易性 |
+| 略語禁止 | 可読性優先（flg/kbn等の略名は利用しない） |
 
-#### 例
+### 2.2 必須カラム
 
-```sql
--- ✅ 良い例
-user_profile, birth_date, created_at
+全テーブルに以下のカラムが必須：
 
--- ❌ 悪い例
-UserProfile, birthDate, createdAt  -- 大文字・キャメルケース
-tanjyoubi, sakusei_bi              -- ローマ字
-usr_prof, birth_dt                 -- 略語
-```
+| カラム | 型 | 理由 |
+|--------|-----|------|
+| id | UUID | グローバル一意性 |
+| created_at | TIMESTAMP(3) | 監査ログ |
+| updated_at | TIMESTAMP(3) | 変更追跡（Drizzle ORMの$onUpdateで自動更新） |
 
-### 2.2 テーブル名命名規則
+## 3. テーブル・カラム追加時の設計指針
 
-#### 基本形式
+### 3.1 データ型選択の設計理由
 
-- **単体テーブル**: 複数形の名詞（snake_case）
-- **例**: `people`, `relationships`, `users`
+| 用途 | 推奨型 | 理由 |
+|------|--------|------|
+| ID | UUID (VARCHAR(36)) | 分散環境での一意性 |
+| 短い文字列 | VARCHAR(n) | 長さ制限によるデータ品質保証 |
+| 長い文字列 | TEXT | 制限なしの自由記述 |
+| フラグ・ステータス | SMALLINT | ENUM型の代替、拡張性確保 |
+| 日付のみ | DATE | タイムゾーン影響を排除 |
+| 日時 | TIMESTAMP(3) | ミリ秒精度、PostgreSQLではON UPDATE非サポートのためアプリ層で制御 |
 
-#### n:n 関係テーブル
+### 3.2 カラム追加のベストプラクティス
 
-- **形式**: **〜s（複数形）** + "\_" + **〜s（複数形）**
-- **例**: `users_people`, `people_tags`, `groups_permissions`
-- **理由**: 関係する両テーブルが明確に表現される
+- 新規カラムはNULL許可またはDEFAULT値設定で既存データ影響を回避
+- 検索頻度の高いカラムにはインデックス追加（命名: `idx_{テーブル名}_{カラム名}`）
 
-```sql
--- ✅ 良い例
-CREATE TABLE users_people (
-  user_id VARCHAR(36),
-  person_id VARCHAR(36)
-);
+### 3.3 インデックス戦略
 
--- ❌ 悪い例
-CREATE TABLE user_person (     -- 単数形
-  user_id VARCHAR(36),
-  person_id VARCHAR(36)
-);
-```
+対象: WHERE句・ORDER BY句・JOIN句で使用するカラム
 
-### 2.3 カラム名命名規則
+## 4. データマイグレーション戦略
 
-#### 基本原則
+### 4.1 Drizzle Kitマイグレーション管理
 
-- **形式**: snake_case
-- **状態表現**: ある瞬間の状態（ステータス）を表す名前とする
-- **略名禁止**: flg/kbn などの略名は利用しない
+マイグレーションファイル命名: `{連番}_{説明的な名前}.sql`
 
-#### 必須カラム
+> **実ファイル参照**: `apps/backend/database/migrations/`, `apps/backend/database/schema/`
 
-```sql
--- 以下のカラムは必須
-id VARCHAR(36) PRIMARY KEY,           -- 主キー（UUID）
-created_at DATETIME(3) NOT NULL,      -- 作成日時
-updated_at DATETIME(3) NOT NULL       -- 更新日時
-```
+### 4.2 段階的スキーマ変更のフロー
 
-#### 外部キー
+1. スキーマファイル編集（`apps/backend/database/schema/`）
+2. マイグレーション生成（`db:generate`）
+3. 生成されたマイグレーションを確認
+4. マイグレーション実行（`db:migrate`）
 
-- **形式**: **テーブル名（単数形）\_id**
-- **例**: `user_id`, `person_id`, `parent_id`
+本番環境では自動適用ではなく手動での段階的な変更を推奨。
 
-```sql
--- ✅ 良い例
-parent_id VARCHAR(36),    -- people テーブルの id を参照
-user_id VARCHAR(36)       -- users テーブルの id を参照
-
--- ❌ 悪い例
-parents_id VARCHAR(36),   -- 複数形
-parentId VARCHAR(36)      -- キャメルケース
-```
-
-#### 時間カラム
-
-- **形式**: **受動態\_on**（日付のみ）、**受動態\_at**（日時）
-- **例**: `created_at`, `updated_at`, `deleted_at`, `published_on`
-
-```sql
--- ✅ 良い例
-created_at DATETIME(3),     -- 作成された日時
-published_on DATE,          -- 公開された日
-verified_at DATETIME(3)     -- 認証された日時
-
--- ❌ 悪い例
-create_time DATETIME(3),    -- 動詞形
-creation_date DATE          -- 名詞形
-```
-
-#### フラグ・ステータス
-
-- **ENUM 型は使用しない**: smallint を使用（PostgreSQL）
-- **命名**: is_xxx, has_xxx の形式、または状態を表す名詞
-
-```sql
--- ✅ 良い例（PostgreSQL）
-is_active SMALLINT DEFAULT 1,          -- アクティブフラグ
-status SMALLINT DEFAULT 0,             -- ステータス（0:無効, 1:有効, 2:削除済み）
-email_verified SMALLINT DEFAULT 0      -- メール認証済みフラグ
-
--- ❌ 悪い例
-active_flg SMALLINT,                   -- flgは略語
-gender ENUM('MALE', 'FEMALE')          -- ENUM型使用
-```
-
-### 2.4 インデックス名
-
-- **形式**: `idx_{テーブル名}_{カラム名}`
-- **例**: `idx_people_name`, `idx_relationships_parent_id`
-- **複合**: `idx_people_gender_birth_date`
-
-### 2.5 制約名
-
-- **一意制約**: `uk_{テーブル名}_{カラム名}`
-- **外部キー**: `fk_{参照元テーブル}_{参照先テーブル}_{カラム}`
-- **チェック制約**: `chk_{テーブル名}_{制約内容}`
-
-## 3. テーブル・カラム追加時の注意点
-
-### 3.1 データ型選択ガイド
-
-#### 文字列型
-
-```sql
--- ID（UUID）
-id VARCHAR(36) PRIMARY KEY
-
--- 短い文字列（名前、タイトル等）
-name VARCHAR(100),
-title VARCHAR(255)
-
--- 長い文字列（説明、メモ等）
-memo TEXT,
-description LONGTEXT
-
--- 固定長（コード等）
-country_code CHAR(2)  -- ISO国家コード等
-```
-
-#### 数値型
-
-```sql
--- フラグ・ステータス（PostgreSQL）
-is_active SMALLINT DEFAULT 1,
-status SMALLINT DEFAULT 0
-
--- 整数
-age SMALLINT,                -- -32768〜32767
-count INTEGER,               -- -2147483648〜2147483647
-large_number BIGINT          -- 非常に大きな数値
-
--- 小数
-price NUMERIC(10,2),         -- 金額（10桁、小数点以下2桁）
-rate REAL                    -- 割合・比率
-```
-
-#### 日時型
-
-```sql
--- 日付のみ
-birth_date DATE,
-published_on DATE
-
--- 日時（ミリ秒まで、PostgreSQL）
-created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
-
--- タイムスタンプ（自動更新はアプリケーション層で制御）
--- PostgreSQLではON UPDATE CURRENT_TIMESTAMPはサポートされていないため、
--- Drizzle ORMの$onUpdate機能を使用
-```
-
-#### フラグ・ステータスの定数定義
-
-```sql
--- フラグの場合（PostgreSQL）
-is_active SMALLINT DEFAULT 1  -- 0:無効, 1:有効
-
--- ステータスの場合（複数状態）
-status SMALLINT
--- 0:下書き, 1:公開, 2:削除済み, 3:非公開
-```
-
-### 3.2 カラム追加時のベストプラクティス
-
-#### 新規カラム追加
-
-```sql
--- ✅ 良い例：デフォルト値設定で既存データ影響なし
-ALTER TABLE people
-ADD COLUMN nickname VARCHAR(50) NULL DEFAULT NULL;
-
--- ✅ 良い例：NOT NULL制約も既存データに配慮
-ALTER TABLE people
-ADD COLUMN display_order INT UNSIGNED NOT NULL DEFAULT 0;
-```
-
-#### インデックス追加
-
-```sql
--- 検索頻度の高いカラムにはインデックス追加
-CREATE INDEX idx_people_nickname ON people(nickname);
-
--- 複合インデックスは使用頻度を考慮
-CREATE INDEX idx_people_status_created_at ON people(status, created_at);
-```
-
-### 3.3 テーブル追加時の考慮点
-
-#### 必須カラムの確認
-
-```sql
-CREATE TABLE new_table (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  -- ビジネスカラム
-  name VARCHAR(100) NOT NULL,
-  status SMALLINT DEFAULT 0,
-  -- 必須の管理カラム
-  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
--- 注: updated_atの自動更新はDrizzle ORMの$onUpdate機能で制御
-```
-
-#### 外部キー設定
-
-```sql
--- 参照整合性の確保
-CONSTRAINT fk_new_table_people_person
-  FOREIGN KEY (person_id) REFERENCES people(id) ON DELETE CASCADE
-```
-
-### 3.4 パフォーマンス考慮事項
-
-#### インデックス戦略
-
-- **検索条件**: WHERE 句で使用するカラム
-- **並び順**: ORDER BY 句で使用するカラム
-- **結合条件**: JOIN 句で使用するカラム
-
-#### 例
-
-```sql
--- よく使用される検索パターンに合わせたインデックス
-CREATE INDEX idx_people_status_birth_date ON people(status, birth_date);
-CREATE INDEX idx_relationships_parent_type ON relationships(parent_id, type);
-```
-
-## 3. データマイグレーション戦略
-
-### 3.1 Drizzle Kit マイグレーション管理
-
-#### ファイル配置
-
-```
-apps/backend/database/
-├── schema/                    # スキーマ定義
-│   ├── index.ts              # 全スキーマのエクスポート
-│   └── people.ts             # 人物テーブル定義
-├── client.ts                  # Drizzle接続設定
-├── drizzle.config.ts          # Drizzle Kit設定
-└── migrations/                # マイグレーション履歴
-    ├── 0000_initial.sql      # 初期マイグレーション
-    └── meta/                 # メタデータ
-```
-
-#### マイグレーション命名規則
-
-Drizzle Kitは自動的にマイグレーション名を生成しますが、以下の命名規則に従うことを推奨します：
-
-##### 基本形式
-
-`{連番}_{説明的な名前}.sql`
-
-##### 例
-
-- `0000_initial.sql` - 初期スキーマ作成
-- `0001_add_nickname_to_people.sql` - peopleテーブルにnicknameカラム追加
-- `0002_create_relationships_table.sql` - relationshipsテーブル作成
-
-#### Drizzle Kitコマンド
-
-```bash
-# マイグレーション生成（スキーマから自動生成）
-docker compose exec apps npm run db:generate
-
-# マイグレーション実行
-docker compose exec apps npm run db:migrate
-
-# スキーマをDBに直接反映（開発環境のみ）
-docker compose exec apps npm run db:push
-
-# Drizzle Studio起動（データ閲覧・編集）
-docker compose exec apps npm run db:studio
-```
-
-#### 段階的スキーマ変更
-
-```bash
-# 1. スキーマファイルを編集
-# apps/backend/database/schema/people.ts
-
-# 2. マイグレーション生成
-docker compose exec apps npm run db:generate
-
-# 3. 生成されたマイグレーションを確認
-# apps/backend/database/migrations/
-
-# 4. マイグレーション実行
-docker compose exec apps npm run db:migrate
-
-# 注意: 本番環境でのマイグレーション適用は慎重に検討すること
-# 自動適用ではなく、手動での段階的な変更を推奨
-```
-
-## 4. テーブル設計
+## 5. テーブル設計
 
 ### people（人物）テーブル
 
-**フィールド詳細**
 | フィールド | 型 | NULL | デフォルト | 説明 | 保守性への配慮 |
 |-----------|----|----|----------|------|---------------|
 | id | UUID | NO | gen_random_uuid() | 主キー | グローバル一意性 |
@@ -389,4 +111,4 @@ docker compose exec apps npm run db:migrate
 | created_at | TIMESTAMP(3) | NO | CURRENT_TIMESTAMP | 作成日時 | 監査ログ |
 | updated_at | TIMESTAMP(3) | NO | CURRENT_TIMESTAMP | 更新日時 | 変更追跡（$onUpdateで自動更新） |
 
-**重要**: このデータベース設計は**保守性**を最優先に設計されています。スキーマ変更時は必ず既存データへの影響を評価し、段階的な移行戦略を策定してください。
+> **実ファイル参照**: `apps/backend/database/schema/people.ts`
