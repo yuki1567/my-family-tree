@@ -67,10 +67,10 @@ export class ParameterStore {
   }
 
   private static createClient(): SSMClient {
-    const awsVault = process.env['AWS_VAULT']
-    if (!awsVault) {
+    const awsProfile = process.env['AWS_PROFILE']
+    if (!awsProfile) {
       throw new WorkflowError(
-        'AWS_VAULT環境変数が設定されていません。aws-vaultを使用してください',
+        'AWS_PROFILE環境変数が設定されていません。aws sso login を実行してください',
         'ParameterStore.createClient'
       )
     }

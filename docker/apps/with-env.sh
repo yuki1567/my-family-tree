@@ -12,27 +12,12 @@ check_required_commands() {
 }
 
 check_required_env() {
-  [[ -n "${AWS_VAULT:-}"  ]] || die "AWS_VAULTが設定されていません"
-  [[ -n "${AWS_REGION:-}" ]] || die "AWS_REGIONが設定されていません"
+  [[ -n "${APP_ENV:-}" ]] || die "APP_ENVが設定されていません"
 }
 
-judge_environment() {
-  if [[ "$AWS_VAULT" == *"-worktree-"* ]]; then
-    local issue_number="${AWS_VAULT##*-worktree-}"
-    readonly PARAM_PATH="/family-tree/worktree/${issue_number}"
-    log "環境: worktree (Issue #${issue_number})"
-  elif [[ "$AWS_VAULT" == *"-dev" ]]; then
-    readonly PARAM_PATH="/family-tree/development"
-    log "環境: development"
-  elif [[ "$AWS_VAULT" == *"-test" ]]; then
-    readonly PARAM_PATH="/family-tree/test"
-    log "環境: test"
-  elif [[ "$AWS_VAULT" == *"-prod" ]]; then
-    readonly PARAM_PATH="/family-tree/production"
-    log "環境: production"
-  else
-    die "不明なAWS_VAULT形式: $AWS_VAULT"
-  fi
+setup_param_path() {
+  readonly PARAM_PATH="/family-tree/${APP_ENV}"
+  log "環境: ${APP_ENV} (パス: ${PARAM_PATH})"
 }
 
 get_parameters() {
@@ -44,7 +29,6 @@ get_parameters() {
     response=$(aws ssm get-parameters-by-path \
       --path "$PARAM_PATH" \
       --with-decryption \
-      --region "$AWS_REGION" \
       --output json ${next:+--next-token "$next"} 2>&1) \
       || die "Parameter Store取得失敗"
 
@@ -88,7 +72,7 @@ main() {
   fi
   check_required_commands
   check_required_env
-  judge_environment
+  setup_param_path
 
   local params
   params=$(get_parameters)

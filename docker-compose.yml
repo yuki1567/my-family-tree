@@ -16,11 +16,10 @@ services:
     ports:
       - "5433:5432"
     environment:
-      - AWS_VAULT
+      - APP_ENV
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
       - AWS_SESSION_TOKEN
-      - AWS_REGION
     deploy:
       resources:
         limits:

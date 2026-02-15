@@ -19,7 +19,7 @@
     "check": "biome check .",
     "check:fix": "biome check --write .",
     "test:frontend": "npm run test --workspace=apps/frontend",
-    "test:backend": "./scripts/test-backend.sh",
+    "test:backend": "APP_ENV=test ./scripts/test-backend.sh",
     "db:generate": "docker compose exec apps npm run db:generate --workspace=apps/backend",
     "db:migrate": "docker compose exec apps with-env npm run db:migrate --workspace=apps/backend",
     "db:seed": "docker compose exec apps npm run db:seed --workspace=apps/backend",

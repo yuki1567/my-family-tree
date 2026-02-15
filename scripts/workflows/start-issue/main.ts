@@ -61,9 +61,9 @@ async function main() {
   log('📝 Step 6/6: プロンプトファイルを生成中...')
   generatePromptFile(gitHubApi, worktreeConfig, awsProfile.name)
 
-  exec(
-    `AWS_VAULT=${awsProfile.name} WEB_PORT=${worktreeConfig.webPort} API_PORT=${worktreeConfig.apiPort} code "${worktreeConfig.worktreePath}"`
-  )
+  awsProfile.generateEnvrc(worktreeConfig.worktreePath, gitHubApi.issue.number)
+
+  exec(`code "${worktreeConfig.worktreePath}"`)
 
   log('✅ start-issue処理が完了しました')
 }

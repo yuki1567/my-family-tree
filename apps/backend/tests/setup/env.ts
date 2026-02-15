@@ -27,26 +27,19 @@ async function initEnvConfig(): Promise<Config> {
 }
 
 async function loadParameterStore(): Promise<void> {
-  const awsVault = process.env['AWS_VAULT']
-  const awsRegion = process.env['AWS_REGION']
+  const appEnv = process.env['APP_ENV']
 
-  if (!awsVault) {
+  if (!appEnv) {
     throw new Error(
-      'AWS_VAULTが設定されていません。テスト実行にはParameter Storeへのアクセスが必要です。'
+      'APP_ENVが設定されていません。テスト実行にはParameter Storeへのアクセスが必要です。'
     )
   }
 
-  if (!awsRegion) {
-    throw new Error(
-      'AWS_REGIONが設定されていません。テスト実行にはParameter Storeへのアクセスが必要です。'
-    )
-  }
-
-  const paramPath = judgeEnvironment(awsVault)
+  const paramPath = `/family-tree/${appEnv}`
 
   console.log(`[Test Setup] Parameter Storeから環境変数を取得中: ${paramPath}`)
 
-  const parameters = await getParameters(paramPath, awsRegion)
+  const parameters = await getParameters(paramPath)
 
   setParameters(parameters, paramPath)
 
@@ -55,25 +48,8 @@ async function loadParameterStore(): Promise<void> {
   )
 }
 
-function judgeEnvironment(awsVault: string): string {
-  const praamPathRoot = '/family-tree'
-
-  if (awsVault.includes('-worktree-')) {
-    const issueNumber = awsVault.split('-worktree-')[1]
-    if (!issueNumber) throw new Error(`不明なworktree番号: ${awsVault}`)
-    return `${praamPathRoot}/worktree/${issueNumber}`
-  }
-
-  if (awsVault.endsWith('-dev')) return `${praamPathRoot}/development`
-  if (awsVault.endsWith('-test')) return `${praamPathRoot}/test`
-  if (awsVault.endsWith('-prod')) return `${praamPathRoot}/production`
-
-  throw new Error(`不明なAWS_VAULT形式: ${awsVault}`)
-}
-
 async function getParameters(
-  paramPath: string,
-  awsRegion: string
+  paramPath: string
 ): Promise<ReadonlyArray<SsmParameter>> {
   const maxPages = 10
   const baseArgs = [
@@ -84,8 +60,6 @@ async function getParameters(
     'json',
     '--path',
     paramPath,
-    '--region',
-    awsRegion,
   ] as const
 
   const loop = async (

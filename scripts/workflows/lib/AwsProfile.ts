@@ -9,7 +9,7 @@ import { homedir } from 'node:os'
 import path from 'node:path'
 
 import { AWS } from '../shared/constants.js'
-import type { AwsProfileConfig } from '../shared/types.js'
+import type { SsoProfileConfig } from '../shared/types.js'
 import { log } from '../shared/utils.js'
 
 import { AwsProfileError } from './WorkflowError.js'
@@ -28,12 +28,8 @@ export class AwsProfile {
       return
     }
 
-    const referenceProfile = this.findReferenceConfig()
-
-    this.appendToConfig(
-      referenceProfile.roleArn,
-      referenceProfile.sourceProfile
-    )
+    const ssoConfig = this.findReferenceSsoConfig()
+    this.appendToConfig(ssoConfig)
   }
 
   public delete(): void {
@@ -55,6 +51,25 @@ export class AwsProfile {
     writeFileSync(configPath, updatedContent, 'utf-8')
   }
 
+  public generateEnvrc(worktreePath: string, issueNumber: number): void {
+    const envrcPath = path.join(worktreePath, '.envrc')
+    const content = [
+      `export APP_ENV=worktree/${issueNumber}`,
+      `export AWS_PROFILE=${this._name}`,
+      '',
+    ].join('\n')
+
+    writeFileSync(envrcPath, content, 'utf-8')
+
+    try {
+      execSync('direnv allow', { cwd: worktreePath, encoding: 'utf-8' })
+    } catch {
+      log(
+        '⚠️ direnv allow に失敗しました。手動で direnv allow を実行してください'
+      )
+    }
+  }
+
   private exists(configContent: string): boolean {
     return configContent.includes(`[profile ${this._name}]`)
   }
@@ -71,35 +86,42 @@ export class AwsProfile {
     return readFileSync(configPath, 'utf-8')
   }
 
-  private findReferenceConfig(): AwsProfileConfig {
-    const roleArn = this.getRoleArn(AWS.PROFILE.REFERENCE_PROFILE)
-    return { roleArn, sourceProfile: 'default' }
-  }
-
-  private getRoleArn(profile: string): string {
-    try {
-      const result = execSync(`aws configure get profile.${profile}.role_arn`, {
-        encoding: 'utf-8',
-      })
-      const roleArn = result.trim()
-
-      if (!roleArn) {
-        throw new AwsProfileError(profile, 'role_arn', 'AwsProfile.getRoleArn')
-      }
-
-      return roleArn
-    } catch {
-      throw new AwsProfileError(profile, 'role_arn', 'AwsProfile.getRoleArn')
+  private findReferenceSsoConfig(): SsoProfileConfig {
+    const ref = AWS.PROFILE.REFERENCE_PROFILE
+    return {
+      ssoSession: this.getConfigValue(ref, 'sso_session'),
+      ssoAccountId: this.getConfigValue(ref, 'sso_account_id'),
+      ssoRoleName: this.getConfigValue(ref, 'sso_role_name'),
+      region: this.getConfigValue(ref, 'region'),
     }
   }
 
-  private appendToConfig(roleArn: string, sourceProfile: string): void {
+  private getConfigValue(profile: string, key: string): string {
+    try {
+      const result = execSync(`aws configure get profile.${profile}.${key}`, {
+        encoding: 'utf-8',
+      })
+      const value = result.trim()
+
+      if (!value) {
+        throw new AwsProfileError(profile, key, 'AwsProfile.getConfigValue')
+      }
+
+      return value
+    } catch {
+      throw new AwsProfileError(profile, key, 'AwsProfile.getConfigValue')
+    }
+  }
+
+  private appendToConfig(ssoConfig: SsoProfileConfig): void {
     const configPath = this.getConfigPath()
     const profileLines = [
       '',
       `[profile ${this._name}]`,
-      `role_arn = ${roleArn}`,
-      `source_profile = ${sourceProfile}`,
+      `sso_session = ${ssoConfig.ssoSession}`,
+      `sso_account_id = ${ssoConfig.ssoAccountId}`,
+      `sso_role_name = ${ssoConfig.ssoRoleName}`,
+      `region = ${ssoConfig.region}`,
       '',
     ]
 

@@ -75,9 +75,11 @@ export type Issue = {
   projectItemId: string
 }
 
-export type AwsProfileConfig = {
-  roleArn: string
-  sourceProfile: string
+export type SsoProfileConfig = {
+  ssoSession: string
+  ssoAccountId: string
+  ssoRoleName: string
+  region: string
 }
 
 export type GitHubStatusIds = {

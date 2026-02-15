@@ -40,16 +40,12 @@ export class GitHubGraphQLError extends GitHubApiError {
 }
 
 export class AwsProfileError extends WorkflowError {
-  constructor(
-    profileName: string,
-    configType: 'config_file' | 'role_arn',
-    step: string
-  ) {
-    const messages = {
-      config_file: 'AWS config ファイルが見つかりません (~/.aws/config)',
-      role_arn: `AWS profile "${profileName}" の role_arn が見つかりません`,
-    }
-    super(messages[configType], step)
+  constructor(profileName: string, configKey: string, step: string) {
+    const message =
+      configKey === 'config_file'
+        ? 'AWS config ファイルが見つかりません (~/.aws/config)'
+        : `AWS profile "${profileName}" の ${configKey} が見つかりません`
+    super(message, step)
     this.name = 'AwsProfileError'
   }
 }

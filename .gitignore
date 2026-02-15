@@ -24,6 +24,8 @@ coverage/
 # ローカル開発用の.envファイルは最小限の設定のみ含みます
 .env
 .env.*
+# direnv（環境ごとに値が異なるため除外。テンプレートは .envrc.example）
+.envrc
 
 # ==============================================
 # Docker Compose Override Files
