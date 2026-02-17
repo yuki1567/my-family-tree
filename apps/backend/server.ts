@@ -2,10 +2,26 @@ import { serve } from '@hono/node-server'
 import { createApp } from '@/app.js'
 import { peopleRoutes } from '@/routes/peopleRoute.js'
 
-export function startServer(): void {
+function buildApp() {
   const app = createApp()
 
-  app.route('/api', peopleRoutes)
+  const routes = app.route('/api', peopleRoutes)
+
+  app.doc('/api/openapi.json', {
+    openapi: '3.0.0',
+    info: {
+      title: 'Family Tree API',
+      version: '1.0.0',
+    },
+  })
+
+  return routes
+}
+
+export type AppType = ReturnType<typeof buildApp>
+
+export function startServer(): void {
+  const app = buildApp()
 
   const port = 4000
 
