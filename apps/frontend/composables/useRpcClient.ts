@@ -1,4 +1,4 @@
-import type { AppType } from '@backend/server.js'
+import type { AppType } from '@backend/app.js'
 import { hc } from 'hono/client'
 
 export const useRpcClient = () => {
