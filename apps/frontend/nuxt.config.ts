@@ -26,6 +26,7 @@ export default defineNuxtConfig({
     resolve: {
       alias: {
         '@shared': fileURLToPath(new URL('../shared', import.meta.url)),
+        '@backend': fileURLToPath(new URL('../backend', import.meta.url)),
       },
       preserveSymlinks: true,
     },

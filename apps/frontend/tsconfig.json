@@ -10,8 +10,9 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@shared/*": ["../../apps/shared/*"]
+      "@/*": ["./*", "../../apps/backend/*"],
+      "@shared/*": ["../../apps/shared/*"],
+      "@backend/*": ["../../apps/backend/*"]
     }
   },
   "include": ["./**/*.ts", "./**/*.vue", ".nuxt/types/**/*.d.ts"]
