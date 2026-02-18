@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 import type { GitHubApi } from 'scripts/workflows/lib/GitHubApi.js'
@@ -12,7 +12,7 @@ export function generatePromptFile(
   awsProfileName: string
 ): void {
   const templatePath = path.join(PROJECT_ROOT, FILES.PROMPT.TEMPLATE)
-  const outputPath = path.join(PROJECT_ROOT, FILES.PROMPT.OUTPUT)
+  const outputPath = path.join(config.worktreePath, FILES.PROMPT.OUTPUT)
   const template = readFileSync(templatePath, 'utf-8')
 
   const prompt = template
@@ -27,5 +27,6 @@ export function generatePromptFile(
     .replace(/\{\{STATUS_FIELD_ID\}\}/g, githubApi.statusFieldId)
     .replace(/\{\{IN_REVIEW_STATUS_ID\}\}/g, githubApi.statusIds.inReview)
 
+  mkdirSync(path.dirname(outputPath), { recursive: true })
   writeFileSync(outputPath, prompt, 'utf-8')
 }

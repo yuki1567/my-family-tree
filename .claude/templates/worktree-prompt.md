@@ -65,7 +65,7 @@ gh issue comment {{ISSUE_NUMBER}} --body "## 実装計画
 npm install
 
 # STEP2: appsコンテナ起動（必須）
-aws-vault exec {{AWS_PROFILE_NAME}} -- docker compose up -d apps
+docker compose up -d apps
 
 # STEP3: マイグレーション実行（必須）
 npm run db:generate
