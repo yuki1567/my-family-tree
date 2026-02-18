@@ -1,7 +1,7 @@
-import { createRoute, OpenAPIHono, z } from '@hono/zod-openapi'
+import { createRoute, OpenAPIHono } from '@hono/zod-openapi'
 import {
   CreatePersonRequestSchema,
-  PersonResponseSchema,
+  CreatePersonResponseSchema,
 } from '@shared/api/persons.js'
 import { PersonRepository } from '@/repositories/personRepository.js'
 import { PersonService } from '@/services/personService.js'
@@ -25,9 +25,7 @@ const createPersonRoute = createRoute({
     201: {
       content: {
         'application/json': {
-          schema: z.object({
-            data: PersonResponseSchema,
-          }),
+          schema: CreatePersonResponseSchema,
         },
       },
       description: '人物作成成功',
