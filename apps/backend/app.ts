@@ -1,6 +1,8 @@
 import { OpenAPIHono } from '@hono/zod-openapi'
-import type { ApiErrorResponse, ErrorDetail } from '@shared/api/common.js'
-import { errorHandler } from '@/middlewares/errorHandler.js'
+import {
+  errorHandler,
+  validationErrorResponse,
+} from '@/middlewares/errorHandler.js'
 import { peopleRoutes } from '@/routes/peopleRoute.js'
 
 export function buildApp() {
@@ -24,28 +26,8 @@ export type AppType = ReturnType<typeof buildApp>
 export function createApp() {
   const app = new OpenAPIHono({
     defaultHook: (result, c) => {
-      if (result.success) {
-        return
-      }
-
-      const details = result.error.issues.map(
-        (issue) =>
-          ({
-            field: issue.path.join('.'),
-            code: issue.message,
-          }) satisfies ErrorDetail
-      )
-
-      return c.json(
-        {
-          error: {
-            statusCode: 400,
-            errorCode: 'VALIDATION_ERROR',
-            details,
-          },
-        } satisfies ApiErrorResponse,
-        400
-      )
+      if (result.success) return
+      return validationErrorResponse(c, result.error.issues)
     },
   })
 
