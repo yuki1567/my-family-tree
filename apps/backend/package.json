@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@hono/node-server": "1.19.5",
-    "@hono/zod-validator": "0.7.3",
+    "@hono/zod-openapi": "1.2.2",
     "drizzle-orm": "0.44.6",
     "hono": "4.11.9",
     "postgres": "3.4.7",

@@ -119,7 +119,6 @@ describe('apiErrorHandler', () => {
         status: 400,
         response: {
           error: {
-            statusCode: 400,
             errorCode: 'VALIDATION_ERROR',
           },
         },
@@ -137,7 +136,6 @@ describe('apiErrorHandler', () => {
         status: 400,
         response: {
           error: {
-            statusCode: 400,
             errorCode: 'VALIDATION_ERROR',
             details: [
               { field: 'name', code: 'NAME_TOO_LONG' },
@@ -240,7 +238,6 @@ describe('apiErrorHandler', () => {
         status: 500,
         response: {
           error: {
-            statusCode: 500,
             errorCode: 'INTERNAL_ERROR',
           },
         },

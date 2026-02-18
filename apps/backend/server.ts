@@ -1,11 +1,8 @@
 import { serve } from '@hono/node-server'
-import { createApp } from '@/app.js'
-import { peopleRoutes } from '@/routes/peopleRoute.js'
+import { buildApp } from '@/app.js'
 
-export function startServer(): void {
-  const app = createApp()
-
-  app.route('/api', peopleRoutes)
+function startServer(): void {
+  const app = buildApp()
 
   const port = 4000
 

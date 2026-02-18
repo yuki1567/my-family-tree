@@ -1,9 +1,7 @@
 import type { ErrorResponse } from '@shared/api/common'
 import { ApiErrorResponseSchema } from '@shared/api/common'
-import { CreatePersonResponseSchema } from '@shared/api/persons'
 import type { Person, PersonForm } from '@/types/person'
-
-import { useApi } from './useApi'
+import { useRpcClient } from './useRpcClient'
 
 const convertGenderToNumber = (
   gender: 'male' | 'female' | 'unknown'
@@ -22,6 +20,8 @@ const convertGenderToString = (
 }
 
 export const usePersonApi = () => {
+  const client = useRpcClient()
+
   const createPerson = async (
     formData: PersonForm
   ): Promise<{ data: Person } | { error: ErrorResponse }> => {
@@ -30,33 +30,38 @@ export const usePersonApi = () => {
       gender: convertGenderToNumber(formData.gender),
     }
 
-    const response = await useApi('/api/people', {
-      method: 'POST',
-      body: requestBody,
-    })
+    try {
+      const response = await client.api.people.$post({
+        json: requestBody,
+      })
 
-    const successResult = CreatePersonResponseSchema.safeParse(response)
-    if (successResult.success) {
-      const { data: personResponse } = successResult.data
+      if (!response.ok) {
+        const errorBody = await response.json()
+        const errorResult = ApiErrorResponseSchema.safeParse(errorBody)
+        if (errorResult.success) {
+          return { error: errorResult.data.error }
+        }
+
+        return {
+          error: {
+            errorCode: 'UNKNOWN_ERROR',
+          },
+        }
+      }
+
+      const body = await response.json()
       return {
         data: {
-          ...personResponse,
-          gender: convertGenderToString(personResponse.gender),
+          ...body.data,
+          gender: convertGenderToString(body.data.gender),
         },
       }
-    }
-
-    const errorResult = ApiErrorResponseSchema.safeParse(response)
-    if (errorResult.success) {
-      const { error: errorResponse } = errorResult.data
-      return { error: errorResponse }
-    }
-
-    return {
-      error: {
-        statusCode: 500,
-        errorCode: 'UNKNOWN_ERROR',
-      },
+    } catch {
+      return {
+        error: {
+          errorCode: 'UNKNOWN_ERROR',
+        },
+      }
     }
   }
 
