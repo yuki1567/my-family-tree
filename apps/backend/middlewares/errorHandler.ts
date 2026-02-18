@@ -1,6 +1,8 @@
 import type {
   ApiErrorResponse,
   ErrorDetail,
+  ErrorResponse,
+  HttpStatusCode,
 } from '@shared/api/common.js'
 import type { Context } from 'hono'
 import postgres from 'postgres'
@@ -18,53 +20,37 @@ export function validationErrorResponse(
       }) satisfies ErrorDetail
   )
 
-  return c.json(
-    {
-      error: {
-        statusCode: 400,
-        errorCode: 'VALIDATION_ERROR',
-        details,
-      },
-    } satisfies ApiErrorResponse,
-    400
-  )
+  return createErrorResponse(c, 400, {
+    errorCode: 'VALIDATION_ERROR',
+    details,
+  })
 }
 
 export function errorHandler(err: Error, c: Context): Response {
-  if (err instanceof postgres.PostgresError) {
-    // biome-ignore lint/suspicious/noConsole: DBエラーのログ出力は運用監視上必要
-    console.error('Database error:', err)
-
-    return c.json({
-      error: {
-        statusCode: 500,
-        errorCode: 'DATABASE_ERROR',
-        details: [],
-      },
-    } satisfies ApiErrorResponse)
-  }
+  // biome-ignore lint/suspicious/noConsole: エラーログの出力は運用監視上必要
+  console.error(err)
 
   if (err instanceof AppError) {
-    // biome-ignore lint/suspicious/noConsole: アプリケーションエラーのログ出力は運用監視上必要
-    console.error('Application error:', err)
-
-    return c.json({
-      error: {
-        statusCode: err.statusCode,
-        errorCode: err.errorCode,
-        details: [],
-      },
-    } satisfies ApiErrorResponse)
+    return createErrorResponse(c, err.statusCode, {
+      errorCode: err.errorCode,
+    })
   }
 
-  // biome-ignore lint/suspicious/noConsole: 未知のエラーのログ出力は運用監視上必要
-  console.error('UNKNOWN_ERROR:', err)
+  if (err instanceof postgres.PostgresError) {
+    return createErrorResponse(c, 500, {
+      errorCode: 'DATABASE_ERROR',
+    })
+  }
 
-  return c.json({
-    error: {
-      statusCode: 500,
-      errorCode: 'UNKNOWN_ERROR',
-      details: [],
-    },
-  } satisfies ApiErrorResponse)
+  return createErrorResponse(c, 500, {
+    errorCode: 'UNKNOWN_ERROR',
+  })
+}
+
+function createErrorResponse(
+  c: Context,
+  statusCode: HttpStatusCode,
+  error: ErrorResponse
+): Response {
+  return c.json({ error } satisfies ApiErrorResponse, statusCode)
 }

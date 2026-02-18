@@ -42,7 +42,6 @@ export const ErrorDetailSchema = z.object({
 export type ErrorDetail = z.infer<typeof ErrorDetailSchema>
 
 export const ErrorResponseSchema = z.object({
-  statusCode: HttpStatusCodeSchema,
   errorCode: ErrorCodeSchema,
   details: z.array(ErrorDetailSchema).optional(),
 })

@@ -44,7 +44,6 @@ export const usePersonApi = () => {
 
         return {
           error: {
-            statusCode: 500,
             errorCode: 'UNKNOWN_ERROR',
           },
         }
@@ -60,7 +59,6 @@ export const usePersonApi = () => {
     } catch {
       return {
         error: {
-          statusCode: 500,
           errorCode: 'UNKNOWN_ERROR',
         },
       }
