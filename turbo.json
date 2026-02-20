@@ -1,0 +1,33 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".output/**", ".nuxt/**"]
+    },
+    "type-check": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "check": {
+      "outputs": []
+    },
+    "test:unit": {
+      "outputs": [],
+      "env": ["APP_ENV", "DATABASE_URL", "DATABASE_ADMIN_URL"]
+    },
+    "test:integration": {
+      "cache": false,
+      "outputs": [],
+      "env": ["APP_ENV", "DATABASE_URL", "DATABASE_ADMIN_URL"]
+    },
+    "quality": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}
