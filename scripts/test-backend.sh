@@ -13,10 +13,10 @@ cleanup() {
 trap cleanup EXIT TERM
 
 # Unit Testをホスト環境で実行
-npm run test:unit --workspace=apps/backend
+pnpm --filter @family-tree-app/backend test:unit
 
 # Test DBコンテナを起動
 docker compose --profile test up -d --force-recreate test-db
 
 # Integration Testをホスト環境で実行
-npm run test:integration --workspace=apps/backend
+pnpm --filter @family-tree-app/backend test:integration

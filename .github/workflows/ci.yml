@@ -27,14 +27,19 @@ jobs:
           aws-region: ap-northeast-1
           role-session-name: github-actions-ci-session
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: "npm"
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build Docker images
         run: |
@@ -43,16 +48,11 @@ jobs:
       - name: Start Docker containers
         run: docker compose up -d apps
 
-      - name: Run quality checks, builds, and tests in parallel
-        run: |
-          npm run check &
-          npm run type-check:frontend &
-          npm run type-check:backend &
-          npm run build:frontend &
-          npm run build:backend &
-          npm run test:frontend &
-          npm run test:backend &
-          wait
+      - name: Run quality checks and builds
+        run: pnpm turbo run build type-check check test:unit
+
+      - name: Run backend integration tests
+        run: APP_ENV=test ./scripts/test-backend.sh
 
       - name: Stop Docker containers
         if: always()
