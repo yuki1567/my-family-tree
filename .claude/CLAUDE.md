@@ -39,6 +39,7 @@ Claude must read actual source files for implementation patterns, NOT code examp
 - **Configuration** (always read directly): `package.json`, `tsconfig.json`, `biome.json`, `docker-compose.yml`, `ecosystem.config.cjs`
 - **Code patterns** (read source): `apps/backend/{routes,services,repositories}/`, `apps/backend/database/schema/`, `apps/shared/`, `apps/frontend/components/`, `apps/*/tests/`
 - **Design rationale** (WHY only): `docs/` - written in Japanese, translate internally for understanding
+- **External library docs**: Use context7 MCP (`mcp__context7__resolve-library-id` → `mcp__context7__query-docs`) BEFORE relying on internal knowledge when researching APIs, options, or version-specific behavior of npm packages (Nuxt.js, Hono, Drizzle ORM, Zod, Vue.js, etc.)
 
 ### Priority Order for Implementation
 
