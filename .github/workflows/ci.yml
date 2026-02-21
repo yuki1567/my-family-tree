@@ -30,7 +30,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 9.14.4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -49,9 +49,12 @@ jobs:
         run: docker compose up -d apps
 
       - name: Run quality checks and builds
-        run: pnpm turbo run build type-check check test:unit
+        run: pnpm turbo run build type-check check
 
-      - name: Run backend integration tests
+      - name: Run frontend tests
+        run: pnpm --filter @family-tree-app/frontend test
+
+      - name: Run backend tests
         run: APP_ENV=test ./scripts/test-backend.sh
 
       - name: Stop Docker containers
