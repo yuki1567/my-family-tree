@@ -39,3 +39,4 @@ docker-compose.override.yml
 .claude/settings.local.json
 .claude/tmp/
 .claude/plans/
+.mcp.json

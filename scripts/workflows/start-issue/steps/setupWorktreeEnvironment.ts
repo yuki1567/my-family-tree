@@ -1,4 +1,4 @@
-import { copyFileSync } from 'node:fs'
+import { copyFileSync, symlinkSync } from 'node:fs'
 import path from 'node:path'
 
 import { ParameterStore } from 'scripts/workflows/lib/ParameterStore.js'
@@ -26,6 +26,10 @@ export async function setupWorktreeEnvironment(
     FILES.CLAUDE_LOCAL_SETTINGS
   )
   copyFileSync(srcClaudeLocalSettings, dstClaudeLocalSettings)
+
+  const srcMcpJson = path.join(PROJECT_ROOT, FILES.MCP_JSON)
+  const dstMcpJson = path.join(worktreeConfig.worktreePath, FILES.MCP_JSON)
+  symlinkSync(srcMcpJson, dstMcpJson)
 
   const KEYS = WORKTREE_PARAMETERS.KEYS
   const worktreeParameters = {

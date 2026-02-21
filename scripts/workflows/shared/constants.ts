@@ -21,6 +21,7 @@ export const AWS = {
 
 export const FILES = {
   CLAUDE_LOCAL_SETTINGS: '.claude/settings.local.json',
+  MCP_JSON: '.mcp.json',
   PROMPT: {
     TEMPLATE: '.claude/templates/worktree-prompt.md',
     OUTPUT: '.claude/tmp/generated-worktree-prompt.md',
