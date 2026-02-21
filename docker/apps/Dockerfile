@@ -10,7 +10,7 @@ WORKDIR /usr/src
 RUN npm install -g pnpm@9.14.4
 
 # モノレポ対応:依存関係定義ファイルのコピー
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY apps/frontend/package.json ./apps/frontend/
 COPY apps/backend/package.json ./apps/backend/
 COPY apps/shared/package.json ./apps/shared/
@@ -83,7 +83,6 @@ RUN mkdir -p /apps/logs && chown -R node:node /apps/logs
 COPY --from=builder /usr/src/package.json ./
 COPY --from=builder /usr/src/pnpm-workspace.yaml ./
 COPY --from=builder /usr/src/pnpm-lock.yaml ./
-COPY --from=builder /usr/src/.npmrc ./
 COPY --from=builder /usr/src/tsconfig*.json ./
 COPY --from=builder /usr/src/biome.json ./
 COPY --from=builder /usr/src/turbo.json ./
