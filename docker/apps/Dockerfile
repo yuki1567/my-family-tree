@@ -23,6 +23,9 @@ COPY apps/backend/tsconfig*.json ./apps/backend/
 # Biome設定ファイルのコピー
 COPY biome.json ./
 
+# Turborepo設定ファイルのコピー
+COPY turbo.json ./
+
 # 全依存関係インストール
 RUN pnpm install --frozen-lockfile
 
@@ -83,12 +86,13 @@ COPY --from=builder /usr/src/pnpm-lock.yaml ./
 COPY --from=builder /usr/src/.npmrc ./
 COPY --from=builder /usr/src/tsconfig*.json ./
 COPY --from=builder /usr/src/biome.json ./
+COPY --from=builder /usr/src/turbo.json ./
 
 COPY --from=builder /usr/src/apps/shared ./apps/shared/
 
 # 本番環境の場合は開発用設定ファイルを削除
 RUN if [ "$BUILD_ENV" = "production" ]; then \
-    rm -f tsconfig*.json biome.json && \
+    rm -f tsconfig*.json biome.json turbo.json && \
     rm -rf ./apps/shared; \
     fi
 
