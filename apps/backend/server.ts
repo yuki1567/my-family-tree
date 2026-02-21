@@ -1,5 +1,5 @@
 import { serve } from '@hono/node-server'
-import { buildApp } from '@/app.js'
+import { buildApp } from './app.js'
 
 function startServer(): void {
   const app = buildApp()

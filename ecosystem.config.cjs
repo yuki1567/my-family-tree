@@ -3,7 +3,7 @@ module.exports = {
     {
       name: 'frontend-dev',
       cwd: '/usr/src',
-      script: 'npm',
+      script: 'pnpm',
       args: 'run dev:frontend',
       watch: false,
       error_file: '/apps/logs/frontend-error.log',
@@ -12,7 +12,7 @@ module.exports = {
     },
     {
       name: 'backend-dev',
-      script: 'npm',
+      script: 'pnpm',
       args: 'run dev:backend',
       cwd: '/usr/src',
       watch: ['apps/backend'],

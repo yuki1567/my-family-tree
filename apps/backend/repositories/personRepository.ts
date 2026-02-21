@@ -2,9 +2,9 @@ import type {
   CreatePersonRequest,
   PersonResponse,
 } from '@shared/api/persons.js'
-import { db } from '@/database/client.js'
-import { people } from '@/database/schema.js'
-import { DatabaseError } from '@/errors/AppError.js'
+import { db } from '../database/client.js'
+import { people } from '../database/schema.js'
+import { DatabaseError } from '../errors/AppError.js'
 
 export class PersonRepository {
   public async create(data: CreatePersonRequest): Promise<PersonResponse> {

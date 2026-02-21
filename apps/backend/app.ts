@@ -2,8 +2,8 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import {
   errorHandler,
   validationErrorResponse,
-} from '@/middlewares/errorHandler.js'
-import { peopleRoutes } from '@/routes/peopleRoute.js'
+} from './middlewares/errorHandler.js'
+import { peopleRoutes } from './routes/peopleRoute.js'
 
 export function buildApp() {
   const app = createApp()

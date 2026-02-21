@@ -3,8 +3,8 @@ import {
   CreatePersonRequestSchema,
   CreatePersonResponseSchema,
 } from '@shared/api/persons.js'
-import { PersonRepository } from '@/repositories/personRepository.js'
-import { PersonService } from '@/services/personService.js'
+import { PersonRepository } from '../repositories/personRepository.js'
+import { PersonService } from '../services/personService.js'
 
 const personRepository = new PersonRepository()
 const personService = new PersonService(personRepository)

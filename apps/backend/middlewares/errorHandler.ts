@@ -6,7 +6,7 @@ import type {
 } from '@shared/api/common.js'
 import type { Context } from 'hono'
 import postgres from 'postgres'
-import { AppError } from '@/errors/AppError.js'
+import { AppError } from '../errors/AppError.js'
 
 export function validationErrorResponse(
   c: Context,

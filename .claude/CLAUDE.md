@@ -26,6 +26,8 @@
 - **Frontend**: Nuxt.js v3 + TypeScript + vanilla CSS
 - **Backend**: Hono + Drizzle ORM + PostgreSQL
 - **Shared**: `apps/shared/` - Shared types and API schemas (Zod)
+- **Package Manager**: pnpm (workspace management via `pnpm-workspace.yaml`)
+- **Build System**: Turborepo (task caching and dependency-based parallel execution)
 - **Environment**: Docker + Docker Compose (for development commands)
 - **TypeScript**: Strict mode required
 - **Validation**: Zod (shared between frontend and backend)
@@ -53,7 +55,9 @@ Claude must read actual source files for implementation patterns, NOT code examp
 
 ### Command Execution Rules
 
-- **Development commands** (npm, drizzle-kit, etc.): `docker compose exec apps [command]`
+- **Development commands** (pnpm, drizzle-kit, etc.): `docker compose exec apps [command]`
+- **Workspace-specific commands**: `docker compose exec apps pnpm --filter @family-tree-app/[frontend|backend] [script]`
+- **Monorepo-wide tasks**: `docker compose exec apps pnpm turbo run [task]`
 
 ## Development Workflow (Mandatory)
 
