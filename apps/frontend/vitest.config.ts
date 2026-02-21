@@ -11,6 +11,7 @@ export default defineConfig({
     include: ['tests/**/*.{test,spec}.{js,ts,vue}'],
   },
   resolve: {
+    dedupe: ['vue', '@vue/runtime-core', '@vue/runtime-dom', '@vue/reactivity'],
     alias: {
       '@': resolve(__dirname, '.'),
     },
