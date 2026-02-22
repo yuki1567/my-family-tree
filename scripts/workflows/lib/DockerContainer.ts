@@ -50,6 +50,24 @@ export class DockerContainer {
     }
   }
 
+  public static cleanupTestDbImage(): void {
+    const imageIds = execSync(
+      "docker images -q --filter reference='*-test-db'",
+      { encoding: 'utf-8' }
+    ).trim()
+
+    if (!imageIds) {
+      log('ℹ️ test-dbイメージは既に存在しません')
+      return
+    }
+
+    execSync(
+      `docker rmi ${imageIds.split('\n').filter(Boolean).join(' ')}`,
+      { stdio: 'pipe' }
+    )
+    log('✅ test-dbイメージを削除しました')
+  }
+
   public createDatabase(dbName: string, adminPassword: string): void {
     if (this.isDatabasePresent(dbName, adminPassword)) {
       log(`ℹ️ Database already exists: ${dbName}`)
