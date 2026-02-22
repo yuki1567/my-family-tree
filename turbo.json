@@ -1,9 +1,6 @@
 {
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
       "outputs": [
         "dist/**",
         ".output/**",
@@ -11,33 +8,16 @@
       ]
     },
     "type-check": {
-      "dependsOn": [
-        "^build"
-      ],
       "outputs": []
     },
-    "check": {
+    "lint": {
       "outputs": []
     },
     "test:unit": {
-      "outputs": [],
-      "env": [
-        "APP_ENV"
-      ]
+      "outputs": []
     },
     "test:integration": {
       "cache": false,
-      "outputs": [],
-      "env": [
-        "APP_ENV",
-        "DATABASE_URL",
-        "DATABASE_ADMIN_URL"
-      ]
-    },
-    "quality": {
-      "dependsOn": [
-        "^build"
-      ],
       "outputs": []
     },
     "dev": {

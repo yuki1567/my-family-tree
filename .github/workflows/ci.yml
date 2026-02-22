@@ -30,7 +30,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.14.4
+          version: 10.30.1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -49,7 +49,7 @@ jobs:
         run: docker compose up -d apps
 
       - name: Run quality checks and builds
-        run: pnpm turbo run build type-check check
+        run: pnpm turbo run build type-check lint
 
       - name: Run frontend tests
         run: pnpm --filter @family-tree-app/frontend test

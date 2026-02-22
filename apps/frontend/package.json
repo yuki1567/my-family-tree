@@ -10,13 +10,12 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "type-check": "vue-tsc --noEmit",
-    "check": "biome check .",
-    "check:fix": "biome check --write .",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "test": "vitest run",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
-    "test:watch": "vitest watch tests/unit",
-    "quality": "pnpm run type-check && pnpm run check && pnpm run test:unit"
+    "test:watch": "vitest watch tests/unit"
   },
   "dependencies": {
     "@heroicons/vue": "2.2.0",
