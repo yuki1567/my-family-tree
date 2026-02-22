@@ -15,4 +15,5 @@ export async function cleanupInfrastructure(
   )
 
   dockerContainer.cleanup()
+  DockerContainer.cleanupTestDbImage()
 }
