@@ -61,10 +61,23 @@ export class DockerContainer {
       return
     }
 
-    execSync(
-      `docker rmi ${imageIds.split('\n').filter(Boolean).join(' ')}`,
-      { stdio: 'pipe' }
-    )
+    const ids = imageIds.split('\n').filter(Boolean)
+
+    for (const imageId of ids) {
+      const containerIds = execSync(
+        `docker ps -aq --filter ancestor=${imageId}`,
+        { encoding: 'utf-8' }
+      ).trim()
+
+      if (containerIds) {
+        execSync(
+          `docker rm -f ${containerIds.split('\n').filter(Boolean).join(' ')}`,
+          { stdio: 'pipe' }
+        )
+      }
+    }
+
+    execSync(`docker rmi ${ids.join(' ')}`, { stdio: 'pipe' })
     log('✅ test-dbイメージを削除しました')
   }
 
