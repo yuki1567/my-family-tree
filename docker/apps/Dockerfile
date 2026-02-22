@@ -7,12 +7,13 @@ ARG BUILD_ENV=production
 
 WORKDIR /usr/src
 
-RUN npm install -g npm@10.9.3
+RUN npm install -g pnpm@9.14.4
 
 # モノレポ対応:依存関係定義ファイルのコピー
-COPY package*.json ./
-COPY apps/frontend/package*.json ./apps/frontend/
-COPY apps/backend/package*.json ./apps/backend/
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY apps/frontend/package.json ./apps/frontend/
+COPY apps/backend/package.json ./apps/backend/
+COPY apps/shared/package.json ./apps/shared/
 
 # TypeScript設定ファイルのコピー
 COPY tsconfig*.json ./
@@ -22,8 +23,11 @@ COPY apps/backend/tsconfig*.json ./apps/backend/
 # Biome設定ファイルのコピー
 COPY biome.json ./
 
+# Turborepo設定ファイルのコピー
+COPY turbo.json ./
+
 # 全依存関係インストール
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 # ソースコードのコピー
 COPY apps/shared ./apps/shared
@@ -32,13 +36,13 @@ COPY apps/frontend ./apps/frontend
 
 # 本番環境の場合のみビルド実行
 RUN if [ "$BUILD_ENV" = "production" ]; then \
-    cd apps/backend && npm run build && \
-    cd ../frontend && npm run build; \
+    pnpm --filter @family-tree-app/backend build && \
+    pnpm --filter @family-tree-app/frontend build; \
     fi
 
 # 本番環境の場合のみdevDependenciesを削除
 RUN if [ "$BUILD_ENV" = "production" ]; then \
-    npm prune --omit=dev --workspaces; \
+    pnpm prune --prod; \
     fi
 
 # ============================================================
@@ -68,25 +72,31 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv
 # PM2をグローバルインストール
 RUN npm install -g pm2@6.0.8
 
+# pnpmをグローバルインストール
+RUN npm install -g pnpm@9.14.4
+
 # ログディレクトリ作成
 RUN mkdir -p /apps/logs && chown -R node:node /apps/logs
 
 # 開発環境: ソースコード全体をコピー
 # 本番環境: ビルド成果物のみをコピー
-COPY --from=builder /usr/src/package*.json ./
+COPY --from=builder /usr/src/package.json ./
+COPY --from=builder /usr/src/pnpm-workspace.yaml ./
+COPY --from=builder /usr/src/pnpm-lock.yaml ./
 COPY --from=builder /usr/src/tsconfig*.json ./
 COPY --from=builder /usr/src/biome.json ./
+COPY --from=builder /usr/src/turbo.json ./
 
 COPY --from=builder /usr/src/apps/shared ./apps/shared/
 
 # 本番環境の場合は開発用設定ファイルを削除
 RUN if [ "$BUILD_ENV" = "production" ]; then \
-    rm -f tsconfig*.json biome.json && \
+    rm -f tsconfig*.json biome.json turbo.json && \
     rm -rf ./apps/shared; \
     fi
 
 # バックエンドのコピー
-COPY --from=builder /usr/src/apps/backend/package*.json ./apps/backend/
+COPY --from=builder /usr/src/apps/backend/package.json ./apps/backend/
 COPY --from=builder /usr/src/apps/backend/tsconfig*.json ./apps/backend/
 COPY --from=builder /usr/src/apps/backend ./apps/backend/
 
@@ -99,7 +109,7 @@ RUN if [ "$BUILD_ENV" = "production" ]; then \
     fi
 
 # フロントエンドのコピー
-COPY --from=builder /usr/src/apps/frontend/package*.json ./apps/frontend/
+COPY --from=builder /usr/src/apps/frontend/package.json ./apps/frontend/
 COPY --from=builder /usr/src/apps/frontend/tsconfig*.json ./apps/frontend/
 COPY --from=builder /usr/src/apps/frontend ./apps/frontend/
 
@@ -113,6 +123,8 @@ RUN if [ "$BUILD_ENV" = "production" ]; then \
 
 # node_modulesのコピー（builderステージでprune済み）
 COPY --from=builder /usr/src/node_modules ./node_modules/
+COPY --from=builder /usr/src/apps/frontend/node_modules ./apps/frontend/node_modules/
+COPY --from=builder /usr/src/apps/backend/node_modules ./apps/backend/node_modules/
 
 # 設定ファイルのコピー
 COPY ecosystem.config.cjs ./

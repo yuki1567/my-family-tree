@@ -1,5 +1,3 @@
-import type { ErrorResponse } from '@shared/api/common'
-import { ApiErrorResponseSchema } from '@shared/api/common'
 import type { Person, PersonForm } from '@/types/person'
 import { useRpcClient } from './useRpcClient'
 
@@ -24,7 +22,7 @@ export const usePersonApi = () => {
 
   const createPerson = async (
     formData: PersonForm
-  ): Promise<{ data: Person } | { error: ErrorResponse }> => {
+  ): Promise<{ data: Person } | { error: { errorCode: string; details?: { field: string; code: string }[] } }> => {
     const requestBody = {
       ...formData,
       gender: convertGenderToNumber(formData.gender),
@@ -35,21 +33,12 @@ export const usePersonApi = () => {
         json: requestBody,
       })
 
-      if (!response.ok) {
-        const errorBody = await response.json()
-        const errorResult = ApiErrorResponseSchema.safeParse(errorBody)
-        if (errorResult.success) {
-          return { error: errorResult.data.error }
-        }
+      const body = await response.json()
 
-        return {
-          error: {
-            errorCode: 'UNKNOWN_ERROR',
-          },
-        }
+      if ('error' in body) {
+        return { error: body.error }
       }
 
-      const body = await response.json()
       return {
         data: {
           ...body.data,

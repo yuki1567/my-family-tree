@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "dev:types": "tsc --watch --emitDeclarationOnly",
+    "build": "tsc --emitDeclarationOnly"
+  },
   "exports": {
     "./types/*": "./types/*.ts",
     "./api/*": "./api/*.ts"

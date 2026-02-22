@@ -45,7 +45,7 @@ async function waitForDatabaseConnection(): Promise<void> {
 }
 
 async function ensureMigrations(): Promise<void> {
-  await execAsync('npm run test:db:migrate', {
+  await execAsync('pnpm run test:db:migrate', {
     cwd: backendDir,
   })
 }

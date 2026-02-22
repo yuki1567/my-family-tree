@@ -21,6 +21,7 @@ apps/backend/database/migrations/
 # Lock Files (large, not useful for context)
 # ==============================================
 package-lock.json
+pnpm-lock.yaml
 
 # ==============================================
 # Test Coverage
@@ -43,3 +44,8 @@ coverage/
 # Production Config (not needed for development)
 # ==============================================
 production/
+
+# ==============================================
+# Turborepo
+# ==============================================
+.turbo/

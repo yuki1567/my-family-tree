@@ -12,8 +12,9 @@
     "paths": {
       "@/*": ["./*"],
       "@shared/*": ["../../apps/shared/*"],
-      "@backend/*": ["../../apps/backend/*"]
+      "@backend/*": ["../../apps/backend/dist/*"]
     }
   },
+  "references": [{ "path": "../shared" }, { "path": "../backend" }],
   "include": ["./**/*.ts", "./**/*.vue", ".nuxt/types/**/*.d.ts"]
 }

@@ -65,7 +65,6 @@
 
 <script setup lang="ts">
 import { UserIcon, UsersIcon } from '@heroicons/vue/24/outline'
-import type { ErrorResponse } from '@shared/api/common'
 import { type Component, reactive, ref, watch } from 'vue'
 import AppButton from '@/components/atoms/AppButton.vue'
 import FormField from '@/components/atoms/FormField.vue'
@@ -82,7 +81,7 @@ type RadioOption = {
 }
 
 type Props = {
-  error?: ErrorResponse
+  error?: { errorCode: string; details?: { field: string; code: string }[] }
 }
 
 type Emits = {

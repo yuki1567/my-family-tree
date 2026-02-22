@@ -1,0 +1,44 @@
+{
+  "tasks": {
+    "build": {
+      "outputs": [
+        "dist/**",
+        ".output/**",
+        ".nuxt/**"
+      ]
+    },
+    "type-check": {
+      "outputs": []
+    },
+    "@family-tree-app/backend#type-check": {
+      "dependsOn": ["@family-tree-app/shared#build"],
+      "outputs": []
+    },
+    "@family-tree-app/frontend#type-check": {
+      "dependsOn": ["@family-tree-app/shared#build", "@family-tree-app/backend#build"],
+      "outputs": []
+    },
+    "@family-tree-app/backend#build": {
+      "dependsOn": ["@family-tree-app/shared#build"],
+      "outputs": ["dist/**"]
+    },
+    "lint": {
+      "outputs": []
+    },
+    "test:unit": {
+      "outputs": []
+    },
+    "test:integration": {
+      "cache": false,
+      "outputs": []
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev:types": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}
