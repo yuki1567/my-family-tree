@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@9.14.4",
+  "packageManager": "pnpm@10.30.1",
   "scripts": {
     "dev:frontend": "pnpm --filter @family-tree-app/frontend dev",
     "dev:backend": "pnpm --filter @family-tree-app/backend dev",
@@ -32,7 +32,7 @@
     "@biomejs/biome": "2.3.15",
     "@types/node": "24.2.1",
     "dotenv": "17.2.2",
-    "turbo": "^2.3.3",
+    "turbo": "2.8.10",
     "tsx": "4.20.5",
     "typescript": "5.9.2"
   }
