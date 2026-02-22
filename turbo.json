@@ -10,6 +10,18 @@
     "type-check": {
       "outputs": []
     },
+    "@family-tree-app/backend#type-check": {
+      "dependsOn": ["@family-tree-app/shared#build"],
+      "outputs": []
+    },
+    "@family-tree-app/frontend#type-check": {
+      "dependsOn": ["@family-tree-app/shared#build", "@family-tree-app/backend#build"],
+      "outputs": []
+    },
+    "@family-tree-app/backend#build": {
+      "dependsOn": ["@family-tree-app/shared#build"],
+      "outputs": ["dist/**"]
+    },
     "lint": {
       "outputs": []
     },
@@ -21,6 +33,10 @@
       "outputs": []
     },
     "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev:types": {
       "cache": false,
       "persistent": true
     }

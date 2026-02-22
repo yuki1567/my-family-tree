@@ -24,7 +24,6 @@
 </template>
 
 <script setup lang="ts">
-import type { ErrorResponse } from '@shared/api/common'
 import { ref } from 'vue'
 import EmptyState from '@/components/molecules/EmptyState.vue'
 import PersonCard from '@/components/molecules/PersonCard.vue'
@@ -37,7 +36,7 @@ const personData = ref<Person | undefined>(undefined)
 const { createPerson } = usePersonApi()
 
 const showAddPersonModal = ref(false)
-const error = ref<ErrorResponse | undefined>(undefined)
+const error = ref<{ errorCode: string; details?: { field: string; code: string }[] } | undefined>(undefined)
 
 const openAddPersonModal = () => {
   error.value = undefined

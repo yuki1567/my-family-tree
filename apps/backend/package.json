@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch --clear-screen=false server.ts",
+    "dev:types": "tsc --watch --emitDeclarationOnly",
     "build": "tsc",
     "start": "node dist/server.js",
     "type-check": "tsc --noEmit",

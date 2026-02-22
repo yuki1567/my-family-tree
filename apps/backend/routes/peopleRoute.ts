@@ -1,48 +1,26 @@
-import { createRoute, OpenAPIHono } from '@hono/zod-openapi'
-import {
-  CreatePersonRequestSchema,
-  CreatePersonResponseSchema,
-} from '@shared/api/persons.js'
-import { PersonRepository } from '../repositories/personRepository.js'
-import { PersonService } from '../services/personService.js'
+import { Hono } from 'hono'
+import { ErrorCodeSchema } from '@shared/api/common.js'
+import { CreatePersonRequestSchema } from '@shared/api/persons.js'
+import { PersonRepository } from '@/repositories/personRepository.js'
+import { PersonService } from '@/services/personService.js'
 
 const personRepository = new PersonRepository()
 const personService = new PersonService(personRepository)
 
-const createPersonRoute = createRoute({
-  method: 'post',
-  path: '/people',
-  request: {
-    body: {
-      content: {
-        'application/json': {
-          schema: CreatePersonRequestSchema,
-        },
-      },
-    },
-  },
-  responses: {
-    201: {
-      content: {
-        'application/json': {
-          schema: CreatePersonResponseSchema,
-        },
-      },
-      description: '人物作成成功',
-    },
-  },
-})
+const app = new Hono()
 
-const app = new OpenAPIHono()
+export const peopleRoutes = app.post('/people', async (c) => {
+  const body = await c.req.json()
+  const parsed = CreatePersonRequestSchema.safeParse(body)
 
-export const peopleRoutes = app.openapi(createPersonRoute, async (c) => {
-  const validatedData = c.req.valid('json')
-  const result = await personService.create(validatedData)
+  if (!parsed.success) {
+    const details = parsed.error.issues.map((issue) => ({
+      field: issue.path.map(String).join('.'),
+      code: issue.message,
+    }))
+    return c.json({ error: { errorCode: ErrorCodeSchema.enum.VALIDATION_ERROR, details } }, 400)
+  }
 
-  return c.json(
-    {
-      data: result,
-    },
-    201
-  )
+  const result = await personService.create(parsed.data)
+  return c.json({ data: result }, 201)
 })
