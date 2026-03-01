@@ -20,11 +20,14 @@
   "dependencies": {
     "@heroicons/vue": "2.2.0",
     "@pinia/nuxt": "0.5.5",
+    "@vueuse/core": "13.9.0",
     "@vueuse/integrations": "13.9.0",
+    "@vueuse/shared": "13.9.0",
     "focus-trap": "7.6.5",
     "modern-normalize": "3.0.1",
     "nuxt": "3.19.2",
     "pinia": "2.2.4",
+    "tabbable": "6.4.0",
     "vue": "3.5.10",
     "zod": "4.1.11"
   },
