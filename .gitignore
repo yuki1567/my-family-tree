@@ -11,6 +11,8 @@ build/
 .nuxt/
 .output/
 *.map
+*.tsbuildinfo
+node-compile-cache/
 
 # ==============================================
 # Test Coverage
@@ -45,3 +47,8 @@ docker-compose.override.yml
 .claude/tmp/
 .claude/plans/
 .mcp.json
+
+# ==============================================
+# MCP Server Files
+# ==============================================
+.playwright-mcp/
