@@ -1,37 +1,36 @@
 ---
 name: codex-review
-description: Codex MCPを使用して現在のブランチのPull Requestをコードレビューする
+description: Review Pull Request changes on the current branch using Codex MCP, based on project coding conventions. No arguments required.
 disable-model-invocation: true
-user-invocable: true
-allowed-tools: Bash, mcp__codex__codex, Read, Glob, Grep
+user-invokable: true
 ---
 
-# Codex PRレビュースキル
+# Codex PR Review Skill
 
-現在のブランチに紐づくPull Requestの変更内容をCodex MCPで分析し、プロジェクト規約に基づいた日本語コードレビューを提供する。
+Analyze Pull Request changes associated with the current branch using Codex MCP, and provide a code review in Japanese based on project conventions.
 
-## 実行手順
+## Execution Steps
 
-### ステップ1: PR情報の収集
+### Step 1: Collect PR Information
 
-現在のブランチに紐づくPRを自動取得する。引数は不要。
+Automatically retrieve the PR associated with the current branch. No arguments required.
 
 ```bash
-# PR詳細情報の取得（現在のブランチから自動取得）
+# Get PR details (auto-detected from current branch)
 gh pr view --json number,title,body,labels,files
 
-# PR差分の取得
+# Get PR diff
 gh pr diff
 
-# PRで変更されたファイル一覧
+# Get list of changed files
 gh pr diff --name-only
 ```
 
-PRが見つからない場合は「現在のブランチにPRが存在しません。先にPRを作成してください。」と表示して終了する。
+If no PR is found, display "現在のブランチにPRが存在しません。先にPRを作成してください。" and stop.
 
-### ステップ2: プロジェクトルールの読み込み
+### Step 2: Load Project Rules
 
-以下のルールファイルをすべて読み込み、Codexプロンプトに埋め込むための規約情報として保持する:
+Read all of the following rule files and retain them as convention information to embed in the Codex prompt:
 
 - `.claude/rules/coding-standards.md`
 - `.claude/rules/code-quality.md`
@@ -41,19 +40,19 @@ PRが見つからない場合は「現在のブランチにPRが存在しませ�
 - `.claude/rules/frontend/conventions.md`
 - `.claude/rules/frontend/testing.md`
 
-### ステップ3: Codex MCPでレビュー実行
+### Step 3: Execute Review via Codex MCP
 
-収集したPR情報とプロジェクトルールを使って、`mcp__codex__codex` を呼び出す。
+Call `mcp__codex__codex` using the collected PR information and project rules.
 
-**パラメータ:**
+**Parameters:**
 
-- `cwd`: プロジェクトルートパス
+- `cwd`: Project root path
 - `sandbox`: `read-only`
 - `approval-policy`: `never`
 
-**promptテンプレート:**
+**Prompt template:**
 
-以下のテンプレートの `[...]` 部分をステップ1・2で収集した情報で埋めてプロンプトを構築する:
+Fill the `[...]` placeholders below with information gathered in Steps 1 and 2 to construct the prompt:
 
 ```
 あなたはFamily Treeプロジェクト（Nuxt.js v3 + Hono + Drizzle ORM + PostgreSQL）の熟練コードレビュアーです。
@@ -174,10 +173,10 @@ PR #[PR番号]: [PRタイトル]
 [PRの優れている点を具体的に挙げる]
 ```
 
-### ステップ4: レビュー結果の表示
+### Step 4: Display Review Results
 
-Codexからのレビュー結果をそのままユーザーに表示する。
+Display the review results from Codex directly to the user.
 
-**注意事項:**
-- PR差分が500行を超える場合は、変更ファイル一覧を先に提示し、重要なファイルに絞ってレビューするか確認する
-- 差分がCodexのコンテキストに収まらない場合は、ファイル単位で分割して複数回レビューを実行する
+**Notes:**
+- If the PR diff exceeds 500 lines, present the list of changed files first and confirm whether to focus the review on key files
+- If the diff does not fit within the Codex context, split into file-level chunks and run multiple reviews
